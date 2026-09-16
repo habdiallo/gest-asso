@@ -1,0 +1,162 @@
+<div class="grid min-h-screen min-[1181px]:grid-cols-[1.05fr_0.95fr]">
+  <section
+    class="login-hero relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] min-[1181px]:flex"
+  >
+    <div class="relative z-10 flex items-center gap-3">
+      <div
+        class="flex h-[38px] w-[38px] items-center justify-center rounded-[11px] bg-gold text-gold-ink shadow-[inset_0_1px_rgba(255,255,255,0.35),0_0_22px_var(--gold-wash)]"
+      >
+        <svg
+          class="h-[22px] w-[22px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 18V6l7 12V6l7 12V6" />
+          <path d="M3 3h18M3 21h18" />
+        </svg>
+      </div>
+      <div>
+        <div class="font-display text-2xl uppercase tracking-[0.11em]">
+          {{ 'app.brandName' | transloco }}
+        </div>
+        <div class="text-[8px] uppercase tracking-[0.16em] text-text-3">
+          {{ 'auth.login.brandCaption' | transloco }}
+        </div>
+      </div>
+    </div>
+
+    <div class="relative z-10 max-w-[540px]">
+      <div class="mb-2 text-[10px] uppercase tracking-[0.15em] text-gold">
+        {{ 'auth.login.associationName' | transloco }}
+      </div>
+      <h1
+        class="font-display uppercase tracking-[0.035em] text-[clamp(54px,6vw,88px)] leading-[0.92]"
+      >
+        {{ 'auth.login.heroTitleLine1' | transloco }}<br />{{
+          'auth.login.heroTitleLine2' | transloco
+        }}
+      </h1>
+      <p class="mt-4 max-w-[440px] text-base font-light leading-relaxed text-[#a5a9b4]">
+        {{ 'auth.login.heroDescription' | transloco }}
+      </p>
+    </div>
+  </section>
+
+  <section class="grid place-items-center bg-bg p-8 lg:p-12">
+    <form class="login-form w-full max-w-[420px]" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-[38px] w-[38px] items-center justify-center rounded-[11px] bg-gold text-gold-ink shadow-[inset_0_1px_rgba(255,255,255,0.35),0_0_22px_var(--gold-wash)]"
+        >
+          <svg
+            class="h-[22px] w-[22px]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 18V6l7 12V6l7 12V6" />
+            <path d="M3 3h18M3 21h18" />
+          </svg>
+        </div>
+        <div>
+          <div class="font-display text-2xl uppercase tracking-[0.11em] text-text">
+            {{ 'app.brandName' | transloco }}
+          </div>
+          <div class="text-[8px] uppercase tracking-[0.16em] text-text-3">
+            {{ 'auth.login.brandCaption' | transloco }}
+          </div>
+        </div>
+      </div>
+
+      <h2 class="mt-7 text-3xl text-text">{{ 'auth.login.heading' | transloco }}</h2>
+      <p class="mb-[30px] font-light text-text-2">{{ 'auth.login.subheading' | transloco }}</p>
+
+      <div class="mb-[17px]">
+        <label
+          for="identifier"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'auth.login.identifierLabel' | transloco }}
+        </label>
+        <input
+          id="identifier"
+          type="text"
+          formControlName="identifier"
+          autocomplete="username"
+          required
+          [attr.aria-invalid]="identifierInvalid() ? true : null"
+          [attr.aria-describedby]="identifierInvalid() ? 'identifier-error' : null"
+          class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        />
+        @if (identifierInvalid()) {
+          <p id="identifier-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'auth.login.identifierRequired' | transloco }}
+          </p>
+        }
+      </div>
+
+      <div class="mb-[17px]">
+        <label
+          for="password"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'auth.login.passwordLabel' | transloco }}
+        </label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          required
+          [attr.aria-invalid]="passwordInvalid() ? true : null"
+          [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
+          class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        />
+        @if (passwordInvalid()) {
+          <p id="password-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'auth.login.passwordRequired' | transloco }}
+          </p>
+        }
+      </div>
+
+      @if (errorMessage(); as errorKey) {
+        <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="submitting()"
+        class="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gold text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      >
+        {{ (submitting() ? 'auth.login.submitting' : 'auth.login.submit') | transloco }}
+        @if (!submitting()) {
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        }
+      </button>
+
+      <p class="mt-6 border-t border-line pt-5 text-[11px] leading-relaxed text-text-3">
+        {{ 'auth.login.note' | transloco }}
+      </p>
+    </form>
+  </section>
+</div>
