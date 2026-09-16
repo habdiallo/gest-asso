@@ -30,3 +30,14 @@
     inset 0 0 60px rgba(242, 202, 80, 0.05),
     0 0 90px rgba(242, 202, 80, 0.06);
 }
+
+/*
+ * Les champs portent déjà leur propre indicateur de focus (bordure dorée +
+ * halo, conforme au prototype .field input:focus). Le contour générique de
+ * :focus-visible (styles.css) s'ajoute par-dessus car il est déclaré après
+ * les utilitaires Tailwind dans la feuille globale ; la portée du composant
+ * (spécificité supérieure) le neutralise ici pour éviter le double anneau.
+ */
+.login-form input:focus-visible {
+  outline: none;
+}
