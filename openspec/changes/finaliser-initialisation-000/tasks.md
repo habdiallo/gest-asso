@@ -41,6 +41,10 @@ branche `000` encore ouverte. Critères d'acceptation : plus aucune regex active
       `.github/pull_request_template.md`, `openspec/config.yaml` et `openspec/TICKETS.md`.
 - [x] 4.3 [T-106] Exécuter `node scripts/sync-ai-capabilities.mjs --check` pour vérifier la parité
       Claude/Codex/Copilot après ces mises à jour.
+- [x] 4.4 [T-106] [P2, revue senior PR #9] Mettre à jour
+      `.claude/skills/code-review-senior/references/context.md` (« Livraison » décrivait encore
+      `000` comme actif) puis propager avec `node scripts/sync-ai-capabilities.mjs --write` vers
+      `.codex/` et `.github/`.
 
 ## 5. Ticket T-106 — Publication (PR vers main)
 

@@ -18,9 +18,10 @@
   de l'Opérateur. Une fonction associative n'est pas un rôle d'accès.
 - Une protection UI ne prouve pas une protection serveur. Établir la portée exacte
   du diff et de l'API avant de prétendre avoir identifié une faille exploitable.
-- Livraison : branche dédiée, ticket `000` jusqu'à la fin de l'initialisation,
-  PR vers `main`. Lire la configuration Git ; ne pas déduire une protection serveur
-  des seuls hooks et ne pas publier une revue à la place du mainteneur.
+- Livraison : branche dédiée avec un vrai numéro de ticket, PR vers `main`
+  (l'initialisation du projet, qui autorisait le marqueur `000`, est terminée).
+  Lire la configuration Git ; ne pas déduire une protection serveur des seuls
+  hooks et ne pas publier une revue à la place du mainteneur.
 
 Ne charger que les règles pertinentes. Si une spécification ou un appelant manque,
 nommer cette limite plutôt que combler le manque par une hypothèse.
