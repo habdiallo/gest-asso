@@ -27,8 +27,10 @@ builds Angular correspondants réussissent.
       `contribo-front/angular.json` pour les configurations `development`, `mock` et
       `production` de la cible `architect.build`.
 - [x] 2.2 [T-108] Vérifier `ng build --configuration production`, `ng build --configuration mock`
-      et `ng build` (development, par défaut) dans `contribo-front/` ; consigner les résultats
-      réels des trois builds.
+      et `ng build --configuration development` dans `contribo-front/` ; consigner les résultats
+      réels des trois builds. `ng build` sans configuration explicite reste en `production`
+      (`defaultConfiguration` de `architect.build`) ; `ng serve` sans configuration explicite
+      reste en `development` (`defaultConfiguration` de `architect.serve`).
 
 ## 3. Ticket T-108 — Documentation et livraison
 

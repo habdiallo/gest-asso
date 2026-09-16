@@ -132,7 +132,7 @@ reverse proxy pour `/api/v1` ; le proxy de développement n'est pas livré.
 ```text
 src/environments/
   environment.model.ts       interface Environment (contrat commun)
-  environment.ts             development (par défaut, sans build explicite)
+  environment.ts             development (valeur lue hors build Angular, ex. tests)
   environment.mock.ts        configuration Angular "mock"
   environment.production.ts  configuration Angular "production"
 ```
@@ -152,7 +152,10 @@ un point de lecture typé supplémentaire (l'intégration du client API avec
 Ces fichiers sont committés et publics dans le bundle client : n'y placer aucun
 secret ni valeur sensible. Après tout ajout de champ à `Environment`, vérifier que
 les trois fichiers restent alignés et que `ng build --configuration <config>`
-réussit pour chaque configuration touchée.
+réussit pour chaque configuration touchée. `ng build` sans configuration explicite
+utilise `production` (`defaultConfiguration` de la cible `architect.build`) ; `ng serve`
+sans configuration explicite utilise `development` (`defaultConfiguration` de la cible
+`architect.serve`).
 
 ## Adaptation de l'ancien projet
 

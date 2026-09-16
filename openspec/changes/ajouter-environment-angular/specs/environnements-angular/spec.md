@@ -36,7 +36,13 @@ configuration.
 - **THEN** le bundle résultant utilise les valeurs de `environment.mock.ts`, sans affecter le
   `fileReplacement` existant de `main.ts` vers `main.mock.ts`
 
-#### Scenario: Build en configuration development (par défaut)
-- **WHEN** `ng build` ou `ng serve` est exécuté sans configuration explicite dans
-  `contribo-front/`
-- **THEN** le bundle résultant utilise les valeurs de `environment.ts` (`production: false`)
+#### Scenario: Serve en configuration development (par défaut)
+- **WHEN** `ng serve` est exécuté sans configuration explicite dans `contribo-front/`
+- **THEN** le bundle résultant utilise les valeurs de `environment.ts` (`production: false`),
+  car `defaultConfiguration` de la cible `architect.serve` vaut `development`
+
+#### Scenario: Build sans configuration explicite (défaut production)
+- **WHEN** `ng build` est exécuté sans configuration explicite dans `contribo-front/`
+- **THEN** le bundle résultant utilise les valeurs de `environment.production.ts`
+  (`production: true`), car `defaultConfiguration` de la cible `architect.build` vaut
+  `production`
