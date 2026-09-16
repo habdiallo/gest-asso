@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeToggle } from '@shared/theme-toggle/theme-toggle';
 import { LogoutButton } from '@shared/logout-button/logout-button';
+import { NavigationMenu } from '@shared/navigation-menu/navigation-menu';
 import { SessionService } from '@core/session/session.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ThemeToggle, LogoutButton],
+  imports: [RouterOutlet, ThemeToggle, LogoutButton, NavigationMenu],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
