@@ -93,6 +93,27 @@ describe('NavigationMenu', () => {
     ]);
   });
 
+  it('renders the Operator items limited to consultation (membres, campagnes, cagnottes, mon espace)', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('OPERATOR'));
+
+    const fixture = TestBed.createComponent(NavigationMenu);
+    fixture.detectChanges();
+
+    const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
+    expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Membres',
+      'Campagnes',
+      'Cagnottes',
+      'Mon espace',
+    ]);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/membres',
+      '/campagnes',
+      '/cagnottes',
+      '/mon-espace',
+    ]);
+  });
+
   it('renders nothing for a role without a menu defined yet', () => {
     TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER'));
 
