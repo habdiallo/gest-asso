@@ -1,0 +1,2474 @@
+openapi: 3.1.0
+info:
+  title: Nimba - API de gestion associative
+  version: 1.0.0-mvp
+  description: |
+    Contrat API du MVP Nimba. Les montants sont exprimés en francs guinéens (GNF),
+    sous forme d'entiers sans sous-unité. L'API ne déclenche aucun paiement : elle
+    enregistre uniquement des encaissements constatés par un utilisateur autorisé.
+servers:
+  - url: /api/v1
+    description: Point d'entrée relatif du MVP
+tags:
+  - name: Authentification
+    description: Ouverture de session sans inscription libre.
+  - name: Tableau de bord
+    description: Données agrégées nécessaires aux écrans d'accueil.
+  - name: Espace personnel
+    description: Profil et historique de l'utilisateur connecté.
+  - name: Membres
+    description: Répertoire et gestion des membres.
+  - name: Catégories de revenu
+    description: Référentiel des catégories sans montant permanent.
+  - name: Utilisateurs et rôles
+    description: Comptes, rôles applicatifs et autorisation des opérateurs.
+  - name: Campagnes
+    description: Campagnes, barèmes, cotisations et clôture.
+  - name: Règlements
+    description: Encaissements constatés sur les cotisations.
+  - name: Cagnottes
+    description: Collectes sociales indépendantes des cotisations.
+  - name: Contributions
+    description: Contributions constatées sur les cagnottes.
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      tags: [Authentification]
+      summary: Se connecter
+      description: Authentifie un compte créé par l'association. Aucune inscription libre n'est proposée.
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Session ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dashboard:
+    get:
+      tags: [Tableau de bord]
+      summary: Consulter le tableau de bord adapté au rôle
+      description: |
+        Retourne une vue membre pour le rôle MEMBRE et une vue de gestion pour les autres rôles.
+        Les agrégats financiers de gestion sont accessibles aux Administrateurs, Trésoriers et
+        Opérateurs autorisés. Un Opérateur non autorisé reçoit uniquement les indicateurs non financiers.
+      operationId: getDashboard
+      parameters:
+        - $ref: '#/components/parameters/DashboardCampaignId'
+        - $ref: '#/components/parameters/DashboardSocialFundId'
+      responses:
+        '200':
+          description: Tableau de bord du compte connecté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /me:
+    get:
+      tags: [Espace personnel]
+      summary: Consulter mon compte et mon profil membre
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Compte et membre associés à la session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /me/dues:
+    get:
+      tags: [Espace personnel]
+      summary: Consulter mes cotisations
+      operationId: listMyDues
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DueStatusFilter'
+      responses:
+        '200':
+          description: Cotisations du membre connecté, de la plus récente à la plus ancienne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /me/contributions:
+    get:
+      tags: [Espace personnel]
+      summary: Consulter mes contributions aux cagnottes
+      operationId: listMyContributions
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Contributions du membre connecté, de la plus récente à la plus ancienne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /members:
+    get:
+      tags: [Membres]
+      summary: Lister les membres
+      description: Réservé aux Administrateurs, Trésoriers et Opérateurs.
+      operationId: listMembers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/MemberStatusFilter'
+      responses:
+        '200':
+          description: Page de membres triés par nom puis prénom.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Membres]
+      summary: Ajouter un membre
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Le membre est créé ACTIF et son compte
+        utilisateur de rôle MEMBRE est créé dans la même transaction. Aucune cotisation n'est créée.
+      operationId: createMember
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMemberRequest'
+      responses:
+        '201':
+          description: Membre et compte associé créés.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /members/{memberId}:
+    get:
+      tags: [Membres]
+      summary: Consulter la fiche d'un membre
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs. Un Membre ne peut consulter
+        que sa propre fiche via GET /me.
+      operationId: getMember
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      responses:
+        '200':
+          description: Fiche du membre et synthèse de sa situation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags: [Membres]
+      summary: Modifier les informations complètes d'un membre
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Le statut n'est pas modifiable par cette
+        opération : la désactivation possède une opération dédiée. Une nouvelle catégorie ne
+        modifie jamais les cotisations déjà établies.
+      operationId: updateMember
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberRequest'
+      responses:
+        '200':
+          description: Membre modifié.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /members/{memberId}/contact:
+    patch:
+      tags: [Membres]
+      summary: Modifier les informations non structurantes d'un membre
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs. Cette opération est limitée
+        au nom d'usage, au téléphone, au pays et à la ville.
+      operationId: updateMemberContact
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberContactRequest'
+      responses:
+        '200':
+          description: Coordonnées modifiées.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /members/{memberId}/dues:
+    get:
+      tags: [Membres]
+      summary: Consulter les cotisations d'un membre
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs pour alimenter la fiche membre.
+        Le membre connecté utilise GET /me/dues pour consulter ses propres données.
+      operationId: listMemberDues
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DueStatusFilter'
+      responses:
+        '200':
+          description: Cotisations du membre, de la plus récente à la plus ancienne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /members/{memberId}/deactivation:
+    post:
+      tags: [Membres]
+      summary: Désactiver un membre
+      description: |
+        Réservé aux Administrateurs. La désactivation ne supprime ni le membre, ni son historique
+        financier. Une seconde désactivation est refusée par un conflit métier.
+      operationId: deactivateMember
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      responses:
+        '200':
+          description: Membre désactivé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /income-categories:
+    get:
+      tags: [Catégories de revenu]
+      summary: Lister les catégories de revenu
+      description: Sert notamment à initialiser les formulaires de membre et de campagne.
+      operationId: listIncomeCategories
+      responses:
+        '200':
+          description: Catégories triées par libellé.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomeCategory'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Catégories de revenu]
+      summary: Créer une catégorie de revenu
+      description: Réservé aux Administrateurs. Aucun montant de cotisation n'est associé à la catégorie.
+      operationId: createIncomeCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeCategoryRequest'
+      responses:
+        '201':
+          description: Catégorie créée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeCategory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /income-categories/{incomeCategoryId}:
+    get:
+      tags: [Catégories de revenu]
+      summary: Consulter une catégorie de revenu
+      operationId: getIncomeCategory
+      parameters:
+        - $ref: '#/components/parameters/IncomeCategoryId'
+      responses:
+        '200':
+          description: Catégorie demandée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeCategory'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags: [Catégories de revenu]
+      summary: Modifier une catégorie de revenu
+      description: Réservé aux Administrateurs. La modification ne change aucune cotisation historique.
+      operationId: updateIncomeCategory
+      parameters:
+        - $ref: '#/components/parameters/IncomeCategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeCategoryRequest'
+      responses:
+        '200':
+          description: Catégorie modifiée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeCategory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users:
+    get:
+      tags: [Utilisateurs et rôles]
+      summary: Lister les comptes utilisateurs
+      description: Réservé aux Administrateurs.
+      operationId: listUsers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/UserRoleFilter'
+      responses:
+        '200':
+          description: Page de comptes utilisateurs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{userId}:
+    get:
+      tags: [Utilisateurs et rôles]
+      summary: Consulter la configuration d'un compte
+      description: Réservé aux Administrateurs.
+      operationId: getUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Compte demandé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [Utilisateurs et rôles]
+      summary: Attribuer un rôle et configurer un opérateur
+      description: |
+        Réservé aux Administrateurs. operatorCanRecordPayments doit être false pour tout rôle
+        différent de OPERATOR. Le rôle applicatif ne modifie ni le statut ni la fonction associative.
+      operationId: updateUserAccess
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserAccessRequest'
+      responses:
+        '200':
+          description: Accès du compte modifié.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /campaigns:
+    get:
+      tags: [Campagnes]
+      summary: Lister les campagnes de cotisation
+      description: Accessible aux Administrateurs, Trésoriers et Opérateurs.
+      operationId: listCampaigns
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/CampaignStatusFilter'
+      responses:
+        '200':
+          description: Page de campagnes, de la plus récente à la plus ancienne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Campagnes]
+      summary: Créer une campagne et établir ses cotisations
+      description: |
+        Réservé aux Administrateurs et Trésoriers. La création est atomique : elle photographie
+        les membres actifs, leur catégorie et le montant correspondant au barème fourni. Les membres
+        inactifs sont exclus. Aucun changement ultérieur de catégorie ne modifie ces cotisations.
+      operationId: createCampaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignRequest'
+      responses:
+        '201':
+          description: Campagne et cotisations créées.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /campaigns/{campaignId}:
+    get:
+      tags: [Campagnes]
+      summary: Consulter une campagne
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Campagne, barème et bilan financier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /campaigns/{campaignId}/category-amounts:
+    put:
+      tags: [Campagnes]
+      summary: Modifier le barème d'une campagne à venir
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Pour préserver l'historique, le MVP autorise
+        cette modification uniquement avant la date de début et tant qu'aucun règlement n'existe.
+        Les cotisations établies sont recalculées atomiquement selon le nouveau barème.
+      operationId: updateCampaignCategoryAmounts
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignCategoryAmountsRequest'
+      responses:
+        '200':
+          description: Campagne et cotisations recalculées.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /campaigns/{campaignId}/dues:
+    get:
+      tags: [Campagnes]
+      summary: Consulter les cotisations d'une campagne
+      description: Accessible aux Administrateurs, Trésoriers et Opérateurs.
+      operationId: listCampaignDues
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/DueStatusFilter'
+      responses:
+        '200':
+          description: Cotisations et montants agrégés de la campagne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /campaigns/{campaignId}/closure:
+    post:
+      tags: [Campagnes]
+      summary: Clôturer une campagne
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Une campagne clôturée reste consultable,
+        mais n'accepte plus de modification ni de nouveau règlement.
+      operationId: closeCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Campagne clôturée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dues/{dueId}:
+    get:
+      tags: [Campagnes]
+      summary: Consulter une cotisation et ses règlements
+      description: |
+        Accessible aux rôles de gestion autorisés. Un Membre ne peut consulter que sa propre cotisation.
+      operationId: getDue
+      parameters:
+        - $ref: '#/components/parameters/DueId'
+      responses:
+        '200':
+          description: Cotisation détaillée avec historique des règlements.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DueDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dues/{dueId}/payments:
+    post:
+      tags: [Règlements]
+      summary: Enregistrer un règlement de cotisation
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
+        Le montant doit être positif et ne peut pas dépasser le reste à payer. L'utilisateur et l'instant
+        de saisie sont déterminés par le serveur.
+      operationId: createPayment
+      parameters:
+        - $ref: '#/components/parameters/DueId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Règlement enregistré et situation recalculée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentCreationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /payments:
+    get:
+      tags: [Règlements]
+      summary: Lister les règlements
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
+        l'Opérateur est requise pour écrire un règlement, pas pour consulter un historique autorisé.
+      operationId: listPayments
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/MemberIdQuery'
+        - $ref: '#/components/parameters/CampaignIdQuery'
+      responses:
+        '200':
+          description: Règlements du plus récent au plus ancien.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-funds:
+    get:
+      tags: [Cagnottes]
+      summary: Lister les cagnottes sociales
+      description: Accessible aux Administrateurs, Trésoriers et Opérateurs autorisés.
+      operationId: listSocialFunds
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SocialFundStatusFilter'
+      responses:
+        '200':
+          description: Page de cagnottes sociales.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialFundPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Cagnottes]
+      summary: Créer une cagnotte sociale
+      description: Réservé aux Administrateurs et Trésoriers.
+      operationId: createSocialFund
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSocialFundRequest'
+      responses:
+        '201':
+          description: Cagnotte créée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialFund'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-funds/{socialFundId}:
+    get:
+      tags: [Cagnottes]
+      summary: Consulter une cagnotte sociale
+      operationId: getSocialFund
+      parameters:
+        - $ref: '#/components/parameters/SocialFundId'
+      responses:
+        '200':
+          description: Cagnotte et bilan de collecte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialFund'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-funds/{socialFundId}/contributions:
+    get:
+      tags: [Contributions]
+      summary: Lister les contributions d'une cagnotte
+      operationId: listSocialFundContributions
+      parameters:
+        - $ref: '#/components/parameters/SocialFundId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+      responses:
+        '200':
+          description: Contributions de la cagnotte, de la plus récente à la plus ancienne.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Contributions]
+      summary: Enregistrer une contribution à une cagnotte
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
+        La contribution est un encaissement déjà constaté. L'utilisateur et l'instant de saisie sont
+        déterminés par le serveur. Une cagnotte clôturée refuse toute contribution.
+      operationId: createContribution
+      parameters:
+        - $ref: '#/components/parameters/SocialFundId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContributionRequest'
+      responses:
+        '201':
+          description: Contribution enregistrée et bilan recalculé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionCreationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /social-funds/{socialFundId}/closure:
+    post:
+      tags: [Cagnottes]
+      summary: Clôturer une cagnotte sociale
+      description: Réservé aux Administrateurs et Trésoriers. Les contributions restent consultables.
+      operationId: closeSocialFund
+      parameters:
+        - $ref: '#/components/parameters/SocialFundId'
+      responses:
+        '200':
+          description: Cagnotte clôturée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialFund'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /contributions:
+    get:
+      tags: [Contributions]
+      summary: Lister les contributions aux cagnottes
+      description: |
+        Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
+        l'Opérateur est requise pour écrire une contribution, pas pour consulter l'historique
+        d'un membre autorisé.
+      operationId: listContributions
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/MemberIdQuery'
+        - $ref: '#/components/parameters/SocialFundIdQuery'
+      responses:
+        '200':
+          description: Contributions du plus récent au plus ancien.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /contributions/{contributionId}:
+    get:
+      tags: [Contributions]
+      summary: Consulter une contribution
+      description: |
+        Accessible aux rôles de gestion autorisés. Un Membre ne peut consulter que sa propre contribution.
+      operationId: getContribution
+      parameters:
+        - $ref: '#/components/parameters/ContributionId'
+      responses:
+        '200':
+          description: Contribution demandée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contribution'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Jeton d'accès obtenu avec POST /auth/login.
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Numéro de page indexé à partir de 0.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+    PageSize:
+      name: size
+      in: query
+      description: Nombre maximal d'éléments retournés.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+    SearchQuery:
+      name: q
+      in: query
+      description: Recherche textuelle insensible à la casse sur les libellés visibles de la ressource.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
+      example: Diallo
+    MemberStatusFilter:
+      name: status
+      in: query
+      description: Filtre sur le statut du membre.
+      schema:
+        $ref: '#/components/schemas/MemberStatus'
+    CampaignStatusFilter:
+      name: status
+      in: query
+      description: Filtre sur le statut de la campagne.
+      schema:
+        $ref: '#/components/schemas/CampaignStatus'
+    SocialFundStatusFilter:
+      name: status
+      in: query
+      description: Filtre sur le statut de la cagnotte.
+      schema:
+        $ref: '#/components/schemas/SocialFundStatus'
+    DueStatusFilter:
+      name: status
+      in: query
+      description: Filtre sur le statut de cotisation.
+      schema:
+        $ref: '#/components/schemas/DueStatus'
+    UserRoleFilter:
+      name: role
+      in: query
+      description: Filtre sur le rôle applicatif.
+      schema:
+        $ref: '#/components/schemas/UserRole'
+    MemberId:
+      name: memberId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IncomeCategoryId:
+      name: incomeCategoryId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CampaignId:
+      name: campaignId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DueId:
+      name: dueId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SocialFundId:
+      name: socialFundId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ContributionId:
+      name: contributionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MemberIdQuery:
+      name: memberId
+      in: query
+      description: Limite les opérations à un membre.
+      schema:
+        type: string
+        format: uuid
+    CampaignIdQuery:
+      name: campaignId
+      in: query
+      description: Limite les règlements à une campagne.
+      schema:
+        type: string
+        format: uuid
+    SocialFundIdQuery:
+      name: socialFundId
+      in: query
+      description: Limite les contributions à une cagnotte.
+      schema:
+        type: string
+        format: uuid
+    DashboardCampaignId:
+      name: campaignId
+      in: query
+      description: Campagne utilisée pour les indicateurs financiers de gestion.
+      schema:
+        type: string
+        format: uuid
+    DashboardSocialFundId:
+      name: socialFundId
+      in: query
+      description: Cagnotte utilisée pour les indicateurs financiers de gestion.
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Requête invalide ou validation échouée.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: VALIDATION_ERROR
+            message: La requête contient des valeurs invalides.
+            fieldErrors:
+              - field: endDate
+                code: DATE_RANGE_INVALID
+                message: La date de fin doit être postérieure ou égale à la date de début.
+    Unauthorized:
+      description: Authentification absente ou invalide.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: AUTHENTICATION_REQUIRED
+            message: Une authentification valide est requise.
+    Forbidden:
+      description: Le rôle ou l'autorisation du compte ne permet pas cette action.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: ACCESS_DENIED
+            message: Vous n'êtes pas autorisé à effectuer cette action.
+    NotFound:
+      description: Ressource introuvable ou non visible par le compte connecté.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RESOURCE_NOT_FOUND
+            message: La ressource demandée est introuvable.
+    Conflict:
+      description: L'action viole une règle métier ou l'état courant de la ressource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            overpayment:
+              value:
+                code: PAYMENT_EXCEEDS_REMAINING_AMOUNT
+                message: Le montant dépasse le reste à payer.
+            closedResource:
+              value:
+                code: RESOURCE_CLOSED
+                message: La ressource est clôturée et n'accepte plus cette action.
+    InternalServerError:
+      description: Erreur interne non prévue.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INTERNAL_ERROR
+            message: Une erreur interne est survenue.
+
+  schemas:
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [identifier, password]
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          maxLength: 150
+          description: Identifiant de connexion communiqué par l'association.
+          example: moussa.bah
+        password:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 200
+          writeOnly: true
+          example: mot-de-passe
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required: [accessToken, tokenType, expiresIn, user]
+      properties:
+        accessToken:
+          type: string
+          minLength: 1
+          description: Jeton à transmettre dans l'en-tête Authorization.
+        tokenType:
+          type: string
+          enum: [Bearer]
+        expiresIn:
+          type: integer
+          minimum: 1
+          description: Durée de validité du jeton en secondes.
+          example: 3600
+        user:
+          $ref: '#/components/schemas/CurrentUser'
+
+    UserRole:
+      type: string
+      description: Rôle applicatif, indépendant de la fonction associative.
+      enum: [ADMINISTRATOR, TREASURER, OPERATOR, MEMBER]
+      example: OPERATOR
+    MemberStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+      example: ACTIVE
+    CampaignStatus:
+      type: string
+      description: UPCOMING avant la date de début, OPEN à partir du début et jusqu'à la clôture explicite, CLOSED après clôture.
+      enum: [UPCOMING, OPEN, CLOSED]
+      example: OPEN
+    DueStatus:
+      type: string
+      description: |
+        DUE si aucun règlement n'existe, PARTIALLY_PAID si le total payé est intermédiaire,
+        PAID si le reste vaut zéro, OVERDUE si l'échéance est dépassée avec un reste positif.
+      enum: [DUE, PARTIALLY_PAID, PAID, OVERDUE]
+      example: PARTIALLY_PAID
+    SocialFundStatus:
+      type: string
+      enum: [OPEN, CLOSED]
+      example: OPEN
+    PaymentMethod:
+      type: string
+      enum: [CASH, MOBILE_MONEY, BANK_TRANSFER]
+      example: MOBILE_MONEY
+    SocialEventType:
+      type: string
+      enum: [WEDDING, BAPTISM, DEATH, BIRTH, OTHER]
+      example: WEDDING
+    CurrencyCode:
+      type: string
+      enum: [GNF]
+      example: GNF
+
+    CurrentUser:
+      type: object
+      additionalProperties: false
+      required: [userId, association, member, role, operatorCanRecordPayments, accountActive]
+      properties:
+        userId:
+          type: string
+          format: uuid
+          readOnly: true
+        association:
+          $ref: '#/components/schemas/AssociationSummary'
+        member:
+          $ref: '#/components/schemas/MemberSummary'
+        role:
+          $ref: '#/components/schemas/UserRole'
+        operatorCanRecordPayments:
+          type: boolean
+          description: Attribut significatif uniquement lorsque role vaut OPERATOR; false sinon.
+          example: true
+        accountActive:
+          type: boolean
+          readOnly: true
+          example: true
+
+    DashboardResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ManagementDashboard'
+        - $ref: '#/components/schemas/MemberDashboard'
+      discriminator:
+        propertyName: view
+        mapping:
+          MANAGEMENT: '#/components/schemas/ManagementDashboard'
+          MEMBER: '#/components/schemas/MemberDashboard'
+    ManagementDashboard:
+      type: object
+      additionalProperties: false
+      required: [view, asOf, viewer, activeMemberCount, registeredMemberCount, newMemberCountThisMonth, openCampaignCount, recentCampaigns]
+      properties:
+        view:
+          type: string
+          enum: [MANAGEMENT]
+        asOf:
+          type: string
+          format: date-time
+          readOnly: true
+        viewer:
+          $ref: '#/components/schemas/CurrentUser'
+        activeMemberCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 86
+        registeredMemberCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 91
+        newMemberCountThisMonth:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 3
+        openCampaignCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 2
+        recentCampaigns:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/CampaignSummary'
+        financialOverview:
+          description: Absent pour un Opérateur non autorisé à consulter le bilan financier.
+          $ref: '#/components/schemas/ManagementFinancialOverview'
+    ManagementFinancialOverview:
+      type: object
+      additionalProperties: false
+      required: [recentPayments]
+      properties:
+        selectedCampaign:
+          $ref: '#/components/schemas/CampaignSummary'
+        selectedSocialFund:
+          $ref: '#/components/schemas/SocialFundSummary'
+        recentPayments:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/Payment'
+    MemberDashboard:
+      type: object
+      additionalProperties: false
+      required: [view, asOf, viewer, unpaidDueCount, totalRemainingAmount, paidDueCount, totalContributionAmount, contributedSocialFundCount, currency, recentDues]
+      properties:
+        view:
+          type: string
+          enum: [MEMBER]
+        asOf:
+          type: string
+          format: date-time
+          readOnly: true
+        viewer:
+          $ref: '#/components/schemas/CurrentUser'
+        unpaidDueCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+        totalRemainingAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        paidDueCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+        totalContributionAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        contributedSocialFundCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 3
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        recentDues:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/Due'
+
+    PersonSummary:
+      type: object
+      additionalProperties: false
+      required: [id, displayName]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 201
+          readOnly: true
+          example: Amadou Diallo
+    AssociationSummary:
+      type: object
+      additionalProperties: false
+      required: [id, name, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+          readOnly: true
+          example: Union Nimba Conakry
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    AuditActor:
+      type: object
+      additionalProperties: false
+      required: [userId, displayName]
+      properties:
+        userId:
+          type: string
+          format: uuid
+          readOnly: true
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 201
+          readOnly: true
+          example: Aminata Touré
+
+    IncomeCategorySummary:
+      type: object
+      required: [id, label]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Catégorie B
+    IncomeCategory:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/IncomeCategorySummary'
+        - type: object
+          required: [memberCount, updatedAt]
+          properties:
+            memberCount:
+              type: integer
+              minimum: 0
+              readOnly: true
+              example: 31
+            updatedAt:
+              type: string
+              format: date-time
+              readOnly: true
+              example: '2026-09-02T10:15:00Z'
+    IncomeCategoryRequest:
+      type: object
+      additionalProperties: false
+      required: [label]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+          example: Catégorie A
+
+    MemberSummary:
+      type: object
+      required: [id, firstName, lastName, displayName, incomeCategory, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Amadou
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Diallo
+        preferredName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Bah
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 201
+          readOnly: true
+          example: Amadou Diallo
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Guinée
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Conakry
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 25
+          pattern: '^\+?[0-9][0-9 ()-]{6,24}$'
+          example: '+224 622 12 34 56'
+        incomeCategory:
+          $ref: '#/components/schemas/IncomeCategorySummary'
+        associationFunction:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Fonction descriptive sans effet automatique sur les droits applicatifs.
+          example: Président
+        status:
+          $ref: '#/components/schemas/MemberStatus'
+    MemberDetails:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/MemberSummary'
+        - type: object
+          required: [account, financialSummary]
+          properties:
+            account:
+              $ref: '#/components/schemas/UserAccountSummary'
+            financialSummary:
+              $ref: '#/components/schemas/MemberFinancialSummary'
+    MemberFinancialSummary:
+      type: object
+      additionalProperties: false
+      required: [totalDueAmount, totalPaidAmount, totalRemainingAmount, currency]
+      properties:
+        totalDueAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 250000
+        totalPaidAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 200000
+        totalRemainingAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 50000
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    CreateMemberRequest:
+      type: object
+      additionalProperties: false
+      required: [firstName, lastName, incomeCategoryId]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        preferredName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 25
+          pattern: '^\+?[0-9][0-9 ()-]{6,24}$'
+        incomeCategoryId:
+          type: string
+          format: uuid
+        associationFunction:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+    UpdateMemberRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        preferredName:
+          type: [string, 'null']
+          minLength: 1
+          maxLength: 100
+          description: La valeur null supprime le nom d'usage existant.
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 25
+          pattern: '^\+?[0-9][0-9 ()-]{6,24}$'
+        incomeCategoryId:
+          type: string
+          format: uuid
+        associationFunction:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+    UpdateMemberContactRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        preferredName:
+          type: [string, 'null']
+          minLength: 1
+          maxLength: 100
+          description: La valeur null supprime le nom d'usage existant.
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 25
+          pattern: '^\+?[0-9][0-9 ()-]{6,24}$'
+    MemberPage:
+      type: object
+      additionalProperties: false
+      required: [items, summary, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberSummary'
+        summary:
+          $ref: '#/components/schemas/MemberCountSummary'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    MemberCountSummary:
+      type: object
+      additionalProperties: false
+      required: [total, active, inactive]
+      description: Compteurs globaux du répertoire, indépendants du filtre de statut courant.
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 91
+        active:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 86
+        inactive:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 5
+
+    UserAccountSummary:
+      type: object
+      required: [id, role, operatorCanRecordPayments, active]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        role:
+          $ref: '#/components/schemas/UserRole'
+        operatorCanRecordPayments:
+          type: boolean
+          description: Doit valoir false si le rôle n'est pas OPERATOR.
+        active:
+          type: boolean
+          readOnly: true
+    UserAccount:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/UserAccountSummary'
+        - type: object
+          required: [member]
+          properties:
+            member:
+              $ref: '#/components/schemas/PersonSummary'
+    UpdateUserAccessRequest:
+      type: object
+      additionalProperties: false
+      required: [role, operatorCanRecordPayments]
+      properties:
+        role:
+          $ref: '#/components/schemas/UserRole'
+        operatorCanRecordPayments:
+          type: boolean
+          description: Autorisation globale de saisie financière; doit être false hors rôle OPERATOR.
+          example: true
+    UserAccountPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    CampaignSummary:
+      type: object
+      required: [id, name, startDate, endDate, status, memberCount]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: Solidarité septembre
+        startDate:
+          type: string
+          format: date
+          example: '2026-09-01'
+        endDate:
+          type: string
+          format: date
+          example: '2026-09-30'
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        memberCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 86
+        financialSummary:
+          description: Absent lorsque le rôle n'est pas autorisé à consulter le bilan financier.
+          $ref: '#/components/schemas/CampaignFinancialSummary'
+    Campaign:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/CampaignSummary'
+        - type: object
+          required: [categoryAmounts]
+          properties:
+            description:
+              type: string
+              maxLength: 1000
+              example: Campagne générale de soutien aux activités de l'association.
+            categoryAmounts:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/CampaignCategoryAmount'
+    CampaignFinancialSummary:
+      type: object
+      additionalProperties: false
+      required: [expectedAmount, collectedAmount, remainingAmount, collectionRate, dueCounts, currency]
+      properties:
+        expectedAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 18500000
+        collectedAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 12400000
+        remainingAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 6100000
+        collectionRate:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          readOnly: true
+          example: 67.0
+        dueCounts:
+          $ref: '#/components/schemas/DueCountSummary'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    DueCountSummary:
+      type: object
+      additionalProperties: false
+      required: [total, paid, partiallyPaid, unpaid]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 86
+        paid:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 38
+        partiallyPaid:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 27
+        unpaid:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 21
+    CampaignCategoryAmount:
+      type: object
+      additionalProperties: false
+      required: [incomeCategory, amount, memberCount, expectedAmount, currency]
+      properties:
+        incomeCategory:
+          $ref: '#/components/schemas/IncomeCategorySummary'
+        amount:
+          type: integer
+          format: int64
+          minimum: 0
+          example: 100000
+        memberCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 24
+        expectedAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 2400000
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    CampaignCategoryAmountInput:
+      type: object
+      additionalProperties: false
+      required: [incomeCategoryId, amount]
+      properties:
+        incomeCategoryId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Montant dû en GNF pour la catégorie dans cette campagne uniquement.
+          example: 100000
+    CreateCampaignRequest:
+      type: object
+      additionalProperties: false
+      required: [name, startDate, endDate, memberSelection, categoryAmounts]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: '.*\S.*'
+        description:
+          type: string
+          maxLength: 1000
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          description: Doit être postérieure ou égale à startDate.
+        memberSelection:
+          type: string
+          enum: [ALL_ACTIVE_MEMBERS]
+          description: Périmètre unique exposé par l'IHM du MVP.
+        categoryAmounts:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          description: Une entrée unique est requise pour chaque catégorie portée par un membre sélectionné.
+          items:
+            $ref: '#/components/schemas/CampaignCategoryAmountInput'
+    UpdateCampaignCategoryAmountsRequest:
+      type: object
+      additionalProperties: false
+      required: [categoryAmounts]
+      properties:
+        categoryAmounts:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/CampaignCategoryAmountInput'
+    CampaignPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignSummary'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    Due:
+      type: object
+      required: [id, member, campaign, incomeCategorySnapshot, dueAmount, paidAmount, remainingAmount, status, paymentCount, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        member:
+          $ref: '#/components/schemas/PersonSummary'
+        campaign:
+          $ref: '#/components/schemas/CampaignReference'
+        incomeCategorySnapshot:
+          $ref: '#/components/schemas/IncomeCategorySummary'
+        dueAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 100000
+        paidAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 50000
+        remainingAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 50000
+        status:
+          $ref: '#/components/schemas/DueStatus'
+        paymentCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 1
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    DueDetails:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/Due'
+        - type: object
+          required: [payments]
+          properties:
+            payments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Payment'
+    DuePage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Due'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    CampaignReference:
+      type: object
+      additionalProperties: false
+      required: [id, name, startDate, endDate, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+
+    Payment:
+      type: object
+      additionalProperties: false
+      required: [id, dueId, member, campaign, amount, paymentDate, method, recordedBy, recordedAt, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dueId:
+          type: string
+          format: uuid
+          readOnly: true
+        member:
+          $ref: '#/components/schemas/PersonSummary'
+        campaign:
+          $ref: '#/components/schemas/CampaignReference'
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 50000
+        paymentDate:
+          type: string
+          format: date
+          example: '2026-09-12'
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        recordedBy:
+          $ref: '#/components/schemas/AuditActor'
+        recordedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2026-09-12T14:32:00Z'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    CreatePaymentRequest:
+      type: object
+      additionalProperties: false
+      required: [amount, paymentDate, method]
+      properties:
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant en GNF, au plus égal au reste à payer au moment de l'enregistrement.
+          example: 50000
+        paymentDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+    PaymentCreationResponse:
+      type: object
+      additionalProperties: false
+      required: [payment, due]
+      properties:
+        payment:
+          $ref: '#/components/schemas/Payment'
+        due:
+          $ref: '#/components/schemas/Due'
+    PaymentPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    SocialFundSummary:
+      type: object
+      required: [id, title, eventType, beneficiary, startDate, endDate, status, collectedAmount, contributorCount, contributionCount, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: Mariage de Fanta et Sékou
+        eventType:
+          $ref: '#/components/schemas/SocialEventType'
+        beneficiary:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: Famille Camara
+        startDate:
+          type: string
+          format: date
+          example: '2026-09-05'
+        endDate:
+          type: string
+          format: date
+          example: '2026-09-28'
+        status:
+          $ref: '#/components/schemas/SocialFundStatus'
+        targetAmount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Objectif facultatif en GNF.
+          example: 7000000
+        collectedAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 4750000
+        remainingToTargetAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          description: Présent uniquement lorsqu'un objectif est défini; vaut zéro si l'objectif est dépassé.
+        progressRate:
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+          description: Présent uniquement lorsqu'un objectif est défini; peut dépasser 100.
+          example: 67.9
+        contributorCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 43
+        contributionCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 51
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    SocialFund:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/SocialFundSummary'
+        - type: object
+          properties:
+            description:
+              type: string
+              maxLength: 1000
+              example: Collecte de soutien à l'occasion du mariage.
+    CreateSocialFundRequest:
+      type: object
+      additionalProperties: false
+      required: [title, eventType, beneficiary, startDate, endDate]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+          pattern: '.*\S.*'
+        eventType:
+          $ref: '#/components/schemas/SocialEventType'
+        description:
+          type: string
+          maxLength: 1000
+        beneficiary:
+          type: string
+          minLength: 1
+          maxLength: 200
+          pattern: '.*\S.*'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          description: Doit être postérieure ou égale à startDate.
+        targetAmount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Objectif facultatif en GNF.
+    SocialFundPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialFundSummary'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    SocialFundReference:
+      type: object
+      additionalProperties: false
+      required: [id, title, eventType, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+        eventType:
+          $ref: '#/components/schemas/SocialEventType'
+        status:
+          $ref: '#/components/schemas/SocialFundStatus'
+
+    Contribution:
+      type: object
+      additionalProperties: false
+      required: [id, member, socialFund, amount, contributionDate, method, recordedBy, recordedAt, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        member:
+          $ref: '#/components/schemas/PersonSummary'
+        socialFund:
+          $ref: '#/components/schemas/SocialFundReference'
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 150000
+        contributionDate:
+          type: string
+          format: date
+          example: '2026-09-14'
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        recordedBy:
+          $ref: '#/components/schemas/AuditActor'
+        recordedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2026-09-14T09:05:00Z'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    CreateContributionRequest:
+      type: object
+      additionalProperties: false
+      required: [memberId, amount, contributionDate, method]
+      properties:
+        memberId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+    ContributionCreationResponse:
+      type: object
+      additionalProperties: false
+      required: [contribution, socialFund]
+      properties:
+        contribution:
+          $ref: '#/components/schemas/Contribution'
+        socialFund:
+          $ref: '#/components/schemas/SocialFund'
+    ContributionPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contribution'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    PageMetadata:
+      type: object
+      additionalProperties: false
+      required: [number, size, totalElements, totalPages]
+      properties:
+        number:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 0
+        size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          readOnly: true
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 91
+        totalPages:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 5
+
+    ErrorCode:
+      type: string
+      description: Code stable exploitable par l'IHM sans analyser le message.
+      enum:
+        - VALIDATION_ERROR
+        - DATE_RANGE_INVALID
+        - AUTHENTICATION_REQUIRED
+        - INVALID_CREDENTIALS
+        - ACCESS_DENIED
+        - RESOURCE_NOT_FOUND
+        - BUSINESS_CONFLICT
+        - DUPLICATE_CATEGORY_LABEL
+        - MEMBER_ALREADY_INACTIVE
+        - INVALID_OPERATOR_CONFIGURATION
+        - CAMPAIGN_NOT_EDITABLE
+        - CAMPAIGN_ALREADY_CLOSED
+        - PAYMENT_EXCEEDS_REMAINING_AMOUNT
+        - DUE_ALREADY_PAID
+        - RESOURCE_CLOSED
+        - SOCIAL_FUND_ALREADY_CLOSED
+        - INTERNAL_ERROR
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code, message]
+      properties:
+        field:
+          type: string
+          minLength: 1
+          example: amount
+        code:
+          type: string
+          minLength: 1
+          example: MUST_BE_POSITIVE
+        message:
+          type: string
+          minLength: 1
+          example: Le montant doit être strictement positif.
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          minLength: 1
+          example: La requête ne peut pas être traitée.
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
