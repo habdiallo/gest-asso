@@ -6,6 +6,7 @@
     "generate:api": "openapi-generator-cli generate --generator-key contribo-api",
     "validate:api": "openapi-generator-cli validate -i ../besoins/openapi.yaml",
     "start": "ng serve",
+    "start:mock": "ng serve --configuration mock",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -36,11 +37,17 @@
     "angular-eslint": "21.4.0",
     "eslint": "^10.3.0",
     "jsdom": "^28.0.0",
+    "msw": "^2.15.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.59.2",
     "vitest": "^4.0.8"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

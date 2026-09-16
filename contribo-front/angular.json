@@ -52,6 +52,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "mock": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/main.ts",
+                  "with": "src/main.mock.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -67,6 +78,9 @@
             },
             "development": {
               "buildTarget": "contribo-front:build:development"
+            },
+            "mock": {
+              "buildTarget": "contribo-front:build:mock"
             }
           },
           "defaultConfiguration": "development"

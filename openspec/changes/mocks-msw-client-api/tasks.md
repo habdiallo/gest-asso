@@ -9,42 +9,42 @@ pas MSW ; un mode mock dédié démarre le service worker et sert des réponses 
 au moins un endpoint de démonstration ; la documentation distingue explicitement mock dev et tests
 `HttpTestingController`.
 
-- [ ] 1.1 [T-105] Vérifier `git status --short` et la branche courante, puis créer/réutiliser
+- [x] 1.1 [T-105] Vérifier `git status --short` et la branche courante, puis créer/réutiliser
       `front/chore-000-mocks-msw-client-api` à partir de `origin/main`.
-- [ ] 1.2 [T-105] Vérifier que le client API est généré (`npm run validate:api` puis
+- [x] 1.2 [T-105] Vérifier que le client API est généré (`npm run validate:api` puis
       `npm run generate:api` si `src/app/core/api/generated/` est absent).
 
 ## 2. Ticket T-105 — Dépendance et service worker
 
-- [ ] 2.1 [T-105] Ajouter `msw` en devDependency de `contribo-front/` (`npm install --save-dev msw`).
-- [ ] 2.2 [T-105] Initialiser le service worker (`npx msw init public --save`) et vérifier qu'il est
+- [x] 2.1 [T-105] Ajouter `msw` en devDependency de `contribo-front/` (`npm install --save-dev msw`).
+- [x] 2.2 [T-105] Initialiser le service worker (`npx msw init public --save`) et vérifier qu'il est
       servi par le serveur de dev Angular.
 
 ## 3. Ticket T-105 — Convention de handlers et point d'entrée mock
 
-- [ ] 3.1 [T-105] Définir la convention `features/<feature>/mocks/handlers.ts` (chemins/`operationId`
+- [x] 3.1 [T-105] Définir la convention `features/<feature>/mocks/handlers.ts` (chemins/`operationId`
       du contrat, types issus de `@api`, sans DTO concurrent) et un point d'agrégation des handlers
       actifs.
-- [ ] 3.2 [T-105] Ajouter un point d'entrée de démarrage dédié au mode mock (`main.mock.ts` +
+- [x] 3.2 [T-105] Ajouter un point d'entrée de démarrage dédié au mode mock (`main.mock.ts` +
       configuration Angular `fileReplacements`, ou variable d'environnement lue dans `main.ts`) et le
       script npm associé (ex. `start:mock`), sans hook automatique sur `start`/`build`/`test`.
-- [ ] 3.3 [T-105] Ajouter un handler de démonstration sur une feature existante pour valider le
+- [x] 3.3 [T-105] Ajouter un handler de démonstration sur une feature existante pour valider le
       dispositif de bout en bout (chargement, succès, erreur), respectant enums/nullable/droits du
       contrat.
 
 ## 4. Ticket T-105 — Documentation
 
-- [ ] 4.1 [T-105] Mettre à jour `contribo-front/src/app/core/api/README.md` (ou un document dédié)
+- [x] 4.1 [T-105] Mettre à jour `contribo-front/src/app/core/api/README.md` (ou un document dédié)
       pour documenter l'activation du mode mock et rappeler que les tests Vitest utilisent
       `HttpTestingController`/`provideHttpClientTesting`, jamais MSW.
 
 ## 5. Ticket T-105 — Validations locales
 
-- [ ] 5.1 [T-105] Exécuter `npm run build` (mode normal, sans mock) et vérifier l'absence de
+- [x] 5.1 [T-105] Exécuter `npm run build` (mode normal, sans mock) et vérifier l'absence de
       référence au point d'entrée/handlers de mock dans le bundle.
-- [ ] 5.2 [T-105] Exécuter le mode mock localement et vérifier au moins un écran en chargement,
+- [x] 5.2 [T-105] Exécuter le mode mock localement et vérifier au moins un écran en chargement,
       succès et erreur simulés.
-- [ ] 5.3 [T-105] Exécuter `npm test -- --watch=false` et `npm run lint` sur les fichiers modifiés.
+- [x] 5.3 [T-105] Exécuter `npm test -- --watch=false` et `npm run lint` sur les fichiers modifiés.
 
 ## 6. Ticket T-105 — Publication (PR vers main)
 
