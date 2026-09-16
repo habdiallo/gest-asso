@@ -48,6 +48,11 @@ le découpage OpenSpec et la protection GitHub à activer. Les agents lisent
 [AGENTS.md](AGENTS.md) ; OpenSpec charge les règles depuis
 [openspec/config.yaml](openspec/config.yaml).
 
+Le registre [openspec/tickets.json](openspec/tickets.json) relie les 104 tickets
+frontend (`T-1` à `T-104`) à leurs tâches et branches. Lire
+[openspec/TICKETS.md](openspec/TICKETS.md) pour sélectionner un ticket lors de l'apply.
+Les identités sont numérotées ; les branches gardent `000` pendant l'initialisation.
+
 ## Règles de développement frontend
 
 L'application Angular se trouve dans `contribo-front/`. Ses conventions sont centralisées dans

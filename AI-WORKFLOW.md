@@ -21,6 +21,14 @@ Les noms complets des skills OpenSpec sont aussi utilisables avec `/` dans Claud
 Le skill senior réalise lui-même la revue ; il n'exige pas de sous-agent.
 Une revue rend un rapport local, sans correction, commit, publication ou approbation.
 
+Pour implémenter un ticket métier, indiquer le change **et** le ticket local :
+`$openspec-apply-change frontend-tickets-mvp-association, uniquement T-3` dans Codex,
+`/opsx:apply ... uniquement T-3` dans Claude, `/opsx-apply ... uniquement T-3`
+dans Copilot VS Code. Lire [openspec/TICKETS.md](openspec/TICKETS.md) : résoudre la
+branche avec `node scripts/tickets.mjs resolve T-3 --json`, vérifier ses prérequis,
+créer/réutiliser la branche retournée puis lancer `node scripts/tickets.mjs verify T-3`
+avant génération. Les branches gardent `000` tant que l'initialisation reste active.
+
 Codex propose `/skills` et les mentions `$` ; il découvre les dossiers liés depuis
 `.agents/skills`, y compris depuis un sous-dossier du dépôt. Les copies
 `.codex/skills` restent disponibles pour les intégrations qui les utilisent encore.

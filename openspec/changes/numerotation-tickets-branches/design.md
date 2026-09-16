@@ -54,10 +54,14 @@ Un outil léger à implémenter lit le catalogue, contrôle unicité, couverture
 
 ## Migration Plan
 
-Adopter le catalogue après intégration des PR #2, #1 puis #3. Appliquer ce workflow sur `infra/chore-000-registre-tickets-branches`, enrichir les annotations du backlog et valider le résolveur/règles. Publier par PR vers `main`. La présente proposition part de la branche de la PR #3 ; son diff propre ne contient que ce change.
+Appliquer ce workflow sur `infra/chore-000-registre-tickets-branches`, enrichir les annotations du backlog et valider le résolveur/règles. Les contenus dépendants sont présents dans l'ascendance locale : l'implémentation peut avancer en branche empilée, sans fusion implicite. Intégrer les PR #2, #1, #3 puis #4 avant sa fusion vers `main`.
 
 Un retour arrière passe par une PR rétablissant les consignes précédentes, en préservant le catalogue historique et les liens de tickets déjà utilisés. L'initialisation reste active jusqu'à décision du mainteneur.
 
 ## Open Questions
 
 Aucune question bloquante pour cette proposition locale. Le tracker GitHub peut être choisi en réponse à la préférence demandée ; il nécessiterait une révision explicite de l'attribution avant publication d'issues. La proposition ne modifie pas encore les règles d'exécution existantes : leur adoption fait partie de l'apply.
+
+## Implementation Notes
+
+L'apply adopte le registre `openspec/tickets.json` (actif, phase d'initialisation conservée) et ses repères dans le backlog. `scripts/tickets.mjs` fournit `check`, `list`, `resolve` et `verify`, en lecture seule. Le précontrôle inspecte la branche courante, les cases locales des dépendances transitives et des changes préalables ; les PR sont vérifiées séparément. Les comparaisons Git préservent les identités déjà committées (`HEAD` localement, `origin/main` en CI ; attribution proposée committée pour la première adoption). Les titres/périmètres et dépendances peuvent être précisés sans réattribuer l'identité, le slug/change/scope/type ou les étapes existantes. Aucun résolveur ne crée de branche ni ne modifie la phase.
