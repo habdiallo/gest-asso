@@ -31,6 +31,14 @@ modèles générés (pas de DTO concurrent du contrat), puis les agrège dans
 `src/mocks/handlers.ts`. Voir `features/home/mocks/handlers.ts` pour un exemple sur
 `GET /api/v1/dashboard`.
 
+Les handlers `features/auth/mocks/handlers.ts` fournissent `POST /api/v1/auth/login`
+et `GET /api/v1/me` avec les DTO générés. Le catalogue `src/mocks/demo-accounts.ts`
+résout les identifiants et chaque Bearer sans état de connexion dans le worker.
+Un corps invalide retourne 400/`VALIDATION_ERROR` ; les mauvais identifiants ou
+jetons retournent 401/`AUTHENTICATION_REQUIRED`. La connexion publique accepte
+un changement de compte même si la requête porte un ancien jeton.
+Voir les [comptes et instructions de test](../../../../README.md#tester-les-comptes-de-démonstration).
+
 `src/main.mock.ts`, `src/mocks/**` et `**/mocks/**` sont exclus de `tsconfig.app.json` : la
 compilation normale (`npm start`, `npm run build`) reste indépendante du client généré, y
 compris quand un handler de mock importe `@api`. La configuration Angular `mock` utilise
