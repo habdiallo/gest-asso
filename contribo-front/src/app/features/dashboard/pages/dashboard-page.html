@@ -9,17 +9,17 @@
     <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
   } @else {
     @if (managementDashboard(); as management) {
-      <p class="mt-1 text-sm text-text-3">
+      <p class="mt-1 text-sm text-text-2">
         {{ 'dashboard.asOf' | transloco: { date: formatInstant(management.asOf) } }}
       </p>
 
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.management.activeMembers' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">{{ management.activeMemberCount }}</p>
-          <p class="mt-1 text-xs text-text-3">
+          <p class="mt-1 text-xs text-text-2">
             {{
               'dashboard.management.activeMembersMeta'
                 | transloco: { count: management.registeredMemberCount }
@@ -27,7 +27,7 @@
           </p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.management.newMembers' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">
@@ -35,13 +35,13 @@
           </p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.management.openCampaigns' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">{{ management.openCampaignCount }}</p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.management.registeredMembers' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">
@@ -64,7 +64,7 @@
               <li class="rounded-card border border-line bg-surface p-4">
                 <div class="flex flex-wrap items-baseline justify-between gap-2">
                   <span class="font-medium text-text">{{ campaign.name }}</span>
-                  <span class="text-xs uppercase tracking-[0.08em] text-text-3">
+                  <span class="text-xs uppercase tracking-[0.08em] text-text-2">
                     {{ campaignStatusLabel(campaign.status) }}
                   </span>
                 </div>
@@ -78,14 +78,14 @@
                           }
                   }}
                 </p>
-                <p class="mt-1 text-sm text-text-3">
+                <p class="mt-1 text-sm text-text-2">
                   {{
                     'dashboard.management.campaignMembers'
                       | transloco: { count: campaign.memberCount }
                   }}
                 </p>
                 @if (campaign.financialSummary; as financialSummary) {
-                  <p class="mt-1 text-sm text-text-3">
+                  <p class="mt-1 text-sm text-text-2">
                     {{ formatAmount(financialSummary.collectedAmount) }} /
                     {{ formatAmount(financialSummary.expectedAmount) }}
                   </p>
@@ -116,7 +116,7 @@
                     </span>
                   </div>
                   <p class="mt-1 text-sm text-text-2">{{ payment.campaign.name }}</p>
-                  <p class="mt-1 text-sm text-text-3">
+                  <p class="mt-1 text-sm text-text-2">
                     {{ formatCalendarDate(payment.paymentDate) }} —
                     {{ paymentMethodLabel(payment.method) }}
                   </p>
@@ -129,19 +129,19 @@
     }
 
     @if (memberDashboard(); as member) {
-      <p class="mt-1 text-sm text-text-3">
+      <p class="mt-1 text-sm text-text-2">
         {{ 'dashboard.asOf' | transloco: { date: formatInstant(member.asOf) } }}
       </p>
 
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.member.unpaidDues' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">{{ member.unpaidDueCount }}</p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.member.remainingAmount' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">
@@ -149,13 +149,13 @@
           </p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.member.paidDues' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">{{ member.paidDueCount }}</p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.member.totalContributions' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">
@@ -163,7 +163,7 @@
           </p>
         </div>
         <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
             {{ 'dashboard.member.contributedSocialFunds' | transloco }}
           </p>
           <p class="mt-3 font-display text-3xl text-text">
@@ -184,7 +184,7 @@
               <li class="rounded-card border border-line bg-surface p-4">
                 <div class="flex flex-wrap items-baseline justify-between gap-2">
                   <span class="font-medium text-text">{{ due.campaign.name }}</span>
-                  <span class="text-xs uppercase tracking-[0.08em] text-text-3">
+                  <span class="text-xs uppercase tracking-[0.08em] text-text-2">
                     {{ dueStatusLabel(due.status) }}
                   </span>
                 </div>

@@ -1,6 +1,7 @@
 import { HttpResponse, delay, http } from 'msw';
 import { CampaignStatus, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
-import type { ErrorResponse, ManagementDashboard, MemberDashboard } from '@api';
+import type { DashboardResponse, ErrorResponse, ManagementDashboard, MemberDashboard } from '@api';
+import type { DemoAccount } from '../../../../mocks/demo-accounts';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'> = {
@@ -54,6 +55,14 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
 
 const demoManagementDashboardWithoutFinancials: Omit<ManagementDashboard, 'viewer'> = {
   ...demoManagementDashboardWithFinancials,
+  recentCampaigns: demoManagementDashboardWithFinancials.recentCampaigns.map((campaign) => ({
+    id: campaign.id,
+    name: campaign.name,
+    startDate: campaign.startDate,
+    endDate: campaign.endDate,
+    status: campaign.status,
+    memberCount: campaign.memberCount,
+  })),
   financialOverview: undefined,
 };
 
@@ -69,7 +78,9 @@ const demoMemberDashboard: Omit<MemberDashboard, 'viewer'> = {
   recentDues: [
     {
       id: '10700000-0000-4000-8000-000000000400',
-      member: { id: '10700000-0000-4000-8000-000000000003', displayName: 'Aminata Diallo' },
+      // Toujours remplacé par le handler ci-dessous avec l'identité du membre connecté
+      // (RG-DATA-001 : le tableau de bord Membre est strictement personnel).
+      member: { id: '10700000-0000-4000-8000-000000000000', displayName: '' },
       campaign: {
         id: '10700000-0000-4000-8000-000000000200',
         name: 'Solidarité septembre',
@@ -96,6 +107,39 @@ function authenticationRequired(): Response {
 }
 
 /**
+ * Construit la réponse `/dashboard` pour un compte de démonstration donné.
+ * Extraite de son handler MSW pour être testée directement (RG-DATA-001 : le
+ * tableau de bord Membre est strictement personnel ; l'absence de
+ * `financialOverview` doit aussi retirer `financialSummary` des campagnes
+ * récentes, sinon le bilan financier fuite malgré la section masquée).
+ */
+export function buildDashboardResponse(account: DemoAccount): DashboardResponse {
+  if (account.user.role === UserRole.Member) {
+    const { member } = account.user;
+    const response: MemberDashboard = {
+      ...demoMemberDashboard,
+      viewer: account.user,
+      recentDues: demoMemberDashboard.recentDues.map((due) => ({
+        ...due,
+        member: { id: member.id, displayName: member.displayName },
+      })),
+    };
+    return response;
+  }
+
+  const managementDashboard =
+    account.user.role === UserRole.Operator && !account.user.operatorCanRecordPayments
+      ? demoManagementDashboardWithoutFinancials
+      : demoManagementDashboardWithFinancials;
+
+  const response: ManagementDashboard = {
+    ...managementDashboard,
+    viewer: account.user,
+  };
+  return response;
+}
+
+/**
  * Handlers MSW de démonstration pour `GET /api/v1/dashboard` (T-16). Le rôle
  * porté par le jeton de démonstration détermine la vue renvoyée, conformément
  * au contrat (MEMBRE → `MemberDashboard`, autres rôles → `ManagementDashboard`).
@@ -111,18 +155,6 @@ export const dashboardHandlers = [
       return authenticationRequired();
     }
 
-    if (account.user.role === UserRole.Member) {
-      return HttpResponse.json<MemberDashboard>({ ...demoMemberDashboard, viewer: account.user });
-    }
-
-    const managementDashboard =
-      account.user.role === UserRole.Operator && !account.user.operatorCanRecordPayments
-        ? demoManagementDashboardWithoutFinancials
-        : demoManagementDashboardWithFinancials;
-
-    return HttpResponse.json<ManagementDashboard>({
-      ...managementDashboard,
-      viewer: account.user,
-    });
+    return HttpResponse.json<DashboardResponse>(buildDashboardResponse(account));
   }),
 ];
