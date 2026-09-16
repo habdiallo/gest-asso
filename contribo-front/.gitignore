@@ -1,0 +1,50 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+/src/app/core/api/generated
+npm-debug.log
+yarn-error.log
+
+# Instructions Copilot propres au frontend, à versionner malgré l'ignore global.
+!/.github/
+!/.github/copilot-instructions.md
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+!/.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,20 +1,55 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Contribo est une application de gestion associative.
+  Frontend Angular/TypeScript : contribo-front/ ; contrat API : besoins/openapi.yaml ;
+  prototype UX/UI : design/ ; besoins métier : besoins/cahier-user-stories-mvp-association-v2.md.
+  Lire CONTRIBUTING.md pour le workflow Git/OpenSpec et AGENTS.md pour les consignes des agents.
+  Les conventions frontend sont dans .claude/rules/frontend/.
+  Le frontend Angular utilise une architecture par fonctionnalités : features/<feature>/
+  pour pages/routes/services/état métier, core/ pour le socle global, shared/ pour les
+  éléments neutres réutilisés ; lazy loading et tests colocalisés. Ne pas créer de
+  ports/adapters ou couches hexagonales frontend. L'architecture hexagonale est
+  réservée au futur backend. Les features ne s'importent pas directement entre elles ;
+  core/ et shared/ ne dépendent jamais des features. Lire contribo-front/README.md.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Toute évolution se livre par une branche de travail et une merge request vers main
+  (pull request sur GitHub). Ne jamais générer, modifier ou committer du code sur main,
+  ni pousser directement vers main, même avec un refspec, un alias ou une automatisation.
+  Format de branche : <scope>/<type>-<ticket>-<description>.
+  Scopes : front, back, fullstack, docs, infra. Types : feat, fix, refactor, perf, test, chore.
+  Le ticket est un entier positif réel ; la description est en kebab-case ASCII minuscule.
+  Exception autorisée par le mainteneur : utiliser 000 pendant l'initialisation du
+  projet, sans demander de numéro réel ; code, commits et PR sont autorisés sur ces
+  branches. Chaque évolution garde sa propre branche/PR et sa description distincte.
+  000 n'est pas une issue GitHub : ne jamais utiliser Closes #000. Les autres nombres
+  avec zéro initial restent interdits. Retirer cette exception des règles, hooks,
+  CI et tests lorsque le mainteneur déclare l'initialisation terminée.
+  Exemple fictif : front/feat-123-ajout-membre.
+  Hors marqueur 000, un ticket = une branche = une PR ; un change OpenSpec peut couvrir plusieurs tickets/PR.
+  Les identifiants US/RG et les numéros de tâches OpenSpec ne sont pas des numéros de ticket.
+  Hors exception 000, sans ticket, seule la préparation de documentation, spécifications et règles/outils
+  du workflow sur une branche provisoire docs/<type>-local-<description> ou
+  infra/<type>-local-<description> est autorisée : ni code applicatif, ni commit, push ou PR.
+  Renommer cette branche avec le vrai ticket avant toute livraison.
+  Avant l'implémentation, vérifier la branche, le ticket, le périmètre et les critères
+  d'acceptation ; préserver les changements existants et ne pas les embarquer sans raison.
+  Livrer avec validations pertinentes, traçabilité OpenSpec et PR renseignée.
+  Ne jamais fusionner une PR ou activer l'auto-merge sans demande explicite de l'utilisateur.
+
+rules:
+  proposal:
+    - Décrire le problème, le périmètre et les critères de succès ; référencer les tickets connus sans en inventer ; utiliser 000 pendant l'initialisation.
+    - Indiquer les scopes affectés et le découpage envisagé en tickets/PR indépendants vers main ; marquer les tickets manquants « à attribuer ».
+  design:
+    - Pour le frontend, respecter l'architecture par fonctionnalités et les frontières features/core/shared ; l'architecture hexagonale concerne uniquement le backend.
+    - Lire les fichiers et outils réellement présents avant de proposer une architecture ; expliciter les impacts frontend, backend, contrat API et migrations pertinents.
+    - Décrire l'ordre de livraison des tickets/PR, leurs dépendances, les validations et le retour arrière si nécessaire ; chaque PR doit laisser main fonctionnelle.
+  specs:
+    - Exprimer des exigences observables et des scénarios d'acceptation couvrant succès, erreurs et autorisations selon le périmètre.
+    - Référencer les US/RG et le contrat API concernés sans les confondre avec les tickets de livraison.
+  tasks:
+    - Regrouper les tâches par évolution livrable ; pour chacune, préciser numéro réel, 000 pendant l'initialisation ou « à attribuer », scope, type, branche prévue, périmètre et critères d'acceptation.
+    - Prévoir pour chaque ticket la vérification/création de branche avant toute modification de code, l'implémentation ciblée, les validations pertinentes et la préparation d'une PR vers main.
+    - Séparer les étapes locales des étapes de publication/revue/fusion ; ne cocher une tâche que si l'action a réellement été réalisée.
+    - Ne pas implémenter tout un backlog sur une seule branche ; ne pas inventer de ticket et ne jamais inclure un push direct vers main.

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+branch=$(git symbolic-ref --quiet --short HEAD) || {
+  printf '%s\n' 'Commit refusé : créer la branche du ticket avant de committer (HEAD détachée).' >&2
+  exit 1
+}
+# Exception 000 temporaire jusqu'à la fin d'initialisation déclarée par le mainteneur.
+pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$'
+if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$pattern"; then
+  printf '%s\n' "Commit refusé sur '$branch' : branche de ticket requise. Voir CONTRIBUTING.md." >&2
+  exit 1
+fi
