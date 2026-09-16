@@ -19,6 +19,6 @@ Dépendances : PR #2 puis #1 avant intégration vers `main`.
 
 ## 3. Livraison
 
-- [ ] 3.1 Committer les fichiers de cette évolution et pousser uniquement sa branche si la livraison est demandée.
-- [ ] 3.2 Ouvrir une PR vers `main` et renseigner son lien après publication.
+- [x] 3.1 Committer les fichiers de cette évolution et pousser uniquement sa branche (implémentation : `202f720`).
+- [x] 3.2 Ouvrir une PR vers `main` : [PR #3](https://github.com/habdiallo/gest-asso/pull/3), en brouillon avant intégration des dépendances #2 puis #1.
 - [ ] 3.3 Traiter la revue et fusionner uniquement sur demande explicite, après intégration des dépendances.
