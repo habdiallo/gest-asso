@@ -62,4 +62,21 @@ module.exports = defineConfig([
       ],
     },
   },
+  {
+    files: ['src/app/features/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@features/**'],
+              message:
+                'Une feature ne doit pas importer une autre feature ; composer les routes au niveau applicatif.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);

@@ -20,6 +20,14 @@ test('le socle refuse une dépendance vers une feature, par alias et chemin rela
   }
 });
 
+test('une feature refuse une dépendance vers une autre feature par alias', async () => {
+  const [result] = await eslint.lintText(
+    "import type { HomePage } from '@features/home/pages/home-page'; export type Example = HomePage;",
+    { filePath: 'src/app/features/members/example.ts' },
+  );
+  assert.ok(result.messages.some((message) => message.ruleId === 'no-restricted-imports'));
+});
+
 test('une page de feature peut utiliser un élément neutre partagé', async () => {
   const [result] = await eslint.lintText(
     "import type { SharedType } from '@shared/example'; export type Example = SharedType;",
