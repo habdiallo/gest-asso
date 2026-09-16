@@ -12,8 +12,16 @@ describe('navigationItemsForRole', () => {
     ]);
   });
 
+  it('returns the Treasurer menu (membres, campagnes, cagnottes, mon espace, sans catégories ni rôles/utilisateurs)', () => {
+    expect(navigationItemsForRole('TREASURER')).toEqual([
+      { label: 'Membres', path: '/membres' },
+      { label: 'Campagnes', path: '/campagnes' },
+      { label: 'Cagnottes', path: '/cagnottes' },
+      { label: 'Mon espace', path: '/mon-espace' },
+    ]);
+  });
+
   it('returns no items for a role without a menu defined yet', () => {
-    expect(navigationItemsForRole('TREASURER')).toEqual([]);
     expect(navigationItemsForRole('OPERATOR')).toEqual([]);
     expect(navigationItemsForRole('MEMBER')).toEqual([]);
   });
