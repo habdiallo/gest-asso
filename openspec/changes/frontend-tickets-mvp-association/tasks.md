@@ -17,7 +17,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 2. Socle applicatif — authentification et navigation (`frontend-shell`)
 
 - [x] 2.1 [T-3] (P0) Écran de connexion (identifiant + mot de passe), sans lien d'inscription. — US-ACC-001, RG-003 ; openapi:`login`
-- [ ] 2.2 [T-4] (P0) Gestion de l'erreur de connexion (message générique, pas de redirection). — RG-003
+- [x] 2.2 [T-4] (P0) Gestion de l'erreur de connexion (message générique, pas de redirection). — RG-003
 - [ ] 2.3 [T-5] (P0) Stockage de la session (jeton) et hydratation de l'utilisateur connecté au démarrage de l'app.
 - [ ] 2.4 [T-6] (P0) Interception des réponses API en erreur d'authentification → invalidation de session et redirection vers l'écran de connexion.
 - [ ] 2.5 [T-7] (P0) Action de déconnexion explicite (menu utilisateur).
