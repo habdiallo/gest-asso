@@ -12,7 +12,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 1.2 (P0) Mettre en place la structure de projet frontend (features/core/shared, build et lint validés) — change `initialisation-front-features` (000).
 - [x] 1.3 [T-1] (P0) Importer les jetons de design (couleurs, typographies, arrondis) depuis `design/DESIGN (5).md` dans le système de style de l'application.
 - [x] 1.4 (P0) Générer/configurer un client API typé à partir de `besoins/openapi.yaml` — génération explicite et compilation stricte validées par `initialisation-front-features` (000) ; intégration métier à réaliser dans les tickets concernés.
-- [ ] 1.5 [T-2] (P1) Mettre en place les deux thèmes visuels (Obsidian Midnight et Alabaster Gallery) et le sélecteur de thème.
+- [x] 1.5 [T-2] (P1) Mettre en place les deux thèmes visuels (Obsidian Midnight et Alabaster Gallery) et le sélecteur de thème.
 
 ## 2. Socle applicatif — authentification et navigation (`frontend-shell`)
 
