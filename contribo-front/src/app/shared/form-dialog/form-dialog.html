@@ -1,0 +1,36 @@
+<dialog
+  #dialog
+  [attr.aria-label]="dialogTitle()"
+  class="m-0 h-dvh max-h-dvh w-full max-w-none rounded-none border-0 bg-surface-glass p-0 text-text backdrop-blur-xl [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-sm min-[821px]:m-auto min-[821px]:h-fit min-[821px]:max-h-[85vh] min-[821px]:w-[min(560px,calc(100vw-2rem))] min-[821px]:rounded-modal min-[821px]:border min-[821px]:border-line min-[821px]:shadow-[0_16px_40px_-4px_rgba(18,19,22,0.08),0_0_1px_rgba(18,19,22,0.12)]"
+  (close)="handleNativeClose()"
+>
+  <div class="flex h-full flex-col min-[821px]:h-auto min-[821px]:max-h-[85vh]">
+    <header
+      class="flex items-center justify-between gap-4 border-b border-line px-4 py-3 min-[821px]:px-6 min-[821px]:py-4"
+    >
+      <h2 class="font-display text-lg uppercase tracking-wide text-text">{{ dialogTitle() }}</h2>
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-text transition-colors hover:border-line-strong hover:text-gold-hover"
+        (click)="requestClose()"
+      >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+        <span class="sr-only">{{ closeLabel() }}</span>
+      </button>
+    </header>
+    <div class="flex-1 overflow-y-auto px-4 py-4 min-[821px]:px-6 min-[821px]:py-6">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</dialog>
