@@ -25,6 +25,10 @@ const OPERATOR_ITEMS: NavigationItem[] = [
   { label: 'Mon espace', path: NAVIGATION_PATHS.memberSpace },
 ];
 
+const MEMBER_ITEMS: NavigationItem[] = [
+  { label: 'Mon espace', path: NAVIGATION_PATHS.memberSpace },
+];
+
 export function navigationItemsForRole(role: UserRole | null): NavigationItem[] {
   if (role === UserRole.Administrator) {
     return ADMINISTRATOR_ITEMS;
@@ -36,6 +40,10 @@ export function navigationItemsForRole(role: UserRole | null): NavigationItem[] 
 
   if (role === UserRole.Operator) {
     return OPERATOR_ITEMS;
+  }
+
+  if (role === UserRole.Member) {
+    return MEMBER_ITEMS;
   }
 
   return [];

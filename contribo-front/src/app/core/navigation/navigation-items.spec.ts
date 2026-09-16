@@ -30,8 +30,10 @@ describe('navigationItemsForRole', () => {
     ]);
   });
 
-  it('returns no items for a role without a menu defined yet', () => {
-    expect(navigationItemsForRole('MEMBER')).toEqual([]);
+  it('returns the Member menu limited to their personal space', () => {
+    expect(navigationItemsForRole('MEMBER')).toEqual([
+      { label: 'Mon espace', path: '/mon-espace' },
+    ]);
   });
 
   it('returns no items when there is no authenticated role', () => {
