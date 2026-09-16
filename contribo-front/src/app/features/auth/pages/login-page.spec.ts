@@ -29,6 +29,7 @@ describe('LoginPage', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [
         LoginPage,
@@ -133,6 +134,7 @@ describe('LoginPage', () => {
     });
 
     expect(navigateSpy).toHaveBeenCalledWith('/');
+    expect(localStorage.getItem('contribo-session-token')).toBe('token');
   });
 
   it('shows a generic error message when authentication fails, without navigating', () => {

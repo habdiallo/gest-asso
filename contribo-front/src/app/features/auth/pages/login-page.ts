@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { SessionService } from '@core/session/session.service';
 
 @Component({
   selector: 'app-login-page',
@@ -15,6 +16,7 @@ import type { TranslationKey } from '@core/i18n/translation-keys';
 export class LoginPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthentificationService);
+  private readonly sessionService = inject(SessionService);
   private readonly router = inject(Router);
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -49,8 +51,9 @@ export class LoginPage {
     this.errorMessage.set(null);
 
     this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: (response) => {
         this.submitting.set(false);
+        this.sessionService.setSession(response);
         void this.router.navigateByUrl('/');
       },
       error: () => {
