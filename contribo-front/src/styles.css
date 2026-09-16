@@ -1,3 +1,124 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/*
+ * Jetons de design (T-1) — couleurs, typographies, arrondis.
+ * Source : design/DESIGN (5).md (sections Colors/Typography/Shapes) et l'implémentation
+ * de référence design/styles.css, qui font autorité sur le bloc YAML `colors:` en tête de
+ * fichier (palette Material non reprise par le prototype livré). Le thème sombre "Obsidian
+ * Midnight" est la valeur par défaut de :root, conformément au prototype (design/app.js :
+ * `localStorage.getItem('contribo-theme') || 'dark'`) ; [data-theme="light"] applique
+ * "Alabaster Gallery". Le sélecteur de thème (bascule, persistance) est du ressort de T-2 :
+ * ce fichier ne fait qu'exposer les jetons, prêts à être pilotés par l'attribut data-theme.
+ */
+:root {
+  color-scheme: dark;
+  --bg: #0b0d13;
+  --surface: #12151e;
+  --surface-2: #181c27;
+  --surface-glass: rgba(18, 21, 30, 0.8);
+  --text: #f8f9fa;
+  --text-2: #a5a9b4;
+  --text-3: #656a76;
+  --line: rgba(248, 249, 250, 0.08);
+  --line-strong: rgba(248, 249, 250, 0.14);
+  --gold: #f2ca50;
+  --gold-hover: #e5c358;
+  --gold-ink: #241a00;
+  --gold-wash: rgba(242, 202, 80, 0.1);
+  --success: #69b592;
+  --success-wash: rgba(46, 125, 94, 0.18);
+  --warning: #e0a557;
+  --warning-wash: rgba(196, 132, 45, 0.18);
+  --error: #e37979;
+  --error-wash: rgba(189, 58, 58, 0.18);
+  --info: #74a4c8;
+  --info-wash: rgba(59, 112, 151, 0.2);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface-2: #f3efea;
+  --surface-glass: rgba(255, 255, 255, 0.84);
+  --text: #121316;
+  --text-2: #5e6068;
+  --text-3: #8b8e98;
+  --line: rgba(18, 19, 22, 0.07);
+  --line-strong: rgba(18, 19, 22, 0.13);
+  --gold: #b38f4d;
+  --gold-hover: #9c7a3c;
+  --gold-ink: #ffffff;
+  --gold-wash: rgba(179, 143, 77, 0.09);
+  --success: #2e7d5e;
+  --success-wash: rgba(46, 125, 94, 0.1);
+  --warning: #a96c1b;
+  --warning-wash: rgba(196, 132, 45, 0.12);
+  --error: #bd3a3a;
+  --error-wash: rgba(189, 58, 58, 0.1);
+  --info: #3b7097;
+  --info-wash: rgba(59, 112, 151, 0.1);
+}
+
+/* @theme inline conserve les références var(--xxx) telles quelles (non résolues à la
+   compilation), condition nécessaire pour que les utilitaires Tailwind générés (bg-surface,
+   text-text-2, rounded-card...) suivent le thème actif au lieu d'être figés au premier build. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-glass: var(--surface-glass);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-ink: var(--gold-ink);
+  --color-gold-wash: var(--gold-wash);
+  --color-success: var(--success);
+  --color-success-wash: var(--success-wash);
+  --color-warning: var(--warning);
+  --color-warning-wash: var(--warning-wash);
+  --color-error: var(--error);
+  --color-error-wash: var(--error-wash);
+  --color-info: var(--info);
+  --color-info-wash: var(--info-wash);
+
+  /* Typographie — design/DESIGN (5).md, section Typography. */
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bebas Neue', Impact, sans-serif;
+  --font-data: 'Space Grotesk', sans-serif;
+  --text-headline-lg: 44px;
+  --text-headline-lg--line-height: 48px;
+
+  /* Arrondis — échelle `rounded` du bloc YAML de design/DESIGN (5).md. */
+  --radius: 0.5rem; /* DEFAULT — boutons/champs (8px) */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.75rem; /* 12px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.5rem; /* 24px */
+  /* rounded-full reste l'utilitaire Tailwind natif (9999px), déjà conforme à `full`. */
+
+  /* Arrondis de composants documentés en valeur concrète (section Shapes) : le rayon des
+     cartes/panneaux (14px) est une valeur distincte de l'échelle abstraite ci-dessus. */
+  --radius-card: 14px;
+  --radius-modal: 20px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* --gold-hover plutôt que --gold : en thème clair, --gold (#b38f4d sur #faf8f5) ne fournit
+   que 2,85:1 de contraste, sous le minimum WCAG AA de 3:1 pour un indicateur non textuel ;
+   --gold-hover (#9c7a3c) atteint 3,76:1 dans les deux thèmes. */
+:focus-visible {
+  outline: 2px solid var(--gold-hover);
+  outline-offset: 3px;
+}
