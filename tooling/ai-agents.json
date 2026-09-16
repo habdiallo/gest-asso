@@ -1,0 +1,7 @@
+{
+  "code-reviewer": {
+    "claudeTools": ["Read", "Grep", "Glob", "Bash"],
+    "copilotTools": ["read", "search", "execute"],
+    "codexSandbox": "read-only"
+  }
+}

@@ -3,6 +3,13 @@
 Lire [CONTRIBUTING.md](CONTRIBUTING.md) avant toute évolution. Ce document fait
 autorité pour les conventions Git, la traçabilité OpenSpec et la livraison par PR.
 
+Les skills et agents sont partagés entre Claude, Codex et Copilot ; lire
+[AI-WORKFLOW.md](AI-WORKFLOW.md) pour leurs invocations et la synchronisation.
+Pour un skill généré OpenSpec, traduire les noms d'outils Claude vers les capacités
+disponibles de l'hôte (lecture, recherche, question, suivi des tâches), sans inventer
+un outil absent. Les règles du dépôt restent dans les instructions communes.
+Toute nouvelle capacité Claude doit être exposée et contrôlée pour les trois outils.
+
 - Avant de modifier des fichiers, lire les instructions applicables, vérifier
   `git status --short` et `git branch --show-current`, puis identifier le ticket.
 - Créer ou réutiliser la branche du ticket avant toute génération/modification

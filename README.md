@@ -60,3 +60,10 @@ avec routage lazy, ESLint Angular/TypeScript, Prettier, Vitest et génération A
 Voir [le README frontend](contribo-front/README.md) pour les commandes et configurations.
 L'architecture hexagonale est réservée au backend. Le contrat partagé reste
 `besoins/openapi.yaml` et le prototype reste `design/`.
+
+## Skills et agents IA
+
+Les skills OpenSpec et `code-review-senior`, ainsi que l'agent `code-reviewer`,
+sont accessibles avec Claude, Codex et Copilot. Voir [AI-WORKFLOW.md](AI-WORKFLOW.md)
+pour les commandes et la synchronisation. La revue senior produit un rapport
+factuel adapté au projet, sans correction ni publication automatique.
