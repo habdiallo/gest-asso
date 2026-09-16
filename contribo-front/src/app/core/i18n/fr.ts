@@ -9,7 +9,9 @@ export const fr = {
   'auth.login.heading': 'Bienvenue',
   'auth.login.subheading': 'Connectez-vous à votre espace associatif.',
   'auth.login.identifierLabel': 'Identifiant',
+  'auth.login.identifierRequired': "L'identifiant est obligatoire.",
   'auth.login.passwordLabel': 'Mot de passe',
+  'auth.login.passwordRequired': 'Le mot de passe est obligatoire.',
   'auth.login.submit': 'Se connecter',
   'auth.login.submitting': 'Connexion…',
   'auth.login.note':

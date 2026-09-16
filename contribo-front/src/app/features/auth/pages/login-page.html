@@ -1,6 +1,6 @@
-<div class="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+<div class="grid min-h-screen min-[1181px]:grid-cols-[1.05fr_0.95fr]">
   <section
-    class="login-hero relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] lg:flex"
+    class="login-hero relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] min-[1181px]:flex"
   >
     <div class="relative z-10 flex items-center gap-3">
       <div
@@ -93,8 +93,15 @@
           formControlName="identifier"
           autocomplete="username"
           required
+          [attr.aria-invalid]="identifierInvalid() ? true : null"
+          [attr.aria-describedby]="identifierInvalid() ? 'identifier-error' : null"
           class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
         />
+        @if (identifierInvalid()) {
+          <p id="identifier-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'auth.login.identifierRequired' | translate }}
+          </p>
+        }
       </div>
 
       <div class="mb-[17px]">
@@ -110,8 +117,15 @@
           formControlName="password"
           autocomplete="current-password"
           required
+          [attr.aria-invalid]="passwordInvalid() ? true : null"
+          [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
           class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
         />
+        @if (passwordInvalid()) {
+          <p id="password-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'auth.login.passwordRequired' | translate }}
+          </p>
+        }
       </div>
 
       @if (errorMessage(); as errorKey) {

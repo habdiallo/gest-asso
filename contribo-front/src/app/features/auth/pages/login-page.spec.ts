@@ -58,6 +58,30 @@ describe('LoginPage', () => {
     httpMock.expectNone('/api/v1/auth/login');
   });
 
+  it('shows field errors and marks the inputs invalid when submitted with empty fields', () => {
+    const fixture = TestBed.createComponent(LoginPage);
+    fixture.detectChanges();
+
+    submitForm(fixture);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const identifierInput = root.querySelector('#identifier') as HTMLInputElement;
+    const passwordInput = root.querySelector('#password') as HTMLInputElement;
+
+    expect(identifierInput.getAttribute('aria-invalid')).toBe('true');
+    expect(identifierInput.getAttribute('aria-describedby')).toBe('identifier-error');
+    expect(root.querySelector('#identifier-error')?.textContent).toContain(
+      "L'identifiant est obligatoire.",
+    );
+
+    expect(passwordInput.getAttribute('aria-invalid')).toBe('true');
+    expect(passwordInput.getAttribute('aria-describedby')).toBe('password-error');
+    expect(root.querySelector('#password-error')?.textContent).toContain(
+      'Le mot de passe est obligatoire.',
+    );
+  });
+
   it('submits the credentials to POST /api/v1/auth/login', () => {
     const fixture = TestBed.createComponent(LoginPage);
     fixture.detectChanges();

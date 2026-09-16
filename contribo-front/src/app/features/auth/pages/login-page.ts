@@ -25,6 +25,16 @@ export class LoginPage {
   readonly submitting = signal(false);
   readonly errorMessage = signal<TranslationKey | null>(null);
 
+  identifierInvalid(): boolean {
+    const control = this.form.controls.identifier;
+    return control.invalid && control.touched;
+  }
+
+  passwordInvalid(): boolean {
+    const control = this.form.controls.password;
+    return control.invalid && control.touched;
+  }
+
   submit(): void {
     if (this.submitting()) {
       return;
