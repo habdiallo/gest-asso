@@ -6,6 +6,12 @@ context: |
   prototype UX/UI : design/ ; besoins métier : besoins/cahier-user-stories-mvp-association-v2.md.
   Lire CONTRIBUTING.md pour le workflow Git/OpenSpec et AGENTS.md pour les consignes des agents.
   Les conventions frontend sont dans .claude/rules/frontend/.
+  Le frontend Angular utilise une architecture par fonctionnalités : features/<feature>/
+  pour pages/routes/services/état métier, core/ pour le socle global, shared/ pour les
+  éléments neutres réutilisés ; lazy loading et tests colocalisés. Ne pas créer de
+  ports/adapters ou couches hexagonales frontend. L'architecture hexagonale est
+  réservée au futur backend. Les features ne s'importent pas directement entre elles ;
+  core/ et shared/ ne dépendent jamais des features. Lire contribo-front/README.md.
 
   Toute évolution se livre par une branche de travail et une merge request vers main
   (pull request sur GitHub). Ne jamais générer, modifier ou committer du code sur main,
@@ -36,6 +42,7 @@ rules:
     - Décrire le problème, le périmètre et les critères de succès ; référencer les tickets connus sans en inventer ; utiliser 000 pendant l'initialisation.
     - Indiquer les scopes affectés et le découpage envisagé en tickets/PR indépendants vers main ; marquer les tickets manquants « à attribuer ».
   design:
+    - Pour le frontend, respecter l'architecture par fonctionnalités et les frontières features/core/shared ; l'architecture hexagonale concerne uniquement le backend.
     - Lire les fichiers et outils réellement présents avant de proposer une architecture ; expliciter les impacts frontend, backend, contrat API et migrations pertinents.
     - Décrire l'ordre de livraison des tickets/PR, leurs dépendances, les validations et le retour arrière si nécessaire ; chaque PR doit laisser main fonctionnelle.
   specs:

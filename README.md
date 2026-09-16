@@ -47,3 +47,16 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour les conventions, les hooks locaux,
 le découpage OpenSpec et la protection GitHub à activer. Les agents lisent
 [AGENTS.md](AGENTS.md) ; OpenSpec charge les règles depuis
 [openspec/config.yaml](openspec/config.yaml).
+
+## Règles de développement frontend
+
+L'application Angular se trouve dans `contribo-front/`. Ses conventions sont centralisées dans
+`.claude/rules/frontend/` : Angular, TypeScript, templates, langue/formats, lint, client API,
+tests et accessibilité. `contribo-front/.claude/CLAUDE.md` importe les huit fichiers pour les
+sessions démarrées directement dans l'application.
+
+Le frontend suit une architecture par fonctionnalités (`features/`, `core/`, `shared/`),
+avec routage lazy, ESLint Angular/TypeScript, Prettier, Vitest et génération API explicite.
+Voir [le README frontend](contribo-front/README.md) pour les commandes et configurations.
+L'architecture hexagonale est réservée au backend. Le contrat partagé reste
+`besoins/openapi.yaml` et le prototype reste `design/`.

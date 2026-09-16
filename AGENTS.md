@@ -27,6 +27,10 @@ autorité pour les conventions Git, la traçabilité OpenSpec et la livraison pa
 - Lire le contexte et les règles de `openspec/config.yaml`, puis les artefacts
   pertinents avant d'implémenter ; mettre à jour les tâches effectivement réalisées.
 - Pour le frontend, lire les règles pertinentes dans `.claude/rules/frontend/`.
+- Le frontend utilise une architecture par fonctionnalités : `features/<feature>/`,
+  `core/` pour le socle global, `shared/` pour les éléments neutres réutilisés.
+  Charger les features paresseusement ; ne pas introduire de couches hexagonales,
+  ports ou adapters frontend. L'architecture hexagonale est réservée au backend.
 - Exécuter les validations adaptées et rapporter les commandes, résultats et limites
   réels. Préparer une PR vers `main` à partir du modèle `.github/pull_request_template.md`.
 - Si la livraison est demandée, pousser uniquement la branche du ticket et ouvrir

@@ -1,3 +1,9 @@
 # Les fichiers du workflow doivent être versionnés, même si .github/ est ignoré globalement.
 !/.github/
 !/.github/**
+
+# Les spécifications OpenSpec sont des sources du projet.
+!/openspec/changes/**/specs/
+!/openspec/changes/**/specs/**
+!/openspec/specs/
+!/openspec/specs/**
