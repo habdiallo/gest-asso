@@ -21,8 +21,16 @@ describe('navigationItemsForRole', () => {
     ]);
   });
 
+  it('returns the Operator menu (consultation membres/campagnes/cagnottes, mon espace)', () => {
+    expect(navigationItemsForRole('OPERATOR')).toEqual([
+      { label: 'Membres', path: '/membres' },
+      { label: 'Campagnes', path: '/campagnes' },
+      { label: 'Cagnottes', path: '/cagnottes' },
+      { label: 'Mon espace', path: '/mon-espace' },
+    ]);
+  });
+
   it('returns no items for a role without a menu defined yet', () => {
-    expect(navigationItemsForRole('OPERATOR')).toEqual([]);
     expect(navigationItemsForRole('MEMBER')).toEqual([]);
   });
 
