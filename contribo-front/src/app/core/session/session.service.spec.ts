@@ -10,7 +10,7 @@ import { SessionService } from './session.service';
 
 const STORAGE_KEY = 'contribo-session-token';
 
-function buildLoginResponse(): LoginResponse {
+function buildLoginResponse(overrides: Partial<CurrentUser> = {}): LoginResponse {
   const user: CurrentUser = {
     userId: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
     association: {
@@ -29,6 +29,7 @@ function buildLoginResponse(): LoginResponse {
     role: UserRole.Administrator,
     operatorCanRecordPayments: false,
     accountActive: true,
+    ...overrides,
   };
 
   return {
@@ -50,6 +51,7 @@ describe('SessionService', () => {
     expect(service.token()).toBeNull();
     expect(service.user()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
+    expect(service.canRecordPayments()).toBe(false);
   });
 
   it('reads a previously stored token', () => {
@@ -83,6 +85,21 @@ describe('SessionService', () => {
 
     expect(service.user()).toEqual(hydratedUser);
     expect(service.token()).toBe(response.accessToken);
+  });
+
+  it('exposes canRecordPayments derived from the hydrated user, updated by setUser', () => {
+    const service = TestBed.inject(SessionService);
+    const response = buildLoginResponse({
+      role: UserRole.Operator,
+      operatorCanRecordPayments: false,
+    });
+    service.setSession(response);
+
+    expect(service.canRecordPayments()).toBe(false);
+
+    service.setUser({ ...response.user, operatorCanRecordPayments: true });
+
+    expect(service.canRecordPayments()).toBe(true);
   });
 
   it('clears the session and the stored token', () => {
