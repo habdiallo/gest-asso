@@ -49,21 +49,21 @@ des cases cochées ne prouvent pas une fusion. Sans ticket déductible sans ambi
 l'agent demande sa sélection. Il ne contourne pas les prérequis en implémentant
 d'autres tickets, ne traite que les étapes de ce ticket et prépare sa PR vers `main`.
 
-## Phase d'initialisation
+## Fin de la phase d'initialisation
 
-`initializationActive: true` est conservé sur instruction du mainteneur.
-Les identités sont numérotées, tandis que les branches restent sous `000` :
+`initializationActive: false` depuis le ticket T-106 : le mainteneur a déclaré
+l'initialisation terminée. La résolution utilise désormais toujours
+`branchAfterInitialization`, sans option CLI pour revenir en arrière :
 
-| Ticket | Pendant initialisation | Après fin déclarée |
+| Ticket | Pendant initialisation (historique) | Résolu maintenant |
 | --- | --- | --- |
 | T-1 | `front/feat-000-jetons-design` | `front/feat-1-jetons-design` |
 | T-3 | `front/feat-000-ecran-connexion` | `front/feat-3-ecran-connexion` |
 
-La résolution utilise la phase courante, sans option CLI pour la contourner.
-Ne pas changer cette phase ni renommer les branches tant que le mainteneur
-n'a pas déclaré l'initialisation terminée. Mettre à jour ensemble registre,
-règles, hooks/CI et branches ouvertes selon CONTRIBUTING. La traçabilité historique
-`000` reste conservée, y compris les trois étapes frontend déjà réalisées.
+`000` n'est plus accepté par les hooks, la CI ni le script de parité IA pour
+une nouvelle branche. La traçabilité historique `000` reste conservée telle
+quelle (branches et commits déjà fusionnés, trois étapes frontend
+d'initialisation), sans réécriture rétroactive.
 
 ## Attribution et maintien des identités
 

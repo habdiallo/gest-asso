@@ -8,11 +8,10 @@ s'appliquent à tous les fichiers, aux commandes Git et à la génération de co
   committer ou pousser du code sur `main`, ni contourner les protections.
 - Scopes : `front`, `back`, `fullstack`, `docs`, `infra` ; types : `feat`, `fix`,
   `refactor`, `perf`, `test`, `chore` ; ticket réel entier positif ; description kebab-case.
-- Pendant l'initialisation, utiliser `000` sans demander de numéro réel : code,
-  commits et PR autorisés, une branche/PR dédiée par évolution. Jamais de push
-  vers `main` ni de `Closes #000`. Retirer l'exception quand le mainteneur déclare
-  l'initialisation terminée, conformément à CONTRIBUTING.md.
-- Hors exception `000`, sans ticket, préparation locale de documentation, spécifications et règles/outils
+- L'initialisation est terminée (`initializationActive: false`) : `000` n'est plus
+  accepté par les hooks, la CI ni le script de parité IA. Les branches/commits
+  déjà livrés sous `000` restent inchangés, voir CONTRIBUTING.md.
+- Sans ticket enregistré, préparation locale de documentation, spécifications et règles/outils
   du workflow sur `docs/<type>-local-<description>` ou `infra/<type>-local-<description>`,
   sans code applicatif/commit/push/PR ; enregistrer le ticket local avec nextTicketId
   puis renommer avant le code et la livraison.
@@ -25,7 +24,6 @@ s'appliquent à tous les fichiers, aux commandes Git et à la génération de co
   vérifier ses prérequis et son état Git, créer/réutiliser la branche retournée,
   puis exécuter `node scripts/tickets.mjs verify T-<numero>` avant génération.
   Sans ticket déductible sans ambiguïté, demander sa sélection ; ne pas appliquer tout le backlog.
-- `initializationActive` reste actif jusqu'à décision du mainteneur : identité locale
-  numérotée, branche sous `000`. Ne pas confondre `T-<numero>` et `#<numero>` GitHub.
-  Utiliser `T-<numero>` dans les titres de commits/PR locaux ; aucun `Closes` fictif.
+- Ne pas confondre `T-<numero>` et `#<numero>` GitHub. Utiliser `T-<numero>` dans
+  les titres de commits/PR locaux ; aucun `Closes` fictif.
 - Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur.

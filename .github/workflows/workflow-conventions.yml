@@ -20,8 +20,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Exception 000 temporaire pendant l'initialisation du projet.
-          pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$'
+          pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$'
           if [ "$PR_BASE" != main ]; then
             printf '%s\n' 'La PR doit cibler main.' >&2
             exit 1

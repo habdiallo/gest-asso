@@ -34,19 +34,16 @@ context: |
   node scripts/tickets.mjs verify T-<numero> avant génération. Le contrôle lit
   les cases locales : vérifier séparément les PR et leur présence dans la branche.
   Ne pas implémenter d'autres tickets pour contourner un prérequis non terminé.
-  initializationActive reste true jusqu'à décision explicite de fin d'initialisation ;
-  identité locale T-<numero>, branche sous 000 pendant cette phase, puis numéro local.
-  Les évolutions historiques d'initialisation hors catalogue restent autorisées sous 000.
-  Exception autorisée par le mainteneur : utiliser 000 pendant l'initialisation du
-  projet, sans demander de numéro réel ; code, commits et PR sont autorisés sur ces
-  branches. Chaque évolution garde sa propre branche/PR et sa description distincte.
-  000 n'est pas une issue GitHub : ne jamais utiliser Closes #000. Les autres nombres
-  avec zéro initial restent interdits. Retirer cette exception des règles, hooks,
-  CI et tests lorsque le mainteneur déclare l'initialisation terminée.
+  initializationActive est false : l'initialisation du projet est terminée (ticket T-106).
+  Identité locale T-<numero>, branche toujours sous son numéro réel. Les évolutions
+  historiques livrées sous 000 pendant l'initialisation ne sont pas réécrites, mais
+  aucune nouvelle branche 000 n'est plus acceptée par les hooks ni la CI.
+  000 n'était pas une issue GitHub : ne jamais utiliser Closes #000 ni #<numero> fictif.
+  Les nombres avec zéro initial restent interdits comme numéro de ticket.
   Exemple fictif : front/feat-123-ajout-membre.
-  Hors marqueur 000, un ticket = une branche = une PR ; un change OpenSpec peut couvrir plusieurs tickets/PR.
+  Un ticket = une branche = une PR ; un change OpenSpec peut couvrir plusieurs tickets/PR.
   Les identifiants US/RG et les numéros de tâches OpenSpec ne sont pas des numéros de ticket.
-  Hors exception 000, sans ticket, seule la préparation de documentation, spécifications et règles/outils
+  Sans ticket enregistré, seule la préparation de documentation, spécifications et règles/outils
   du workflow sur une branche provisoire docs/<type>-local-<description> ou
   infra/<type>-local-<description> est autorisée : ni code applicatif, ni commit, push ou PR.
   Planifier et enregistrer le ticket local avec nextTicketId, puis renommer cette
@@ -59,7 +56,7 @@ context: |
 rules:
   proposal:
     - Consulter le registre openspec/tickets.json ; pour chaque nouvelle évolution, réserver le prochain nextTicketId global et enregistrer sa correspondance avec le change, les étapes et les branches selon la phase. Ne pas supposer une issue GitHub.
-    - Décrire le problème, le périmètre et les critères de succès ; référencer les tickets connus sans en inventer ; utiliser 000 pendant l'initialisation.
+    - Décrire le problème, le périmètre et les critères de succès ; référencer les tickets connus sans en inventer.
     - Indiquer les scopes affectés et le découpage envisagé en tickets/PR indépendants vers main ; marquer les tickets manquants « à attribuer ».
   design:
     - Pour le frontend, respecter l'architecture par fonctionnalités et les frontières features/core/shared ; l'architecture hexagonale concerne uniquement le backend.
@@ -70,7 +67,7 @@ rules:
     - Référencer les US/RG et le contrat API concernés sans les confondre avec les tickets de livraison.
   tasks:
     - Pour un ticket enregistré, repérer ses étapes avec [T-<numero>] et indiquer les prérequis, le scope/type/slug et la branche résolue selon initializationActive ; les numéros X.Y restent des étapes OpenSpec.
-    - Regrouper les tâches par évolution livrable ; pour chacune, préciser numéro réel, 000 pendant l'initialisation ou « à attribuer », scope, type, branche prévue, périmètre et critères d'acceptation.
+    - Regrouper les tâches par évolution livrable ; pour chacune, préciser numéro réel ou « à attribuer », scope, type, branche prévue, périmètre et critères d'acceptation.
     - Prévoir pour chaque ticket la vérification/création de branche avant toute modification de code, l'implémentation ciblée, les validations pertinentes et la préparation d'une PR vers main.
     - Séparer les étapes locales des étapes de publication/revue/fusion ; ne cocher une tâche que si l'action a réellement été réalisée.
     - Ne pas implémenter tout un backlog sur une seule branche ; ne pas inventer de ticket et ne jamais inclure un push direct vers main.

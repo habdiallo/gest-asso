@@ -48,6 +48,7 @@ test('les branches provisoires et sans vrai numéro sont refusées au commit', (
   const { git } = repository(t);
   for (const branch of [
     'docs/chore-local-regles-git-openspec',
+    'front/feat-000-ajout-membre',
     'front/feat-0-ajout-membre',
     'front/feat-00-ajout-membre',
     'front/feat-0000-ajout-membre',
@@ -81,21 +82,6 @@ test('le hook refuse un vrai push HEAD:main et laisse le dépôt distant intact'
   assert.notEqual(run('git', ['--git-dir', remote, 'show-ref', '--verify', 'refs/heads/main']).status, 0);
 });
 
-test('000 autorise commits et pushes pendant l’initialisation, avec main toujours protégée', (t) => {
-  const { directory, git } = repository(t);
-  const remote = join(directory, 'remote.git');
-  assert.equal(run('git', ['init', '--bare', '--initial-branch=main', remote]).status, 0);
-  assert.equal(git('remote', 'add', 'origin', remote).status, 0);
-  assert.equal(git('switch', '-c', 'docs/chore-000-regles-git-openspec').status, 0);
-  const commit = git('commit', '--allow-empty', '-m', 'chore(docs): #000 initialiser les règles');
-  assert.equal(commit.status, 0, commit.stderr);
-  const push = git('push', 'origin', 'HEAD:docs/chore-000-regles-git-openspec');
-  assert.equal(push.status, 0, push.stderr);
-  const refused = git('push', 'origin', 'HEAD:main');
-  assert.notEqual(refused.status, 0);
-  assert.match(refused.stderr, /Push refusé vers main/);
-});
-
 test('un push contenant plusieurs refs est entièrement refusé si main est ciblée', () => {
   const result = run(join(hookRoot, 'pre-push'), [], {
     input: 'refs/heads/front/feat-123-ajout-membre abc refs/heads/front/feat-123-ajout-membre def\nHEAD abc refs/heads/main def\n',
@@ -127,15 +113,13 @@ test('les scopes et types autorisés passent, les noms non conformes sont refus�
     'infra/test-126-controles-ci',
     'fullstack/refactor-127-cloture-campagne',
     'front/perf-128-liste-membres',
-    'docs/chore-000-regles-git-openspec',
-    'front/feat-000-socle-applicatif',
   ]) {
     const result = run(join(hookRoot, 'pre-push'), [], {
       input: `refs/heads/${branch} abc refs/heads/${branch} def\n`,
     });
     assert.equal(result.status, 0, result.stderr);
   }
-  for (const branch of ['main', 'docs/chore-local-workflow', 'front/feat-0-membre', 'front/feat-00-membre', 'front/feat-0000-membre', 'front/feat-001-membre', 'front/feat-01-membre', 'front/feat-2-ajout_membre', 'unknown/feat-3-membre']) {
+  for (const branch of ['main', 'docs/chore-local-workflow', 'docs/chore-000-regles-git-openspec', 'front/feat-000-socle-applicatif', 'front/feat-0-membre', 'front/feat-00-membre', 'front/feat-0000-membre', 'front/feat-001-membre', 'front/feat-01-membre', 'front/feat-2-ajout_membre', 'unknown/feat-3-membre']) {
     const result = run(join(hookRoot, 'pre-push'), [], {
       input: `HEAD abc refs/heads/${branch} def\n`,
     });
@@ -165,11 +149,10 @@ test('le contrôle CI accepte la PR conforme et refuse mauvaise cible, branche p
   for (const [branch, base, expected] of [
     ['front/feat-123-ajout-membre', 'main', 0],
     ['back/fix-124-refus-surpaiement', 'main', 0],
-    ['docs/chore-000-regles-git-openspec', 'main', 0],
-    ['front/feat-000-socle-applicatif', 'main', 0],
-    ['docs/chore-000-regles-git-openspec', 'develop', 1],
     ['front/feat-123-ajout-membre', 'develop', 1],
     ['docs/chore-local-workflow', 'main', 1],
+    ['docs/chore-000-regles-git-openspec', 'main', 1],
+    ['front/feat-000-socle-applicatif', 'main', 1],
     ['front/feat-0-membre', 'main', 1],
     ['front/feat-00-membre', 'main', 1],
     ['front/feat-0000-membre', 'main', 1],
