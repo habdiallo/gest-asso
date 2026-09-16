@@ -23,7 +23,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 2.5 [T-7] (P0) Action de déconnexion explicite (menu utilisateur).
 - [x] 2.6 [T-8] (P0) Garde de routage par rôle applicatif (Administrateur / Trésorier / Opérateur / Membre) avec écran "accès refusé" pour toute route non autorisée. — §3
 - [x] 2.7 [T-9] (P0) Menu de navigation dynamique par rôle : items Administrateur (membres, catégories, campagnes, cagnottes, rôles/utilisateurs, mon espace). — §2, §3
-- [ ] 2.8 [T-10] (P0) Menu de navigation dynamique — variante Trésorier (sans catégories, sans rôles/utilisateurs). — §3
+- [x] 2.8 [T-10] (P0) Menu de navigation dynamique — variante Trésorier (sans catégories, sans rôles/utilisateurs). — §3
 - [ ] 2.9 [T-11] (P0) Menu de navigation dynamique — variante Opérateur (consultation membres/campagnes/cagnottes, mon espace). — §3
 - [ ] 2.10 [T-12] (P0) Menu de navigation dynamique — variante Membre (uniquement mon espace personnel). — §3
 - [ ] 2.11 [T-13] (P1) Composant "état de l'attribut Opérateur autorisé" exposé dans le contexte applicatif (`peut_enregistrer_paiements`) pour piloter l'affichage conditionnel des actions de paiement. — RG-ROLE-007 à RG-ROLE-009
