@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
 import { TranslatePipe } from '@shared/i18n/translate.pipe';
-import type { TranslationKey } from '@core/i18n/fr';
+import type { TranslationKey } from '@core/i18n/translation-keys';
 
 @Component({
   selector: 'app-login-page',
