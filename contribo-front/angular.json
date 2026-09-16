@@ -57,6 +57,7 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
+              "tsConfig": "tsconfig.mock.json",
               "fileReplacements": [
                 {
                   "replace": "src/main.ts",

@@ -5,18 +5,18 @@ const demoMemberDashboard: MemberDashboard = {
   view: MemberDashboard.ViewEnum.Member,
   asOf: '2026-09-16T08:00:00Z',
   viewer: {
-    userId: 'demo-user-1',
+    userId: '3f2b1a10-0a1e-4b1a-9c1a-000000000001',
     association: {
-      id: 'demo-association-1',
+      id: '3f2b1a10-0a1e-4b1a-9c1a-000000000002',
       name: 'Association Démo',
       currency: CurrencyCode.Gnf,
     },
     member: {
-      id: 'demo-member-1',
+      id: '3f2b1a10-0a1e-4b1a-9c1a-000000000003',
       firstName: 'Aminata',
       lastName: 'Diallo',
       displayName: 'Aminata Diallo',
-      incomeCategory: { id: 'demo-category-1', label: 'Salariée' },
+      incomeCategory: { id: '3f2b1a10-0a1e-4b1a-9c1a-000000000004', label: 'Salariée' },
       status: MemberStatus.Active,
     },
     role: UserRole.Member,

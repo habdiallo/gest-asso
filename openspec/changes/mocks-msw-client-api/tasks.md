@@ -48,9 +48,21 @@ au moins un endpoint de démonstration ; la documentation distingue explicitemen
 
 ## 6. Ticket T-105 — Publication (PR vers main)
 
-- [ ] 6.1 [T-105] Committer les fichiers du ticket avec le message `chore(front): T-105 ...` (ou
+- [x] 6.1 [T-105] Committer les fichiers du ticket avec le message `chore(front): T-105 ...` (ou
       `#000 ...` si publié avant la fin de l'initialisation), sans embarquer d'autres changements.
-- [ ] 6.2 [T-105] Pousser uniquement `front/chore-000-mocks-msw-client-api` (ou son équivalent
+- [x] 6.2 [T-105] Pousser uniquement `front/chore-000-mocks-msw-client-api` (ou son équivalent
       renommé après l'initialisation) et ouvrir une PR en brouillon vers `main` avec le modèle du
       dépôt, en référençant T-105 et ce change OpenSpec.
-- [ ] 6.3 [T-105] Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur.
+- [x] 6.3 [T-105] Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur.
+
+## 7. Ticket T-105 — Corrections de revue (PR #6)
+
+- [x] 7.1 [T-105] [P1] Isoler `src/main.mock.ts` et les dossiers `mocks/` de `tsconfig.app.json`
+      (compilation normale indépendante du client généré) et ajouter `tsconfig.mock.json`
+      utilisé par la configuration Angular `mock`. Vérifié en supprimant temporairement
+      `src/app/core/api/generated/` : `tsc -p tsconfig.app.json` reste sans erreur.
+- [x] 7.2 [T-105] [P2] Remplacer les identifiants de la fixture de démonstration
+      (`features/home/mocks/handlers.ts`) par des UUID valides conformes au `format: uuid` du
+      contrat.
+- [x] 7.3 [T-105] Rejouer les validations (`npm run build`, `ng build --configuration mock`,
+      `npm test -- --watch=false`, `npm run lint`, `npm run format:check`) après correction.

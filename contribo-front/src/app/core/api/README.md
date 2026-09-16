@@ -31,6 +31,11 @@ modèles générés (pas de DTO concurrent du contrat), puis les agrège dans
 `src/mocks/handlers.ts`. Voir `features/home/mocks/handlers.ts` pour un exemple sur
 `GET /api/v1/dashboard`.
 
+`src/main.mock.ts`, `src/mocks/**` et `**/mocks/**` sont exclus de `tsconfig.app.json` : la
+compilation normale (`npm start`, `npm run build`) reste indépendante du client généré, y
+compris quand un handler de mock importe `@api`. La configuration Angular `mock` utilise
+`tsconfig.mock.json` (qui réinclut ces fichiers) pour compiler le mode mock.
+
 MSW ne remplace jamais `HttpTestingController` : les tests Vitest des services générés
 continuent de vérifier requêtes/réponses/erreurs avec `provideHttpClientTesting`, sans
 dépendre du service worker.

@@ -60,3 +60,8 @@ manuels ; les tests unitaires doivent vérifier le client généré avec le disp
   `core/api/README.md` que MSW ne remplace jamais `HttpTestingController` dans les specs.
 - [Le service worker MSW nécessite une origine servie (pas `file://`)] → Documenter que le mode mock
   s'utilise via `npm start`/serveur de dev Angular, pas en ouvrant un fichier statique directement.
+- [Un handler de mock qui importe `@api` (`features/<feature>/mocks/handlers.ts`) casse la
+  compilation normale quand le client généré est absent, car `tsconfig.app.json` inclut tout
+  `src/**/*.ts` sans distinguer l'entrée réellement bundlée] → Exclure `src/main.mock.ts`,
+  `src/mocks/**` et `**/mocks/**` de `tsconfig.app.json`, et créer `tsconfig.mock.json` (qui les
+  réinclut) utilisé uniquement par la configuration Angular `mock`.
