@@ -1,6 +1,6 @@
 ---
 name: code-review-senior
-description: Revue senior factuelle d'un diff, d'une branche ou d'une PR Contribo. Utiliser pour « revue senior », « review comme un dev senior » ou code-review-senior. Chercher les défauts démontrés de comportement, sécurité, données, concurrence et performance ; produire un rapport sans modifier ni publier du code. Ne pas utiliser pour implémenter une correction ou commenter uniquement le style.
+description: Revue senior factuelle d'un diff, d'une branche ou d'une PR Contribo. Utiliser pour « revue senior », « review comme un dev senior » ou code-review-senior. Chercher les défauts démontrés de comportement, sécurité, données, concurrence et performance ; pour une PR, publier les constats et le verdict dans la revue GitHub. Ne pas utiliser pour implémenter une correction ou commenter uniquement le style.
 ---
 
 # Revue senior Contribo
@@ -20,6 +20,10 @@ Les références ci-dessous sont relatives à ce dossier ; résoudre le dépôt 
    Pour le travail local, lire séparément `git diff`, `git diff --cached` et les
    fichiers non suivis pertinents signalés par `git status --short`.
    Annoncer la base exacte et ses limites ; ne pas confondre un diff local avec une PR.
+   Pour une PR explicitement ciblée, préparer une revue GitHub : attacher chaque
+   constat à la ligne modifiée correspondante lorsque l'API le permet, puis publier
+   le verdict global dans la revue. Ne publier aucun commentaire pour un simple diff
+   local ou une branche sans PR ciblée.
 3. Si aucune cible n'est fournie, utiliser le travail local s'il existe ; sinon la
    branche courante contre `main`. Demander la cible seulement si rien n'est examinable.
 4. Lire [references/context.md](references/context.md), puis cartographier fichiers,
@@ -50,6 +54,6 @@ Présenter les constats par priorité avec des lignes courtes et précises du di
 Ne pas imposer un nombre de constats. Sans défaut établi, écrire
 « Aucun défaut démontré dans le périmètre examiné » et préciser les limites.
 
-La revue autorise uniquement un rapport local : ne pas éditer les fichiers,
-créer de branche, committer, pousser, publier un commentaire ou une approbation,
-ni fusionner une PR. Une demande explicite distincte est nécessaire pour ces actions.
+La revue n'édite jamais les fichiers, ne crée pas de branche, ne committe pas, ne
+pousse pas et ne fusionne pas. Pour une PR ciblée, la publication des constats et du
+verdict dans GitHub fait partie de la revue ; ne publier ni approbation ni auto-merge.

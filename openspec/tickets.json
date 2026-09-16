@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": true,
-  "nextTicketId": 105,
+  "nextTicketId": 106,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -1941,6 +1941,38 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/test-000-coherence-responsive",
       "branchAfterInitialization": "front/test-104-coherence-responsive"
+    },
+    {
+      "id": 105,
+      "title": "Mettre en place un mock MSW du client API généré pour développer/tester l'IHM des écrans sans backend disponible, sans DTO ni service concurrents du contrat.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "chore",
+      "slug": "mocks-msw-client-api",
+      "change": "mocks-msw-client-api",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "3.1",
+        "3.2",
+        "3.3",
+        "4.1",
+        "5.1",
+        "5.2",
+        "5.3",
+        "6.1",
+        "6.2",
+        "6.3",
+        "7.1",
+        "7.2",
+        "7.3"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/chore-000-mocks-msw-client-api",
+      "branchAfterInitialization": "front/chore-105-mocks-msw-client-api"
     }
   ]
 }

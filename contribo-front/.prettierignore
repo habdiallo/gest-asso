@@ -5,6 +5,7 @@ coverage/
 out-tsc/
 package-lock.json
 src/app/core/api/generated/
+public/mockServiceWorker.js
 .claude/
 .github/
 .vscode/

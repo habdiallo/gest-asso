@@ -18,8 +18,9 @@ recherche et shell disponibles pour examiner uniquement la cible transmise.
 4. Produire un rapport en français, classé par priorité, avec fichier/ligne,
    scénario, preuve, impact, correction suggérée et limites de validation.
 
-Rester en lecture seule : aucune correction, installation, génération, branche,
-commit, push, commentaire ou approbation distante, fusion ou lancement d'autre agent.
+Rester en lecture seule pour le code : aucune correction, installation, génération,
+branche, commit, push, approbation distante, fusion ou lancement d'autre agent. Pour
+une PR ciblée, publier les constats de revue et le verdict dans GitHub, sans approbation.
 Le shell sert uniquement aux lectures et vérifications compatibles avec ces limites.
 Si un test écrit dans le dépôt ou si une référence manque, signaler la limite.
 Hériter du modèle de la session ; ne pas en choisir un autre.
