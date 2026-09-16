@@ -19,7 +19,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 2.1 [T-3] (P0) Écran de connexion (identifiant + mot de passe), sans lien d'inscription. — US-ACC-001, RG-003 ; openapi:`login`
 - [x] 2.2 [T-4] (P0) Gestion de l'erreur de connexion (message générique, pas de redirection). — RG-003
 - [x] 2.3 [T-5] (P0) Stockage de la session (jeton) et hydratation de l'utilisateur connecté au démarrage de l'app.
-- [ ] 2.4 [T-6] (P0) Interception des réponses API en erreur d'authentification → invalidation de session et redirection vers l'écran de connexion.
+- [x] 2.4 [T-6] (P0) Interception des réponses API en erreur d'authentification → invalidation de session et redirection vers l'écran de connexion.
 - [ ] 2.5 [T-7] (P0) Action de déconnexion explicite (menu utilisateur).
 - [ ] 2.6 [T-8] (P0) Garde de routage par rôle applicatif (Administrateur / Trésorier / Opérateur / Membre) avec écran "accès refusé" pour toute route non autorisée. — §3
 - [ ] 2.7 [T-9] (P0) Menu de navigation dynamique par rôle : items Administrateur (membres, catégories, campagnes, cagnottes, rôles/utilisateurs, mon espace). — §2, §3

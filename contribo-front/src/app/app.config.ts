@@ -12,6 +12,7 @@ import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { TranslocoHttpLoader } from '@core/i18n/transloco-http.loader';
 import { EspacePersonnelService } from '@api';
 import { authInterceptor } from '@core/session/auth.interceptor';
+import { sessionExpiredInterceptor } from '@core/session/session-expired.interceptor';
 import { SessionService } from '@core/session/session.service';
 
 import { routes } from './app.routes';
@@ -44,7 +45,7 @@ export function hydrateCurrentUser(
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, sessionExpiredInterceptor])),
     provideRouter(routes),
     provideTransloco({
       config: {
