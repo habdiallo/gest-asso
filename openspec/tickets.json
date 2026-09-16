@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 107,
+  "nextTicketId": 108,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2004,6 +2004,36 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "infra/chore-000-fin-initialisation-000",
       "branchAfterInitialization": "infra/chore-106-fin-initialisation-000"
+    },
+    {
+      "id": 107,
+      "title": "Fournir des comptes de démonstration pour les quatre rôles et les mocks MSW de connexion/hydratation de session pour tester le frontend sans backend.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "chore",
+      "slug": "mocks-connexion-session",
+      "change": "comptes-demo-connexion-session",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "3.1",
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "dependencies": [
+        5,
+        105
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/chore-000-mocks-connexion-session",
+      "branchAfterInitialization": "front/chore-107-mocks-connexion-session"
     }
   ]
 }
