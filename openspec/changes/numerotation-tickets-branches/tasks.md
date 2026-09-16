@@ -31,8 +31,8 @@ sans fusion implicite. Intégrer les dépendances avant de fusionner sa PR.
 
 ## 4. Publication et intégration
 
-- [ ] 4.1 Committer explicitement les fichiers du workflow et pousser uniquement sa branche si la livraison est demandée.
-- [ ] 4.2 Ouvrir sa PR vers `main`, renseigner le lien et les validations réellement exécutées.
+- [x] 4.1 Committer explicitement les fichiers du workflow et pousser uniquement sa branche si la livraison est demandée (commit d'implémentation `aa0c89f`, poussé sur `infra/chore-000-registre-tickets-branches`).
+- [x] 4.2 Ouvrir sa PR vers `main`, renseigner le lien et les validations réellement exécutées ([PR #5](https://github.com/habdiallo/gest-asso/pull/5), en brouillon ; 32 tests locaux réussis et dépendances #2, #1, #3, #4 documentées).
 - [ ] 4.3 Traiter la revue ; fusionner uniquement sur demande explicite après validations et intégration des dépendances.
 
 Les tickets métier T-1 à T-104 sont planifiés dans [tickets.md](tickets.md),
