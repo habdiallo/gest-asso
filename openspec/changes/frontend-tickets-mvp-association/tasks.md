@@ -36,7 +36,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 3.1 [T-17] (P0) Utilitaire de formatage détaillé d'un montant GNF (séparateur de milliers, suffixe "GNF"). — RG-FMT-001, RG-FMT-002
 - [ ] 3.2 [T-18] (P0) Utilitaire de formatage condensé d'un montant GNF (K / M / Mds, une décimale max) avec accès à la valeur brute (info-bulle). — RG-FMT-003, RG-FMT-004
 - [ ] 3.3 [T-19] (P1) Composant de saisie de montant avec formatage automatique en direct et validation "entier uniquement".
-- [ ] 3.4 [T-20] (P0) Composant de sélection du mode de règlement limité à Espèces / Mobile Money / Virement bancaire. — RG-PAY-009, RG-016
+- [x] 3.4 [T-20] (P0) Composant de sélection du mode de règlement limité à Espèces / Mobile Money / Virement bancaire. — RG-PAY-009, RG-016
 
 ## 4. Membres — consultation (`member-management-ui`)
 
