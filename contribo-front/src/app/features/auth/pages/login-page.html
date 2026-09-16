@@ -1,0 +1,93 @@
+<div class="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+  <section
+    class="relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] lg:flex"
+  >
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-full bg-gold-wash text-gold">
+        <span class="font-display text-xl">C</span>
+      </div>
+      <div>
+        <div class="font-display text-2xl uppercase tracking-[0.11em]">Contribo</div>
+        <div class="text-[8px] uppercase tracking-[0.16em] text-text-3">Gestion associative</div>
+      </div>
+    </div>
+
+    <div class="relative z-10 max-w-[540px]">
+      <div class="text-xs uppercase tracking-[0.2em] text-gold">Union Contribo Conakry</div>
+      <h1 class="font-display mt-3 text-5xl leading-[0.92] lg:text-7xl">
+        Gérer ensemble.<br />Agir avec clarté.
+      </h1>
+      <p class="mt-4 max-w-[440px] text-base font-light leading-relaxed text-[#a5a9b4]">
+        Un espace unique pour suivre les membres, les cotisations et les actions de solidarité de
+        l'association.
+      </p>
+    </div>
+  </section>
+
+  <section class="grid place-items-center bg-bg p-8 lg:p-12">
+    <form class="w-full max-w-[420px]" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-gold-wash text-gold">
+          <span class="font-display text-xl">C</span>
+        </div>
+        <div>
+          <div class="font-display text-2xl uppercase tracking-[0.11em] text-text">Contribo</div>
+          <div class="text-[8px] uppercase tracking-[0.16em] text-text-3">Gestion associative</div>
+        </div>
+      </div>
+
+      <h2 class="mt-7 text-3xl text-text">Bienvenue</h2>
+      <p class="mb-7 font-light text-text-2">Connectez-vous à votre espace associatif.</p>
+
+      <div class="mb-4">
+        <label
+          for="identifier"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          Identifiant
+        </label>
+        <input
+          id="identifier"
+          type="text"
+          formControlName="identifier"
+          autocomplete="username"
+          required
+          class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-4 focus:ring-gold-wash"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label
+          for="password"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          Mot de passe
+        </label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          required
+          class="h-12 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-4 focus:ring-gold-wash"
+        />
+      </div>
+
+      @if (errorMessage(); as error) {
+        <p class="mb-4 text-sm text-error" role="alert">{{ error }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="submitting()"
+        class="mt-2 flex h-11 w-full items-center justify-center rounded-lg bg-gold text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      >
+        {{ submitting() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+
+      <p class="mt-6 border-t border-line pt-5 text-[11px] leading-relaxed text-text-3">
+        L'accès est créé par un responsable de l'association. Il n'existe pas d'inscription libre.
+      </p>
+    </form>
+  </section>
+</div>
