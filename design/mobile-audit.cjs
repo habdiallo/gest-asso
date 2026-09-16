@@ -75,10 +75,10 @@ async function main() {
 
   await command('Runtime.evaluate', { expression: 'state.route="dashboard";state.modalRoute=null;render()' });
   const dashboard = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  fs.writeFileSync('/tmp/nimba-440-dashboard.png', Buffer.from(dashboard.data, 'base64'));
+  fs.writeFileSync('/tmp/contribo-440-dashboard.png', Buffer.from(dashboard.data, 'base64'));
   await command('Runtime.evaluate', { expression: 'state.route="campaign";state.campaignTab="members";render()' });
   const campaign = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  fs.writeFileSync('/tmp/nimba-440-campaign.png', Buffer.from(campaign.data, 'base64'));
+  fs.writeFileSync('/tmp/contribo-440-campaign.png', Buffer.from(campaign.data, 'base64'));
 
   const selectRoutes = ['dashboard', 'member-form', 'campaign-form', 'payment-form', 'pot-form', 'contribution-form', 'operator'];
   for (const route of selectRoutes) {
@@ -138,17 +138,17 @@ async function main() {
     awaitPromise: true,
   });
   const select = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  fs.writeFileSync('/tmp/nimba-440-select.png', Buffer.from(select.data, 'base64'));
+  fs.writeFileSync('/tmp/contribo-440-select.png', Buffer.from(select.data, 'base64'));
 
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false, screenWidth: 1440, screenHeight: 900 });
   await command('Runtime.evaluate', { expression: `state.theme='light';state.route='dashboard';state.modalRoute=null;state.dashboardCampaignScope='Solidarité septembre';state.dashboardPotScope='Toutes les cagnottes ouvertes';document.documentElement.dataset.theme='light';render();scrollTo(0,0)` });
   await new Promise((resolve) => setTimeout(resolve, 180));
   const desktop = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  fs.writeFileSync('/tmp/nimba-dashboard-desktop.png', Buffer.from(desktop.data, 'base64'));
+  fs.writeFileSync('/tmp/contribo-dashboard-desktop.png', Buffer.from(desktop.data, 'base64'));
   await command('Runtime.evaluate', { expression: 'scrollTo(0,document.documentElement.scrollHeight)' });
   await new Promise((resolve) => setTimeout(resolve, 120));
   const desktopLower = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  fs.writeFileSync('/tmp/nimba-dashboard-desktop-lower.png', Buffer.from(desktopLower.data, 'base64'));
+  fs.writeFileSync('/tmp/contribo-dashboard-desktop-lower.png', Buffer.from(desktopLower.data, 'base64'));
 
   console.log(JSON.stringify(results, null, 2));
   socket.close();

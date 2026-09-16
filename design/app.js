@@ -33,12 +33,12 @@ const icons = {
 const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.info}</svg>`;
 
 const members = [
-  { id: 1, initials: 'AD', name: 'Amadou Diallo', email: 'amadou.diallo@nimba.org', phone: '+224 622 12 34 56', city: 'Conakry', country: 'Guinée', category: 'B', function: 'Président', status: 'Actif' },
-  { id: 2, initials: 'MC', name: 'Mariam Camara', email: 'mariam.camara@nimba.org', phone: '+224 620 48 11 93', city: 'Kindia', country: 'Guinée', category: 'C', function: 'Secrétaire', status: 'Actif' },
-  { id: 3, initials: 'IB', name: 'Ibrahima Barry', email: 'ibrahima.barry@nimba.org', phone: '+224 664 09 28 40', city: 'Conakry', country: 'Guinée', category: 'A', function: 'Membre', status: 'Actif' },
-  { id: 4, initials: 'FD', name: 'Fatoumata Diallo', email: 'fatoumata.d@nimba.org', phone: '+224 625 71 10 08', city: 'Labé', country: 'Guinée', category: 'D', function: 'Vice-présidente', status: 'Actif' },
-  { id: 5, initials: 'MS', name: 'Mamadou Sow', email: 'mamadou.sow@nimba.org', phone: '+224 666 33 20 19', city: 'Mamou', country: 'Guinée', category: 'B', function: 'Membre', status: 'Inactif' },
-  { id: 6, initials: 'KC', name: 'Kadiatou Condé', email: 'kadiatou.c@nimba.org', phone: '+224 621 15 82 47', city: 'Conakry', country: 'Guinée', category: 'C', function: 'Membre', status: 'Actif' },
+  { id: 1, initials: 'AD', name: 'Amadou Diallo', email: 'amadou.diallo@contribo.org', phone: '+224 622 12 34 56', city: 'Conakry', country: 'Guinée', category: 'B', function: 'Président', status: 'Actif' },
+  { id: 2, initials: 'MC', name: 'Mariam Camara', email: 'mariam.camara@contribo.org', phone: '+224 620 48 11 93', city: 'Kindia', country: 'Guinée', category: 'C', function: 'Secrétaire', status: 'Actif' },
+  { id: 3, initials: 'IB', name: 'Ibrahima Barry', email: 'ibrahima.barry@contribo.org', phone: '+224 664 09 28 40', city: 'Conakry', country: 'Guinée', category: 'A', function: 'Membre', status: 'Actif' },
+  { id: 4, initials: 'FD', name: 'Fatoumata Diallo', email: 'fatoumata.d@contribo.org', phone: '+224 625 71 10 08', city: 'Labé', country: 'Guinée', category: 'D', function: 'Vice-présidente', status: 'Actif' },
+  { id: 5, initials: 'MS', name: 'Mamadou Sow', email: 'mamadou.sow@contribo.org', phone: '+224 666 33 20 19', city: 'Mamou', country: 'Guinée', category: 'B', function: 'Membre', status: 'Inactif' },
+  { id: 6, initials: 'KC', name: 'Kadiatou Condé', email: 'kadiatou.c@contribo.org', phone: '+224 621 15 82 47', city: 'Conakry', country: 'Guinée', category: 'C', function: 'Membre', status: 'Actif' },
 ];
 
 const campaigns = [
@@ -96,8 +96,8 @@ const roleConfig = {
 };
 
 const state = {
-  theme: localStorage.getItem('nimba-theme') || 'dark',
-  role: localStorage.getItem('nimba-role') || 'Administrateur',
+  theme: localStorage.getItem('contribo-theme') || 'dark',
+  role: localStorage.getItem('contribo-role') || 'Administrateur',
   route: location.hash.slice(1) || 'dashboard',
   memberFilter: 'Tous',
   campaignFilter: 'Toutes',
@@ -137,8 +137,7 @@ function appShell(content) {
   const mainMobile = visibleNav.slice(0, 5);
   return `<div class="app-shell" data-theme="${state.theme}">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">NIMBA</div><div class="brand-caption">Gestion associative</div></div></div>
-      <div class="workspace-chip"><p class="eyebrow">Association</p><strong>Union Nimba Conakry</strong></div>
+      <div class="brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">CONTRIBO</div><div class="brand-caption">Gestion associative</div></div></div>
       <nav class="nav" aria-label="Navigation principale">
         ${config.nav.map(item => item[0] === 'section'
           ? `<div class="nav-section">${item[1]}</div>`
@@ -149,12 +148,12 @@ function appShell(content) {
       </div>
     </aside>
     <header class="mobile-topbar">
-      <div class="brand"><div class="brand-mark">${svg('logo')}</div><div class="brand-name">NIMBA</div></div>
+      <div class="brand"><div class="brand-mark">${svg('logo')}</div><div class="brand-name">CONTRIBO</div></div>
       <div class="mobile-actions"><button class="icon-button theme-toggle" aria-label="Changer de thème">${svg(state.theme === 'dark' ? 'sun' : 'moon')}</button><button class="icon-button role-toggle" aria-label="Changer de rôle">${svg('profile')}</button></div>
     </header>
     <main class="main">
       <header class="topbar">
-        <div class="breadcrumb"><span>Union Nimba</span>${svg('chevron')}<strong>${routeLabel()}</strong></div>
+        <div class="breadcrumb"><span>Union Contribo</span>${svg('chevron')}<strong>${routeLabel()}</strong></div>
         <div class="top-actions">
           <button class="icon-button theme-toggle" aria-label="Changer de thème">${svg(state.theme === 'dark' ? 'sun' : 'moon')}</button>
           <div class="role-switch"><button class="role-button role-toggle"><span class="eyebrow">Vue · ${state.role}</span>${svg('down')}</button>${rolePopover()}</div>
@@ -377,7 +376,7 @@ function memberFormPage(editMode = false){
 function field(label,type,value='',placeholder='',disabled=false){return `<div class="field"><label>${label}</label><input type="${type}" value="${value}" placeholder="${placeholder}" ${disabled?'disabled':''}></div>`;}
 let selectSequence=0;
 function customSelect(options,disabled=false,compact=false,label='Sélection',selectedValue=options[0],attributes=''){
-  const id=`nimba-select-${++selectSequence}`;
+  const id=`contribo-select-${++selectSequence}`;
   const selected=options.includes(selectedValue)?selectedValue:options[0];
   return `<div class="custom-select ${compact?'custom-select-compact':''}" data-custom-select ${attributes}><button id="${id}" class="select-trigger" type="button" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="${label}" ${disabled?'disabled':''}><span class="select-value">${selected}</span>${svg('down')}</button><input type="hidden" value="${selected}"><div class="select-menu" role="listbox" aria-labelledby="${id}" hidden>${options.map(option=>`<button class="select-option ${option===selected?'selected':''}" type="button" role="option" aria-selected="${option===selected}" data-select-option data-value="${option}"><span>${option}</span>${option===selected?svg('check'):''}</button>`).join('')}</div></div>`;
 }
@@ -415,9 +414,9 @@ function myDueDetailPage(){return `<section class="page form-page"><div class="p
 function myContributionsPage(){return `<section class="page">${pageHead('Espace personnel','Mes contributions','Historique de vos participations aux cagnottes sociales.')}<section class="data-panel"><div class="mobile-cards" style="display:block">${contributions.map((c,i)=>`<article class="member-card" data-route="my-contribution"><div class="member-card-top"><div><h3>${pots[i]?.title || pots[0].title}</h3><p class="row-sub">${c.date} · ${c.mode}</p></div><span class="amount" style="color:var(--success)">+ ${c.amount}</span></div></article>`).join('')}</div></section></section>`;}
 function myContributionDetailPage(){return `<section class="page form-page"><div class="page-head"><button class="text-link" data-route="my-contributions">${svg('arrow')} Retour à mes contributions</button></div><section class="form-card"><div class="page-kicker">Détail de la contribution</div><h2>Mariage de Fanta & Sékou</h2><div class="financial-number" style="margin-top:28px;color:var(--success)">150 000 GNF</div><div class="info-grid">${infoItem('Date','14 septembre 2026')}${infoItem('Mode','Mobile Money')}${infoItem('Cagnotte','Mariage de Fanta & Sékou')}${infoItem('Enregistrée par','Moussa Bah')}</div><div class="callout">${svg('info')}<span>Cette contribution est indépendante de vos cotisations.</span></div></section></section>`;}
 
-function accountPage(){const c=roleConfig[state.role];return `<section class="page form-page">${pageHead('Compte','Mon accès','Préférences d’affichage et informations du compte.')}<section class="form-card"><div class="hero-identity"><div class="avatar">${c.initials}</div><div><h2>${c.name}</h2><div class="inline-meta">${status('Compte actif','success')}<span>${state.role}</span></div></div></div><div class="info-grid">${infoItem('Association','Union Nimba Conakry')}${infoItem('Rôle applicatif',state.role)}${infoItem('Thème',state.theme==='dark'?'Obsidian Midnight':'Alabaster Gallery')}${infoItem('Devise','GNF — Franc Guinéen')}</div><div class="form-footer"><button class="btn btn-secondary theme-toggle">${svg(state.theme==='dark'?'sun':'moon')} Changer de thème</button><button class="btn btn-danger" data-route="login">${svg('logout')} Se déconnecter</button></div></section></section>`;}
+function accountPage(){const c=roleConfig[state.role];return `<section class="page form-page">${pageHead('Compte','Mon accès','Préférences d’affichage et informations du compte.')}<section class="form-card"><div class="hero-identity"><div class="avatar">${c.initials}</div><div><h2>${c.name}</h2><div class="inline-meta">${status('Compte actif','success')}<span>${state.role}</span></div></div></div><div class="info-grid">${infoItem('Association','Union Contribo Conakry')}${infoItem('Rôle applicatif',state.role)}${infoItem('Thème',state.theme==='dark'?'Obsidian Midnight':'Alabaster Gallery')}${infoItem('Devise','GNF — Franc Guinéen')}</div><div class="form-footer"><button class="btn btn-secondary theme-toggle">${svg(state.theme==='dark'?'sun':'moon')} Changer de thème</button><button class="btn btn-danger" data-route="login">${svg('logout')} Se déconnecter</button></div></section></section>`;}
 
-function loginPage(){return `<div class="login-shell" data-theme="${state.theme}"><section class="login-visual"><div class="brand login-brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">NIMBA</div><div class="brand-caption">Gestion associative</div></div></div><div class="login-quote"><div class="page-kicker">Union Nimba Conakry</div><h1>Gérer ensemble.<br>Agir avec clarté.</h1><p>Un espace unique pour suivre les membres, les cotisations et les actions de solidarité de l’association.</p></div></section><section class="login-panel"><form class="login-form" id="login-form"><div class="brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">NIMBA</div><div class="brand-caption">Gestion associative</div></div></div><h2>Bienvenue</h2><p>Connectez-vous à votre espace associatif.</p><div class="field"><label>Identifiant</label><input type="text" value="moussa.bah" required></div><div class="field"><label>Mot de passe</label><input type="password" value="prototypenimba" required></div><button class="btn btn-primary" type="submit">Se connecter ${svg('chevron')}</button><div class="login-note">L’accès est créé par un responsable de l’association. Il n’existe pas d’inscription libre.</div></form></section></div>`;}
+function loginPage(){return `<div class="login-shell" data-theme="${state.theme}"><section class="login-visual"><div class="brand login-brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">CONTRIBO</div><div class="brand-caption">Gestion associative</div></div></div><div class="login-quote"><div class="page-kicker">Union Contribo Conakry</div><h1>Gérer ensemble.<br>Agir avec clarté.</h1><p>Un espace unique pour suivre les membres, les cotisations et les actions de solidarité de l’association.</p></div></section><section class="login-panel"><form class="login-form" id="login-form"><div class="brand"><div class="brand-mark">${svg('logo')}</div><div><div class="brand-name">CONTRIBO</div><div class="brand-caption">Gestion associative</div></div></div><h2>Bienvenue</h2><p>Connectez-vous à votre espace associatif.</p><div class="field"><label>Identifiant</label><input type="text" value="moussa.bah" required></div><div class="field"><label>Mot de passe</label><input type="password" value="prototypecontribo" required></div><button class="btn btn-primary" type="submit">Se connecter ${svg('chevron')}</button><div class="login-note">L’accès est créé par un responsable de l’association. Il n’existe pas d’inscription libre.</div></form></section></div>`;}
 
 function render() {
   document.documentElement.dataset.theme = state.theme;
@@ -460,7 +459,7 @@ function closeModal() {
 }
 function toggleTheme() {
   state.theme = state.theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('nimba-theme', state.theme);
+  localStorage.setItem('contribo-theme', state.theme);
   render();
 }
 function toast(message, tone='success') {
@@ -514,7 +513,7 @@ document.addEventListener('click', e => {
     return;
   }
   const role = e.target.closest('[data-role]');
-  if (role) { state.role=role.dataset.role; localStorage.setItem('nimba-role',state.role); state.route='dashboard'; location.hash='dashboard'; render(); return; }
+  if (role) { state.role=role.dataset.role; localStorage.setItem('contribo-role',state.role); state.route='dashboard'; location.hash='dashboard'; render(); return; }
   const campaignTab=e.target.closest('[data-campaign-tab]');
   if(campaignTab){state.campaignTab=campaignTab.dataset.campaignTab;updateTabs('[data-campaign-tab]',campaignTab,'campaign-tab-content',campaignTabContent());return;}
   const memberTab=e.target.closest('[data-member-tab]');

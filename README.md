@@ -1,4 +1,4 @@
-# Nimba — prototype UX/UI
+# Contribo — prototype UX/UI
 
 Prototype responsive de l’application de gestion associative, construit à partir de `DESIGN (5).md` et de `cahier-user-stories-mvp-association-v2.md`.
 

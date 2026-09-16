@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Nimba - API de gestion associative
+  title: Contribo - API de gestion associative
   version: 1.0.0-mvp
   description: |
-    Contrat API du MVP Nimba. Les montants sont exprimés en francs guinéens (GNF),
+    Contrat API du MVP Contribo. Les montants sont exprimés en francs guinéens (GNF),
     sous forme d'entiers sans sous-unité. L'API ne déclenche aucun paiement : elle
     enregistre uniquement des encaissements constatés par un utilisateur autorisé.
 servers:
@@ -1509,7 +1509,7 @@ components:
           minLength: 1
           maxLength: 150
           readOnly: true
-          example: Union Nimba Conakry
+          example: Union Contribo Conakry
         currency:
           $ref: '#/components/schemas/CurrencyCode'
     AuditActor:
