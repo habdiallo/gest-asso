@@ -70,4 +70,31 @@ describe('PaymentMethodSelect', () => {
     expect(select.getAttribute('aria-invalid')).toBe('true');
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
   });
+
+  it('hides the error again once the bound control is reset', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.control.markAsTouched();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
+
+    fixture.componentInstance.control.reset();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
+    expect(select.getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('shows the error when the parent form calls markAllAsTouched without a blur', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
+
+    fixture.componentInstance.control.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
+    expect(select.getAttribute('aria-invalid')).toBe('true');
+  });
 });
