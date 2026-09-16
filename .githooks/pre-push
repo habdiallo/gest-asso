@@ -1,0 +1,44 @@
+#!/bin/sh
+set -eu
+
+# Exception 000 temporaire jusqu'à la fin d'initialisation déclarée par le mainteneur.
+pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$'
+
+# Git transmet toutes les refs réellement poussées, même pour HEAD:main.
+while read -r local_ref local_oid remote_ref remote_oid; do
+  if [ "$remote_ref" = refs/heads/main ]; then
+    printf '%s\n' 'Push refusé vers main : publier la branche du ticket et ouvrir une PR vers main.' >&2
+    exit 1
+  fi
+
+  case "$remote_ref" in
+    refs/heads/*)
+      branch=${remote_ref#refs/heads/}
+      # Autoriser la suppression d'une branche de travail fusionnée, y compris ancienne.
+      if [ "$local_ref" = '(delete)' ]; then
+        continue
+      fi
+      if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$pattern"; then
+        printf '%s\n' "Push refusé : branche distante '$branch' non conforme. Voir CONTRIBUTING.md." >&2
+        exit 1
+      fi
+      case "$local_ref" in
+        refs/heads/*) source_branch=${local_ref#refs/heads/} ;;
+        HEAD)
+          source_branch=$(git symbolic-ref --quiet --short HEAD) || {
+            printf '%s\n' 'Push refusé : utiliser une branche de ticket, pas une HEAD détachée.' >&2
+            exit 1
+          }
+          ;;
+        *)
+          printf '%s\n' 'Push refusé : publier une branche de ticket, pas une référence arbitraire.' >&2
+          exit 1
+          ;;
+      esac
+      if ! printf '%s\n' "$source_branch" | LC_ALL=C grep -Eq "$pattern"; then
+        printf '%s\n' "Push refusé depuis '$source_branch' : utiliser la branche du ticket." >&2
+        exit 1
+      fi
+      ;;
+  esac
+done

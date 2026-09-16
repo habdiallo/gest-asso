@@ -33,3 +33,17 @@ Puis ouvrez `http://localhost:4173`.
 - navigation clavier entre les onglets avec les flèches gauche et droite.
 
 Le sélecteur de rôle dans l’en-tête sert uniquement à prévisualiser les variantes du prototype.
+
+## Workflow de contribution et OpenSpec
+
+Chaque évolution suit **un ticket → une branche → une pull request vers `main`**,
+sans push direct sur `main`, y compris pour le code généré.
+Les branches suivent `<scope>/<type>-<ticket>-<description>`, par exemple
+`front/feat-123-ajout-membre` (ticket fictif).
+Pendant l'initialisation du projet, le marqueur `000` est autorisé à la place
+du numéro réel, avec une branche et une PR dédiées à chaque évolution.
+
+Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour les conventions, les hooks locaux,
+le découpage OpenSpec et la protection GitHub à activer. Les agents lisent
+[AGENTS.md](AGENTS.md) ; OpenSpec charge les règles depuis
+[openspec/config.yaml](openspec/config.yaml).

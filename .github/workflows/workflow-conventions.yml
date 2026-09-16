@@ -1,0 +1,33 @@
+name: Workflow conventions
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+permissions: {}
+
+jobs:
+  conventions:
+    name: Workflow conventions
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Vérifier la branche et la cible de la PR
+        # Aucune exécution du code de la PR ; entrées non fiables transmises via env.
+        env:
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_BASE: ${{ github.base_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Exception 000 temporaire pendant l'initialisation du projet.
+          pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$'
+          if [ "$PR_BASE" != main ]; then
+            printf '%s\n' 'La PR doit cibler main.' >&2
+            exit 1
+          fi
+          if ! [[ "$PR_BRANCH" =~ $pattern ]]; then
+            printf '%s\n' 'Branche non conforme : <scope>/<type>-<ticket>-<description>. Voir CONTRIBUTING.md.' >&2
+            exit 1
+          fi
+          printf '%s\n' 'Conventions de livraison vérifiées.'
