@@ -29,7 +29,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 2.11 [T-13] (P1) Composant "état de l'attribut Opérateur autorisé" exposé dans le contexte applicatif (`peut_enregistrer_paiements`) pour piloter l'affichage conditionnel des actions de paiement. — RG-ROLE-007 à RG-ROLE-009
 - [x] 2.12 [T-14] (P0) Layout responsive commun (desktop / tablette / mobile) avec navigation adaptée à chaque taille d'écran.
 - [x] 2.13 [T-15] (P0) Composant dialogue de formulaire : superposé sur desktop/tablette, plein écran sur mobile.
-- [ ] 2.14 [T-16] (P1) Composant tableau de bord générique par rôle (point d'entrée après connexion), reprenant les indicateurs pertinents selon le rôle.
+- [x] 2.14 [T-16] (P1) Composant tableau de bord générique par rôle (point d'entrée après connexion), reprenant les indicateurs pertinents selon le rôle.
 
 ## 3. Utilitaires transverses — montants et paiements (`frontend-shell`)
 

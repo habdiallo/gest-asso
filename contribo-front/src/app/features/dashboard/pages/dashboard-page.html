@@ -1,0 +1,201 @@
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
+  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
+    {{ 'dashboard.title' | transloco }}
+  </h1>
+
+  @if (loading()) {
+    <p class="mt-6 text-text-2" role="status">{{ 'dashboard.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
+  } @else {
+    @if (managementDashboard(); as management) {
+      <p class="mt-1 text-sm text-text-3">
+        {{ 'dashboard.asOf' | transloco: { date: formatInstant(management.asOf) } }}
+      </p>
+
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.management.activeMembers' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">{{ management.activeMemberCount }}</p>
+          <p class="mt-1 text-xs text-text-3">
+            {{
+              'dashboard.management.activeMembersMeta'
+                | transloco: { count: management.registeredMemberCount }
+            }}
+          </p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.management.newMembers' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">
+            {{ management.newMemberCountThisMonth }}
+          </p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.management.openCampaigns' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">{{ management.openCampaignCount }}</p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.management.registeredMembers' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">
+            {{ management.registeredMemberCount }}
+          </p>
+        </div>
+      </div>
+
+      <section class="mt-8">
+        <h2 class="font-display text-xl uppercase tracking-wide text-text">
+          {{ 'dashboard.management.recentCampaignsTitle' | transloco }}
+        </h2>
+        @if (management.recentCampaigns.length === 0) {
+          <p class="mt-3 text-text-2">
+            {{ 'dashboard.management.recentCampaignsEmpty' | transloco }}
+          </p>
+        } @else {
+          <ul class="mt-3 flex flex-col gap-3">
+            @for (campaign of management.recentCampaigns; track campaign.id) {
+              <li class="rounded-card border border-line bg-surface p-4">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                  <span class="font-medium text-text">{{ campaign.name }}</span>
+                  <span class="text-xs uppercase tracking-[0.08em] text-text-3">
+                    {{ campaignStatusLabel(campaign.status) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-sm text-text-2">
+                  {{
+                    'dashboard.management.campaignPeriod'
+                      | transloco
+                        : {
+                            start: formatCalendarDate(campaign.startDate),
+                            end: formatCalendarDate(campaign.endDate),
+                          }
+                  }}
+                </p>
+                <p class="mt-1 text-sm text-text-3">
+                  {{
+                    'dashboard.management.campaignMembers'
+                      | transloco: { count: campaign.memberCount }
+                  }}
+                </p>
+                @if (campaign.financialSummary; as financialSummary) {
+                  <p class="mt-1 text-sm text-text-3">
+                    {{ formatAmount(financialSummary.collectedAmount) }} /
+                    {{ formatAmount(financialSummary.expectedAmount) }}
+                  </p>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      @if (management.financialOverview; as financialOverview) {
+        <section class="mt-8">
+          <h2 class="font-display text-xl uppercase tracking-wide text-text">
+            {{ 'dashboard.management.financialTitle' | transloco }}
+          </h2>
+          @if (financialOverview.recentPayments.length === 0) {
+            <p class="mt-3 text-text-2">
+              {{ 'dashboard.management.recentPaymentsEmpty' | transloco }}
+            </p>
+          } @else {
+            <ul class="mt-3 flex flex-col gap-3">
+              @for (payment of financialOverview.recentPayments; track payment.id) {
+                <li class="rounded-card border border-line bg-surface p-4">
+                  <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <span class="font-medium text-text">{{ payment.member.displayName }}</span>
+                    <span class="font-display text-lg text-gold-hover">
+                      {{ formatAmount(payment.amount) }}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-sm text-text-2">{{ payment.campaign.name }}</p>
+                  <p class="mt-1 text-sm text-text-3">
+                    {{ formatCalendarDate(payment.paymentDate) }} —
+                    {{ paymentMethodLabel(payment.method) }}
+                  </p>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    }
+
+    @if (memberDashboard(); as member) {
+      <p class="mt-1 text-sm text-text-3">
+        {{ 'dashboard.asOf' | transloco: { date: formatInstant(member.asOf) } }}
+      </p>
+
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.member.unpaidDues' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">{{ member.unpaidDueCount }}</p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.member.remainingAmount' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">
+            {{ formatAmount(member.totalRemainingAmount) }}
+          </p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.member.paidDues' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">{{ member.paidDueCount }}</p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.member.totalContributions' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">
+            {{ formatAmount(member.totalContributionAmount) }}
+          </p>
+        </div>
+        <div class="rounded-card border border-line bg-surface-glass p-5">
+          <p class="text-xs uppercase tracking-[0.1em] text-text-3">
+            {{ 'dashboard.member.contributedSocialFunds' | transloco }}
+          </p>
+          <p class="mt-3 font-display text-3xl text-text">
+            {{ member.contributedSocialFundCount }}
+          </p>
+        </div>
+      </div>
+
+      <section class="mt-8">
+        <h2 class="font-display text-xl uppercase tracking-wide text-text">
+          {{ 'dashboard.member.recentDuesTitle' | transloco }}
+        </h2>
+        @if (member.recentDues.length === 0) {
+          <p class="mt-3 text-text-2">{{ 'dashboard.member.recentDuesEmpty' | transloco }}</p>
+        } @else {
+          <ul class="mt-3 flex flex-col gap-3">
+            @for (due of member.recentDues; track due.id) {
+              <li class="rounded-card border border-line bg-surface p-4">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                  <span class="font-medium text-text">{{ due.campaign.name }}</span>
+                  <span class="text-xs uppercase tracking-[0.08em] text-text-3">
+                    {{ dueStatusLabel(due.status) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-sm text-text-2">
+                  {{ formatAmount(due.paidAmount) }} / {{ formatAmount(due.dueAmount) }}
+                </p>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+</main>

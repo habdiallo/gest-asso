@@ -28,7 +28,7 @@ uniquement — `npm start` et `npm run build` restent inchangés et ne le charge
 Chaque feature qui consomme `@api` en mode mock ajoute ses handlers dans
 `features/<feature>/mocks/handlers.ts`, construits à partir des chemins/`operationId` et des
 modèles générés (pas de DTO concurrent du contrat), puis les agrège dans
-`src/mocks/handlers.ts`. Voir `features/home/mocks/handlers.ts` pour un exemple sur
+`src/mocks/handlers.ts`. Voir `features/dashboard/mocks/handlers.ts` pour un exemple sur
 `GET /api/v1/dashboard`.
 
 Les handlers `features/auth/mocks/handlers.ts` fournissent `POST /api/v1/auth/login`
