@@ -69,4 +69,9 @@ describe('App', () => {
     const harness = await RouterTestingHarness.create('/unknown');
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
   });
+
+  it('loads the access-denied screen at /acces-refuse', async () => {
+    const harness = await RouterTestingHarness.create('/acces-refuse');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Accès refusé');
+  });
 });
