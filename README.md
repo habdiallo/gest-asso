@@ -40,8 +40,6 @@ Chaque évolution suit **un ticket → une branche → une pull request vers `ma
 sans push direct sur `main`, y compris pour le code généré.
 Les branches suivent `<scope>/<type>-<ticket>-<description>`, par exemple
 `front/feat-123-ajout-membre` (ticket fictif).
-Pendant l'initialisation du projet, le marqueur `000` est autorisé à la place
-du numéro réel, avec une branche et une PR dédiées à chaque évolution.
 
 Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour les conventions, les hooks locaux,
 le découpage OpenSpec et la protection GitHub à activer. Les agents lisent
@@ -51,7 +49,8 @@ le découpage OpenSpec et la protection GitHub à activer. Les agents lisent
 Le registre [openspec/tickets.json](openspec/tickets.json) relie les 104 tickets
 frontend (`T-1` à `T-104`) à leurs tâches et branches. Lire
 [openspec/TICKETS.md](openspec/TICKETS.md) pour sélectionner un ticket lors de l'apply.
-Les identités sont numérotées ; les branches gardent `000` pendant l'initialisation.
+Les identités et les branches sont numérotées avec le vrai ticket (l'initialisation
+du projet, qui autorisait le marqueur `000`, est terminée).
 
 ## Règles de développement frontend
 

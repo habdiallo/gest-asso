@@ -4,7 +4,7 @@
 
 ## Traçabilité et périmètre
 
-- Ticket : <!-- Lien réel, ou 000 pendant l'initialisation ; jamais Closes #000. -->
+- Ticket : <!-- Lien réel ; jamais Closes #<numero> fictif. -->
 - Change OpenSpec : <!-- Nom/lien ou justification si non applicable. -->
 - Scope / type :
 - Tâches / critères d'acceptation couverts :

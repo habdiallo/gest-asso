@@ -24,7 +24,7 @@ Un agent ne fusionne pas une PR et n'active pas l'auto-merge sans demande explic
 | --- | --- |
 | `scope` | `front` : frontend ; `back` : backend ; `fullstack` : évolution indissociable front/back ; `docs` : documentation/spécifications ; `infra` : CI, déploiement, outils du dépôt |
 | `type` | `feat` : fonctionnalité ; `fix` : correction ; `refactor` : restructuration sans changement de comportement ; `perf` : performance ; `test` : tests ; `chore` : maintenance/outillage |
-| `numero-du-ticket` | Identifiant du ticket local enregistré, sans `T-` ni zéro initial ; `000` tant que l'initialisation reste active |
+| `numero-du-ticket` | Identifiant du ticket local enregistré, sans `T-` ni zéro initial |
 | `description` | Résumé court en kebab-case ASCII minuscule, sans accent, espace ni underscore |
 
 Exemples fictifs, à remplacer par les vrais tickets :
@@ -40,7 +40,7 @@ fullstack/feat-127-cloture-campagne
 Expression régulière utilisée par les contrôles :
 
 ```regex
-^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$
+^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$
 ```
 
 Une évolution fonctionnelle utilise `feat`, une correction utilise `fix` ; le mot
@@ -52,25 +52,20 @@ Un ticket correspond à une branche et à une PR. Choisir `fullstack` si la livr
 front/back est indissociable ; sinon créer des tickets liés et des PR distinctes.
 Ne pas réutiliser une branche fusionnée pour un autre ticket.
 
-### Exception temporaire : initialisation du projet
+### Exception historique : initialisation du projet (terminée)
 
-Sur instruction du mainteneur, utiliser **`000` tant que l'initialisation du
-projet n'est pas terminée**, sans demander un vrai numéro de ticket. Ce marqueur
-autorise l'implémentation, les commits et la livraison par PR sur les branches
-conformes, par exemple `docs/chore-000-regles-git-openspec`.
-Chaque évolution garde sa propre branche et sa propre PR vers `main`, avec une
-description distincte, même si plusieurs évolutions utilisent `000`.
-`000` est un marqueur d'initialisation, pas une issue GitHub : ne pas utiliser
-`Closes #000`. Les valeurs `0`, `00`, `0000` et les autres numéros avec zéro initial
-restent refusés. L'interdiction de push direct sur `main` reste intégrale.
+Pendant l'initialisation du projet, le mainteneur avait autorisé le marqueur
+`000` à la place d'un vrai numéro de ticket (implémentation, commits et PR sur
+des branches conformes, par exemple `docs/chore-000-regles-git-openspec`), sans
+jamais utiliser `Closes #000` ni autoriser un push direct sur `main`.
 
-Lorsque le mainteneur déclare l'initialisation terminée, retirer l'alternative
-`000` des expressions régulières dans les deux hooks et le workflow CI, mettre
-à jour ces consignes, les instructions agents/OpenSpec et les tests associés.
-Mettre alors `initializationActive` à `false` dans `openspec/tickets.json` ;
-ne jamais changer cette phase simplement parce que des tickets sont numérotés.
-Renommer les branches `000` encore ouvertes avec leurs vrais tickets avant de
-retirer l'exception. Ne pas modifier rétroactivement les commits déjà livrés.
+Le mainteneur a déclaré l'initialisation terminée (ticket T-106,
+`initializationActive: false` dans `openspec/tickets.json`). L'alternative
+`000` a été retirée des expressions régulières des deux hooks, du workflow CI
+et du script de parité IA, et les branches `000` encore ouvertes ont été
+renommées avec leur vrai ticket. Toute nouvelle branche `<scope>/<type>-000-<description>`
+est désormais refusée. Les commits et branches déjà fusionnés sous `000`
+restent inchangés ; ne pas les réécrire rétroactivement.
 
 Hors de cette exception, sans numéro réel, les agents peuvent préparer localement la documentation, les
 spécifications et les règles/outils du workflow sur une branche provisoire
@@ -127,7 +122,7 @@ Un **change OpenSpec** décrit une évolution et peut couvrir plusieurs tickets.
 Une **tâche OpenSpec** est une étape de travail ; son numéro n'est pas un ticket.
 Chaque groupe de tâches livrable doit préciser :
 
-- le ticket réel, `000` pendant l'initialisation, ou « à attribuer » hors de cette exception ;
+- le ticket réel, ou « à attribuer » tant qu'il n'est pas encore enregistré ;
 - le scope, le type et la branche prévue, ainsi que le lien vers le change ;
 - le périmètre, les critères d'acceptation et les dépendances ;
 - les validations pertinentes et l'étape de préparation/publication de la PR.
@@ -158,10 +153,10 @@ node scripts/tickets.mjs verify T-3
 ```
 
 La résolution est en lecture seule et ne crée aucune branche. T-3 correspond à
-l'étape frontend `2.1` et à `front/feat-000-ecran-connexion` pendant l'initialisation,
-puis `front/feat-3-ecran-connexion` après sa fin déclarée. La phase du registre est
-la référence commune. Les évolutions historiques d'initialisation hors catalogue
-restent sous `000`, notamment l'adoption du registre.
+l'étape frontend `2.1` et résout désormais `front/feat-3-ecran-connexion` (avant
+la fin de l'initialisation déclarée, il résolvait `front/feat-000-ecran-connexion`).
+Les évolutions historiques d'initialisation hors catalogue restent sous `000` :
+elles ne sont pas réécrites, mais aucune nouvelle branche `000` n'est plus acceptée.
 
 `verify` refuse une autre branche, un ticket annulé ou des prérequis locaux non
 terminés. Vérifier aussi les PR et leur présence dans l'ascendance ; le résolveur
@@ -182,8 +177,9 @@ livraison en fait partie. Mentionner les PR encore ouvertes.
 ## Commits et pull requests
 
 Pour un ticket local, titre de commit/PR recommandé :
-`<type>(<scope>): T-<numero> <résumé>`. Pour l'initialisation historique hors catalogue,
-conserver `<type>(<scope>): #000 <résumé>` sans référence à une issue GitHub.
+`<type>(<scope>): T-<numero> <résumé>`. Les commits historiques déjà livrés sous
+`<type>(<scope>): #000 <résumé>` pendant l'initialisation ne sont pas réécrits,
+mais ce format n'est plus utilisé pour une nouvelle évolution.
 Les valeurs doivent correspondre à la branche. Faire des commits ciblés, sans
 secrets, fichiers temporaires ou modifications étrangères au ticket.
 

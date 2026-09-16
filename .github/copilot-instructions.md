@@ -2,8 +2,8 @@
 
 Lire [AGENTS.md](../AGENTS.md) et [CONTRIBUTING.md](../CONTRIBUTING.md) avant toute
 modification, ainsi que [le contexte OpenSpec](../openspec/config.yaml).
-Branche dédiée `<scope>/<type>-<ticket>-<description>`, ticket `000` pendant
-l'initialisation, livraison par PR vers `main` ; aucun push direct sur `main`.
+Branche dédiée `<scope>/<type>-<ticket>-<description>` avec un vrai numéro de
+ticket, livraison par PR vers `main` ; aucun push direct sur `main`.
 
 Sélectionner un seul ticket enregistré dans `openspec/tickets.json`, affiché `T-<numero>`.
 Lire `node scripts/tickets.mjs resolve T-<numero> --json`, vérifier les prérequis,

@@ -18,11 +18,11 @@ Toute nouvelle capacité Claude doit être exposée et contrôlée pour les troi
 - Ne jamais générer/modifier/committer du code sur `main`, pousser vers `main`,
   ni contourner les hooks ou protections. Cela inclut les clients générés,
   scaffolds, dépendances, migrations et artefacts OpenSpec.
-- Pendant l'initialisation du projet, utiliser le marqueur `000` autorisé par le
-  mainteneur sans demander de numéro réel. Il autorise code, commits et PR sur
-  une branche dédiée par évolution ; jamais de push sur `main` ni de `Closes #000`.
-  Retirer cette exception des règles, hooks, CI et tests quand le mainteneur
-  déclare l'initialisation terminée, selon CONTRIBUTING.md.
+- L'initialisation du projet est terminée (décision du mainteneur, ticket T-106) :
+  le marqueur `000` n'est plus accepté par les hooks, la CI ni le script de parité
+  IA. Toute évolution utilise désormais un vrai numéro de ticket enregistré dans
+  `openspec/tickets.json`. Les branches et commits historiques livrés sous `000`
+  ne sont pas réécrits ; voir CONTRIBUTING.md pour le détail de la transition.
 - Hors de cette exception, sans ticket enregistré, préparer uniquement documentation,
   spécifications et règles/outils du workflow sur une branche locale provisoire
   conforme à CONTRIBUTING.md. Planifier et enregistrer le ticket avec `nextTicketId`
@@ -44,8 +44,8 @@ Toute nouvelle capacité Claude doit être exposée et contrôlée pour les troi
   sans ambiguïté ; sinon demander le ticket, sans générer de code.
 - Depuis la racine, exécuter `node scripts/tickets.mjs resolve T-<numero> --json`,
   lire ses tâches/prérequis et respecter la branche retournée. `initializationActive`
-  reste `true` jusqu'à décision du mainteneur : branches `000`, identités `T-<numero>`.
-  L'initialisation historique de l'outillage reste autorisée sous `000` hors catalogue.
+  est `false` : chaque ticket résout sa branche réelle `<scope>/<type>-<numero>-<description>`.
+  L'historique livré sous `000` avant la fin de l'initialisation reste inchangé.
 - Vérifier les dépendances et leur présence dans la branche ; les cases OpenSpec
   ne prouvent pas une fusion de PR. Créer/réutiliser la branche attendue dans un
   état Git vérifié, puis exécuter `node scripts/tickets.mjs verify T-<numero>` avant

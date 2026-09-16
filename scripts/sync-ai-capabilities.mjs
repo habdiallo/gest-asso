@@ -189,7 +189,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     }
     if (option === '--write') {
       const branch = execFileSync('git', ['branch', '--show-current'], { cwd: repository, encoding: 'utf8' }).trim();
-      if (!/^(front|back|fullstack|docs|infra)\/(feat|fix|refactor|perf|test|chore)-(000|[1-9][0-9]*|local)-[a-z0-9]+(-[a-z0-9]+)*$/.test(branch) ||
+      if (!/^(front|back|fullstack|docs|infra)\/(feat|fix|refactor|perf|test|chore)-([1-9][0-9]*|local)-[a-z0-9]+(-[a-z0-9]+)*$/.test(branch) ||
           (branch.includes('-local-') && !/^(docs|infra)\//.test(branch))) {
         throw new Error('Synchronisation refusée hors branche de travail conforme ; voir CONTRIBUTING.md.');
       }

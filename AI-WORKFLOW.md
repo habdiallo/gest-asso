@@ -1,8 +1,9 @@
 # Skills et agents — Claude, Codex et Copilot
 
 Les consignes sont partagées ; chaque outil dispose de ses emplacements natifs.
-Commencer par `AGENTS.md` et `CONTRIBUTING.md`. L'initialisation utilise le ticket
-`000`, une branche dédiée par évolution et une PR vers `main`.
+Commencer par `AGENTS.md` et `CONTRIBUTING.md`. Chaque évolution utilise un vrai
+ticket enregistré, une branche dédiée et une PR vers `main` (l'initialisation
+du projet, qui autorisait le marqueur `000`, est terminée).
 
 ## Lancer les skills
 
@@ -27,7 +28,7 @@ Pour implémenter un ticket métier, indiquer le change **et** le ticket local :
 dans Copilot VS Code. Lire [openspec/TICKETS.md](openspec/TICKETS.md) : résoudre la
 branche avec `node scripts/tickets.mjs resolve T-3 --json`, vérifier ses prérequis,
 créer/réutiliser la branche retournée puis lancer `node scripts/tickets.mjs verify T-3`
-avant génération. Les branches gardent `000` tant que l'initialisation reste active.
+avant génération. La branche résolue utilise désormais toujours le vrai numéro de ticket.
 
 Codex propose `/skills` et les mentions `$` ; il découvre les dossiers liés depuis
 `.agents/skills`, y compris depuis un sous-dossier du dépôt. Les copies
