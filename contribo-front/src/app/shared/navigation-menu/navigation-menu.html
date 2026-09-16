@@ -1,0 +1,14 @@
+@if (items().length > 0) {
+  <nav aria-label="Navigation principale" class="flex flex-wrap items-center gap-1 px-6 py-4">
+    @for (item of items(); track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="text-gold-hover"
+        ariaCurrentWhenActive="page"
+        class="rounded-full px-3 py-2 text-sm text-text-2 transition-colors"
+      >
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+}

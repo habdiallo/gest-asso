@@ -27,7 +27,7 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('app-logout-button')).toBeNull();
   });
 
-  it('shows the logout action once a session is active', () => {
+  it('shows the logout action and the Administrator navigation menu once a session is active', () => {
     TestBed.inject(SessionService).setSession({
       accessToken: 'session-token-value',
       tokenType: 'Bearer',
@@ -57,6 +57,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-logout-button')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-navigation-menu nav')).toBeTruthy();
   });
 
   it('loads the home feature at the root route', async () => {
