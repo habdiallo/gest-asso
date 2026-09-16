@@ -15,6 +15,12 @@ commandes réellement exécutées et résultats, limites et verdict local :
 `AUCUN DÉFAUT DÉMONTRÉ` en l'absence de constat. Ce verdict n'est pas une approbation
 GitHub et ne prouve pas la correction du code hors du périmètre examiné.
 
+Pour une PR ciblée, publier les constats comme commentaires de lignes sur GitHub
+quand une ligne modifiée correspondante existe, puis publier le verdict global dans
+la revue. Reprendre dans le rapport local les liens vers ces commentaires. Si la
+publication échoue, signaler l'erreur et conserver le rapport local ; ne pas publier
+d'approbation.
+
 Sur demande de JSON, produire une liste `findings` avec les champs
 `severity`, `title`, `location` (`file`, `line`), `trigger`, `problem`, `evidence`,
 `impact`, `suggested_fix`, et des champs globaux `scope`, `checks`, `limitations`,
