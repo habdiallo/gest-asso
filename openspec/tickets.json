@@ -1,0 +1,1946 @@
+{
+  "schemaVersion": 1,
+  "tracker": "repository-local",
+  "status": "active",
+  "initializationActive": true,
+  "nextTicketId": 105,
+  "prerequisiteChanges": [
+    "initialisation-front-features"
+  ],
+  "historicalInitializationTasks": [
+    "1.1",
+    "1.2",
+    "1.4"
+  ],
+  "tickets": [
+    {
+      "id": 1,
+      "title": "Importer les jetons de design (couleurs, typographies, arrondis) depuis `design/DESIGN (5).md` dans le système de style de l'application.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "jetons-design",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "1.3"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-jetons-design",
+      "branchAfterInitialization": "front/feat-1-jetons-design"
+    },
+    {
+      "id": 2,
+      "title": "Mettre en place les deux thèmes visuels (Obsidian Midnight et Alabaster Gallery) et le sélecteur de thème.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "themes-visuels",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "1.5"
+      ],
+      "dependencies": [
+        1
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-themes-visuels",
+      "branchAfterInitialization": "front/feat-2-themes-visuels"
+    },
+    {
+      "id": 3,
+      "title": "Écran de connexion (identifiant + mot de passe), sans lien d'inscription. — US-ACC-001, RG-003 ; openapi:`login`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "ecran-connexion",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.1"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-ecran-connexion",
+      "branchAfterInitialization": "front/feat-3-ecran-connexion"
+    },
+    {
+      "id": 4,
+      "title": "Gestion de l'erreur de connexion (message générique, pas de redirection). — RG-003",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "erreur-connexion",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.2"
+      ],
+      "dependencies": [
+        3
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-erreur-connexion",
+      "branchAfterInitialization": "front/feat-4-erreur-connexion"
+    },
+    {
+      "id": 5,
+      "title": "Stockage de la session (jeton) et hydratation de l'utilisateur connecté au démarrage de l'app.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "session-utilisateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.3"
+      ],
+      "dependencies": [
+        3
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-session-utilisateur",
+      "branchAfterInitialization": "front/feat-5-session-utilisateur"
+    },
+    {
+      "id": 6,
+      "title": "Interception des réponses API en erreur d'authentification → invalidation de session et redirection vers l'écran de connexion.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "expiration-session",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.4"
+      ],
+      "dependencies": [
+        5
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-expiration-session",
+      "branchAfterInitialization": "front/feat-6-expiration-session"
+    },
+    {
+      "id": 7,
+      "title": "Action de déconnexion explicite (menu utilisateur).",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "deconnexion",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.5"
+      ],
+      "dependencies": [
+        5
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-deconnexion",
+      "branchAfterInitialization": "front/feat-7-deconnexion"
+    },
+    {
+      "id": 8,
+      "title": "Garde de routage par rôle applicatif (Administrateur / Trésorier / Opérateur / Membre) avec écran \"accès refusé\" pour toute route non autorisée. — §3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "gardes-roles",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.6"
+      ],
+      "dependencies": [
+        5
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-gardes-roles",
+      "branchAfterInitialization": "front/feat-8-gardes-roles"
+    },
+    {
+      "id": 9,
+      "title": "Menu de navigation dynamique par rôle : items Administrateur (membres, catégories, campagnes, cagnottes, rôles/utilisateurs, mon espace). — §2, §3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "navigation-administrateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.7"
+      ],
+      "dependencies": [
+        8
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-navigation-administrateur",
+      "branchAfterInitialization": "front/feat-9-navigation-administrateur"
+    },
+    {
+      "id": 10,
+      "title": "Menu de navigation dynamique — variante Trésorier (sans catégories, sans rôles/utilisateurs). — §3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "navigation-tresorier",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.8"
+      ],
+      "dependencies": [
+        9
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-navigation-tresorier",
+      "branchAfterInitialization": "front/feat-10-navigation-tresorier"
+    },
+    {
+      "id": 11,
+      "title": "Menu de navigation dynamique — variante Opérateur (consultation membres/campagnes/cagnottes, mon espace). — §3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "navigation-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.9"
+      ],
+      "dependencies": [
+        9
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-navigation-operateur",
+      "branchAfterInitialization": "front/feat-11-navigation-operateur"
+    },
+    {
+      "id": 12,
+      "title": "Menu de navigation dynamique — variante Membre (uniquement mon espace personnel). — §3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "navigation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.10"
+      ],
+      "dependencies": [
+        9
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-navigation-membre",
+      "branchAfterInitialization": "front/feat-12-navigation-membre"
+    },
+    {
+      "id": 13,
+      "title": "Composant \"état de l'attribut Opérateur autorisé\" exposé dans le contexte applicatif (`peut_enregistrer_paiements`) pour piloter l'affichage conditionnel des actions de paiement. — RG-ROLE-007 à RG-ROLE-009",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "autorisation-paiements-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.11"
+      ],
+      "dependencies": [
+        5
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-autorisation-paiements-operateur",
+      "branchAfterInitialization": "front/feat-13-autorisation-paiements-operateur"
+    },
+    {
+      "id": 14,
+      "title": "Layout responsive commun (desktop / tablette / mobile) avec navigation adaptée à chaque taille d'écran.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "layout-responsive",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.12"
+      ],
+      "dependencies": [
+        9
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-layout-responsive",
+      "branchAfterInitialization": "front/feat-14-layout-responsive"
+    },
+    {
+      "id": 15,
+      "title": "Composant dialogue de formulaire : superposé sur desktop/tablette, plein écran sur mobile.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "dialogues-formulaires",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.13"
+      ],
+      "dependencies": [
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-dialogues-formulaires",
+      "branchAfterInitialization": "front/feat-15-dialogues-formulaires"
+    },
+    {
+      "id": 16,
+      "title": "Composant tableau de bord générique par rôle (point d'entrée après connexion), reprenant les indicateurs pertinents selon le rôle.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "tableau-bord",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "2.14"
+      ],
+      "dependencies": [
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-tableau-bord",
+      "branchAfterInitialization": "front/feat-16-tableau-bord"
+    },
+    {
+      "id": 17,
+      "title": "Utilitaire de formatage détaillé d'un montant GNF (séparateur de milliers, suffixe \"GNF\"). — RG-FMT-001, RG-FMT-002",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "formatage-gnf",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "3.1"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-formatage-gnf",
+      "branchAfterInitialization": "front/feat-17-formatage-gnf"
+    },
+    {
+      "id": 18,
+      "title": "Utilitaire de formatage condensé d'un montant GNF (K / M / Mds, une décimale max) avec accès à la valeur brute (info-bulle). — RG-FMT-003, RG-FMT-004",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "formatage-gnf-condense",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "3.2"
+      ],
+      "dependencies": [
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-formatage-gnf-condense",
+      "branchAfterInitialization": "front/feat-18-formatage-gnf-condense"
+    },
+    {
+      "id": 19,
+      "title": "Composant de saisie de montant avec formatage automatique en direct et validation \"entier uniquement\".",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "saisie-montants",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "3.3"
+      ],
+      "dependencies": [
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-saisie-montants",
+      "branchAfterInitialization": "front/feat-19-saisie-montants"
+    },
+    {
+      "id": 20,
+      "title": "Composant de sélection du mode de règlement limité à Espèces / Mobile Money / Virement bancaire. — RG-PAY-009, RG-016",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "modes-reglement",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "3.4"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-modes-reglement",
+      "branchAfterInitialization": "front/feat-20-modes-reglement"
+    },
+    {
+      "id": 21,
+      "title": "Écran liste des membres : tableau avec Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut. — US-MEM-002 ; openapi:`listMembers`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-membres",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-membres",
+      "branchAfterInitialization": "front/feat-21-liste-membres"
+    },
+    {
+      "id": 22,
+      "title": "Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "statuts-membres",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.2"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-statuts-membres",
+      "branchAfterInitialization": "front/feat-22-statuts-membres"
+    },
+    {
+      "id": 23,
+      "title": "Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-membres-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.3"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-membres-operateur",
+      "branchAfterInitialization": "front/feat-23-liste-membres-operateur"
+    },
+    {
+      "id": 24,
+      "title": "Recherche par nom dans la liste des membres.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "recherche-membres",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.4"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-recherche-membres",
+      "branchAfterInitialization": "front/feat-24-recherche-membres"
+    },
+    {
+      "id": 25,
+      "title": "Filtre par statut (Actif/Inactif) dans la liste des membres.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "filtre-statut-membres",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.5"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-filtre-statut-membres",
+      "branchAfterInitialization": "front/feat-25-filtre-statut-membres"
+    },
+    {
+      "id": 26,
+      "title": "Filtre par catégorie de revenu dans la liste des membres.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "filtre-categorie-membres",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.6"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-filtre-categorie-membres",
+      "branchAfterInitialization": "front/feat-26-filtre-categorie-membres"
+    },
+    {
+      "id": 27,
+      "title": "Écran fiche membre : bloc informations personnelles, catégorie, fonction, statut. — US-MEM-003 ; openapi:`getMember`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.7"
+      ],
+      "dependencies": [
+        21
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-fiche-membre",
+      "branchAfterInitialization": "front/feat-27-fiche-membre"
+    },
+    {
+      "id": 28,
+      "title": "Fiche membre — onglet situation des cotisations.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cotisations-fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.8"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cotisations-fiche-membre",
+      "branchAfterInitialization": "front/feat-28-cotisations-fiche-membre"
+    },
+    {
+      "id": 29,
+      "title": "Fiche membre — onglet historique des règlements.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "reglements-fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.9"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-reglements-fiche-membre",
+      "branchAfterInitialization": "front/feat-29-reglements-fiche-membre"
+    },
+    {
+      "id": 30,
+      "title": "Fiche membre — onglet contributions aux cagnottes.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "contributions-fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.10"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-contributions-fiche-membre",
+      "branchAfterInitialization": "front/feat-30-contributions-fiche-membre"
+    },
+    {
+      "id": 31,
+      "title": "Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "onglets-clavier-fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.11"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-onglets-clavier-fiche-membre",
+      "branchAfterInitialization": "front/feat-31-onglets-clavier-fiche-membre"
+    },
+    {
+      "id": 32,
+      "title": "Fiche membre en lecture seule pour un Opérateur non autorisé aux paiements (masquage des actions d'enregistrement). — §2.3",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "actions-paiement-fiche-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "4.12"
+      ],
+      "dependencies": [
+        27,
+        13
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-actions-paiement-fiche-membre",
+      "branchAfterInitialization": "front/feat-32-actions-paiement-fiche-membre"
+    },
+    {
+      "id": 33,
+      "title": "Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "creation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.1"
+      ],
+      "dependencies": [
+        21,
+        15
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-creation-membre",
+      "branchAfterInitialization": "front/feat-33-creation-membre"
+    },
+    {
+      "id": 34,
+      "title": "Validation \"catégorie de revenu obligatoire\" sur le formulaire de création. — RG-MEM-002",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "validation-categorie-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.2"
+      ],
+      "dependencies": [
+        33
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-validation-categorie-membre",
+      "branchAfterInitialization": "front/feat-34-validation-categorie-membre"
+    },
+    {
+      "id": 35,
+      "title": "Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "statut-initial-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.3"
+      ],
+      "dependencies": [
+        33
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-statut-initial-membre",
+      "branchAfterInitialization": "front/feat-35-statut-initial-membre"
+    },
+    {
+      "id": 36,
+      "title": "Message de confirmation \"compte utilisateur créé\" après création d'un membre. — RG-MEM-004",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "confirmation-compte-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.4"
+      ],
+      "dependencies": [
+        33
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-confirmation-compte-membre",
+      "branchAfterInitialization": "front/feat-36-confirmation-compte-membre"
+    },
+    {
+      "id": 37,
+      "title": "Masquage de l'action \"Ajouter un membre\" pour les rôles Opérateur et Membre. — RG-MEM-001",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-creation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.5"
+      ],
+      "dependencies": [
+        33
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-creation-membre",
+      "branchAfterInitialization": "front/feat-37-droits-creation-membre"
+    },
+    {
+      "id": 38,
+      "title": "Formulaire de modification d'un membre — tous champs pour Administrateur/Trésorier (y compris catégorie et fonction). — US-MEM-004",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "modification-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.6"
+      ],
+      "dependencies": [
+        27,
+        33
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-modification-membre",
+      "branchAfterInitialization": "front/feat-38-modification-membre"
+    },
+    {
+      "id": 39,
+      "title": "Formulaire de modification d'un membre — variante Opérateur limitée aux champs téléphone, ville, pays, nom d'usage. — RG-MEM-017",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "modification-membre-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.7"
+      ],
+      "dependencies": [
+        38
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-modification-membre-operateur",
+      "branchAfterInitialization": "front/feat-39-modification-membre-operateur"
+    },
+    {
+      "id": 40,
+      "title": "Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "statut-hors-formulaire-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "5.8"
+      ],
+      "dependencies": [
+        38
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-statut-hors-formulaire-membre",
+      "branchAfterInitialization": "front/feat-40-statut-hors-formulaire-membre"
+    },
+    {
+      "id": 41,
+      "title": "Action \"Désactiver\" sur la fiche d'un membre actif, réservée à l'Administrateur. — US-MEM-005 ; openapi:`deactivateMember`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "desactivation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.1"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-desactivation-membre",
+      "branchAfterInitialization": "front/feat-41-desactivation-membre"
+    },
+    {
+      "id": 42,
+      "title": "Boîte de confirmation avant désactivation, mentionnant l'exclusion des futures campagnes. — RG-MEM-016",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "confirmation-desactivation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.2"
+      ],
+      "dependencies": [
+        41
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-confirmation-desactivation-membre",
+      "branchAfterInitialization": "front/feat-42-confirmation-desactivation-membre"
+    },
+    {
+      "id": 43,
+      "title": "Mise à jour du statut affiché après désactivation, en conservant l'historique visible (cotisations, règlements, contributions). — RG-MEM-012 à RG-MEM-015",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "statut-apres-desactivation",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.3"
+      ],
+      "dependencies": [
+        41
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-statut-apres-desactivation",
+      "branchAfterInitialization": "front/feat-43-statut-apres-desactivation"
+    },
+    {
+      "id": 44,
+      "title": "Action \"Réactiver\" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "reactivation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.4"
+      ],
+      "dependencies": [
+        27
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-reactivation-membre",
+      "branchAfterInitialization": "front/feat-44-reactivation-membre"
+    },
+    {
+      "id": 45,
+      "title": "Boîte de confirmation avant réactivation.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "confirmation-reactivation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.5"
+      ],
+      "dependencies": [
+        44
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-confirmation-reactivation-membre",
+      "branchAfterInitialization": "front/feat-45-confirmation-reactivation-membre"
+    },
+    {
+      "id": 46,
+      "title": "Masquage mutuel des actions \"Désactiver\"/\"Réactiver\" selon le statut courant du membre. — RG-MEM-022",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "actions-statut-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.6"
+      ],
+      "dependencies": [
+        41,
+        44
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-actions-statut-membre",
+      "branchAfterInitialization": "front/feat-46-actions-statut-membre"
+    },
+    {
+      "id": 47,
+      "title": "Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-activation-membre",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "6.7"
+      ],
+      "dependencies": [
+        41,
+        44
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-activation-membre",
+      "branchAfterInitialization": "front/feat-47-droits-activation-membre"
+    },
+    {
+      "id": 48,
+      "title": "Écran liste des catégories de revenu, réservé à l'Administrateur. — US-REV-001 ; openapi:`listIncomeCategories`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-categories-revenu",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "7.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-categories-revenu",
+      "branchAfterInitialization": "front/feat-48-liste-categories-revenu"
+    },
+    {
+      "id": 49,
+      "title": "Garde de route interdisant l'écran catégories aux autres rôles. — RG-ROLE-002",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "garde-categories-revenu",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "7.2"
+      ],
+      "dependencies": [
+        48
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-garde-categories-revenu",
+      "branchAfterInitialization": "front/feat-49-garde-categories-revenu"
+    },
+    {
+      "id": 50,
+      "title": "Formulaire de création d'une catégorie (libellé obligatoire, sans champ de montant). — RG-REV-001, RG-REV-002 ; openapi:`createIncomeCategory`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "creation-categorie-revenu",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "7.3"
+      ],
+      "dependencies": [
+        48,
+        15
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-creation-categorie-revenu",
+      "branchAfterInitialization": "front/feat-50-creation-categorie-revenu"
+    },
+    {
+      "id": 51,
+      "title": "Formulaire de modification d'une catégorie, avec message rappelant l'absence d'effet rétroactif. — US-REV-002 ; openapi:`updateIncomeCategory`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "modification-categorie-revenu",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "7.4"
+      ],
+      "dependencies": [
+        50
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-modification-categorie-revenu",
+      "branchAfterInitialization": "front/feat-51-modification-categorie-revenu"
+    },
+    {
+      "id": 52,
+      "title": "Écran liste des utilisateurs avec rôle applicatif affiché, réservé à l'Administrateur. — RG-ROLE-002 ; openapi:`listUsers`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-utilisateurs",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "8.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-utilisateurs",
+      "branchAfterInitialization": "front/feat-52-liste-utilisateurs"
+    },
+    {
+      "id": 53,
+      "title": "Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "modification-role-utilisateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "8.2"
+      ],
+      "dependencies": [
+        52
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-modification-role-utilisateur",
+      "branchAfterInitialization": "front/feat-53-modification-role-utilisateur"
+    },
+    {
+      "id": 54,
+      "title": "Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "fonction-associative-utilisateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "8.3"
+      ],
+      "dependencies": [
+        52
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-fonction-associative-utilisateur",
+      "branchAfterInitialization": "front/feat-54-fonction-associative-utilisateur"
+    },
+    {
+      "id": 55,
+      "title": "Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "autorisation-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "8.4"
+      ],
+      "dependencies": [
+        52,
+        13
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-autorisation-operateur",
+      "branchAfterInitialization": "front/feat-55-autorisation-operateur"
+    },
+    {
+      "id": 56,
+      "title": "Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "controle-autorisation-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "8.5"
+      ],
+      "dependencies": [
+        55
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-controle-autorisation-operateur",
+      "branchAfterInitialization": "front/feat-56-controle-autorisation-operateur"
+    },
+    {
+      "id": 57,
+      "title": "Écran liste des campagnes (nom, période, statut) pour Administrateur/Trésorier/Opérateur. — openapi:`listCampaigns`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-campagnes",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-campagnes",
+      "branchAfterInitialization": "front/feat-57-liste-campagnes"
+    },
+    {
+      "id": 58,
+      "title": "Filtre par statut de campagne (ouverte/clôturée).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "filtre-statut-campagnes",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.2"
+      ],
+      "dependencies": [
+        57
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-filtre-statut-campagnes",
+      "branchAfterInitialization": "front/feat-58-filtre-statut-campagnes"
+    },
+    {
+      "id": 59,
+      "title": "Recherche par nom de campagne.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "recherche-campagnes",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.3"
+      ],
+      "dependencies": [
+        57
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-recherche-campagnes",
+      "branchAfterInitialization": "front/feat-59-recherche-campagnes"
+    },
+    {
+      "id": 60,
+      "title": "Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "detail-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.4"
+      ],
+      "dependencies": [
+        57
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-detail-campagne",
+      "branchAfterInitialization": "front/feat-60-detail-campagne"
+    },
+    {
+      "id": 61,
+      "title": "Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cotisations-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.5"
+      ],
+      "dependencies": [
+        60,
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cotisations-campagne",
+      "branchAfterInitialization": "front/feat-61-cotisations-campagne"
+    },
+    {
+      "id": 62,
+      "title": "Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cotisations-campagne-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.6"
+      ],
+      "dependencies": [
+        61
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cotisations-campagne-operateur",
+      "branchAfterInitialization": "front/feat-62-cotisations-campagne-operateur"
+    },
+    {
+      "id": 63,
+      "title": "Filtre par statut de cotisation (À payer / Partiellement payé / Payé / En retard).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "filtre-statut-cotisations",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.7"
+      ],
+      "dependencies": [
+        61
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-filtre-statut-cotisations",
+      "branchAfterInitialization": "front/feat-63-filtre-statut-cotisations"
+    },
+    {
+      "id": 64,
+      "title": "Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "onglets-clavier-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "9.8"
+      ],
+      "dependencies": [
+        60
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-onglets-clavier-campagne",
+      "branchAfterInitialization": "front/feat-64-onglets-clavier-campagne"
+    },
+    {
+      "id": 65,
+      "title": "Formulaire de création de campagne (Nom, Description, Date de début, Date de fin, membres concernés). — US-COT-001 ; openapi:`createCampaign`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "creation-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.1"
+      ],
+      "dependencies": [
+        57,
+        21,
+        15
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-creation-campagne",
+      "branchAfterInitialization": "front/feat-65-creation-campagne"
+    },
+    {
+      "id": 66,
+      "title": "Validation \"date de fin ≥ date de début\". — RG-COT-005",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "validation-dates-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.2"
+      ],
+      "dependencies": [
+        65
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-validation-dates-campagne",
+      "branchAfterInitialization": "front/feat-66-validation-dates-campagne"
+    },
+    {
+      "id": 67,
+      "title": "Masquage de l'action \"Créer une campagne\" pour Opérateur et Membre. — RG-COT-001",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-creation-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.3"
+      ],
+      "dependencies": [
+        65
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-creation-campagne",
+      "branchAfterInitialization": "front/feat-67-droits-creation-campagne"
+    },
+    {
+      "id": 68,
+      "title": "Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "bareme-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.4"
+      ],
+      "dependencies": [
+        60,
+        48,
+        19
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-bareme-campagne",
+      "branchAfterInitialization": "front/feat-68-bareme-campagne"
+    },
+    {
+      "id": 69,
+      "title": "Signalement visuel d'une catégorie sans montant configuré dans le barème.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "categories-sans-bareme",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.5"
+      ],
+      "dependencies": [
+        68
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-categories-sans-bareme",
+      "branchAfterInitialization": "front/feat-69-categories-sans-bareme"
+    },
+    {
+      "id": 70,
+      "title": "Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "formatage-saisie-bareme",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "10.6"
+      ],
+      "dependencies": [
+        68
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-formatage-saisie-bareme",
+      "branchAfterInitialization": "front/feat-70-formatage-saisie-bareme"
+    },
+    {
+      "id": 71,
+      "title": "Formulaire d'enregistrement d'un règlement (Membre, Campagne, Montant, Date, Mode). — US-COT-005 ; openapi:`recordPayment`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "enregistrement-reglement",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.1"
+      ],
+      "dependencies": [
+        61,
+        19,
+        20,
+        15,
+        13
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-enregistrement-reglement",
+      "branchAfterInitialization": "front/feat-71-enregistrement-reglement"
+    },
+    {
+      "id": 72,
+      "title": "Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "validation-surpaiement",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.2"
+      ],
+      "dependencies": [
+        71
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-validation-surpaiement",
+      "branchAfterInitialization": "front/feat-72-validation-surpaiement"
+    },
+    {
+      "id": 73,
+      "title": "Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-reglement-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.3"
+      ],
+      "dependencies": [
+        71
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-reglement-operateur",
+      "branchAfterInitialization": "front/feat-73-droits-reglement-operateur"
+    },
+    {
+      "id": 74,
+      "title": "Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "auteur-horodatage-reglements",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.4"
+      ],
+      "dependencies": [
+        71
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-auteur-horodatage-reglements",
+      "branchAfterInitialization": "front/feat-74-auteur-horodatage-reglements"
+    },
+    {
+      "id": 75,
+      "title": "Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "rafraichissement-cotisation",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.5"
+      ],
+      "dependencies": [
+        71
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-rafraichissement-cotisation",
+      "branchAfterInitialization": "front/feat-75-rafraichissement-cotisation"
+    },
+    {
+      "id": 76,
+      "title": "Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cotisation-soldee",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "11.6"
+      ],
+      "dependencies": [
+        75
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cotisation-soldee",
+      "branchAfterInitialization": "front/feat-76-cotisation-soldee"
+    },
+    {
+      "id": 77,
+      "title": "Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "bilan-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "12.1"
+      ],
+      "dependencies": [
+        60,
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-bilan-campagne",
+      "branchAfterInitialization": "front/feat-77-bilan-campagne"
+    },
+    {
+      "id": 78,
+      "title": "Onglet bilan : répartition des membres par statut (payé / partiel / non payé).",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "statuts-bilan-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "12.2"
+      ],
+      "dependencies": [
+        77
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-statuts-bilan-campagne",
+      "branchAfterInitialization": "front/feat-78-statuts-bilan-campagne"
+    },
+    {
+      "id": 79,
+      "title": "Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "montants-condenses-bilan",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "12.3"
+      ],
+      "dependencies": [
+        77,
+        18
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-montants-condenses-bilan",
+      "branchAfterInitialization": "front/feat-79-montants-condenses-bilan"
+    },
+    {
+      "id": 80,
+      "title": "Action \"Clôturer la campagne\" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cloture-campagne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "12.4"
+      ],
+      "dependencies": [
+        60,
+        15
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cloture-campagne",
+      "branchAfterInitialization": "front/feat-80-cloture-campagne"
+    },
+    {
+      "id": 81,
+      "title": "Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "verrouillage-campagne-cloturee",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "12.5"
+      ],
+      "dependencies": [
+        80,
+        68,
+        71
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-verrouillage-campagne-cloturee",
+      "branchAfterInitialization": "front/feat-81-verrouillage-campagne-cloturee"
+    },
+    {
+      "id": 82,
+      "title": "Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "liste-cagnottes",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "13.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-liste-cagnottes",
+      "branchAfterInitialization": "front/feat-82-liste-cagnottes"
+    },
+    {
+      "id": 83,
+      "title": "Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "filtre-evenement-cagnottes",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "13.2"
+      ],
+      "dependencies": [
+        82
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-filtre-evenement-cagnottes",
+      "branchAfterInitialization": "front/feat-83-filtre-evenement-cagnottes"
+    },
+    {
+      "id": 84,
+      "title": "Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "creation-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "13.3"
+      ],
+      "dependencies": [
+        82,
+        15,
+        19
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-creation-cagnotte",
+      "branchAfterInitialization": "front/feat-84-creation-cagnotte"
+    },
+    {
+      "id": 85,
+      "title": "Objectif de montant facultatif, avec masquage de la barre de progression si absent.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "objectif-facultatif-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "13.4"
+      ],
+      "dependencies": [
+        84
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-objectif-facultatif-cagnotte",
+      "branchAfterInitialization": "front/feat-85-objectif-facultatif-cagnotte"
+    },
+    {
+      "id": 86,
+      "title": "Masquage de l'action \"Créer une cagnotte\" pour Opérateur et Membre.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-creation-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "13.5"
+      ],
+      "dependencies": [
+        84
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-creation-cagnotte",
+      "branchAfterInitialization": "front/feat-86-droits-creation-cagnotte"
+    },
+    {
+      "id": 87,
+      "title": "Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "enregistrement-contribution",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.1"
+      ],
+      "dependencies": [
+        82,
+        21,
+        19,
+        20,
+        15,
+        13
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-enregistrement-contribution",
+      "branchAfterInitialization": "front/feat-87-enregistrement-contribution"
+    },
+    {
+      "id": 88,
+      "title": "Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "contributions-multiples",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.2"
+      ],
+      "dependencies": [
+        87
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-contributions-multiples",
+      "branchAfterInitialization": "front/feat-88-contributions-multiples"
+    },
+    {
+      "id": 89,
+      "title": "Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "droits-contribution-operateur",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.3"
+      ],
+      "dependencies": [
+        87
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-droits-contribution-operateur",
+      "branchAfterInitialization": "front/feat-89-droits-contribution-operateur"
+    },
+    {
+      "id": 90,
+      "title": "Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "auteur-horodatage-contributions",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.4"
+      ],
+      "dependencies": [
+        87
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-auteur-horodatage-contributions",
+      "branchAfterInitialization": "front/feat-90-auteur-horodatage-contributions"
+    },
+    {
+      "id": 91,
+      "title": "Onglet suivi de cagnotte : total collecté, nombre de contributeurs, liste des contributions. — US-CAG-003 ; openapi:`getCagnotteSummary`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "suivi-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.5"
+      ],
+      "dependencies": [
+        82,
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-suivi-cagnotte",
+      "branchAfterInitialization": "front/feat-91-suivi-cagnotte"
+    },
+    {
+      "id": 92,
+      "title": "Barre de progression objectif / reste à collecter, quand un objectif est défini.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "progression-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "14.6"
+      ],
+      "dependencies": [
+        91,
+        85
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-progression-cagnotte",
+      "branchAfterInitialization": "front/feat-92-progression-cagnotte"
+    },
+    {
+      "id": 93,
+      "title": "Action \"Clôturer la cagnotte\" réservée à Administrateur/Trésorier, avec confirmation. — US-CAG-004 ; openapi:`closeCagnotte`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "cloture-cagnotte",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "15.1"
+      ],
+      "dependencies": [
+        82,
+        15
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-cloture-cagnotte",
+      "branchAfterInitialization": "front/feat-93-cloture-cagnotte"
+    },
+    {
+      "id": 94,
+      "title": "Masquage de l'action d'enregistrement de contribution sur une cagnotte clôturée.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "verrouillage-cagnotte-cloturee",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "15.2"
+      ],
+      "dependencies": [
+        93,
+        87
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-verrouillage-cagnotte-cloturee",
+      "branchAfterInitialization": "front/feat-94-verrouillage-cagnotte-cloturee"
+    },
+    {
+      "id": 95,
+      "title": "Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "profil-personnel",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "16.1"
+      ],
+      "dependencies": [
+        8,
+        14
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-profil-personnel",
+      "branchAfterInitialization": "front/feat-95-profil-personnel"
+    },
+    {
+      "id": 96,
+      "title": "Onglet \"Mes cotisations\" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "mes-cotisations",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "16.2"
+      ],
+      "dependencies": [
+        95,
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-mes-cotisations",
+      "branchAfterInitialization": "front/feat-96-mes-cotisations"
+    },
+    {
+      "id": 97,
+      "title": "Absence de toute action de paiement en ligne sur l'écran \"Mes cotisations\". — Annexe A",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "absence-paiement-en-ligne",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "16.3"
+      ],
+      "dependencies": [
+        96
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-absence-paiement-en-ligne",
+      "branchAfterInitialization": "front/feat-97-absence-paiement-en-ligne"
+    },
+    {
+      "id": 98,
+      "title": "Onglet \"Mes contributions\" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "mes-contributions",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "16.4"
+      ],
+      "dependencies": [
+        95,
+        17
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-mes-contributions",
+      "branchAfterInitialization": "front/feat-98-mes-contributions"
+    },
+    {
+      "id": 99,
+      "title": "Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001",
+      "priority": "P0",
+      "scope": "front",
+      "type": "feat",
+      "slug": "acces-donnees-personnelles",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "16.5"
+      ],
+      "dependencies": [
+        95
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-acces-donnees-personnelles",
+      "branchAfterInitialization": "front/feat-99-acces-donnees-personnelles"
+    },
+    {
+      "id": 100,
+      "title": "États de chargement (skeleton/spinner) pour les listes et fiches principales (membres, campagnes, cagnottes).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "etats-chargement",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "17.1"
+      ],
+      "dependencies": [
+        21,
+        27,
+        57,
+        60,
+        82
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-etats-chargement",
+      "branchAfterInitialization": "front/feat-100-etats-chargement"
+    },
+    {
+      "id": 101,
+      "title": "États vides (\"aucun membre\", \"aucune campagne\", \"aucune contribution\") sur chaque liste.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "etats-vides",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "17.2"
+      ],
+      "dependencies": [
+        21,
+        57,
+        82,
+        91,
+        98
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-etats-vides",
+      "branchAfterInitialization": "front/feat-101-etats-vides"
+    },
+    {
+      "id": 102,
+      "title": "Gestion uniforme des erreurs API (message générique + retry) sur les formulaires de création/modification.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "feat",
+      "slug": "erreurs-api-formulaires",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "17.3"
+      ],
+      "dependencies": [
+        33,
+        38,
+        50,
+        51,
+        65,
+        68,
+        84
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-erreurs-api-formulaires",
+      "branchAfterInitialization": "front/feat-102-erreurs-api-formulaires"
+    },
+    {
+      "id": 103,
+      "title": "Vérification d'accessibilité clavier sur l'ensemble des dialogues de formulaire (focus trap, échappement).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "test",
+      "slug": "accessibilite-dialogues",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "17.4"
+      ],
+      "dependencies": [
+        15,
+        33,
+        65,
+        71,
+        84,
+        87
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/test-000-accessibilite-dialogues",
+      "branchAfterInitialization": "front/test-103-accessibilite-dialogues"
+    },
+    {
+      "id": 104,
+      "title": "Revue de cohérence responsive (desktop/tablette/mobile) sur l'ensemble des écrans livrés, par comparaison avec le prototype `design/`.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "test",
+      "slug": "coherence-responsive",
+      "change": "frontend-tickets-mvp-association",
+      "tasks": [
+        "17.5"
+      ],
+      "dependencies": [
+        100,
+        101,
+        102,
+        103,
+        98,
+        94,
+        81
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/test-000-coherence-responsive",
+      "branchAfterInitialization": "front/test-104-coherence-responsive"
+    }
+  ]
+}

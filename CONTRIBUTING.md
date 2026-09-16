@@ -24,7 +24,7 @@ Un agent ne fusionne pas une PR et n'active pas l'auto-merge sans demande explic
 | --- | --- |
 | `scope` | `front` : frontend ; `back` : backend ; `fullstack` : évolution indissociable front/back ; `docs` : documentation/spécifications ; `infra` : CI, déploiement, outils du dépôt |
 | `type` | `feat` : fonctionnalité ; `fix` : correction ; `refactor` : restructuration sans changement de comportement ; `perf` : performance ; `test` : tests ; `chore` : maintenance/outillage |
-| `numero-du-ticket` | Entier positif du ticket réel, sans `#` ni zéro initial ; exception temporaire `000` pendant l'initialisation |
+| `numero-du-ticket` | Identifiant du ticket local enregistré, sans `T-` ni zéro initial ; `000` tant que l'initialisation reste active |
 | `description` | Résumé court en kebab-case ASCII minuscule, sans accent, espace ni underscore |
 
 Exemples fictifs, à remplacer par les vrais tickets :
@@ -67,6 +67,8 @@ restent refusés. L'interdiction de push direct sur `main` reste intégrale.
 Lorsque le mainteneur déclare l'initialisation terminée, retirer l'alternative
 `000` des expressions régulières dans les deux hooks et le workflow CI, mettre
 à jour ces consignes, les instructions agents/OpenSpec et les tests associés.
+Mettre alors `initializationActive` à `false` dans `openspec/tickets.json` ;
+ne jamais changer cette phase simplement parce que des tickets sont numérotés.
 Renommer les branches `000` encore ouvertes avec leurs vrais tickets avant de
 retirer l'exception. Ne pas modifier rétroactivement les commits déjà livrés.
 
@@ -74,9 +76,10 @@ Hors de cette exception, sans numéro réel, les agents peuvent préparer locale
 spécifications et les règles/outils du workflow sur une branche provisoire
 `docs/<type>-local-<description>` ou `infra/<type>-local-<description>`. Aucune
 implémentation applicative, aucun commit, push ou PR n'est autorisé dans cet état.
-Demander le numéro manquant et renommer avec `git branch -m <branche-conforme>`
-avant de commencer le code applicatif, de committer ou de publier. Ne pas inventer
-de ticket, utiliser `0` ou convertir une US/RG ou une tâche `2.1` en ticket.
+Planifier et enregistrer le ticket local avec `nextTicketId`, puis renommer avec
+`git branch -m <branche-conforme>` avant le code applicatif, un commit ou une publication.
+Ne pas inventer de numéro d'issue externe, utiliser `0` ou convertir une US/RG
+ou une tâche `2.1` en numéro de ticket.
 
 ## Préparer une évolution
 
@@ -104,7 +107,7 @@ git fetch origin
 git switch -c front/feat-123-ajout-membre origin/main
 # Préparation OpenSpec, implémentation et validations du ticket.
 git add <fichiers-du-ticket>
-git commit -m "feat(front): #123 ajouter un membre"
+git commit -m "feat(front): T-123 ajouter un membre"
 git push -u origin front/feat-123-ajout-membre
 gh pr create --base main --head front/feat-123-ajout-membre --draft
 ```
@@ -129,6 +132,45 @@ Chaque groupe de tâches livrable doit préciser :
 - le périmètre, les critères d'acceptation et les dépendances ;
 - les validations pertinentes et l'étape de préparation/publication de la PR.
 
+### Catalogue local et sélection d'un ticket
+
+[openspec/tickets.json](openspec/tickets.json) est le registre des tickets réels
+du dépôt. Les 104 tickets frontend adoptés sont affichés `T-1` à `T-104` ; les
+numéros d'étapes comme `2.1` restent des références OpenSpec. Le registre porte
+les périmètres, priorités, scope/type/slug, changes/étapes et dépendances. Les cases
+OpenSpec sont la référence d'avancement ; `planned/cancelled` décrit uniquement
+la planification. Un ticket annulé reste dans le registre et son numéro n'est pas réutilisé.
+
+Pour une nouvelle évolution, réserver `nextTicketId` dans le même registre,
+ajouter son entrée et les repères `[T-<numero>]` aux étapes concernées, puis
+incrémenter le compteur. Tous les scopes partagent ce compteur (prochain : `105`
+à l'adoption). Aucun agent ne suppose qu'un numéro local correspond à une issue
+GitHub ; un lien externe éventuel se référence séparément. Ne pas renuméroter les
+tickets existants, réattribuer leur branche/étapes ou supprimer leurs entrées.
+
+Avant l'implémentation d'un ticket enregistré, depuis la racine :
+
+```bash
+node scripts/tickets.mjs check
+node scripts/tickets.mjs resolve T-3 --json
+# Lire les artefacts et prérequis, vérifier git status ; créer/réutiliser la branche retournée.
+node scripts/tickets.mjs verify T-3
+```
+
+La résolution est en lecture seule et ne crée aucune branche. T-3 correspond à
+l'étape frontend `2.1` et à `front/feat-000-ecran-connexion` pendant l'initialisation,
+puis `front/feat-3-ecran-connexion` après sa fin déclarée. La phase du registre est
+la référence commune. Les évolutions historiques d'initialisation hors catalogue
+restent sous `000`, notamment l'adoption du registre.
+
+`verify` refuse une autre branche, un ticket annulé ou des prérequis locaux non
+terminés. Vérifier aussi les PR et leur présence dans l'ascendance ; le résolveur
+lit les cases locales, sans connexion GitHub. Préserver les modifications présentes
+avant de changer de branche. Implémenter uniquement les étapes repérées avec le
+ticket sélectionné et les validations correspondantes ; ne pas cocher d'autres tickets.
+Voir [openspec/TICKETS.md](openspec/TICKETS.md) pour les invocations et le contrôle
+d'identité par rapport à une référence Git.
+
 Lors d'un apply, sélectionner le ticket à implémenter et sa branche ; ne pas
 implémenter tout le backlog sur une seule branche. Mettre à jour les cases à cocher
 uniquement pour les actions réellement effectuées. Distinguer l'implémentation
@@ -139,7 +181,9 @@ livraison en fait partie. Mentionner les PR encore ouvertes.
 
 ## Commits et pull requests
 
-Titre de commit et titre de PR recommandés : `<type>(<scope>): #<ticket> <résumé>`.
+Pour un ticket local, titre de commit/PR recommandé :
+`<type>(<scope>): T-<numero> <résumé>`. Pour l'initialisation historique hors catalogue,
+conserver `<type>(<scope>): #000 <résumé>` sans référence à une issue GitHub.
 Les valeurs doivent correspondre à la branche. Faire des commits ciblés, sans
 secrets, fichiers temporaires ou modifications étrangères au ticket.
 

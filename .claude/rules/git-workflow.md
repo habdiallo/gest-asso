@@ -14,7 +14,18 @@ s'appliquent à tous les fichiers, aux commandes Git et à la génération de co
   l'initialisation terminée, conformément à CONTRIBUTING.md.
 - Hors exception `000`, sans ticket, préparation locale de documentation, spécifications et règles/outils
   du workflow sur `docs/<type>-local-<description>` ou `infra/<type>-local-<description>`,
-  sans code applicatif/commit/push/PR ; demander le ticket et renommer avant livraison.
+  sans code applicatif/commit/push/PR ; enregistrer le ticket local avec nextTicketId
+  puis renommer avant le code et la livraison.
 - Un change OpenSpec peut couvrir plusieurs tickets ; appliquer uniquement le
   ticket choisi sur sa branche, avec les validations et la traçabilité correspondantes.
+- Les tickets réels locaux sont dans `openspec/tickets.json`, affichés `T-<numero>`.
+  Réserver `nextTicketId` pour une nouvelle évolution, tous scopes confondus, sans
+  renuméroter ou réattribuer un ticket. Les étapes `[T-<numero>]` définissent son périmètre.
+- Pour un ticket enregistré, lire `node scripts/tickets.mjs resolve T-<numero> --json`,
+  vérifier ses prérequis et son état Git, créer/réutiliser la branche retournée,
+  puis exécuter `node scripts/tickets.mjs verify T-<numero>` avant génération.
+  Sans ticket déductible sans ambiguïté, demander sa sélection ; ne pas appliquer tout le backlog.
+- `initializationActive` reste actif jusqu'à décision du mainteneur : identité locale
+  numérotée, branche sous `000`. Ne pas confondre `T-<numero>` et `#<numero>` GitHub.
+  Utiliser `T-<numero>` dans les titres de commits/PR locaux ; aucun `Closes` fictif.
 - Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur.
