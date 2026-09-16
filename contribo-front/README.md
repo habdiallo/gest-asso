@@ -27,6 +27,34 @@ Il vérifie également le routage des sous-chemins API après normalisation du p
 par le builder Angular installé.
 Aucun serveur SSR, outil E2E ni système de traduction multilingue n'est configuré.
 
+## Tester les comptes de démonstration
+
+Sans backend, lancer `npm run start:mock` depuis `contribo-front/`, puis ouvrir
+`http://localhost:4200/login`. Le client API doit avoir été généré comme indiqué
+plus bas. Le mot de passe commun est **`demo-contribo`**.
+
+| Identifiant                   | Rôle           | Autorisation Opérateur de saisie des paiements |
+| ----------------------------- | -------------- | ---------------------------------------------- |
+| `admin.demo`                  | Administrateur | Non applicable                                 |
+| `tresorier.demo`              | Trésorier      | Non applicable                                 |
+| `operateur.demo`              | Opérateur      | Oui                                            |
+| `operateur.consultation.demo` | Opérateur      | Non                                            |
+| `membre.demo`                 | Membre         | Non applicable                                 |
+
+Utiliser **Se déconnecter**, puis se connecter avec un autre identifiant. Le
+rechargement et le redémarrage du serveur mock restaurent le même profil via
+`GET /api/v1/me`. Pour remettre seulement la session à zéro, exécuter dans la
+console navigateur `localStorage.removeItem('contribo-session-token')`, puis
+recharger la page ; la préférence de thème est conservée.
+
+Ces identités sont fictives et réservées au mode mock. Les jetons sont fixes et
+leur expiration temporelle n'est pas simulée. Le formulaire et le tableau de bord
+actuels sont accessibles ; ces comptes ne créent pas les futurs écrans métier.
+Le mock du tableau de bord conserve ses propres données Membre de démonstration,
+indépendantes du compte connecté. Les mocks ne vérifient donc pas les droits ni
+les données métier côté serveur. `npm start` et le build normal n'activent pas
+les comptes ni les handlers MSW.
+
 ## Architecture par fonctionnalités
 
 ```text
