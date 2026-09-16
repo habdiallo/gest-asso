@@ -127,6 +127,33 @@ Le motif couvre les sous-chemins `/api/v1/...` avec le
 Redémarrer `npm start` après modification du proxy. En production, configurer le
 reverse proxy pour `/api/v1` ; le proxy de développement n'est pas livré.
 
+## Configuration par environnement
+
+```text
+src/environments/
+  environment.model.ts       interface Environment (contrat commun)
+  environment.ts             development (par défaut, sans build explicite)
+  environment.mock.ts        configuration Angular "mock"
+  environment.production.ts  configuration Angular "production"
+```
+
+Chaque fichier exporte une constante `environment` implémentant `Environment`
+(`production: boolean`, `apiBaseUrl: string`), sans champ manquant ni supplémentaire.
+`angular.json` déclare, pour les configurations `development`, `mock` et
+`production` de la cible `architect.build`, un `fileReplacements` substituant
+`src/environments/environment.ts` par le fichier correspondant. `environment.ts`
+reste la valeur lue en dehors d'un build Angular (ex. Vitest).
+
+Ce socle ne modifie pas la configuration `mock` existante : `main.mock.ts` reste
+seul responsable de l'activation de MSW ; `environment.mock.ts` fournit uniquement
+un point de lecture typé supplémentaire (l'intégration du client API avec
+`environment.apiBaseUrl` est laissée à un ticket applicatif ultérieur).
+
+Ces fichiers sont committés et publics dans le bundle client : n'y placer aucun
+secret ni valeur sensible. Après tout ajout de champ à `Environment`, vérifier que
+les trois fichiers restent alignés et que `ng build --configuration <config>`
+réussit pour chaque configuration touchée.
+
 ## Adaptation de l'ancien projet
 
 - Conserver les tsconfigs stricts existants ; ajouter les alias, sans types Node
