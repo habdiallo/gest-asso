@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
+import { TranslatePipe } from '@shared/i18n/translate.pipe';
+import type { TranslationKey } from '@core/i18n/fr';
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './login-page.html',
+  styleUrl: './login-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
@@ -20,7 +23,7 @@ export class LoginPage {
   });
 
   readonly submitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
+  readonly errorMessage = signal<TranslationKey | null>(null);
 
   submit(): void {
     if (this.submitting()) {
@@ -42,7 +45,7 @@ export class LoginPage {
       },
       error: () => {
         this.submitting.set(false);
-        this.errorMessage.set('Identifiant ou mot de passe incorrect.');
+        this.errorMessage.set('auth.login.error');
       },
     });
   }
