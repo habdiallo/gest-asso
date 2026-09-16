@@ -1,0 +1,35 @@
+name: AI capabilities
+
+on:
+  pull_request:
+    paths:
+      - '.claude/skills/**'
+      - '.claude/agents/**'
+      - '.codex/skills/**'
+      - '.codex/agents/**'
+      - '.agents/skills/**'
+      - '.github/skills/**'
+      - '.github/agents/**'
+      - 'scripts/sync-ai-capabilities.mjs'
+      - 'tooling/ai-agents.json'
+      - 'tests/ai-capabilities.test.mjs'
+      - '.github/workflows/ai-capabilities.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: AI capabilities parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: node scripts/sync-ai-capabilities.mjs --check
+      - run: node --test tests/ai-capabilities.test.mjs

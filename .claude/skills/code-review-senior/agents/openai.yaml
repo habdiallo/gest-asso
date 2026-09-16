@@ -1,0 +1,6 @@
+interface:
+  display_name: "Revue senior Contribo"
+  short_description: "Revue factuelle des défauts introduits dans un diff"
+  default_prompt: "Utilise $code-review-senior pour examiner cette branche contre main et produire un rapport factuel."
+policy:
+  allow_implicit_invocation: true
