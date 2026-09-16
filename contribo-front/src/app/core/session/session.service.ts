@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import type { CurrentUser, LoginResponse } from '@api';
+import { canRecordPayments as canUserRecordPayments } from './payment-authorization';
 
 const STORAGE_KEY = 'contribo-session-token';
 
@@ -9,6 +10,7 @@ export class SessionService {
   readonly user = signal<CurrentUser | null>(null);
 
   readonly isAuthenticated = computed(() => this.token() !== null);
+  readonly canRecordPayments = computed(() => canUserRecordPayments(this.user()));
 
   setSession(response: LoginResponse): void {
     this.token.set(response.accessToken);
