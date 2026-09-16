@@ -357,6 +357,37 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /members/{memberId}/reactivation:
+    post:
+      tags: [Membres]
+      summary: Réactiver un membre
+      description: |
+        Réservé aux Administrateurs. La réactivation rend le membre de nouveau actif sans modifier
+        son historique financier (cotisations, règlements, contributions inchangés). Elle ne
+        l'ajoute pas rétroactivement aux campagnes créées pendant sa période d'inactivité ; il ne
+        sera concerné qu'à partir des campagnes créées après sa réactivation. Une réactivation
+        d'un membre déjà actif est refusée par un conflit métier.
+      operationId: reactivateMember
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      responses:
+        '200':
+          description: Membre réactivé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /income-categories:
     get:
       tags: [Catégories de revenu]
@@ -2432,6 +2463,7 @@ components:
         - BUSINESS_CONFLICT
         - DUPLICATE_CATEGORY_LABEL
         - MEMBER_ALREADY_INACTIVE
+        - MEMBER_ALREADY_ACTIVE
         - INVALID_OPERATOR_CONFIGURATION
         - CAMPAIGN_NOT_EDITABLE
         - CAMPAIGN_ALREADY_CLOSED

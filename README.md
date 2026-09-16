@@ -20,6 +20,7 @@ Puis ouvrez `http://localhost:4173`.
 - vues Administrateur, Trésorier, Opérateur autorisé, Opérateur non autorisé et Membre ;
 - tableaux de bord et navigations adaptés à chaque rôle ;
 - membres, fiche membre et formulaire avec verrouillage des champs structurants pour l’Opérateur ;
+- désactivation et réactivation d’un membre depuis sa fiche, réservées à l’Administrateur ;
 - campagnes, montants par catégorie, situation des membres et paiements partiels ;
 - cagnottes et contributions, visuellement séparées des cotisations ;
 - utilisateurs, rôles, autorisation globale de l’Opérateur et catégories de revenu ;

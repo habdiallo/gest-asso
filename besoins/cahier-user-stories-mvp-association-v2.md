@@ -19,6 +19,8 @@ Cette version corrige et ferme les points laissés ouverts dans la v1 :
 | Protection des données personnelles | Clause minimale ajoutée (§26). |
 | Devise et format des gros montants | Devise fixée en Franc Guinéen (GNF), avec notation condensée K / M / Mds (§1.3). |
 | Modes de règlement | Restreints à Espèces, Mobile Money et Virement bancaire — aucun paiement en ligne intégré (§1.3, RG-PAY-009). |
+| Incohérence matrice/US-MEM-005 sur la modification du statut par le Trésorier | Corrigée : le statut ne se modifie que via désactivation/réactivation, réservées à l'Administrateur (RG-MEM-018). |
+| Réactivation d'un membre désactivé | Ajoutée en tant qu'opération à part entière, réservée à l'Administrateur (US-MEM-006, RG-MEM-019, RG-MEM-020). |
 
 ---
 
@@ -110,8 +112,9 @@ Quand cet attribut vaut "oui", l'Opérateur peut enregistrer des règlements de 
 | Consulter les membres | ✅ | ✅ | ✅ | Limité à soi-même |
 | Ajouter un membre | ✅ | ✅ | ❌ | ❌ |
 | Modifier un membre (champs non structurants) | ✅ | ✅ | ✅ | ❌ |
-| Modifier un membre (champs structurants : catégorie, statut, fonction) | ✅ | ✅ | ❌ | ❌ |
-| Désactiver un membre | ✅ | ❌ | ❌ | ❌ |
+| Modifier un membre (champs structurants : catégorie, fonction) | ✅ | ✅ | ❌ | ❌ |
+| Désactiver un membre (change le statut à Inactif) | ✅ | ❌ | ❌ | ❌ |
+| Réactiver un membre (change le statut à Actif) | ✅ | ❌ | ❌ | ❌ |
 | Gérer les catégories de revenu | ✅ | ❌ | ❌ | ❌ |
 | Créer une campagne | ✅ | ✅ | ❌ | ❌ |
 | Configurer les montants d'une campagne | ✅ | ✅ | ❌ | ❌ |
@@ -190,7 +193,8 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-MEM-009** — Une modification de la catégorie de revenu ne modifie aucune cotisation déjà établie.
 - **RG-MEM-010** — Une modification de la catégorie de revenu s'applique uniquement aux futures campagnes.
 - **RG-MEM-011** — Les informations historiques restent cohérentes avec la situation du membre au moment de chaque campagne passée.
-- **RG-MEM-017** — Un Opérateur ne peut modifier que les champs non structurants d'un membre (téléphone, ville, pays, nom d'usage). Les champs structurants — catégorie de revenu, statut, fonction, rôle applicatif — sont réservés à l'Administrateur et au Trésorier, quel que soit l'attribut `peut_enregistrer_paiements` de l'Opérateur.
+- **RG-MEM-017** — Un Opérateur ne peut modifier que les champs non structurants d'un membre (téléphone, ville, pays, nom d'usage). Les champs structurants — catégorie de revenu, fonction, rôle applicatif — sont réservés à l'Administrateur et au Trésorier, quel que soit l'attribut `peut_enregistrer_paiements` de l'Opérateur.
+- **RG-MEM-018** — Le statut d'un membre (Actif/Inactif) n'est jamais modifié par cette opération générale de mise à jour (US-MEM-004), y compris pour un Trésorier. Il ne change que via les opérations dédiées de désactivation (US-MEM-005) et de réactivation (US-MEM-006), toutes deux réservées à l'Administrateur.
 
 ### US-MEM-005 — Désactiver un membre
 
@@ -203,6 +207,17 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-MEM-014** — Les règlements historiques sont conservés.
 - **RG-MEM-015** — Les contributions aux cagnottes sont conservées.
 - **RG-MEM-016** — Un membre inactif n'est pas automatiquement inclus dans une nouvelle campagne.
+
+### US-MEM-006 — Réactiver un membre
+
+**En tant qu'Administrateur**, je veux réactiver un membre précédemment désactivé, afin de le considérer de nouveau comme membre actif.
+
+**Règles**
+
+- **RG-MEM-019** — La réactivation est réservée à l'Administrateur, symétriquement à la désactivation.
+- **RG-MEM-020** — La réactivation ne modifie aucune donnée historique : catégorie de revenu, fonction, cotisations, règlements et contributions restent inchangés.
+- **RG-MEM-021** — La réactivation n'ajoute pas rétroactivement le membre aux campagnes créées pendant sa période d'inactivité ; il n'est concerné qu'à partir des campagnes créées après sa réactivation, conformément à RG-MEM-016.
+- **RG-MEM-022** — Réactiver un membre déjà actif n'est pas une opération valide (conflit métier).
 
 ---
 
@@ -425,7 +440,7 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 
 **Niveau 2 — Trésorier** : gérer les campagnes, définir les montants, suivre les cotisations, enregistrer les règlements, gérer les cagnottes, enregistrer les contributions, consulter les situations financières.
 
-**Niveau 3 — Opérateur** : consulter les membres et les campagnes autorisées ; modifier les champs non structurants d'un membre ; enregistrer les règlements et contributions **si** `peut_enregistrer_paiements = oui`. Ne peut jamais : gérer les rôles, gérer les catégories de revenu, modifier les paramètres structurants d'un membre, désactiver un membre, modifier les montants d'une campagne, clôturer une campagne ou une cagnotte.
+**Niveau 3 — Opérateur** : consulter les membres et les campagnes autorisées ; modifier les champs non structurants d'un membre ; enregistrer les règlements et contributions **si** `peut_enregistrer_paiements = oui`. Ne peut jamais : gérer les rôles, gérer les catégories de revenu, modifier les paramètres structurants d'un membre, désactiver ou réactiver un membre, modifier les montants d'une campagne, clôturer une campagne ou une cagnotte.
 
 **Niveau 4 — Membre** : consulter son profil, ses cotisations, ses règlements, ses contributions ; participer aux opérations ouvertes aux membres (hors saisie de paiement, cf. Annexe A).
 
@@ -477,6 +492,8 @@ Pour éviter toute ambiguïté avec l'équipe de développement, les points suiv
 - Génération de reçus ou justificatifs fiscaux.
 - Suppression définitive d'un membre ou de ses données (traitée manuellement, hors application).
 - Rôle applicatif dédié "Président" ou toute autre fonction associative.
+- Correction ou annulation d'un règlement ou d'une contribution déjà enregistrés (erreur de saisie de montant, de mode ou de date). Pour le MVP, toute erreur de ce type doit être corrigée manuellement, hors application, par l'Administrateur ; aucun écran ni endpoint n'est prévu pour cela. (La réactivation d'un membre, elle, est prise en charge — voir US-MEM-006 — ce point ne concerne que les écritures financières.)
+- Génération et communication automatiques de l'identifiant de connexion initial d'un membre. Pour le MVP, la convention retenue est : l'identifiant est le numéro de téléphone du membre, et le mot de passe initial est communiqué de la main à la main ou par SMS par l'Administrateur au moment de la création du compte — sans automatisation (pas d'email, pas de SMS applicatif).
 
 ---
 
