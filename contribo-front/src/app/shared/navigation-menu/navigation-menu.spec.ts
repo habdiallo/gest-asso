@@ -114,12 +114,14 @@ describe('NavigationMenu', () => {
     ]);
   });
 
-  it('renders nothing for a role without a menu defined yet', () => {
+  it('renders only the personal space item for the Member role', () => {
     TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER'));
 
     const fixture = TestBed.createComponent(NavigationMenu);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('nav')).toBeNull();
+    const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
+    expect(links.map((link) => link.textContent?.trim())).toEqual(['Mon espace']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/mon-espace']);
   });
 });
