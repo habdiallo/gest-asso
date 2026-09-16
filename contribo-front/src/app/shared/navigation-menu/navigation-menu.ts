@@ -25,12 +25,12 @@ export class NavigationMenu {
   readonly navClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'flex flex-col gap-1'
-      : 'flex flex-wrap items-center justify-around gap-1 px-2 py-2 min-[821px]:px-6 min-[821px]:py-4',
+      : 'flex flex-nowrap items-center justify-around gap-1 overflow-x-auto px-2 py-2 min-[821px]:px-6 min-[821px]:py-4',
   );
 
   readonly linkClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'block rounded-lg px-3 py-2 text-sm text-text-2 transition-colors hover:bg-surface-2 hover:text-text'
-      : 'rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[821px]:text-sm',
+      : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[821px]:text-sm',
   );
 }
