@@ -115,7 +115,10 @@ body {
   color: var(--text);
 }
 
+/* --gold-hover plutôt que --gold : en thème clair, --gold (#b38f4d sur #faf8f5) ne fournit
+   que 2,85:1 de contraste, sous le minimum WCAG AA de 3:1 pour un indicateur non textuel ;
+   --gold-hover (#9c7a3c) atteint 3,76:1 dans les deux thèmes. */
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--gold-hover);
   outline-offset: 3px;
 }
