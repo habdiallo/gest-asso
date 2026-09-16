@@ -47,4 +47,7 @@ comportement ; ce change ajoute uniquement un point de lecture de configuration 
 - `contribo-front/README.md` : documentation du dossier `environments/` et de son usage.
 - Aucun impact sur le contrat API (`besoins/openapi.yaml`), les DTO générés, ou les tests
   Vitest existants.
-- Ticket local : à attribuer (aucun ticket enregistré pour cette évolution à ce stade).
+- Ticket local : **T-108**, enregistré dans `openspec/tickets.json` après correction
+  de la collision avec T-107 (comptes de démonstration, PR 22). Branche locale :
+  `front/feat-108-environnements-angular`. La PR 23 conserve exceptionnellement sa
+  branche distante `front/feat-107-environnements-angular` pour préserver son numéro.
