@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
-import { TranslatePipe } from '@shared/i18n/translate.pipe';
+import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslocoPipe],
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

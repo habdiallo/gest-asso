@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import type { ComponentFixture } from '@angular/core/testing';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import fr from '../../../../assets/i18n/fr.json';
 import { LoginPage } from './login-page';
 
 function fillForm(
@@ -28,7 +30,14 @@ describe('LoginPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginPage],
+      imports: [
+        LoginPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
