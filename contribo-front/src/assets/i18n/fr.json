@@ -44,6 +44,8 @@
   "socialFunds.error": "Impossible de charger les cagnottes. Réessayez plus tard.",
   "socialFunds.count": "{{count}} cagnotte(s)",
   "socialFunds.empty": "Aucune cagnotte pour le moment.",
+  "socialFunds.eventTypeFilterLabel": "Filtrer par type d'événement",
+  "socialFunds.eventTypeFilterAll": "Tous les types d'événement",
   "socialFunds.card.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",
   "socialFunds.card.contributorCount": "{{count}} contributeur(s)",
   "socialFunds.pagination.nav": "Pagination des cagnottes",
@@ -74,6 +76,8 @@
   "incomeCategories.columns.memberCount": "Membres",
   "incomeCategories.columns.updatedAt": "Dernière modification",
   "campaigns.list.title": "Campagnes",
+  "campaigns.list.statusFilterLabel": "Statut",
+  "campaigns.list.statusFilterAll": "Toutes",
   "campaigns.list.loading": "Chargement des campagnes…",
   "campaigns.list.error": "Impossible de charger les campagnes. Réessayez plus tard.",
   "campaigns.list.empty": "Aucune campagne.",
@@ -133,5 +137,13 @@
   "rolesUsers.accountInactive": "Inactif",
   "rolesUsers.pageIndicator": "Page {{current}} / {{total}}",
   "rolesUsers.previousPage": "Précédent",
-  "rolesUsers.nextPage": "Suivant"
+  "rolesUsers.nextPage": "Suivant",
+  "rolesUsers.columnActions": "Actions",
+  "rolesUsers.editRoleLabel": "Modifier le rôle",
+  "rolesUsers.editRoleAction": "Modifier le rôle de {{name}}",
+  "rolesUsers.roleDialogTitle": "Rôle applicatif de {{name}}",
+  "rolesUsers.roleDialogLabel": "Rôle applicatif",
+  "rolesUsers.roleDialogCancel": "Annuler",
+  "rolesUsers.roleDialogSave": "Enregistrer",
+  "rolesUsers.roleDialogError": "Impossible d'enregistrer le rôle. Réessayez plus tard."
 }

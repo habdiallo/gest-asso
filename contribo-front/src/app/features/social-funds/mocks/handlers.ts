@@ -47,6 +47,9 @@ function authenticationRequired(): Response {
  * jeu de données couvre une cagnotte ouverte avec objectif (barre de
  * progression) et une cagnotte clôturée sans objectif (RG : un objectif
  * absent ne doit jamais être affiché comme atteint à zéro).
+ *
+ * Le filtre `eventType` (T-83, paramètre `SocialFundEventTypeFilter` du
+ * contrat) est appliqué avant la pagination, comme sur le serveur réel.
  */
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
@@ -59,9 +62,13 @@ export const socialFundsHandlers = [
     const url = new URL(request.url);
     const pageNumber = Number(url.searchParams.get('page') ?? '0');
     const pageSize = Number(url.searchParams.get('size') ?? '20');
-    const totalElements = demoSocialFunds.length;
+    const eventType = url.searchParams.get('eventType') as SocialEventType | null;
+    const filteredSocialFunds = eventType
+      ? demoSocialFunds.filter((socialFund) => socialFund.eventType === eventType)
+      : demoSocialFunds;
+    const totalElements = filteredSocialFunds.length;
     const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
-    const items = demoSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+    const items = filteredSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
 
     const page: SocialFundPage = {
       items,

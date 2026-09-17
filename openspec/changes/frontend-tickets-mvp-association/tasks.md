@@ -43,7 +43,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 > Parcours cible : un utilisateur Administrateur/Trésorier/Opérateur consulte la liste des membres puis leur fiche détaillée.
 
 - [x] 4.1 [T-21] (P0) Écran liste des membres : tableau avec Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut. — US-MEM-002 ; openapi:`listMembers`
-- [ ] 4.2 [T-22] (P0) Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007
+- [x] 4.2 [T-22] (P0) Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007
 - [ ] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
 - [ ] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
@@ -79,14 +79,14 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 7. Catégories de revenu (`income-categories-ui`)
 
 - [x] 7.1 [T-48] (P1) Écran liste des catégories de revenu, réservé à l'Administrateur. — US-REV-001 ; openapi:`listIncomeCategories`
-- [ ] 7.2 [T-49] (P0) Garde de route interdisant l'écran catégories aux autres rôles. — RG-ROLE-002
+- [x] 7.2 [T-49] (P0) Garde de route interdisant l'écran catégories aux autres rôles. — RG-ROLE-002
 - [ ] 7.3 [T-50] (P1) Formulaire de création d'une catégorie (libellé obligatoire, sans champ de montant). — RG-REV-001, RG-REV-002 ; openapi:`createIncomeCategory`
 - [ ] 7.4 [T-51] (P1) Formulaire de modification d'une catégorie, avec message rappelant l'absence d'effet rétroactif. — US-REV-002 ; openapi:`updateIncomeCategory`
 
 ## 8. Rôles et utilisateurs (`roles-users-ui`)
 
 - [x] 8.1 [T-52] (P1) Écran liste des utilisateurs avec rôle applicatif affiché, réservé à l'Administrateur. — RG-ROLE-002 ; openapi:`listUsers`
-- [ ] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
+- [x] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
 - [ ] 8.3 [T-54] (P2) Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006
 - [ ] 8.4 [T-55] (P1) Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`
 - [ ] 8.5 [T-56] (P1) Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.
@@ -96,7 +96,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 > Parcours cible : un utilisateur consulte la liste des campagnes, ouvre une campagne, consulte son barème et la situation des cotisations.
 
 - [x] 9.1 [T-57] (P0) Écran liste des campagnes (nom, période, statut) pour Administrateur/Trésorier/Opérateur. — openapi:`listCampaigns`
-- [ ] 9.2 [T-58] (P2) Filtre par statut de campagne (ouverte/clôturée).
+- [x] 9.2 [T-58] (P2) Filtre par statut de campagne (ouverte/clôturée).
 - [ ] 9.3 [T-59] (P2) Recherche par nom de campagne.
 - [ ] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
 - [ ] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
@@ -135,7 +135,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 > Parcours cible : un utilisateur consulte la liste des cagnottes (visuellement distincte des campagnes), en crée une, puis suit sa collecte.
 
 - [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
-- [ ] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
+- [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [ ] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
 - [ ] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.

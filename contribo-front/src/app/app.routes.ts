@@ -20,8 +20,9 @@ export const routes: Routes = [
   },
   {
     // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
-    // (US-REV-001). La garde de rôle limite déjà l'accès à ce seul rôle ;
-    // la garde de rôle générique et transverse (RG-ROLE-002) reste à ajouter par T-49.
+    // (US-REV-001). `roleGuard` protège cette route montée, et la même garde
+    // est répétée dans `income-categories.routes.ts` pour couvrir l'écran de
+    // façon transverse, indépendamment de sa composition (RG-ROLE-002, T-49).
     path: NAVIGATION_PATHS.incomeCategories.slice(1),
     canMatch: [authenticatedMatch, roleGuard('ADMINISTRATOR')],
     loadChildren: () =>
