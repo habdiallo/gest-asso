@@ -20,6 +20,13 @@ export const routes: Routes = [
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    // Écran liste des utilisateurs (T-52), réservé à l'Administrateur via
+    // `roleGuard` dans les routes de la feature (RG-ROLE-002).
+    path: 'roles-utilisateurs',
+    loadChildren: () =>
+      import('@features/roles-users/roles-users.routes').then((m) => m.ROLES_USERS_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },
