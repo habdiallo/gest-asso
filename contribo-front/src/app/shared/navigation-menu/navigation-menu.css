@@ -1,0 +1,68 @@
+:host {
+  display: block;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 5px;
+  padding: 0 20px 8px;
+}
+
+.sidebar-nav-section {
+  margin: 17px 11px 8px;
+  color: var(--text-2);
+  font: 500 9px/1 var(--font-data);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.sidebar-link svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sidebar-link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.sidebar-link-active,
+.sidebar-link-active:hover {
+  color: var(--sidebar-accent, var(--gold-hover));
+  background: var(--gold-wash);
+  border-color: color-mix(in srgb, var(--gold) 28%, transparent);
+}
+
+.sidebar-link-active::before {
+  position: absolute;
+  left: -21px;
+  width: 3px;
+  height: 20px;
+  border-radius: 0 4px 4px 0;
+  background: var(--gold-hover);
+  box-shadow: 0 0 14px var(--gold);
+  content: '';
+}

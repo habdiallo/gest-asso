@@ -1,14 +1,55 @@
 @if (items().length > 0) {
   <nav aria-label="Navigation principale" [class]="navClasses()">
-    @for (item of items(); track item.path) {
-      <a
-        [routerLink]="item.path"
-        routerLinkActive="text-gold-hover"
-        ariaCurrentWhenActive="page"
-        [class]="linkClasses()"
-      >
-        {{ item.label }}
-      </a>
+    @if (orientation() === 'vertical') {
+      @for (section of verticalSections(); track section.label) {
+        @if (section.label) {
+          <div class="sidebar-nav-section">{{ section.label }}</div>
+        }
+        @for (item of section.items; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="sidebar-link-active"
+            ariaCurrentWhenActive="page"
+            class="sidebar-link"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              @for (path of iconPaths[item.path]; track path) {
+                <path [attr.d]="path" />
+              }
+              @if (
+                item.path === navigationPaths.members || item.path === navigationPaths.rolesAndUsers
+              ) {
+                <circle cx="9" cy="7" r="4" />
+              } @else if (item.path === navigationPaths.incomeCategories) {
+                <circle cx="7.5" cy="5.5" r=".5" />
+              } @else if (item.path === navigationPaths.memberSpace) {
+                <circle cx="12" cy="8" r="4" />
+              }
+            </svg>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      }
+    } @else {
+      @for (item of items(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="text-gold-hover"
+          ariaCurrentWhenActive="page"
+          [class]="linkClasses()"
+        >
+          {{ item.label }}
+        </a>
+      }
     }
   </nav>
 }

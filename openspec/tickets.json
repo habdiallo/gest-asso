@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 111,
+  "nextTicketId": 112,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2101,6 +2101,30 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-libelle-deconnexion-200",
       "branchAfterInitialization": "front/fix-110-libelle-deconnexion-200"
+    },
+    {
+      "id": 111,
+      "title": "Rendre uniquement le visuel de la sidebar desktop fidèle au design de référence.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "sidebar-desktop-design",
+      "change": "fidelite-sidebar-desktop-design",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2"
+      ],
+      "dependencies": [14, 10, 11, 12],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-sidebar-desktop-design",
+      "branchAfterInitialization": "front/fix-111-sidebar-desktop-design"
     }
   ]
 }
