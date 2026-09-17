@@ -2,6 +2,7 @@ import type { HttpHandler } from 'msw';
 
 import { authHandlers } from '@features/auth/mocks/handlers';
 import { dashboardHandlers } from '@features/dashboard/mocks/handlers';
+import { incomeCategoriesHandlers } from '@features/income-categories/mocks/handlers';
 import { socialFundsHandlers } from '@features/social-funds/mocks/handlers';
 
 /**
@@ -12,5 +13,6 @@ import { socialFundsHandlers } from '@features/social-funds/mocks/handlers';
 export const handlers: HttpHandler[] = [
   ...authHandlers,
   ...dashboardHandlers,
+  ...incomeCategoriesHandlers,
   ...socialFundsHandlers,
 ];

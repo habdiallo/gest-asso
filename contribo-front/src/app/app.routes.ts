@@ -19,6 +19,17 @@ export const routes: Routes = [
     loadChildren: () => import('@features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
   {
+    // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
+    // (US-REV-001). La garde de rôle limite déjà l'accès à ce seul rôle ;
+    // la garde de rôle générique et transverse (RG-ROLE-002) reste à ajouter par T-49.
+    path: NAVIGATION_PATHS.incomeCategories.slice(1),
+    canMatch: [authenticatedMatch, roleGuard('ADMINISTRATOR')],
+    loadChildren: () =>
+      import('@features/income-categories/income-categories.routes').then(
+        (m) => m.INCOME_CATEGORIES_ROUTES,
+      ),
+  },
+  {
     path: 'login',
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },

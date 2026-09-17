@@ -65,5 +65,12 @@
   "memberSpace.profile.incomeCategory": "Catégorie de revenu",
   "memberSpace.profile.associationFunction": "Fonction associative",
   "memberSpace.profile.status": "Statut",
-  "memberSpace.profile.readOnlyNote": "Ces informations sont en lecture seule. Pour corriger une donnée, contactez un responsable de l'association."
+  "memberSpace.profile.readOnlyNote": "Ces informations sont en lecture seule. Pour corriger une donnée, contactez un responsable de l'association.",
+  "incomeCategories.title": "Catégories de revenu",
+  "incomeCategories.loading": "Chargement des catégories de revenu…",
+  "incomeCategories.error": "Impossible de charger les catégories de revenu. Réessayez plus tard.",
+  "incomeCategories.empty": "Aucune catégorie de revenu.",
+  "incomeCategories.columns.label": "Libellé",
+  "incomeCategories.columns.memberCount": "Membres",
+  "incomeCategories.columns.updatedAt": "Dernière modification"
 }
