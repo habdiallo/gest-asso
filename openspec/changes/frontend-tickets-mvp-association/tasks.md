@@ -111,7 +111,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 10.1 [T-65] (P0) Formulaire de création de campagne (Nom, Description, Date de début, Date de fin, membres concernés). — US-COT-001 ; openapi:`createCampaign`
 - [ ] 10.2 [T-66] (P0) Validation "date de fin ≥ date de début". — RG-COT-005
 - [ ] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
-- [ ] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
+- [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
 - [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
 - [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
 
