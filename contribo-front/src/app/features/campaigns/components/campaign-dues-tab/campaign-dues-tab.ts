@@ -11,17 +11,19 @@ import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CampagnesService, DueStatus } from '@api';
 import type { DuePage } from '@api';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 
 const DUE_STATUS_LABELS: Record<DueStatus, string> = {
-  DUE: 'À payer',
-  PARTIALLY_PAID: 'Partiellement payé',
-  PAID: 'Payé',
-  OVERDUE: 'En retard',
+  DUE: 'campaigns.detail.cotisations.status.due',
+  PARTIALLY_PAID: 'campaigns.detail.cotisations.status.partiallyPaid',
+  PAID: 'campaigns.detail.cotisations.status.paid',
+  OVERDUE: 'campaigns.detail.cotisations.status.overdue',
 };
 
 @Component({
   selector: 'app-campaign-dues-tab',
+  imports: [TranslocoPipe],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
