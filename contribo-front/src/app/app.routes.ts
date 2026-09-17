@@ -20,6 +20,14 @@ export const routes: Routes = [
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    path: 'mon-espace',
+    // Espace personnel du membre (T-95) : profil en lecture seule, réservé à
+    // un utilisateur authentifié, quel que soit son rôle applicatif.
+    canMatch: [authenticatedMatch],
+    loadChildren: () =>
+      import('@features/member-space/member-space.routes').then((m) => m.MEMBER_SPACE_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },

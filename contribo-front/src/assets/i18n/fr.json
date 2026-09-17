@@ -36,5 +36,21 @@
   "dashboard.member.totalContributions": "Total des contributions",
   "dashboard.member.contributedSocialFunds": "Cagnottes soutenues",
   "dashboard.member.recentDuesTitle": "Cotisations récentes",
-  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente."
+  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente.",
+  "memberSpace.profile.title": "Mon profil",
+  "memberSpace.profile.subtitle": "Informations enregistrées par l'association.",
+  "memberSpace.profile.error": "Impossible de charger votre profil. Réessayez plus tard.",
+  "memberSpace.profile.personalInfoTitle": "Informations personnelles",
+  "memberSpace.profile.lastName": "Nom",
+  "memberSpace.profile.firstName": "Prénom",
+  "memberSpace.profile.preferredName": "Nom d'usage",
+  "memberSpace.profile.phone": "Téléphone",
+  "memberSpace.profile.country": "Pays",
+  "memberSpace.profile.city": "Ville",
+  "memberSpace.profile.notProvided": "Non renseigné",
+  "memberSpace.profile.associationInfoTitle": "Catégorie et fonction",
+  "memberSpace.profile.incomeCategory": "Catégorie de revenu",
+  "memberSpace.profile.associationFunction": "Fonction associative",
+  "memberSpace.profile.status": "Statut",
+  "memberSpace.profile.readOnlyNote": "Ces informations sont en lecture seule. Pour corriger une donnée, contactez un responsable de l'association."
 }
