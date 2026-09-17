@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembresService } from '@api';
 import type { MemberPage } from '@api';
@@ -34,6 +41,14 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
+  readonly previousPageDisabled = computed(
+    () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
+  );
+  readonly nextPageDisabled = computed(() => {
+    const page = this.memberPage();
+    return this.loading() || !page || page.page.number + 1 >= page.page.totalPages;
+  });
+
   readonly memberStatusLabel = memberStatusLabel;
 
   constructor() {
@@ -41,6 +56,9 @@ export class MembersListPage {
   }
 
   goToPreviousPage(): void {
+    if (this.previousPageDisabled()) {
+      return;
+    }
     const page = this.memberPage();
     if (page && page.page.number > 0) {
       this.loadPage(page.page.number - 1);
@@ -48,6 +66,9 @@ export class MembersListPage {
   }
 
   goToNextPage(): void {
+    if (this.nextPageDisabled()) {
+      return;
+    }
     const page = this.memberPage();
     if (page && page.page.number + 1 < page.page.totalPages) {
       this.loadPage(page.page.number + 1);

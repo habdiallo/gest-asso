@@ -3,11 +3,16 @@
     {{ 'members.title' | transloco }}
   </h1>
 
-  @if (loading()) {
+  @if (loading() && !memberPage()) {
     <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
-  } @else if (loadError()) {
+  } @else if (loadError() && !memberPage()) {
     <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
   } @else if (memberPage(); as page) {
+    @if (loading()) {
+      <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
+    } @else if (loadError()) {
+      <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
+    }
     <p class="mt-1 text-sm text-text-2">
       {{
         'members.summary' | transloco: { active: page.summary.active, total: page.summary.total }
@@ -17,7 +22,10 @@
     @if (page.items.length === 0) {
       <p class="mt-6 text-text-2">{{ 'members.empty' | transloco }}</p>
     } @else {
-      <div class="mt-6 overflow-x-auto rounded-card border border-line">
+      <div
+        class="mt-6 overflow-x-auto rounded-card border border-line"
+        [attr.aria-busy]="loading() ? 'true' : null"
+      >
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-line text-xs uppercase tracking-[0.08em] text-text-2">
@@ -67,8 +75,9 @@
       <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
-          [disabled]="page.page.number === 0"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          [class.opacity-40]="previousPageDisabled()"
+          [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
           (click)="goToPreviousPage()"
         >
           {{ 'members.previousPage' | transloco }}
@@ -81,8 +90,9 @@
         </p>
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
-          [disabled]="page.page.number + 1 >= page.page.totalPages"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          [class.opacity-40]="nextPageDisabled()"
+          [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
           (click)="goToNextPage()"
         >
           {{ 'members.nextPage' | transloco }}

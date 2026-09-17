@@ -57,6 +57,60 @@ async function createFixture(
 }
 
 describe('MembersListPage', () => {
+  it('keeps focus during pagination, blocks repeat requests and preserves the page on failure', async () => {
+    const pending = new Subject<MemberPage>();
+    const requestedPages: (number | undefined)[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return page === 0 ? of(buildMemberPage()) : pending.asObservable();
+    });
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement;
+    const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.focus();
+    nextButton.click();
+    fixture.detectChanges();
+
+    expect(nextButton.isConnected).toBe(true);
+    expect(nextButton.disabled).toBe(false);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+    expect(document.activeElement).toBe(nextButton);
+    nextButton.click();
+    fixture.componentInstance.goToPreviousPage();
+    expect(requestedPages).toEqual([0, 1]);
+
+    pending.error(new Error('network error'));
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(nextButton);
+    expect(root.textContent).toContain('Amadou');
+    expect(root.querySelector('[role="alert"]')).toBeTruthy();
+    expect(nextButton.getAttribute('aria-disabled')).toBeNull();
+  });
+
+  it('keeps the focused next button when the last page arrives', async () => {
+    const pending = new Subject<MemberPage>();
+    const fixture = await createFixture((page) =>
+      page === 0
+        ? of(buildMemberPage({ page: { number: 0, size: 20, totalElements: 21, totalPages: 2 } }))
+        : pending.asObservable(),
+    );
+    fixture.detectChanges();
+    const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.focus();
+    nextButton.click();
+    fixture.detectChanges();
+    pending.next(
+      buildMemberPage({ page: { number: 1, size: 20, totalElements: 21, totalPages: 2 } }),
+    );
+    pending.complete();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(nextButton);
+    expect(nextButton.disabled).toBe(false);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+  });
+
   it('shows a loading state while the request is pending', async () => {
     const pending = new Subject<MemberPage>();
     const fixture = await createFixture(() => pending.asObservable());
@@ -135,8 +189,8 @@ describe('MembersListPage', () => {
     const previousButton = buttons[0] as HTMLButtonElement;
     const nextButton = buttons[1] as HTMLButtonElement;
 
-    expect(previousButton.disabled).toBe(true);
-    expect(nextButton.disabled).toBe(false);
+    expect(previousButton.getAttribute('aria-disabled')).toBe('true');
+    expect(nextButton.getAttribute('aria-disabled')).toBeNull();
   });
 
   it('loads and displays the members beyond the first page of 20', async () => {
