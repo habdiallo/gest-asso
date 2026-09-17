@@ -18,9 +18,9 @@ qu'elle ne s'applique pas rétroactivement aux fichiers existants.
 
 ## 2. Publication
 
-- [ ] 2.1 [T-109] Committer avec le message `docs(docs): T-109 interdire le tiret
+- [x] 2.1 [T-109] Committer avec le message `docs(docs): T-109 interdire le tiret
       cadratin dans les regles agents` (ou équivalent conforme), en ajoutant
       uniquement les fichiers du ticket.
-- [ ] 2.2 [T-109] Pousser la branche `docs/chore-109-interdire-tiret-cadratin-regles`
+- [x] 2.2 [T-109] Pousser la branche `docs/chore-109-interdire-tiret-cadratin-regles`
       et ouvrir une PR vers `main` avec le modèle du dépôt, seulement si la
       livraison est explicitement demandée.
