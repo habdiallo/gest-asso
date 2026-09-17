@@ -124,10 +124,6 @@
   "memberSpace.dues.pagination.previous": "Précédent",
   "memberSpace.dues.pagination.status": "Page {{current}} sur {{total}}",
   "memberSpace.dues.pagination.next": "Suivant",
-  "memberSpace.dues.status.due": "À payer",
-  "memberSpace.dues.status.partiallyPaid": "Partiellement payé",
-  "memberSpace.dues.status.paid": "Payé",
-  "memberSpace.dues.status.overdue": "En retard",
   "incomeCategories.title": "Catégories de revenu",
   "incomeCategories.loading": "Chargement des catégories de revenu…",
   "incomeCategories.error": "Impossible de charger les catégories de revenu. Réessayez plus tard.",
@@ -265,5 +261,9 @@
   "rolesUsers.roleDialogCancel": "Annuler",
   "rolesUsers.roleDialogSave": "Enregistrer",
   "rolesUsers.roleDialogError": "Impossible d'enregistrer le rôle. Réessayez plus tard.",
-  "rolesUsers.operatorAuthorizationToggleLabel": "Autoriser l'enregistrement des paiements"
+  "rolesUsers.operatorAuthorizationToggleLabel": "Autoriser l'enregistrement des paiements",
+  "sharedDueStatus.due": "À payer",
+  "sharedDueStatus.partiallyPaid": "Partiellement payé",
+  "sharedDueStatus.paid": "Payé",
+  "sharedDueStatus.overdue": "En retard"
 }

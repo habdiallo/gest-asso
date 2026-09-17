@@ -5,13 +5,7 @@ import type { DuePage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { formatCalendarDate } from '../member-space-dates';
-
-const STATUS_LABELS: Record<DueStatus, string> = {
-  [DueStatus.Due]: 'memberSpace.dues.status.due',
-  [DueStatus.PartiallyPaid]: 'memberSpace.dues.status.partiallyPaid',
-  [DueStatus.Paid]: 'memberSpace.dues.status.paid',
-  [DueStatus.Overdue]: 'memberSpace.dues.status.overdue',
-};
+import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 
 /** Cotisations personnelles, issues exclusivement de GET /me/dues (T-96). */
 @Component({
@@ -29,7 +23,7 @@ export class MyDues {
   readonly loadError = signal(false);
   readonly result = signal<DuePage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
-  readonly statusLabels = STATUS_LABELS;
+  readonly statusLabels = DUE_STATUS_TRANSLATION_KEYS;
   readonly dueStatus = DueStatus;
 
   constructor() {
