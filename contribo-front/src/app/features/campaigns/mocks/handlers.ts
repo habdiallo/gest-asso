@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, ErrorCode } from '@api';
-import type { CampaignPage, CampaignSummary, ErrorResponse } from '@api';
+import { CampaignStatus, CurrencyCode, ErrorCode } from '@api';
+import type { Campaign, CampaignPage, CampaignSummary, ErrorResponse } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 const demoCampaigns: CampaignSummary[] = [
@@ -30,10 +30,103 @@ const demoCampaigns: CampaignSummary[] = [
   },
 ];
 
+/**
+ * Détail des campagnes de démonstration (T-60, `openapi:getCampaign`) :
+ * description et barème (`categoryAmounts`). Le bilan financier
+ * (`financialSummary`) est fourni pour rester fidèle au contrat, même si
+ * l'onglet bilan de l'écran détail reste un emplacement réservé (T-77).
+ */
+const demoCampaignDetails: Record<string, Campaign> = {
+  '10700000-0000-4000-8000-000000000200': {
+    ...demoCampaigns[0],
+    description: 'Campagne générale de soutien aux activités de l’association.',
+    categoryAmounts: [
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+        amount: 100_000,
+        memberCount: 60,
+        expectedAmount: 6_000_000,
+        currency: CurrencyCode.Gnf,
+      },
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+        amount: 250_000,
+        memberCount: 26,
+        expectedAmount: 6_500_000,
+        currency: CurrencyCode.Gnf,
+      },
+    ],
+    financialSummary: {
+      expectedAmount: 12_500_000,
+      collectedAmount: 8_375_000,
+      remainingAmount: 4_125_000,
+      collectionRate: 67.0,
+      dueCounts: { total: 86, paid: 52, partiallyPaid: 12, unpaid: 22 },
+      currency: CurrencyCode.Gnf,
+    },
+  },
+  '10700000-0000-4000-8000-000000000201': {
+    ...demoCampaigns[1],
+    description: 'Contribution exceptionnelle pour la rentrée scolaire des enfants de membres.',
+    categoryAmounts: [
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+        amount: 75_000,
+        memberCount: 91,
+        expectedAmount: 6_825_000,
+        currency: CurrencyCode.Gnf,
+      },
+    ],
+    financialSummary: {
+      expectedAmount: 6_825_000,
+      collectedAmount: 0,
+      remainingAmount: 6_825_000,
+      collectionRate: 0,
+      dueCounts: { total: 91, paid: 0, partiallyPaid: 0, unpaid: 91 },
+      currency: CurrencyCode.Gnf,
+    },
+  },
+  '10700000-0000-4000-8000-000000000202': {
+    ...demoCampaigns[2],
+    description: 'Soutien de mi-année clôturé.',
+    categoryAmounts: [
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+        amount: 100_000,
+        memberCount: 60,
+        expectedAmount: 6_000_000,
+        currency: CurrencyCode.Gnf,
+      },
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+        amount: 250_000,
+        memberCount: 24,
+        expectedAmount: 6_000_000,
+        currency: CurrencyCode.Gnf,
+      },
+    ],
+    financialSummary: {
+      expectedAmount: 12_000_000,
+      collectedAmount: 12_000_000,
+      remainingAmount: 0,
+      collectionRate: 100,
+      dueCounts: { total: 84, paid: 84, partiallyPaid: 0, unpaid: 0 },
+      currency: CurrencyCode.Gnf,
+    },
+  },
+};
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
     { status: 401 },
+  );
+}
+
+function campaignNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Campagne introuvable.' },
+    { status: 404 },
   );
 }
 
@@ -70,5 +163,25 @@ export const campaignsHandlers = [
         totalPages: Math.max(1, Math.ceil(filtered.length / size)),
       },
     });
+  }),
+
+  /**
+   * Handler MSW de démonstration pour `GET /api/v1/campaigns/{campaignId}`
+   * (T-60 : informations générales, barème et bilan financier de la campagne).
+   */
+  http.get('/api/v1/campaigns/:campaignId', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const campaignId = params['campaignId'] as string;
+    const campaign = demoCampaignDetails[campaignId];
+    if (!campaign) {
+      return campaignNotFound();
+    }
+
+    return HttpResponse.json<Campaign>(campaign);
   }),
 ];

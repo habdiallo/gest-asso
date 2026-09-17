@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -22,7 +23,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * l'option « Toutes ».
  *
  * Limite connue : la recherche par nom (T-59) n'est pas implémentée par ce
- * ticket.
+ * ticket. Chaque campagne ouvre son écran détail (T-60).
  *
  * Les commandes de pagination restent montées et focusables pendant le
  * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
@@ -31,7 +32,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  */
 @Component({
   selector: 'app-campaigns-list-page',
-  imports: [TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe],
   templateUrl: './campaigns-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -16,4 +16,12 @@ export const CAMPAIGNS_ROUTES: Routes = [
     canMatch: [roleGuard(UserRole.Administrator, UserRole.Treasurer, UserRole.Operator)],
     loadComponent: () => import('./pages/campaigns-list-page').then((m) => m.CampaignsListPage),
   },
+  {
+    // Écran détail de campagne (T-60) : mêmes rôles autorisés que la liste,
+    // US-COT-004 ; onglets barème/cotisations/bilan (`campaign-detail-page.ts`).
+    path: ':campaignId',
+    title: 'Contribo - Détail de campagne',
+    canMatch: [roleGuard(UserRole.Administrator, UserRole.Treasurer, UserRole.Operator)],
+    loadComponent: () => import('./pages/campaign-detail-page').then((m) => m.CampaignDetailPage),
+  },
 ];
