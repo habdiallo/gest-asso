@@ -40,6 +40,7 @@ export class CampaignsListPage {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly requestedPage = signal(0);
+  private requestSequence = 0;
 
   readonly statusFilterOptions: readonly CampaignStatus[] = [
     CampaignStatus.Open,
@@ -97,15 +98,25 @@ export class CampaignsListPage {
     this.loading.set(true);
     this.loadError.set(false);
 
+    // Une réponse en retard (filtre changé avant que la requête précédente
+    // ne résolve) ne doit pas écraser le résultat du dernier filtre sélectionné.
+    const requestId = ++this.requestSequence;
+
     this.campaignsService
       .listCampaigns(page, undefined, undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.campaignPage.set(campaignPage);
           this.loading.set(false);
         },
         error: () => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
         },

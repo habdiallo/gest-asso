@@ -143,6 +143,40 @@ describe('CampaignsListPage', () => {
     expect(requestedPages).toEqual([0, 1, 0]);
   });
 
+  it('ignores a stale response that resolves after a later filter change', async () => {
+    const open$ = new Subject<CampaignPage>();
+    const closed$ = new Subject<CampaignPage>();
+    const fixture = await createFixture((_page, _size, _q, status) =>
+      status === CampaignStatus.Closed ? closed$.asObservable() : open$.asObservable(),
+    );
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Open;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    select.value = CampaignStatus.Closed;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    // Regression T-58 (P2) : la réponse OPEN, arrivée après la sélection de
+    // CLOSED, ne doit pas remplacer le résultat du filtre sélectionné en dernier.
+    closed$.next(
+      buildCampaignPage({
+        items: [{ ...buildCampaignPage().items[0], status: 'CLOSED' }],
+      }),
+    );
+    fixture.detectChanges();
+    open$.next(buildCampaignPage({ items: [{ ...buildCampaignPage().items[0], status: 'OPEN' }] }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.statusFilter()).toBe(CampaignStatus.Closed);
+    expect(fixture.componentInstance.campaignPage()?.items[0].status).toBe('CLOSED');
+  });
+
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>
       of(buildCampaignPage({ page: { number: 0, size: 1, totalElements: 2, totalPages: 2 } })),
