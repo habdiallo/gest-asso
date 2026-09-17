@@ -78,7 +78,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 7. Catégories de revenu (`income-categories-ui`)
 
-- [ ] 7.1 [T-48] (P1) Écran liste des catégories de revenu, réservé à l'Administrateur. — US-REV-001 ; openapi:`listIncomeCategories`
+- [x] 7.1 [T-48] (P1) Écran liste des catégories de revenu, réservé à l'Administrateur. — US-REV-001 ; openapi:`listIncomeCategories`
 - [ ] 7.2 [T-49] (P0) Garde de route interdisant l'écran catégories aux autres rôles. — RG-ROLE-002
 - [ ] 7.3 [T-50] (P1) Formulaire de création d'une catégorie (libellé obligatoire, sans champ de montant). — RG-REV-001, RG-REV-002 ; openapi:`createIncomeCategory`
 - [ ] 7.4 [T-51] (P1) Formulaire de modification d'une catégorie, avec message rappelant l'absence d'effet rétroactif. — US-REV-002 ; openapi:`updateIncomeCategory`
