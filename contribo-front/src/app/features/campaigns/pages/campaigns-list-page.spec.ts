@@ -269,6 +269,55 @@ describe('CampaignsListPage', () => {
     }
   });
 
+  it('still fires the debounced search after a status change loads a different term mid-debounce', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedCriteria: { q: string | undefined; status: CampaignStatus | undefined }[] =
+        [];
+      const fixture = await createFixture((_page, _size, q, status) => {
+        requestedCriteria.push({ q, status });
+        return of(buildCampaignPage());
+      });
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#campaigns-search');
+      const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+        '#campaigns-status-filter',
+      );
+
+      // Recherche 'alpha', amortie et chargée.
+      input.value = 'alpha';
+      input.dispatchEvent(new Event('input'));
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      // L'utilisateur saisit 'beta', puis change immédiatement le statut :
+      // cela charge 'beta' avant la fin de l'amortissement de la saisie.
+      input.value = 'beta';
+      input.dispatchEvent(new Event('input'));
+      select.value = CampaignStatus.Open;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      // L'utilisateur remet 'alpha' avant la fin des 300 ms.
+      input.value = 'alpha';
+      input.dispatchEvent(new Event('input'));
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      // Régression : la dernière requête chargée doit refléter le champ
+      // affiché ('alpha'), pas rester sur 'beta' faute de nouvelle requête.
+      expect(requestedCriteria).toEqual([
+        { q: undefined, status: undefined },
+        { q: 'alpha', status: undefined },
+        { q: 'beta', status: CampaignStatus.Open },
+        { q: 'alpha', status: CampaignStatus.Open },
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>
       of(buildCampaignPage({ page: { number: 0, size: 1, totalElements: 2, totalPages: 2 } })),

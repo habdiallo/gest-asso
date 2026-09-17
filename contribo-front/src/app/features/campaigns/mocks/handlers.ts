@@ -123,6 +123,10 @@ function authenticationRequired(): Response {
   );
 }
 
+function normalizeForSearch(value: string): string {
+  return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
 function campaignNotFound(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.ResourceNotFound, message: 'Campagne introuvable.' },
@@ -133,8 +137,8 @@ function campaignNotFound(): Response {
 /**
  * Handler MSW de démonstration pour `GET /api/v1/campaigns` (T-57 : nom,
  * période, statut ; T-58 : filtre par statut via le paramètre contractuel
- * `status`). Pagination simple sur les fixtures ci-dessus ; la recherche par
- * nom (T-59) n'est pas encore gérée.
+ * `status` ; T-59 : recherche par nom via le paramètre contractuel `q`,
+ * comparaison insensible à la casse et aux accents).
  */
 export const campaignsHandlers = [
   http.get('/api/v1/campaigns', async ({ request }): Promise<Response> => {
@@ -148,9 +152,14 @@ export const campaignsHandlers = [
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
     const status = url.searchParams.get('status') as CampaignStatus | null;
-    const filtered = status
-      ? demoCampaigns.filter((campaign) => campaign.status === status)
-      : demoCampaigns;
+    const query = url.searchParams.get('q')?.trim();
+    const normalizedQuery = query ? normalizeForSearch(query) : null;
+    const filtered = demoCampaigns.filter((campaign) => {
+      const matchesStatus = !status || campaign.status === status;
+      const matchesQuery =
+        !normalizedQuery || normalizeForSearch(campaign.name).includes(normalizedQuery);
+      return matchesStatus && matchesQuery;
+    });
     const start = page * size;
     const items = filtered.slice(start, start + size);
 

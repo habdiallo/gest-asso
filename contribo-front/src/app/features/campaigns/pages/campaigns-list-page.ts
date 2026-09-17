@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
 import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, debounceTime } from 'rxjs';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 
@@ -26,11 +26,15 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * La recherche par nom (T-59, paramètre contractuel `q` de
  * `GET /campaigns`) filtre côté serveur les campagnes dont le nom
  * correspond à la saisie. La saisie est amortie (`debounceTime`) pour ne
- * déclencher une requête qu'une fois l'utilisateur arrêté de taper, et
- * `distinctUntilChanged` évite une requête redondante si la valeur amortie
- * n'a pas changé. Chaque nouvelle recherche revient à la première page, se
- * combine avec le filtre de statut déjà actif et chaque campagne ouvre son
- * écran détail (T-60).
+ * déclencher une requête qu'une fois l'utilisateur arrêté de taper. La
+ * déduplication compare le terme amorti au terme effectivement chargé par
+ * la dernière requête (`lastRequestedNameQuery`, mis à jour par tout appel
+ * à `loadPage`), pas au dernier terme émis dans le flux de saisie : un
+ * changement de statut déclenché pendant l'amortissement charge déjà le
+ * terme courant, donc un retour ultérieur à un terme précédemment amorti
+ * ne doit pas être supprimé comme redondant. Chaque nouvelle recherche
+ * revient à la première page, se combine avec le filtre de statut déjà
+ * actif et chaque campagne ouvre son écran détail (T-60).
  *
  * Les commandes de pagination restent montées et focusables pendant le
  * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
@@ -58,6 +62,7 @@ export class CampaignsListPage {
   readonly statusFilter = signal<CampaignStatus | ''>('');
   readonly nameQuery = signal('');
   private readonly nameQueryInput = new Subject<string>();
+  private lastRequestedNameQuery = '';
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly campaignPage = signal<CampaignPage | null>(null);
@@ -76,8 +81,13 @@ export class CampaignsListPage {
 
   constructor() {
     this.nameQueryInput
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadPage(0));
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value === this.lastRequestedNameQuery) {
+          return;
+        }
+        this.loadPage(0);
+      });
 
     this.loadPage(this.requestedPage());
   }
@@ -121,14 +131,11 @@ export class CampaignsListPage {
     // Une réponse en retard (filtre changé avant que la requête précédente
     // ne résolve) ne doit pas écraser le résultat du dernier filtre sélectionné.
     const requestId = ++this.requestSequence;
+    const nameQuery = this.nameQuery().trim();
+    this.lastRequestedNameQuery = nameQuery;
 
     this.campaignsService
-      .listCampaigns(
-        page,
-        undefined,
-        this.nameQuery().trim() || undefined,
-        this.statusFilter() || undefined,
-      )
+      .listCampaigns(page, undefined, nameQuery || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {
