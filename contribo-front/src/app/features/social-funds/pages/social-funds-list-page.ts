@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -61,7 +62,7 @@ function progressBarWidth(progressRate: number): number {
  */
 @Component({
   selector: 'app-social-funds-list-page',
-  imports: [TranslocoPipe, FormDialog, SocialFundCreateForm],
+  imports: [RouterLink, TranslocoPipe, FormDialog, SocialFundCreateForm],
   templateUrl: './social-funds-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

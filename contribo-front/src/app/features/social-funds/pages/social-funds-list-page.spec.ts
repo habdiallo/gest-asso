@@ -1,6 +1,7 @@
 import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFund, SocialFundPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -97,6 +98,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       {
         provide: CagnottesService,
         useValue: { listSocialFunds, createSocialFund } as unknown as CagnottesService,
@@ -417,10 +419,16 @@ describe('SocialFundsListPage', () => {
 
       responses
         .get('DEATH')!
-        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }));
+        .next(
+          buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }),
+        );
       responses
         .get('WEDDING')!
-        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }] }));
+        .next(
+          buildSocialFundPage({
+            items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }],
+          }),
+        );
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Deces');

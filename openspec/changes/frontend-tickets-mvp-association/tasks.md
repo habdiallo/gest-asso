@@ -148,7 +148,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
 - [ ] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
 - [ ] 14.4 [T-90] (P1) Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007
-- [ ] 14.5 [T-91] (P1) Onglet suivi de cagnotte : total collecté, nombre de contributeurs, liste des contributions. — US-CAG-003 ; openapi:`getCagnotteSummary`
+- [x] 14.5 [T-91] (P1) Onglet suivi de cagnotte : total collecté, nombre de contributeurs, liste des contributions. — US-CAG-003 ; openapi:`getCagnotteSummary`
 - [ ] 14.6 [T-92] (P2) Barre de progression objectif / reste à collecter, quand un objectif est défini.
 
 ## 15. Cagnottes — clôture (`cagnottes-ui`)

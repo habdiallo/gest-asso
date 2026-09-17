@@ -27,7 +27,9 @@
   >
     @if (createDialogOpen()) {
       @if (createError()) {
-        <p class="mb-4 text-sm text-error" role="alert">{{ 'socialFunds.create.error' | transloco }}</p>
+        <p class="mb-4 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.error' | transloco }}
+        </p>
       }
       <app-social-fund-create-form
         [submitting]="creating()"
@@ -72,65 +74,67 @@
       >
         @for (socialFund of socialFunds(); track socialFund.id) {
           <li class="flex flex-col gap-3 rounded-card border border-line bg-surface-glass p-5">
-            <div class="flex items-baseline justify-between gap-2">
-              <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-                {{ socialEventTypeLabel(socialFund.eventType) }}
-              </span>
-              <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-                {{ socialFundStatusLabel(socialFund.status) }}
-              </span>
-            </div>
+            <a class="flex flex-col gap-3" [routerLink]="[socialFund.id]">
+              <div class="flex items-baseline justify-between gap-2">
+                <span class="text-xs uppercase tracking-[0.08em] text-text-2">
+                  {{ socialEventTypeLabel(socialFund.eventType) }}
+                </span>
+                <span class="text-xs uppercase tracking-[0.08em] text-text-2">
+                  {{ socialFundStatusLabel(socialFund.status) }}
+                </span>
+              </div>
 
-            <h2 class="font-display text-xl text-text">{{ socialFund.title }}</h2>
-            <p class="text-sm text-text-2">
-              {{
-                'socialFunds.card.subtitle'
-                  | transloco
-                    : {
-                        beneficiary: socialFund.beneficiary,
-                        start: formatCalendarDate(socialFund.startDate),
-                        end: formatCalendarDate(socialFund.endDate),
-                      }
-              }}
-            </p>
+              <h2 class="font-display text-xl text-text">{{ socialFund.title }}</h2>
+              <p class="text-sm text-text-2">
+                {{
+                  'socialFunds.card.subtitle'
+                    | transloco
+                      : {
+                          beneficiary: socialFund.beneficiary,
+                          start: formatCalendarDate(socialFund.startDate),
+                          end: formatCalendarDate(socialFund.endDate),
+                        }
+                }}
+              </p>
 
-            <div>
-              @let collectedAmount = formatAmount(socialFund.collectedAmount);
-              @if (socialFund.targetAmount; as targetAmount) {
-                @let objectiveAmount = formatAmount(targetAmount);
-                <p class="font-display text-2xl text-text">
-                  <span [title]="collectedAmount.fullText">
-                    <span aria-hidden="true">{{ collectedAmount.text }}</span>
-                    <span class="sr-only">{{ collectedAmount.fullText }}</span>
-                  </span>
-                  <span class="text-sm text-text-2" [title]="objectiveAmount.fullText">
-                    / <span aria-hidden="true">{{ objectiveAmount.text }}</span>
-                    <span class="sr-only">{{ objectiveAmount.fullText }}</span>
-                  </span>
-                </p>
-                <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
-                  <span
-                    data-testid="social-fund-progress-bar"
-                    class="block h-full rounded-full bg-gold"
-                    [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
-                  ></span>
-                </div>
-              } @else {
-                <p class="font-display text-2xl text-text">
-                  <span [title]="collectedAmount.fullText">
-                    <span aria-hidden="true">{{ collectedAmount.text }}</span>
-                    <span class="sr-only">{{ collectedAmount.fullText }}</span>
-                  </span>
-                </p>
-              }
-            </div>
+              <div>
+                @let collectedAmount = formatAmount(socialFund.collectedAmount);
+                @if (socialFund.targetAmount; as targetAmount) {
+                  @let objectiveAmount = formatAmount(targetAmount);
+                  <p class="font-display text-2xl text-text">
+                    <span [title]="collectedAmount.fullText">
+                      <span aria-hidden="true">{{ collectedAmount.text }}</span>
+                      <span class="sr-only">{{ collectedAmount.fullText }}</span>
+                    </span>
+                    <span class="text-sm text-text-2" [title]="objectiveAmount.fullText">
+                      / <span aria-hidden="true">{{ objectiveAmount.text }}</span>
+                      <span class="sr-only">{{ objectiveAmount.fullText }}</span>
+                    </span>
+                  </p>
+                  <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
+                    <span
+                      data-testid="social-fund-progress-bar"
+                      class="block h-full rounded-full bg-gold"
+                      [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
+                    ></span>
+                  </div>
+                } @else {
+                  <p class="font-display text-2xl text-text">
+                    <span [title]="collectedAmount.fullText">
+                      <span aria-hidden="true">{{ collectedAmount.text }}</span>
+                      <span class="sr-only">{{ collectedAmount.fullText }}</span>
+                    </span>
+                  </p>
+                }
+              </div>
 
-            <p class="text-xs text-text-2">
-              {{
-                'socialFunds.card.contributorCount'
-                  | transloco: { count: socialFund.contributorCount }
-              }}
-            </p>
+              <p class="text-xs text-text-2">
+                {{
+                  'socialFunds.card.contributorCount'
+                    | transloco: { count: socialFund.contributorCount }
+                }}
+              </p>
+            </a>
           </li>
         }
       </ul>

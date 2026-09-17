@@ -1,6 +1,8 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, SocialEventType, SocialFundStatus, UserRole } from '@api';
+import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@api';
 import type {
+  Contribution,
+  ContributionPage,
   CreateSocialFundRequest,
   ErrorResponse,
   SocialFund,
@@ -41,10 +43,116 @@ const demoSocialFunds: SocialFundSummary[] = [
   },
 ];
 
+const demoSocialFundDescriptions: Record<string, string> = {
+  '10700000-0000-4000-8000-000000000500': "Collecte de soutien à l'occasion du mariage.",
+  '10700000-0000-4000-8000-000000000501': 'Collecte de soutien à la famille éprouvée.',
+};
+
+const demoContributorNames = [
+  'Aïcha Bah',
+  'Ibrahima Sow',
+  'Fatoumata Diallo',
+  'Mamadou Barry',
+  'Kadiatou Condé',
+  'Ousmane Keïta',
+  'Djénabou Baldé',
+  'Alseny Touré',
+  'Hawa Kaba',
+  'Thierno Sylla',
+  'Mariama Cissé',
+  'Sékou Fofana',
+];
+
+const demoContributionMethods = [
+  PaymentMethod.MobileMoney,
+  PaymentMethod.Cash,
+  PaymentMethod.BankTransfer,
+];
+
+const demoContributionAmountCycle = [250000, 150000, 100000, 200000, 50000, 300000, 75000, 125000];
+
+/**
+ * Génère l'historique de démonstration d'une cagnotte à partir de ses propres
+ * agrégats (`contributionCount`, `contributorCount`, `collectedAmount`) pour
+ * que `GET /social-funds/{socialFundId}/contributions` reste cohérent avec le
+ * bilan présenté par `GET /social-funds/{socialFundId}` : même nombre de
+ * contributions, mêmes contributeurs distincts et somme des montants égale au
+ * montant collecté (T-91). Les montants suivent un cycle de valeurs
+ * plausibles ; le dernier absorbe l'écart d'arrondi pour garder une somme exacte.
+ */
+function buildDemoContributions(
+  summary: SocialFundSummary,
+  recordedBy: { userId: string; displayName: string },
+): Contribution[] {
+  const contributionCount = summary.contributionCount ?? 0;
+  const contributorCount = summary.contributorCount ?? 0;
+  const totalAmount = summary.collectedAmount ?? 0;
+  if (contributionCount === 0 || contributorCount === 0) {
+    return [];
+  }
+
+  const amounts = Array.from(
+    { length: contributionCount },
+    (_, index) => demoContributionAmountCycle[index % demoContributionAmountCycle.length],
+  );
+  const generatedSum = amounts.reduce((sum, amount) => sum + amount, 0);
+  amounts[amounts.length - 1] += totalAmount - generatedSum;
+
+  const latestDate = new Date(`${summary.endDate ?? summary.startDate}T00:00:00Z`);
+
+  return amounts.map((amount, index) => {
+    const memberIndex = index % contributorCount;
+    const contributionDate = new Date(latestDate);
+    contributionDate.setUTCDate(contributionDate.getUTCDate() - index);
+    const isoDate = contributionDate.toISOString().slice(0, 10);
+
+    return {
+      id: `${summary.id}-contrib-${String(index + 1).padStart(3, '0')}`,
+      member: {
+        id: `${summary.id}-member-${String(memberIndex + 1).padStart(3, '0')}`,
+        displayName: demoContributorNames[memberIndex % demoContributorNames.length],
+      },
+      socialFund: {
+        id: summary.id,
+        title: summary.title,
+        eventType: summary.eventType,
+        status: summary.status,
+      },
+      amount,
+      contributionDate: isoDate,
+      method: demoContributionMethods[index % demoContributionMethods.length],
+      recordedBy,
+      recordedAt: `${isoDate}T09:00:00Z`,
+      currency: 'GNF',
+    };
+  });
+}
+
+/**
+ * Contributions de démonstration pour `GET /social-funds/{socialFundId}/contributions`
+ * (T-91), de la plus récente à la plus ancienne, comme le fait le serveur réel.
+ */
+const demoContributionsBySocialFundId: Record<string, Contribution[]> = Object.fromEntries(
+  demoSocialFunds.map((summary) => [
+    summary.id,
+    buildDemoContributions(summary, {
+      userId: '10700000-0000-4000-8000-000000000900',
+      displayName: 'Mamadou Sy',
+    }),
+  ]),
+);
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
     { status: 401 },
+  );
+}
+
+function socialFundNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Cagnotte introuvable.' },
+    { status: 404 },
   );
 }
 
@@ -53,6 +161,13 @@ function accessDenied(): Response {
     { code: ErrorCode.AccessDenied, message: 'Accès réservé à l’Administrateur et au Trésorier.' },
     { status: 403 },
   );
+}
+
+function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
+  return {
+    ...summary,
+    description: demoSocialFundDescriptions[summary.id],
+  };
 }
 
 /**
@@ -102,6 +217,7 @@ export const socialFundsHandlers = [
     };
     return HttpResponse.json<SocialFundPage>(page);
   }),
+
   http.post('/api/v1/social-funds', async ({ request }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
@@ -135,4 +251,64 @@ export const socialFundsHandlers = [
     const socialFund: SocialFund = { ...summary, description: body.description };
     return HttpResponse.json<SocialFund>(socialFund, { status: 201 });
   }),
+
+  /**
+   * Suivi d'une cagnotte (T-91, `openapi:getSocialFund`) : réutilise le jeu
+   * de démonstration de la liste (T-82), avec la description complète que
+   * `SocialFundSummary` n'expose pas.
+   */
+  http.get('/api/v1/social-funds/:socialFundId', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const socialFundId = params['socialFundId'] as string;
+    const socialFund = demoSocialFunds.find((item) => item.id === socialFundId);
+    if (!socialFund) {
+      return socialFundNotFound();
+    }
+
+    return HttpResponse.json<SocialFund>(buildDemoSocialFund(socialFund));
+  }),
+
+  /**
+   * Contributions d'une cagnotte (T-91, `openapi:listSocialFundContributions`),
+   * de la plus récente à la plus ancienne, comme le fait le serveur réel.
+   */
+  http.get(
+    '/api/v1/social-funds/:socialFundId/contributions',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+
+      const socialFundId = params['socialFundId'] as string;
+      if (!demoSocialFunds.some((item) => item.id === socialFundId)) {
+        return socialFundNotFound();
+      }
+
+      const url = new URL(request.url);
+      const pageNumber = Number(url.searchParams.get('page') ?? '0');
+      const pageSize = Number(url.searchParams.get('size') ?? '20');
+      const contributions = demoContributionsBySocialFundId[socialFundId] ?? [];
+      const totalElements = contributions.length;
+      const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
+      const items = contributions.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+
+      const page: ContributionPage = {
+        items,
+        page: {
+          number: pageNumber,
+          size: pageSize,
+          totalElements,
+          totalPages,
+        },
+      };
+      return HttpResponse.json<ContributionPage>(page);
+    },
+  ),
 ];
