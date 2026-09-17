@@ -1,5 +1,6 @@
 import {
   containsGnfDecimalSeparator,
+  formatGnfAmountCondensed,
   formatGnfAmountDetailed,
   formatGnfAmountInputDigits,
   sanitizeGnfAmountDigits,
@@ -28,6 +29,62 @@ describe('formatGnfAmountDetailed', () => {
 
   it('throws when the amount is not an integer', () => {
     expect(() => formatGnfAmountDetailed(1_250_000.5)).toThrow(
+      'Un montant GNF doit être un entier : 1250000.5',
+    );
+  });
+});
+
+describe('formatGnfAmountCondensed', () => {
+  it('formats an amount below the thousand threshold without a suffix (RG-FMT-004)', () => {
+    const result = formatGnfAmountCondensed(500);
+
+    expect(result.text).toBe('500 GNF');
+    expect(result.fullText).toBe('500 GNF');
+    expect(result.rawAmount).toBe(500);
+  });
+
+  it('formats zero without a suffix', () => {
+    expect(formatGnfAmountCondensed(0).text).toBe('0 GNF');
+  });
+
+  it('formats an exact thousand amount with the K suffix', () => {
+    expect(formatGnfAmountCondensed(50_000).text).toBe('50K GNF');
+  });
+
+  it('formats a thousand amount with a decimal, capped at one digit', () => {
+    expect(formatGnfAmountCondensed(52_500).text).toBe('52,5K GNF');
+  });
+
+  it('formats an exact million amount with the M suffix', () => {
+    expect(formatGnfAmountCondensed(2_500_000).text).toBe('2,5M GNF');
+  });
+
+  it('formats a million amount without a decimal when exact', () => {
+    expect(formatGnfAmountCondensed(3_000_000).text).toBe('3M GNF');
+  });
+
+  it('formats a billion amount with the Mds suffix and a space before it', () => {
+    expect(formatGnfAmountCondensed(1_200_000_000).text).toBe('1,2 Mds GNF');
+  });
+
+  it('rounds to at most one decimal instead of truncating', () => {
+    expect(formatGnfAmountCondensed(2_580_000).text).toBe('2,6M GNF');
+  });
+
+  it('formats a negative amount, keeping the sign on the condensed value', () => {
+    expect(formatGnfAmountCondensed(-2_500_000).text).toBe('-2,5M GNF');
+  });
+
+  it('exposes the full detailed label for a tooltip alongside the condensed text', () => {
+    const result = formatGnfAmountCondensed(2_500_000);
+
+    expect(result.text).toBe('2,5M GNF');
+    expect(result.fullText).toBe('2 500 000 GNF');
+    expect(result.rawAmount).toBe(2_500_000);
+  });
+
+  it('throws when the amount is not an integer', () => {
+    expect(() => formatGnfAmountCondensed(1_250_000.5)).toThrow(
       'Un montant GNF doit être un entier : 1250000.5',
     );
   });
