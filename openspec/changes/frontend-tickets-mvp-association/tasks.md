@@ -134,7 +134,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 > Parcours cible : un utilisateur consulte la liste des cagnottes (visuellement distincte des campagnes), en crée une, puis suit sa collecte.
 
-- [ ] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
+- [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
 - [ ] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [ ] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
