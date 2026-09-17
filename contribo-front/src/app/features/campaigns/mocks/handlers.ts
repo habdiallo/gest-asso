@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
 import { CampaignStatus, CurrencyCode, ErrorCode } from '@api';
-import type { Campaign, CampaignPage, CampaignSummary, ErrorResponse } from '@api';
+import type { Campaign, CampaignPage, CampaignSummary, Due, DuePage, ErrorResponse } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 const demoCampaigns: CampaignSummary[] = [
@@ -116,6 +116,23 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
 };
 
+const demoCampaignDues: Record<string, Due[]> = {
+  '10700000-0000-4000-8000-000000000200': [
+    {
+      id: '10700000-0000-4000-8000-000000000410',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 50_000,
+      remainingAmount: 50_000,
+      status: 'PARTIALLY_PAID',
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
@@ -192,5 +209,30 @@ export const campaignsHandlers = [
     }
 
     return HttpResponse.json<Campaign>(campaign);
+  }),
+  http.get('/api/v1/campaigns/:campaignId/dues', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+    const campaignId = typeof params['campaignId'] === 'string' ? params['campaignId'] : '';
+    if (!demoCampaignDetails[campaignId]) {
+      return campaignNotFound();
+    }
+    const url = new URL(request.url);
+    const size = Number(url.searchParams.get('size') ?? '20');
+    const page = Number(url.searchParams.get('page') ?? '0');
+    const dues = demoCampaignDues[campaignId] ?? [];
+    const items = dues.slice(page * size, page * size + size);
+    return HttpResponse.json<DuePage>({
+      items,
+      page: {
+        number: page,
+        size,
+        totalElements: dues.length,
+        totalPages: Math.max(1, Math.ceil(dues.length / size)),
+      },
+    });
   }),
 ];
