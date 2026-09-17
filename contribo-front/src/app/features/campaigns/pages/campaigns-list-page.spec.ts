@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CampagnesService } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -38,6 +39,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       {
         provide: CampagnesService,
         useValue: { listCampaigns } as unknown as CampagnesService,
