@@ -31,6 +31,12 @@ const SEARCH_DEBOUNCE_MS = 300;
  * fonction associative (T-54), ni le contrôle `peut_enregistrer_paiements`
  * (T-55/T-56) ne sont exposés depuis cet écran ; seule la consultation de la
  * liste est du périmètre de ce ticket.
+ *
+ * Le tableau et les commandes de pagination restent montés pendant un
+ * rechargement (recherche, filtre ou changement de page) : seules
+ * `previousDisabled`/`nextDisabled` évoluent via `aria-disabled`, sans
+ * démonter les boutons. Cela conserve la navigation clavier et le focus sur
+ * le bouton actionné, conformément à `.claude/rules/frontend/accessibilite.md`.
  */
 @Component({
   selector: 'app-roles-users-page',
@@ -59,11 +65,14 @@ export class RolesUsersPage {
 
   readonly users = computed<UserAccount[]>(() => this.result()?.items ?? []);
   readonly pageMetadata = computed(() => this.result()?.page ?? null);
+  readonly hasLoadedOnce = computed(() => this.result() !== null);
   readonly hasPreviousPage = computed(() => this.page() > 0);
   readonly hasNextPage = computed(() => {
     const metadata = this.pageMetadata();
     return metadata !== null && this.page() + 1 < metadata.totalPages;
   });
+  readonly previousDisabled = computed(() => !this.hasPreviousPage() || this.loading());
+  readonly nextDisabled = computed(() => !this.hasNextPage() || this.loading());
 
   readonly userRoleLabel = userRoleLabel;
   readonly operatorAuthorizationLabel = operatorAuthorizationLabel;
@@ -117,16 +126,18 @@ export class RolesUsersPage {
   }
 
   goToPreviousPage(): void {
-    if (this.hasPreviousPage()) {
-      this.page.update((current) => current - 1);
-      this.refetch.next();
+    if (this.previousDisabled()) {
+      return;
     }
+    this.page.update((current) => current - 1);
+    this.refetch.next();
   }
 
   goToNextPage(): void {
-    if (this.hasNextPage()) {
-      this.page.update((current) => current + 1);
-      this.refetch.next();
+    if (this.nextDisabled()) {
+      return;
     }
+    this.page.update((current) => current + 1);
+    this.refetch.next();
   }
 }

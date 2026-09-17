@@ -116,4 +116,40 @@ describe('RolesUsersPage', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Inactif');
   });
+
+  it('keeps keyboard focus on the pagination control while the next page loads', async () => {
+    const firstPage = buildPage([buildAccount()], { number: 0, totalPages: 2, totalElements: 21 });
+    const pending = new Subject<UserAccountPage>();
+    let callCount = 0;
+    const fixture = await createFixture(
+      () => (callCount++ === 0 ? of(firstPage) : pending.asObservable()) as never,
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const nextButton = Array.from(root.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Suivant'),
+    ) as HTMLButtonElement;
+    expect(nextButton).toBeTruthy();
+
+    nextButton.focus();
+    expect(document.activeElement).toBe(nextButton);
+
+    nextButton.click();
+    fixture.detectChanges();
+
+    // Le bouton reste dans le DOM et gardé focusable (aria-disabled, pas
+    // l'attribut natif disabled) pendant le rechargement de la page suivante.
+    expect(nextButton.isConnected).toBe(true);
+    expect(nextButton.hasAttribute('disabled')).toBe(false);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+    expect(document.activeElement).toBe(nextButton);
+
+    pending.next(buildPage([buildAccount()], { number: 1, totalPages: 2, totalElements: 21 }));
+    pending.complete();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(nextButton);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+  });
 });
