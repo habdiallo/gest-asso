@@ -47,3 +47,57 @@ describe('POST /api/v1/income-categories (mocks MSW, T-50)', () => {
     expect(response.status).toBe(201);
   });
 });
+
+describe('PATCH /api/v1/income-categories/{id} (mocks MSW, T-51)', () => {
+  it('refuse la modification à un compte authentifié non Administrateur (403)', async () => {
+    const response = await fetch(
+      '/api/v1/income-categories/10700000-0000-4000-8000-000000000101',
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessTokenFor(UserRole.Treasurer)}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ label: 'Catégorie refusée' }),
+      },
+    );
+
+    expect(response.status).toBe(403);
+    const body = (await response.json()) as ErrorResponse;
+    expect(body.code).toBe(ErrorCode.AccessDenied);
+  });
+
+  it('renvoie 404 pour une catégorie inconnue', async () => {
+    const response = await fetch('/api/v1/income-categories/00000000-0000-4000-8000-000000000000', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessTokenFor(UserRole.Administrator)}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ label: 'Peu importe' }),
+    });
+
+    expect(response.status).toBe(404);
+    const body = (await response.json()) as ErrorResponse;
+    expect(body.code).toBe(ErrorCode.ResourceNotFound);
+  });
+
+  it('autorise la modification du libellé à un compte Administrateur (200)', async () => {
+    const newLabel = `Catégorie modifiée ${crypto.randomUUID()}`;
+    const response = await fetch(
+      '/api/v1/income-categories/10700000-0000-4000-8000-000000000102',
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessTokenFor(UserRole.Administrator)}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ label: newLabel }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { label: string };
+    expect(body.label).toBe(newLabel);
+  });
+});

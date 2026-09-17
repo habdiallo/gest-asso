@@ -73,12 +73,13 @@ function isUpdateUserAccessRequest(value: unknown): value is UpdateUserAccessReq
 }
 
 /**
- * Applique un changement de rôle applicatif (US-ROLE-001, T-53) à un compte de
- * démonstration : mute l'entrée trouvée dans `accounts` (état en mémoire du
- * worker MSW, sans backend) puis retourne le `UserAccount` résultant. Fait
- * respecter la contrainte du contrat : `operatorCanRecordPayments` doit valoir
- * `false` pour tout rôle différent de OPERATOR (T-55/T-56 restent hors
- * périmètre : cette fonction ne fait qu'appliquer la valeur reçue).
+ * Applique un changement de rôle applicatif (US-ROLE-001, T-53) et/ou de
+ * l'attribut `peut_enregistrer_paiements` (T-55) à un compte de démonstration :
+ * mute l'entrée trouvée dans `accounts` (état en mémoire du worker MSW, sans
+ * backend) puis retourne le `UserAccount` résultant. Fait respecter la
+ * contrainte du contrat : `operatorCanRecordPayments` doit valoir `false`
+ * pour tout rôle différent de OPERATOR (T-56, masquage complet du contrôle
+ * hors de cette fiche, reste hors périmètre).
  */
 export function applyUserAccessUpdate(
   accounts: readonly DemoAccount[],

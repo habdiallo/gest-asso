@@ -135,4 +135,34 @@ describe('IncomeCategoriesPage', () => {
 
     expect(dialog.getAttribute('aria-label')).toBe('Nouvelle catégorie de revenu');
   });
+
+  it('opens the edit-category dialog, pre-filled with the row label, when "Modifier" is activated', async () => {
+    const categories = [buildCategory({ label: 'Catégorie A', memberCount: 12 })];
+    const fixture = await createFixture(() => of(categories));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const editButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Modifier Catégorie A',
+    );
+    if (!editButton) {
+      throw new Error('Bouton "Modifier" introuvable.');
+    }
+
+    editButton.click();
+    fixture.detectChanges();
+
+    const dialogs = root.querySelectorAll('dialog');
+    const editDialog = Array.from(dialogs).find(
+      (dialog) => dialog.getAttribute('aria-label') === 'Modifier la catégorie de revenu',
+    );
+    if (!editDialog) {
+      throw new Error('Dialogue de modification introuvable.');
+    }
+
+    const labelInput: HTMLInputElement | null = editDialog.querySelector(
+      '#income-category-edit-label',
+    );
+    expect(labelInput?.value).toBe('Catégorie A');
+  });
 });

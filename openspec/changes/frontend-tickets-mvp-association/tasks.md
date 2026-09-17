@@ -44,7 +44,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 4.1 [T-21] (P0) Écran liste des membres : tableau avec Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut. — US-MEM-002 ; openapi:`listMembers`
 - [x] 4.2 [T-22] (P0) Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007
-- [ ] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
+- [x] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
 - [ ] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
 - [ ] 4.6 [T-26] (P2) Filtre par catégorie de revenu dans la liste des membres.
@@ -59,7 +59,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 5.1 [T-33] (P0) Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`
   Retours de revue PR 46 corrigés : réponses isolées par session de dialogue, répertoire mock partagé avec les GET liste/fiche, téléphone facultatif validé selon le contrat avec erreur de champ. Tests de régression et build de production réussis.
-- [ ] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
+- [x] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
 - [ ] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
 - [ ] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
 - [ ] 5.5 [T-37] (P0) Masquage de l'action "Ajouter un membre" pour les rôles Opérateur et Membre. — RG-MEM-001
@@ -82,14 +82,14 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 7.1 [T-48] (P1) Écran liste des catégories de revenu, réservé à l'Administrateur. — US-REV-001 ; openapi:`listIncomeCategories`
 - [x] 7.2 [T-49] (P0) Garde de route interdisant l'écran catégories aux autres rôles. — RG-ROLE-002
 - [x] 7.3 [T-50] (P1) Formulaire de création d'une catégorie (libellé obligatoire, sans champ de montant). — RG-REV-001, RG-REV-002 ; openapi:`createIncomeCategory`
-- [ ] 7.4 [T-51] (P1) Formulaire de modification d'une catégorie, avec message rappelant l'absence d'effet rétroactif. — US-REV-002 ; openapi:`updateIncomeCategory`
+- [x] 7.4 [T-51] (P1) Formulaire de modification d'une catégorie, avec message rappelant l'absence d'effet rétroactif. — US-REV-002 ; openapi:`updateIncomeCategory`
 
 ## 8. Rôles et utilisateurs (`roles-users-ui`)
 
 - [x] 8.1 [T-52] (P1) Écran liste des utilisateurs avec rôle applicatif affiché, réservé à l'Administrateur. — RG-ROLE-002 ; openapi:`listUsers`
 - [x] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
-- [ ] 8.3 [T-54] (P2) Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006
-- [ ] 8.4 [T-55] (P1) Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`
+- [x] 8.3 [T-54] (P2) Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006
+- [x] 8.4 [T-55] (P1) Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`
 - [ ] 8.5 [T-56] (P1) Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.
 
 ## 9. Campagnes — consultation (`campaigns-ui`)
@@ -98,7 +98,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 9.1 [T-57] (P0) Écran liste des campagnes (nom, période, statut) pour Administrateur/Trésorier/Opérateur. — openapi:`listCampaigns`
 - [x] 9.2 [T-58] (P2) Filtre par statut de campagne (ouverte/clôturée).
-- [ ] 9.3 [T-59] (P2) Recherche par nom de campagne.
+- [x] 9.3 [T-59] (P2) Recherche par nom de campagne.
 - [x] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
   Validation du retour de revue PR 45 : accès Tab aux trois onglets, activation Entrée/Espace vérifiée dans Chrome. Tests et build de production réussis après synchronisation de main.
 - [ ] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
@@ -138,7 +138,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
 - [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
-- [ ] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
+- [x] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
 - [ ] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
 
@@ -164,7 +164,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
 - [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
 - [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
-- [ ] 16.5 [T-99] (P0) Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001
+- [x] 16.5 [T-99] (P0) Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001
 
 ## 17. Qualité transverse et finitions (P2)
 

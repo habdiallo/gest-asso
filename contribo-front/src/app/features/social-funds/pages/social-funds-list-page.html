@@ -1,13 +1,43 @@
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <p class="text-xs uppercase tracking-[0.2em] text-text-2">
-    {{ 'socialFunds.kicker' | transloco }}
-  </p>
-  <h1 class="mt-1 font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{ 'socialFunds.title' | transloco }}
-  </h1>
-  <p class="mt-2 max-w-2xl text-sm text-text-2">
-    {{ 'socialFunds.intro' | transloco }}
-  </p>
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-[0.2em] text-text-2">
+        {{ 'socialFunds.kicker' | transloco }}
+      </p>
+      <h1 class="mt-1 font-display text-3xl uppercase tracking-wide text-gold-hover">
+        {{ 'socialFunds.title' | transloco }}
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm text-text-2">
+        {{ 'socialFunds.intro' | transloco }}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+      (click)="openCreateDialog()"
+    >
+      {{ 'socialFunds.create.button' | transloco }}
+    </button>
+  </div>
+
+  <app-form-dialog
+    [open]="createDialogOpen()"
+    [dialogTitle]="'socialFunds.create.dialogTitle' | transloco"
+    (closed)="closeCreateDialog()"
+  >
+    @if (createDialogOpen()) {
+      @if (createError()) {
+        <p class="mb-4 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.error' | transloco }}
+        </p>
+      }
+      <app-social-fund-create-form
+        [submitting]="creating()"
+        (submitted)="handleCreateSocialFund($event)"
+        (cancelled)="closeCreateDialog()"
+      />
+    }
+  </app-form-dialog>
 
   @if (loading()) {
     <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.loading' | transloco }}</p>
@@ -83,6 +113,7 @@
                   </p>
                   <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
                     <span
+                      data-testid="social-fund-progress-bar"
                       class="block h-full rounded-full bg-gold"
                       [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
                     ></span>

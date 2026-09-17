@@ -1,13 +1,50 @@
+import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CagnottesService } from '@api';
-import type { SocialFundPage } from '@api';
+import { CagnottesService, SocialEventType } from '@api';
+import type { CreateSocialFundRequest, SocialFund, SocialFundPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
+import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { SocialFundsListPage } from './social-funds-list-page';
+
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+function buildSocialFund(overrides: Partial<SocialFund> = {}): SocialFund {
+  return {
+    id: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    title: 'Mariage de Fanta et Sékou',
+    eventType: SocialEventType.Wedding,
+    beneficiary: 'Famille Camara',
+    startDate: '2026-09-05',
+    endDate: '2026-09-28',
+    status: 'OPEN',
+    collectedAmount: 0,
+    contributorCount: 0,
+    contributionCount: 0,
+    currency: 'GNF',
+    ...overrides,
+  };
+}
 
 function buildSocialFundPage(overrides: Partial<SocialFundPage> = {}): SocialFundPage {
   return {
@@ -44,7 +81,13 @@ type ListSocialFunds = (
 
 async function createFixture(
   listSocialFunds: ListSocialFunds,
+  options: {
+    createSocialFund?: (request: CreateSocialFundRequest) => Observable<SocialFund>;
+  } = {},
 ): Promise<ComponentFixture<SocialFundsListPage>> {
+  const createSocialFund =
+    options.createSocialFund ?? ((): Observable<SocialFund> => of(buildSocialFund()));
+
   await TestBed.configureTestingModule({
     imports: [
       SocialFundsListPage,
@@ -58,7 +101,7 @@ async function createFixture(
       provideRouter([]),
       {
         provide: CagnottesService,
-        useValue: { listSocialFunds } as unknown as CagnottesService,
+        useValue: { listSocialFunds, createSocialFund } as unknown as CagnottesService,
       },
     ],
   }).compileComponents();
@@ -139,7 +182,7 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).toContain('Famille Camara');
     expect(root.textContent).toContain('43 contributeur(s)');
 
-    const progressBar = root.querySelector<HTMLElement>('.bg-gold');
+    const progressBar = root.querySelector<HTMLElement>('[data-testid="social-fund-progress-bar"]');
     expect(progressBar?.style.width).toBe('67.9%');
   });
 
@@ -187,7 +230,7 @@ describe('SocialFundsListPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('1,9M GNF');
-    expect(root.querySelector('.bg-gold')).toBeNull();
+    expect(root.querySelector('[data-testid="social-fund-progress-bar"]')).toBeNull();
   });
 
   it('shows the empty-list message when there is no social fund', async () => {
@@ -236,8 +279,8 @@ describe('SocialFundsListPage', () => {
       const root: HTMLElement = fixture.nativeElement;
       expect(root.textContent).toContain('Page 1 sur 2');
 
-      const previousButton = root.querySelectorAll<HTMLButtonElement>('button')[0];
-      const nextButton = root.querySelectorAll<HTMLButtonElement>('button')[1];
+      const previousButton = root.querySelectorAll<HTMLButtonElement>('nav button')[0];
+      const nextButton = root.querySelectorAll<HTMLButtonElement>('nav button')[1];
       expect(previousButton.getAttribute('aria-disabled')).toBe('true');
       expect(nextButton.getAttribute('aria-disabled')).toBeNull();
 
@@ -271,7 +314,7 @@ describe('SocialFundsListPage', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      const nextButton = root.querySelectorAll<HTMLButtonElement>('button')[1];
+      const nextButton = root.querySelectorAll<HTMLButtonElement>('nav button')[1];
       nextButton.click();
       fixture.detectChanges();
 
@@ -376,14 +419,101 @@ describe('SocialFundsListPage', () => {
 
       responses
         .get('DEATH')!
-        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }));
+        .next(
+          buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }),
+        );
       responses
         .get('WEDDING')!
-        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }] }));
+        .next(
+          buildSocialFundPage({
+            items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }],
+          }),
+        );
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Deces');
       expect(root.textContent).not.toContain('Mariage tardif');
+    });
+  });
+
+  describe('creation (T-84)', () => {
+    it('opens the create-social-fund dialog from the button and closes it on cancel', async () => {
+      const fixture = await createFixture(() => of(buildSocialFundPage()));
+      fixture.detectChanges();
+
+      const openButton = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+        (button) => (button as HTMLButtonElement).textContent?.includes('Créer une cagnotte'),
+      ) as HTMLButtonElement | undefined;
+      expect(openButton).toBeTruthy();
+      openButton?.click();
+      fixture.detectChanges();
+
+      const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+      expect(dialog.open).toBe(true);
+
+      const form = fixture.debugElement.query(By.directive(SocialFundCreateForm))
+        .componentInstance as SocialFundCreateForm;
+      form.cancel();
+      fixture.detectChanges();
+
+      expect(dialog.open).toBe(false);
+    });
+
+    it('creates a social fund, refreshes the first page and closes the dialog on success', async () => {
+      const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+      const createSocialFund = vi.fn((request: CreateSocialFundRequest) =>
+        of(buildSocialFund(request)),
+      );
+      const fixture = await createFixture(listSocialFunds, { createSocialFund });
+      fixture.detectChanges();
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      const form = fixture.debugElement.query(By.directive(SocialFundCreateForm))
+        .componentInstance as SocialFundCreateForm;
+      form.form.setValue({
+        title: 'Naissance chez les Bah',
+        eventType: SocialEventType.Birth,
+        description: '',
+        beneficiary: 'Famille Bah',
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+        targetAmount: null,
+      });
+      form.submit();
+      fixture.detectChanges();
+
+      expect(createSocialFund).toHaveBeenCalledWith({
+        title: 'Naissance chez les Bah',
+        eventType: SocialEventType.Birth,
+        beneficiary: 'Famille Bah',
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+      });
+      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, undefined, undefined);
+      expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    });
+
+    it('shows an error banner and keeps the dialog open when creation fails', async () => {
+      const createSocialFund = vi.fn(() => throwError(() => new Error('network error')));
+      const fixture = await createFixture(() => of(buildSocialFundPage()), { createSocialFund });
+      fixture.detectChanges();
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      fixture.componentInstance.handleCreateSocialFund({
+        title: 'Naissance chez les Bah',
+        eventType: SocialEventType.Birth,
+        beneficiary: 'Famille Bah',
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+      expect(fixture.nativeElement.querySelector('dialog [role="alert"]')?.textContent).toContain(
+        'Impossible de créer la cagnotte',
+      );
     });
   });
 });

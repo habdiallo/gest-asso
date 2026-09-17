@@ -9,10 +9,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CagnottesService, SocialEventType } from '@api';
-import type { SocialFundPage, SocialFundSummary } from '@api';
+import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { catchError, map, of, Subject, switchMap } from 'rxjs';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
+import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
 
@@ -48,16 +50,26 @@ function progressBarWidth(progressRate: number): number {
  * n'affiche jamais un résultat qui ne correspond plus au filtre courant.
  * Limite connue : la recherche texte (US-CAG) n'est pas encore exploitée
  * par cet écran.
+ *
+ * Ajoute également l'action "Créer une cagnotte" (T-84, US-CAG-001) : ouvre
+ * le formulaire de création dans `FormDialog` (T-15) et appelle
+ * `POST /social-funds` (`CagnottesService.createSocialFund`,
+ * openapi:`createSocialFund`). Après création, la première page est
+ * rechargée avec le filtre courant afin d'afficher la nouvelle cagnotte
+ * (RG-CAG-002). Le masquage de cette action pour l'Opérateur et le Membre
+ * (RG-CAG-002/003) relève du ticket T-86 ; elle reste visible ici pour tous
+ * les rôles qui accèdent à cet écran.
  */
 @Component({
   selector: 'app-social-funds-list-page',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe, FormDialog, SocialFundCreateForm],
   templateUrl: './social-funds-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SocialFundsListPage {
   private readonly socialFundsService = inject(CagnottesService);
   private readonly destroyRef = inject(DestroyRef);
+  private createDialogSession = 0;
 
   readonly eventTypeOptions: readonly SocialEventType[] = [
     SocialEventType.Wedding,
@@ -68,6 +80,10 @@ export class SocialFundsListPage {
   ];
 
   readonly eventTypeFilter = signal<SocialEventType | ''>('');
+
+  readonly createDialogOpen = signal(false);
+  readonly creating = signal(false);
+  readonly createError = signal(false);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -161,6 +177,60 @@ export class SocialFundsListPage {
     const value = (event.target as HTMLSelectElement).value;
     this.eventTypeFilter.set(value as SocialEventType | '');
     this.fetchPage(0, { isInitialLoad: false });
+  }
+
+  /** Ouvre le formulaire de création de cagnotte (T-84). */
+  openCreateDialog(): void {
+    if (this.createDialogOpen()) {
+      return;
+    }
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createError.set(false);
+    this.createDialogOpen.set(true);
+  }
+
+  /** Ferme le formulaire, quelle que soit la cause (Échap, bouton Annuler, succès). */
+  closeCreateDialog(): void {
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createDialogOpen.set(false);
+  }
+
+  /**
+   * Confirme la création (US-CAG-001) : appelle `createSocialFund`, puis
+   * recharge la première page avec le filtre courant pour afficher la
+   * nouvelle cagnotte. La requête est rattachée à une session de dialogue :
+   * si le formulaire a été fermé puis rouvert entre-temps, une réponse
+   * tardive ne referme plus l'état devenu obsolète.
+   */
+  handleCreateSocialFund(request: CreateSocialFundRequest): void {
+    if (!this.createDialogOpen() || this.creating()) {
+      return;
+    }
+    const session = this.createDialogSession;
+    this.creating.set(true);
+    this.createError.set(false);
+
+    this.socialFundsService
+      .createSocialFund(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.fetchPage(0, { isInitialLoad: false });
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.closeCreateDialog();
+        },
+        error: () => {
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.creating.set(false);
+          this.createError.set(true);
+        },
+      });
   }
 
   private fetchPage(pageNumber: number, options: { isInitialLoad: boolean }): void {

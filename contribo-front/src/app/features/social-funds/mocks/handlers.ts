@@ -1,8 +1,9 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus } from '@api';
+import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@api';
 import type {
   Contribution,
   ContributionPage,
+  CreateSocialFundRequest,
   ErrorResponse,
   SocialFund,
   SocialFundPage,
@@ -155,6 +156,13 @@ function socialFundNotFound(): Response {
   );
 }
 
+function accessDenied(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.AccessDenied, message: 'Accès réservé à l’Administrateur et au Trésorier.' },
+    { status: 403 },
+  );
+}
+
 function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
   return {
     ...summary,
@@ -170,6 +178,14 @@ function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
  *
  * Le filtre `eventType` (T-83, paramètre `SocialFundEventTypeFilter` du
  * contrat) est appliqué avant la pagination, comme sur le serveur réel.
+ *
+ * `POST /api/v1/social-funds` (T-84, `createSocialFund`) ajoute la nouvelle
+ * cagnotte au jeu de démonstration : statut ouvert, aucun montant collecté,
+ * `remainingToTargetAmount`/`progressRate` présents uniquement lorsqu'un
+ * objectif est fourni (même règle que le serveur réel). Réservé à
+ * l'Administrateur et au Trésorier, comme sur le contrat ; le masquage de
+ * l'action "Créer une cagnotte" pour l'Opérateur et le Membre (T-86,
+ * RG-CAG-002/003) est une étape IHM distincte.
  */
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
@@ -200,6 +216,40 @@ export const socialFundsHandlers = [
       },
     };
     return HttpResponse.json<SocialFundPage>(page);
+  }),
+
+  http.post('/api/v1/social-funds', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+    if (account.user.role !== UserRole.Administrator && account.user.role !== UserRole.Treasurer) {
+      return accessDenied();
+    }
+
+    const body = (await request.json()) as CreateSocialFundRequest;
+    const summary: SocialFundSummary = {
+      id: crypto.randomUUID(),
+      title: body.title,
+      eventType: body.eventType,
+      beneficiary: body.beneficiary,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      status: SocialFundStatus.Open,
+      targetAmount: body.targetAmount,
+      collectedAmount: 0,
+      remainingToTargetAmount: body.targetAmount,
+      progressRate: body.targetAmount !== undefined ? 0 : undefined,
+      contributorCount: 0,
+      contributionCount: 0,
+      currency: 'GNF',
+    };
+
+    demoSocialFunds.unshift(summary);
+
+    const socialFund: SocialFund = { ...summary, description: body.description };
+    return HttpResponse.json<SocialFund>(socialFund, { status: 201 });
   }),
 
   /**

@@ -168,6 +168,21 @@
           </select>
         </div>
 
+        @if (roleDraft() === operatorRole) {
+          <div class="mt-4 flex items-center gap-2">
+            <input
+              id="operator-authorization-toggle"
+              type="checkbox"
+              [checked]="operatorAuthorizationDraft()"
+              (change)="onOperatorAuthorizationDraftChange($event)"
+              class="h-4 w-4 rounded border-line text-gold focus:ring-[3px] focus:ring-gold-wash"
+            />
+            <label for="operator-authorization-toggle" class="text-sm font-medium text-text-2">
+              {{ 'rolesUsers.operatorAuthorizationToggleLabel' | transloco }}
+            </label>
+          </div>
+        }
+
         @if (roleSaveError()) {
           <p class="mt-3 text-sm text-error" role="alert">
             {{ 'rolesUsers.roleDialogError' | transloco }}

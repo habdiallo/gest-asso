@@ -211,7 +211,8 @@ describe('RolesUsersPage', () => {
       const updateUserAccess = vi.fn(() => of(updated) as never);
       let listCallCount = 0;
       const listUsers = vi.fn(
-        () => (listCallCount++ === 0 ? of(buildPage([account])) : of(buildPage([updated]))) as never,
+        () =>
+          (listCallCount++ === 0 ? of(buildPage([account])) : of(buildPage([updated]))) as never,
       );
       const fixture = await createFixture(listUsers, updateUserAccess);
       fixture.detectChanges();
@@ -393,6 +394,120 @@ describe('RolesUsersPage', () => {
       );
       const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
       expect(select.value).toBe(UserRole.Member);
+    });
+
+    it("n'affiche pas le contrôle peut_enregistrer_paiements pour un rôle non Opérateur", async () => {
+      const fixture = await createFixture(() => of(buildPage([accountForRoleTests()])) as never);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('#operator-authorization-toggle')).toBeNull();
+    });
+
+    it('affiche le contrôle peut_enregistrer_paiements présélectionné pour un compte Opérateur', async () => {
+      const account = buildAccount({
+        role: UserRole.Operator,
+        operatorCanRecordPayments: true,
+        member: { id: 'i5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d17', displayName: 'Ousmane Bangoura' },
+      });
+      const fixture = await createFixture(() => of(buildPage([account])) as never);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Ousmane Bangoura"]').click();
+      fixture.detectChanges();
+
+      const toggle = requireElement<HTMLInputElement>(root, '#operator-authorization-toggle');
+      expect(toggle.checked).toBe(true);
+    });
+
+    it('le contrôle peut_enregistrer_paiements apparaît en choisissant Opérateur dans la fiche', async () => {
+      const fixture = await createFixture(() => of(buildPage([accountForRoleTests()])) as never);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      select.value = UserRole.Operator;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(root.querySelector('#operator-authorization-toggle')).not.toBeNull();
+    });
+
+    it('active peut_enregistrer_paiements pour un compte Opérateur (§2.3, T-55)', async () => {
+      const account = buildAccount({
+        role: UserRole.Operator,
+        operatorCanRecordPayments: false,
+        member: { id: 'j5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d18', displayName: 'Kadiatou Barry' },
+      });
+      const updateUserAccess = vi.fn(
+        () => of({ ...account, operatorCanRecordPayments: true }) as never,
+      );
+      const fixture = await createFixture(
+        () => of(buildPage([account])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Kadiatou Barry"]').click();
+      fixture.detectChanges();
+
+      const toggle = requireElement<HTMLInputElement>(root, '#operator-authorization-toggle');
+      toggle.checked = true;
+      toggle.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      expect(updateUserAccess).toHaveBeenCalledWith(account.id, {
+        role: UserRole.Operator,
+        operatorCanRecordPayments: true,
+      });
+    });
+
+    it('désactive peut_enregistrer_paiements pour un compte Opérateur (§2.3, T-55)', async () => {
+      const account = buildAccount({
+        role: UserRole.Operator,
+        operatorCanRecordPayments: true,
+        member: { id: 'k5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d19', displayName: 'Sidiki Cissé' },
+      });
+      const updateUserAccess = vi.fn(
+        () => of({ ...account, operatorCanRecordPayments: false }) as never,
+      );
+      const fixture = await createFixture(
+        () => of(buildPage([account])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Sidiki Cissé"]').click();
+      fixture.detectChanges();
+
+      const toggle = requireElement<HTMLInputElement>(root, '#operator-authorization-toggle');
+      toggle.checked = false;
+      toggle.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      expect(updateUserAccess).toHaveBeenCalledWith(account.id, {
+        role: UserRole.Operator,
+        operatorCanRecordPayments: false,
+      });
     });
 
     it('le bouton Annuler ferme la fiche sans appeler updateUserAccess', async () => {
