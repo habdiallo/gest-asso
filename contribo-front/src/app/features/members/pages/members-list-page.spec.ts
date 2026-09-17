@@ -152,10 +152,11 @@ async function createFixture(
     ],
   }).compileComponents();
 
-  if (options.role) {
-    const sessionService = TestBed.inject(SessionService);
-    sessionService.setUser(buildCurrentUser(options.role));
-  }
+  // Rôle par défaut Administrateur (T-37, RG-MEM-001) : les tests qui ne
+  // portent pas sur les droits par rôle restent inchangés, l'action "Ajouter
+  // un membre" étant visible pour l'Administrateur comme pour le Trésorier.
+  const sessionService = TestBed.inject(SessionService);
+  sessionService.setUser(buildCurrentUser(options.role ?? 'ADMINISTRATOR'));
 
   const fixture = TestBed.createComponent(MembersListPage);
   fixture.detectChanges();
@@ -420,6 +421,46 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     expect(dialog.open).toBe(false);
+  });
+
+  it.each(['OPERATOR', 'MEMBER'] as const)(
+    'hides the "Ajouter un membre" action for %s (T-37, RG-MEM-001)',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberPage()), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes('Ajouter un membre'),
+      );
+      expect(openButton).toBeUndefined();
+      expect(root.querySelector('dialog')).toBeNull();
+    },
+  );
+
+  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+    'keeps the "Ajouter un membre" action visible for %s',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberPage()), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes('Ajouter un membre'),
+      );
+      expect(openButton).toBeTruthy();
+    },
+  );
+
+  it('does not open the create dialog when the role is not authorized (RG-MEM-001)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    expect(fixture.nativeElement.querySelector('dialog')).toBeNull();
   });
 
   it('creates a member, refreshes the list and closes the dialog on success', async () => {
