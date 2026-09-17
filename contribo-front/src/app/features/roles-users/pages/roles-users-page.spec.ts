@@ -396,15 +396,47 @@ describe('RolesUsersPage', () => {
       expect(select.value).toBe(UserRole.Member);
     });
 
-    it("n'affiche pas le contrôle peut_enregistrer_paiements pour un rôle non Opérateur", async () => {
-      const fixture = await createFixture(() => of(buildPage([accountForRoleTests()])) as never);
+    it.each([
+      [UserRole.Administrator, 'Fatoumata Keita'],
+      [UserRole.Treasurer, 'Sekou Toure'],
+      [UserRole.Member, 'Mariama Diallo'],
+    ])(
+      "n'affiche pas le contrôle peut_enregistrer_paiements pour un compte %s (T-56)",
+      async (role, displayName) => {
+        const account = buildAccount({
+          role,
+          operatorCanRecordPayments: false,
+          member: { id: 'h5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d16', displayName },
+        });
+        const fixture = await createFixture(() => of(buildPage([account])) as never);
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        requireElement<HTMLButtonElement>(root, `button[aria-label*="${displayName}"]`).click();
+        fixture.detectChanges();
+
+        expect(root.querySelector('#operator-authorization-toggle')).toBeNull();
+      },
+    );
+
+    it("n'affiche aucune case peut_enregistrer_paiements dans la liste pour des comptes non-Opérateur (T-56)", async () => {
+      const accounts = [
+        buildAccount({
+          role: UserRole.Administrator,
+          member: { id: 'l5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20', displayName: 'Awa Camara' },
+        }),
+        buildAccount({
+          role: UserRole.Treasurer,
+          id: 'm5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+          member: { id: 'n5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d22', displayName: 'Sekou Toure' },
+        }),
+        accountForRoleTests(),
+      ];
+      const fixture = await createFixture(() => of(buildPage(accounts)) as never);
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
-      fixture.detectChanges();
-
-      expect(root.querySelector('#operator-authorization-toggle')).toBeNull();
+      expect(root.querySelector('input[type="checkbox"]')).toBeNull();
     });
 
     it('affiche le contrôle peut_enregistrer_paiements présélectionné pour un compte Opérateur', async () => {

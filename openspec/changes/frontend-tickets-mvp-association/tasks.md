@@ -90,7 +90,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
 - [ ] 8.3 [T-54] (P2) Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006
 - [x] 8.4 [T-55] (P1) Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`
-- [ ] 8.5 [T-56] (P1) Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.
+- [x] 8.5 [T-56] (P1) Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.
 
 ## 9. Campagnes — consultation (`campaigns-ui`)
 
