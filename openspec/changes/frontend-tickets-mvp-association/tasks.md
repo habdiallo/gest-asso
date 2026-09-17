@@ -34,8 +34,8 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 3. Utilitaires transverses — montants et paiements (`frontend-shell`)
 
 - [x] 3.1 [T-17] (P0) Utilitaire de formatage détaillé d'un montant GNF (séparateur de milliers, suffixe "GNF"). — RG-FMT-001, RG-FMT-002
-- [ ] 3.2 [T-18] (P0) Utilitaire de formatage condensé d'un montant GNF (K / M / Mds, une décimale max) avec accès à la valeur brute (info-bulle). — RG-FMT-003, RG-FMT-004
-- [ ] 3.3 [T-19] (P1) Composant de saisie de montant avec formatage automatique en direct et validation "entier uniquement".
+- [x] 3.2 [T-18] (P0) Utilitaire de formatage condensé d'un montant GNF (K / M / Mds, une décimale max) avec accès à la valeur brute (info-bulle). — RG-FMT-003, RG-FMT-004
+- [x] 3.3 [T-19] (P1) Composant de saisie de montant avec formatage automatique en direct et validation "entier uniquement".
 - [x] 3.4 [T-20] (P0) Composant de sélection du mode de règlement limité à Espèces / Mobile Money / Virement bancaire. — RG-PAY-009, RG-016
 
 ## 4. Membres — consultation (`member-management-ui`)
@@ -134,7 +134,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 > Parcours cible : un utilisateur consulte la liste des cagnottes (visuellement distincte des campagnes), en crée une, puis suit sa collecte.
 
-- [ ] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
+- [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
 - [ ] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [ ] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
@@ -158,7 +158,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 > Parcours cible : un utilisateur Membre se connecte et consulte uniquement ses propres données.
 
-- [ ] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
+- [x] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
 - [ ] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
 - [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
 - [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
