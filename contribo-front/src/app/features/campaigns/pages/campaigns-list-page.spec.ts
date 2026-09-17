@@ -1,13 +1,41 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CampagnesService, CampaignStatus } from '@api';
-import type { CampaignPage } from '@api';
+import { CampagnesService, CampaignStatus, CatgoriesDeRevenuService } from '@api';
+import type { Campaign, CampaignPage, IncomeCategory } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
+import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { CampaignsListPage } from './campaigns-list-page';
+
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts` et `social-funds-list-page.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+const demoIncomeCategories: IncomeCategory[] = [
+  {
+    id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+    label: 'Standard',
+    memberCount: 58,
+    updatedAt: '2026-08-01T09:00:00Z',
+  },
+];
 
 function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage {
   return {
@@ -33,7 +61,15 @@ async function createFixture(
     q?: string,
     status?: CampaignStatus,
   ) => Observable<CampaignPage>,
+  options: {
+    createCampaign?: (request: unknown) => Observable<Campaign>;
+    listIncomeCategories?: () => Observable<IncomeCategory[]>;
+  } = {},
 ): Promise<ComponentFixture<CampaignsListPage>> {
+  const createCampaign =
+    options.createCampaign ?? (() => of({}) as unknown as Observable<Campaign>);
+  const listIncomeCategories = options.listIncomeCategories ?? (() => of(demoIncomeCategories));
+
   await TestBed.configureTestingModule({
     imports: [
       CampaignsListPage,
@@ -47,7 +83,11 @@ async function createFixture(
       provideRouter([]),
       {
         provide: CampagnesService,
-        useValue: { listCampaigns } as unknown as CampagnesService,
+        useValue: { listCampaigns, createCampaign } as unknown as CampagnesService,
+      },
+      {
+        provide: CatgoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
       },
     ],
   }).compileComponents();
@@ -272,8 +312,7 @@ describe('CampaignsListPage', () => {
   it('still fires the debounced search after a status change loads a different term mid-debounce', async () => {
     vi.useFakeTimers();
     try {
-      const requestedCriteria: { q: string | undefined; status: CampaignStatus | undefined }[] =
-        [];
+      const requestedCriteria: { q: string | undefined; status: CampaignStatus | undefined }[] = [];
       const fixture = await createFixture((_page, _size, q, status) => {
         requestedCriteria.push({ q, status });
         return of(buildCampaignPage());
@@ -324,7 +363,7 @@ describe('CampaignsListPage', () => {
     );
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button');
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
     const previousButton = buttons[0] as HTMLButtonElement;
     const nextButton = buttons[1] as HTMLButtonElement;
 
@@ -366,6 +405,90 @@ describe('CampaignsListPage', () => {
     const nextButtonAfterLoad = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
     expect(document.activeElement).toBe(nextButtonAfterLoad);
     expect(document.activeElement).not.toBe(document.body);
+  });
+
+  it('opens the create dialog, submits the campaign and reloads the first page (T-65)', async () => {
+    const requestedPages: number[] = [];
+    let createRequest: unknown;
+    const fixture = await createFixture(
+      (page) => {
+        requestedPages.push(page);
+        return of(buildCampaignPage());
+      },
+      {
+        createCampaign: (request) => {
+          createRequest = request;
+          return of({ id: 'new-campaign' } as unknown as Campaign);
+        },
+      },
+    );
+    fixture.detectChanges();
+
+    const openButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button:not([type="submit"])',
+    );
+    expect(fixture.nativeElement.textContent).toContain('Créer une campagne');
+    openButton.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+
+    const form: HTMLFormElement = fixture.nativeElement.querySelector(
+      'app-campaign-create-form form',
+    );
+    expect(form).not.toBeNull();
+
+    // Renseigne le formulaire projeté puis soumet directement le composant
+    // interne : plus simple et robuste que de piloter chaque champ du DOM.
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(createRequest).toMatchObject({ name: 'Solidarité octobre' });
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    expect(requestedPages).toEqual([0, 0]);
+  });
+
+  it('shows an error and keeps the dialog open when the creation fails', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()), {
+      createCampaign: () => throwError(() => new Error('network error')),
+    });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+    expect(fixture.componentInstance.createError()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Impossible de créer la campagne');
   });
 });
 
