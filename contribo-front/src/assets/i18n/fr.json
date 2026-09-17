@@ -74,6 +74,8 @@
   "incomeCategories.columns.memberCount": "Membres",
   "incomeCategories.columns.updatedAt": "Dernière modification",
   "campaigns.list.title": "Campagnes",
+  "campaigns.list.statusFilterLabel": "Statut",
+  "campaigns.list.statusFilterAll": "Toutes",
   "campaigns.list.loading": "Chargement des campagnes…",
   "campaigns.list.error": "Impossible de charger les campagnes. Réessayez plus tard.",
   "campaigns.list.empty": "Aucune campagne.",

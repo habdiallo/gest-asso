@@ -39,8 +39,9 @@ function authenticationRequired(): Response {
 
 /**
  * Handler MSW de démonstration pour `GET /api/v1/campaigns` (T-57 : nom,
- * période, statut). Pagination simple sur les fixtures ci-dessus ; le filtre
- * par statut (T-58) et la recherche par nom (T-59) ne sont pas encore gérés.
+ * période, statut ; T-58 : filtre par statut via le paramètre contractuel
+ * `status`). Pagination simple sur les fixtures ci-dessus ; la recherche par
+ * nom (T-59) n'est pas encore gérée.
  */
 export const campaignsHandlers = [
   http.get('/api/v1/campaigns', async ({ request }): Promise<Response> => {
@@ -53,16 +54,20 @@ export const campaignsHandlers = [
     const url = new URL(request.url);
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
+    const status = url.searchParams.get('status') as CampaignStatus | null;
+    const filtered = status
+      ? demoCampaigns.filter((campaign) => campaign.status === status)
+      : demoCampaigns;
     const start = page * size;
-    const items = demoCampaigns.slice(start, start + size);
+    const items = filtered.slice(start, start + size);
 
     return HttpResponse.json<CampaignPage>({
       items,
       page: {
         number: page,
         size,
-        totalElements: demoCampaigns.length,
-        totalPages: Math.max(1, Math.ceil(demoCampaigns.length / size)),
+        totalElements: filtered.length,
+        totalPages: Math.max(1, Math.ceil(filtered.length / size)),
       },
     });
   }),
