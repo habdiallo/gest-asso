@@ -63,6 +63,31 @@
           </tbody>
         </table>
       </div>
+
+      <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
+        <button
+          type="button"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
+          [disabled]="page.page.number === 0"
+          (click)="goToPreviousPage()"
+        >
+          {{ 'members.previousPage' | transloco }}
+        </button>
+        <p class="text-sm text-text-2" role="status">
+          {{
+            'members.pageStatus'
+              | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
+          }}
+        </p>
+        <button
+          type="button"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
+          [disabled]="page.page.number + 1 >= page.page.totalPages"
+          (click)="goToNextPage()"
+        >
+          {{ 'members.nextPage' | transloco }}
+        </button>
+      </nav>
     }
   }
 </main>

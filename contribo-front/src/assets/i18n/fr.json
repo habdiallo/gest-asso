@@ -51,5 +51,8 @@
   "members.columns.phone": "Téléphone",
   "members.columns.incomeCategory": "Catégorie",
   "members.columns.function": "Fonction",
-  "members.columns.status": "Statut"
+  "members.columns.status": "Statut",
+  "members.pageStatus": "Page {{page}} sur {{totalPages}}",
+  "members.previousPage": "Page précédente",
+  "members.nextPage": "Page suivante"
 }
