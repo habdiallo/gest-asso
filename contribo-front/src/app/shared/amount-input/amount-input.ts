@@ -70,13 +70,26 @@ export class AmountInput implements ControlValueAccessor, OnInit {
 
   readonly showInvalidAmountError = computed(() => this.invalidAmount());
 
-  readonly showError = computed(() => this.showRequiredError() || this.showInvalidAmountError());
-
-  readonly errorMessage = computed(() =>
-    this.showInvalidAmountError()
-      ? "Le montant saisi n'est pas valide. Saisissez uniquement un nombre entier, sans décimale."
-      : 'Le montant est obligatoire.',
+  /** Erreur `min` portée par le contrôle parent (ex. `Validators.min(1)`), inatteignable localement. */
+  private readonly minErrorValue = signal<number | null>(null);
+  readonly showMinError = computed(
+    () => this.touched() && !this.invalidAmount() && this.minErrorValue() !== null,
   );
+
+  readonly showError = computed(
+    () => this.showRequiredError() || this.showInvalidAmountError() || this.showMinError(),
+  );
+
+  readonly errorMessage = computed(() => {
+    if (this.showInvalidAmountError()) {
+      return "Le montant saisi n'est pas valide. Saisissez uniquement un nombre entier, sans décimale.";
+    }
+    const min = this.minErrorValue();
+    if (this.showMinError() && min !== null) {
+      return `Le montant doit être d'au moins ${min} GNF.`;
+    }
+    return 'Le montant est obligatoire.';
+  });
 
   readonly describedBy = computed(() =>
     this.showError() ? `${this.unitHintId} ${this.errorId}` : this.unitHintId,
@@ -114,6 +127,11 @@ export class AmountInput implements ControlValueAccessor, OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((touchedValue) => this.touchedFromControl.set(touchedValue));
+
+    this.minErrorValue.set((control.errors?.['min'] as { min: number } | undefined)?.min ?? null);
+    control.statusChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.minErrorValue.set((control.errors?.['min'] as { min: number } | undefined)?.min ?? null);
+    });
   }
 
   writeValue(value: number | null): void {

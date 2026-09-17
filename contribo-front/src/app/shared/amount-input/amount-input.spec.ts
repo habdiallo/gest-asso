@@ -75,6 +75,24 @@ describe('AmountInput', () => {
     expect(form.controls.amount.hasError('gnfAmount')).toBe(false);
   });
 
+  it('shows and announces the parent min error once the control is touched', () => {
+    const fixture = TestBed.createComponent(OptionalHostComponent);
+    fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const form = fixture.componentInstance.form;
+
+    input.value = '1000';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(form.controls.amount.hasError('min')).toBe(true);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'au moins 2000 GNF',
+    );
+  });
+
   it('clears the input error when the parent resets the control', () => {
     const fixture = TestBed.createComponent(OptionalHostComponent);
     fixture.detectChanges();
