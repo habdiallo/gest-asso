@@ -10,6 +10,14 @@ disponibles de l'hôte (lecture, recherche, question, suivi des tâches), sans i
 un outil absent. Les règles du dépôt restent dans les instructions communes.
 Toute nouvelle capacité Claude doit être exposée et contrôlée pour les trois outils.
 
+Un agent (Claude, Codex, Copilot) ne doit jamais insérer de tiret cadratin
+(—, U+2014) dans le contenu qu'il produit ou modifie dans ce dépôt : code,
+commentaires, documentation, artefacts OpenSpec, messages de commit et de
+pull request. Reformuler avec une virgule, un point, des parenthèses ou un
+tiret simple (`-`) dans une énumération. Cette règle porte uniquement sur
+les nouvelles productions ; elle n'impose pas de réécrire un fichier
+existant qui en contient déjà pour ce seul motif.
+
 - Avant de modifier des fichiers, lire les instructions applicables, vérifier
   `git status --short` et `git branch --show-current`, puis identifier le ticket.
 - Créer ou réutiliser la branche du ticket avant toute génération/modification

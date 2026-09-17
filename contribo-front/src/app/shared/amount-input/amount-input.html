@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-2">
+  <label [attr.for]="fieldId" class="text-sm font-medium text-text-2">
+    {{ label() }}
+  </label>
+  <div class="relative">
+    <span [id]="unitHintId" class="sr-only">Montant en francs guinéens (GNF)</span>
+    <input
+      [id]="fieldId"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      [value]="displayValue()"
+      [required]="required()"
+      [disabled]="disabled()"
+      [attr.aria-required]="required() ? true : null"
+      [attr.aria-invalid]="showError() ? true : null"
+      [attr.aria-describedby]="describedBy()"
+      placeholder="0"
+      class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 pr-14 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash disabled:opacity-40"
+      (input)="handleInput($event)"
+      (blur)="handleBlur()"
+    />
+    <span
+      class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-text-3"
+      aria-hidden="true"
+    >
+      GNF
+    </span>
+  </div>
+  @if (showError()) {
+    <p [id]="errorId" class="text-sm text-error" role="alert">{{ errorMessage() }}</p>
+  }
+</div>

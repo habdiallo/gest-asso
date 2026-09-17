@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 109,
+  "nextTicketId": 110,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2056,6 +2056,25 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/feat-000-environnements-angular",
       "branchAfterInitialization": "front/feat-108-environnements-angular"
+    },
+    {
+      "id": 109,
+      "title": "Interdire le tiret cadratin dans tout contenu produit par un agent IA (code, docs, artefacts OpenSpec, commits, PR) et documenter la règle dans AGENTS.md.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "interdire-tiret-cadratin-regles",
+      "change": "interdire-tiret-cadratin-regles",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-interdire-tiret-cadratin-regles",
+      "branchAfterInitialization": "docs/chore-109-interdire-tiret-cadratin-regles"
     }
   ]
 }
