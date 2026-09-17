@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CagnottesService } from '@api';
 import type { SocialFundPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -54,6 +55,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       {
         provide: CagnottesService,
         useValue: { listSocialFunds } as unknown as CagnottesService,
