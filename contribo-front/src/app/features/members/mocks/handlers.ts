@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, MemberStatus } from '@api';
-import type { ErrorResponse, MemberPage, MemberSummary } from '@api';
+import { CurrencyCode, ErrorCode, MemberStatus, UserRole } from '@api';
+import type { ErrorResponse, MemberDetails, MemberPage, MemberSummary } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 /**
@@ -49,10 +49,45 @@ const demoMembers: readonly MemberSummary[] = [
   },
 ];
 
+/**
+ * Détails de fiche de démonstration pour `GET /api/v1/members/{memberId}`
+ * (T-27). `account` et `financialSummary` complètent le contrat
+ * `MemberDetails` ; ils ne sont pas affichés par cet écran, dont le
+ * périmètre se limite au bloc informations personnelles, catégorie,
+ * fonction et statut (US-MEM-003, cf. `member-detail-page.ts`).
+ */
+const demoMemberDetails: ReadonlyMap<string, MemberDetails> = new Map(
+  demoMembers.map((member, index) => [
+    member.id,
+    {
+      ...member,
+      account: {
+        id: `10700000-0000-4000-8000-0000000006${String(index).padStart(2, '0')}`,
+        role: UserRole.Member,
+        operatorCanRecordPayments: false,
+        active: member.status === MemberStatus.Active,
+      },
+      financialSummary: {
+        totalDueAmount: 0,
+        totalPaidAmount: 0,
+        totalRemainingAmount: 0,
+        currency: CurrencyCode.Gnf,
+      },
+    },
+  ]),
+);
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
     { status: 401 },
+  );
+}
+
+function memberNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Membre introuvable.' },
+    { status: 404 },
   );
 }
 
@@ -70,9 +105,10 @@ export function buildMemberPageResponse(): MemberPage {
 }
 
 /**
- * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21). Seule
- * l'authentification est vérifiée ici ; la restriction du contenu affiché à
- * l'Opérateur (RG-MEM-008) relève du ticket T-23.
+ * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21) et
+ * `GET /api/v1/members/{memberId}` (T-27). Seule l'authentification est
+ * vérifiée ici ; la restriction du contenu affiché à l'Opérateur
+ * (RG-MEM-008) relève du ticket T-23.
  */
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
@@ -83,5 +119,20 @@ export const membersHandlers = [
     }
 
     return HttpResponse.json<MemberPage>(buildMemberPageResponse());
+  }),
+  http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+    const member = demoMemberDetails.get(memberId);
+    if (!member) {
+      return memberNotFound();
+    }
+
+    return HttpResponse.json<MemberDetails>(member);
   }),
 ];

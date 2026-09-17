@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
 import type { MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -22,7 +23,8 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * que l'ensemble du répertoire reste accessible au-delà des 20 premiers
  * membres. La colonne Statut affiche un badge distinguant visuellement les
  * membres actifs des membres inactifs (T-22, RG-MEM-007), en plus du libellé
- * textuel, pour ne pas reposer uniquement sur la couleur.
+ * textuel, pour ne pas reposer uniquement sur la couleur. Chaque ligne mène
+ * à la fiche détaillée du membre (T-27, US-MEM-003).
  *
  * Limite connue : la vue restreinte de l'Opérateur (masquage du détail
  * financier, RG-MEM-008) n'est pas implémentée ici et fait l'objet du ticket
@@ -30,7 +32,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, RouterLink],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

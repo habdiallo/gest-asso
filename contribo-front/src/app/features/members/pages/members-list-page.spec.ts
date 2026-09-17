@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { MembresService } from '@api';
 import type { MemberPage, MemberSummary } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -47,6 +48,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       { provide: MembresService, useValue: { listMembers } as unknown as MembresService },
     ],
   }).compileComponents();
@@ -201,8 +203,8 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    const activeBadge = rows[0].querySelector('td:last-child span');
-    const inactiveBadge = rows[1].querySelector('td:last-child span');
+    const activeBadge = rows[0].querySelector('td:nth-last-child(2) span');
+    const inactiveBadge = rows[1].querySelector('td:nth-last-child(2) span');
 
     expect(activeBadge?.className).not.toEqual(inactiveBadge?.className);
     expect(activeBadge?.className).toContain('text-success');

@@ -42,6 +42,9 @@
               </th>
               <th scope="col" class="px-4 py-3">{{ 'members.columns.function' | transloco }}</th>
               <th scope="col" class="px-4 py-3">{{ 'members.columns.status' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">
+                <span class="sr-only">{{ 'members.viewDetail' | transloco }}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -81,6 +84,17 @@
                     ></span>
                     {{ memberStatusLabel(member.status) }}
                   </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <a
+                    [routerLink]="[member.id]"
+                    class="text-sm text-gold-hover underline-offset-2 hover:underline"
+                  >
+                    {{ 'members.viewDetail' | transloco }}
+                    <span class="sr-only">
+                      {{ member.displayName }}
+                    </span>
+                  </a>
                 </td>
               </tr>
             }
