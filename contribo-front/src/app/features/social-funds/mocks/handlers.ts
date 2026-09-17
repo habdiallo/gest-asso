@@ -1,6 +1,12 @@
 import { HttpResponse, delay, http } from 'msw';
 import { ErrorCode, SocialEventType, SocialFundStatus } from '@api';
-import type { ErrorResponse, SocialFundPage, SocialFundSummary } from '@api';
+import type {
+  CreateSocialFundRequest,
+  ErrorResponse,
+  SocialFund,
+  SocialFundPage,
+  SocialFundSummary,
+} from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 const demoSocialFunds: SocialFundSummary[] = [
@@ -50,6 +56,11 @@ function authenticationRequired(): Response {
  *
  * Le filtre `eventType` (T-83, paramètre `SocialFundEventTypeFilter` du
  * contrat) est appliqué avant la pagination, comme sur le serveur réel.
+ *
+ * `POST /api/v1/social-funds` (T-84, `createSocialFund`) ajoute la nouvelle
+ * cagnotte au jeu de démonstration : statut ouvert, aucun montant collecté,
+ * `remainingToTargetAmount`/`progressRate` présents uniquement lorsqu'un
+ * objectif est fourni (même règle que le serveur réel).
  */
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
@@ -80,5 +91,35 @@ export const socialFundsHandlers = [
       },
     };
     return HttpResponse.json<SocialFundPage>(page);
+  }),
+  http.post('/api/v1/social-funds', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const body = (await request.json()) as CreateSocialFundRequest;
+    const summary: SocialFundSummary = {
+      id: crypto.randomUUID(),
+      title: body.title,
+      eventType: body.eventType,
+      beneficiary: body.beneficiary,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      status: SocialFundStatus.Open,
+      targetAmount: body.targetAmount,
+      collectedAmount: 0,
+      remainingToTargetAmount: body.targetAmount,
+      progressRate: body.targetAmount !== undefined ? 0 : undefined,
+      contributorCount: 0,
+      contributionCount: 0,
+      currency: 'GNF',
+    };
+
+    demoSocialFunds.unshift(summary);
+
+    const socialFund: SocialFund = { ...summary, description: body.description };
+    return HttpResponse.json<SocialFund>(socialFund, { status: 201 });
   }),
 ];

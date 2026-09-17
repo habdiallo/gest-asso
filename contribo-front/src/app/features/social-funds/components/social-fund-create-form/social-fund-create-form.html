@@ -1,0 +1,169 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label
+        for="social-fund-create-title"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.title' | transloco }}
+      </label>
+      <input
+        id="social-fund-create-title"
+        type="text"
+        formControlName="title"
+        required
+        [attr.aria-invalid]="titleInvalid() ? true : null"
+        [attr.aria-describedby]="titleInvalid() ? 'social-fund-create-title-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (titleInvalid()) {
+        <p id="social-fund-create-title-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.titleRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="social-fund-create-event-type"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.eventType' | transloco }}
+      </label>
+      <select
+        id="social-fund-create-event-type"
+        formControlName="eventType"
+        required
+        [attr.aria-invalid]="eventTypeInvalid() ? true : null"
+        [attr.aria-describedby]="eventTypeInvalid() ? 'social-fund-create-event-type-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="" disabled>
+          {{ 'socialFunds.create.fields.eventTypePlaceholder' | transloco }}
+        </option>
+        @for (eventType of eventTypeOptions; track eventType) {
+          <option [value]="eventType">{{ socialEventTypeLabel(eventType) }}</option>
+        }
+      </select>
+      @if (eventTypeInvalid()) {
+        <p id="social-fund-create-event-type-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.eventTypeRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div class="sm:col-span-2">
+      <label
+        for="social-fund-create-beneficiary"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.beneficiary' | transloco }}
+      </label>
+      <input
+        id="social-fund-create-beneficiary"
+        type="text"
+        formControlName="beneficiary"
+        required
+        [attr.aria-invalid]="beneficiaryInvalid() ? true : null"
+        [attr.aria-describedby]="
+          beneficiaryInvalid() ? 'social-fund-create-beneficiary-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (beneficiaryInvalid()) {
+        <p id="social-fund-create-beneficiary-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.beneficiaryRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div class="sm:col-span-2">
+      <label
+        for="social-fund-create-description"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.description' | transloco }}
+      </label>
+      <textarea
+        id="social-fund-create-description"
+        formControlName="description"
+        rows="3"
+        class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      ></textarea>
+    </div>
+
+    <div>
+      <label
+        for="social-fund-create-start-date"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.startDate' | transloco }}
+      </label>
+      <input
+        id="social-fund-create-start-date"
+        type="date"
+        formControlName="startDate"
+        required
+        [attr.aria-invalid]="startDateInvalid() ? true : null"
+        [attr.aria-describedby]="startDateInvalid() ? 'social-fund-create-start-date-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (startDateInvalid()) {
+        <p id="social-fund-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.startDateRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="social-fund-create-end-date"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.create.fields.endDate' | transloco }}
+      </label>
+      <input
+        id="social-fund-create-end-date"
+        type="date"
+        formControlName="endDate"
+        required
+        [attr.aria-invalid]="endDateInvalid() ? true : null"
+        [attr.aria-describedby]="endDateInvalid() ? 'social-fund-create-end-date-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (endDateRequiredInvalid()) {
+        <p id="social-fund-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.endDateRequired' | transloco }}
+        </p>
+      } @else if (dateRangeInvalid()) {
+        <p id="social-fund-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.endDateBeforeStart' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div class="sm:col-span-2">
+      <app-amount-input
+        formControlName="targetAmount"
+        [label]="'socialFunds.create.fields.targetAmount' | transloco"
+      />
+    </div>
+  </div>
+
+  <div class="mt-6 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+    >
+      {{ 'socialFunds.create.cancel' | transloco }}
+    </button>
+    <button
+      type="submit"
+      [disabled]="submitting()"
+      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+    >
+      {{ (submitting() ? 'socialFunds.create.submitting' : 'socialFunds.create.submit') | transloco }}
+    </button>
+  </div>
+</form>
