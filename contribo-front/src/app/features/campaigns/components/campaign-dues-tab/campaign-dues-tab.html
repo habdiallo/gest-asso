@@ -1,0 +1,93 @@
+<div [attr.aria-busy]="loading()">
+  @if (loading()) {
+    <p class="text-text-2" role="status">Chargement des cotisations...</p>
+  } @else if (loadError()) {
+    <p class="text-error" role="alert">Impossible de charger les cotisations.</p>
+    <button
+      type="button"
+      class="mt-3 rounded-lg border border-line px-4 py-2 text-sm text-text"
+      (click)="retry()"
+    >
+      Réessayer
+    </button>
+  } @else if (duePage(); as result) {
+    @if (result.items.length === 0) {
+      <p class="text-text-2" role="status">Aucune cotisation pour cette campagne.</p>
+    } @else {
+      <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+        <table class="w-full text-left text-sm">
+          <caption class="sr-only">
+            Situation des cotisations par membre
+          </caption>
+          <thead>
+            <tr class="border-b border-line text-xs uppercase tracking-wide text-text-2">
+              <th scope="col" class="px-4 py-3 font-medium">Membre</th>
+              <th scope="col" class="px-4 py-3 font-medium">Catégorie</th>
+              <th scope="col" class="px-4 py-3 font-medium">Montant dû</th>
+              <th scope="col" class="px-4 py-3 font-medium">Montant payé</th>
+              <th scope="col" class="px-4 py-3 font-medium">Reste à payer</th>
+              <th scope="col" class="px-4 py-3 font-medium">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (due of result.items; track due.id) {
+              <tr class="border-b border-line text-text last:border-b-0">
+                <th scope="row" class="px-4 py-4 font-medium">{{ due.member.displayName }}</th>
+                <td class="px-4 py-4 text-text-2">{{ due.incomeCategorySnapshot.label }}</td>
+                <td class="whitespace-nowrap px-4 py-4 font-mono">
+                  {{ formatAmount(due.dueAmount) }}
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 font-mono">
+                  {{ formatAmount(due.paidAmount) }}
+                </td>
+                <td class="whitespace-nowrap px-4 py-4 font-mono">
+                  {{ formatAmount(due.remainingAmount) }}
+                </td>
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-block whitespace-nowrap rounded-full border border-line px-3 py-1 text-xs"
+                    [class.text-success]="due.status === paidStatus"
+                    [class.text-error]="due.status === overdueStatus"
+                    [class.text-warning]="due.status !== paidStatus && due.status !== overdueStatus"
+                    >{{ statusLabels[due.status] }}</span
+                  >
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  @if (duePage(); as result) {
+    @if (result.page.totalPages > 1) {
+      <nav
+        class="mt-6 flex items-center justify-between gap-3 text-sm"
+        aria-label="Pagination des cotisations"
+      >
+        <button
+          type="button"
+          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          [disabled]="previousPageDisabled()"
+          [attr.aria-disabled]="previousPageDisabled()"
+          (click)="previousPage()"
+        >
+          Précédent
+        </button>
+        <p class="text-text-2" role="status">
+          Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }}
+        </p>
+        <button
+          type="button"
+          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          [disabled]="nextPageDisabled()"
+          [attr.aria-disabled]="nextPageDisabled()"
+          (click)="nextPage()"
+        >
+          Suivant
+        </button>
+      </nav>
+    }
+  }
+</div>
