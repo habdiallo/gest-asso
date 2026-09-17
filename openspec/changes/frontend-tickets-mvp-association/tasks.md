@@ -158,7 +158,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 > Parcours cible : un utilisateur Membre se connecte et consulte uniquement ses propres données.
 
-- [ ] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
+- [x] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
 - [ ] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
 - [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
 - [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
