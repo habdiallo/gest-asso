@@ -4,6 +4,7 @@ import type {
   Campaign,
   CampaignPage,
   CampaignSummary,
+  CreateCampaignRequest,
   Due,
   DuePage,
   ErrorResponse,
@@ -242,6 +243,45 @@ export const campaignsHandlers = [
         totalPages: Math.max(1, Math.ceil(filtered.length / size)),
       },
     });
+  }),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/campaigns` (T-65,
+   * `createCampaign`) : ajoute la nouvelle campagne au jeu de démonstration,
+   * réservé à l'Administrateur et au Trésorier, comme sur le contrat.
+   * `memberCount` reprend le nombre de membres actifs déjà utilisé pour
+   * les campagnes de démonstration existantes (aucun annuaire de membres
+   * n'est simulé ici).
+   */
+  http.post('/api/v1/campaigns', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+    if (account.user.role !== UserRole.Administrator && account.user.role !== UserRole.Treasurer) {
+      return accessDenied();
+    }
+
+    const body = (await request.json()) as CreateCampaignRequest;
+    const summary: CampaignSummary = {
+      id: crypto.randomUUID(),
+      name: body.name,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      status: CampaignStatus.Upcoming,
+      memberCount: 0,
+    };
+    demoCampaigns.unshift(summary);
+
+    const campaign: Campaign = {
+      ...summary,
+      description: body.description,
+      categoryAmounts: [],
+    };
+    demoCampaignDetails[summary.id] = campaign;
+
+    return HttpResponse.json<Campaign>(campaign, { status: 201 });
   }),
 
   /**

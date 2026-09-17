@@ -108,7 +108,8 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 10. Campagnes — création et configuration (`campaigns-ui`)
 
-- [ ] 10.1 [T-65] (P0) Formulaire de création de campagne (Nom, Description, Date de début, Date de fin, membres concernés). — US-COT-001 ; openapi:`createCampaign`
+- [x] 10.1 [T-65] (P0) Formulaire de création de campagne (Nom, Description, Date de début, Date de fin, membres concernés). — US-COT-001 ; openapi:`createCampaign`
+  Le contrat `CreateCampaignRequest` impose `categoryAmounts` (au moins une entrée) dans la même requête atomique. Ce ticket dérive ces entrées des catégories de revenu portées par au moins un membre actif, avec un montant provisoire de 0 GNF ; la saisie réelle du barème reste celle de T-68 via `PUT /campaigns/{campaignId}/category-amounts`. Le champ "membres concernés" est affiché en lecture seule : le contrat n'expose qu'une seule valeur (`ALL_ACTIVE_MEMBERS`) pour le MVP. Le masquage de l'action pour l'Opérateur et le Membre (T-67) et la validation de plage de dates (T-66) restent des tickets distincts, non traités ici (l'action reste visible pour tous les rôles accédant à l'écran, la validation de plage est déjà appliquée côté formulaire pour la cohérence de la saisie).
 - [ ] 10.2 [T-66] (P0) Validation "date de fin ≥ date de début". — RG-COT-005
 - [ ] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
 - [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`

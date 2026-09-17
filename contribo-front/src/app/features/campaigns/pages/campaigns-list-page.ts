@@ -9,9 +9,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CampagnesService, CampaignStatus } from '@api';
-import type { CampaignPage } from '@api';
+import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { Subject, debounceTime } from 'rxjs';
+import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 
@@ -40,19 +42,34 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
  * afin de ne pas perdre le focus clavier posé sur le bouton actionné
  * (`.claude/rules/frontend/accessibilite.md`).
+ *
+ * Ajoute également l'action "Créer une campagne" (T-65, US-COT-001) : ouvre
+ * le formulaire de création dans `FormDialog` (T-15) et appelle
+ * `POST /campaigns` (`CampagnesService.createCampaign`,
+ * openapi:`createCampaign`). Après création, la première page est
+ * rechargée avec les filtres courants afin d'afficher la nouvelle campagne.
+ * Le masquage de cette action pour l'Opérateur et le Membre (T-67,
+ * RG-COT-001) relève d'un ticket distinct ; elle reste visible ici pour
+ * tous les rôles qui accèdent à cet écran (même approche que
+ * `SocialFundsListPage`, T-84/T-86).
  */
 @Component({
   selector: 'app-campaigns-list-page',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe, FormDialog, CampaignCreateForm],
   templateUrl: './campaigns-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignsListPage {
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
+  private createDialogSession = 0;
 
   private readonly requestedPage = signal(0);
   private requestSequence = 0;
+
+  readonly createDialogOpen = signal(false);
+  readonly creating = signal(false);
+  readonly createError = signal(false);
 
   readonly statusFilterOptions: readonly CampaignStatus[] = [
     CampaignStatus.Open,
@@ -121,6 +138,60 @@ export class CampaignsListPage {
     if (page) {
       this.loadPage(page.page.number + 1);
     }
+  }
+
+  /** Ouvre le formulaire de création de campagne (T-65). */
+  openCreateDialog(): void {
+    if (this.createDialogOpen()) {
+      return;
+    }
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createError.set(false);
+    this.createDialogOpen.set(true);
+  }
+
+  /** Ferme le formulaire, quelle que soit la cause (Échap, bouton Annuler, succès). */
+  closeCreateDialog(): void {
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createDialogOpen.set(false);
+  }
+
+  /**
+   * Confirme la création (US-COT-001) : appelle `createCampaign`, puis
+   * recharge la première page avec les filtres courants pour afficher la
+   * nouvelle campagne. La requête est rattachée à une session de dialogue :
+   * si le formulaire a été fermé puis rouvert entre-temps, une réponse
+   * tardive ne referme plus l'état devenu obsolète.
+   */
+  handleCreateCampaign(request: CreateCampaignRequest): void {
+    if (!this.createDialogOpen() || this.creating()) {
+      return;
+    }
+    const session = this.createDialogSession;
+    this.creating.set(true);
+    this.createError.set(false);
+
+    this.campaignsService
+      .createCampaign(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadPage(0);
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.closeCreateDialog();
+        },
+        error: () => {
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.creating.set(false);
+          this.createError.set(true);
+        },
+      });
   }
 
   private loadPage(page: number): void {
