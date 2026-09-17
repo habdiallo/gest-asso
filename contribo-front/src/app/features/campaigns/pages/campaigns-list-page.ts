@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 
@@ -22,8 +23,14 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * ouvertes ou clôturées ; les campagnes à venir restent visibles via
  * l'option « Toutes ».
  *
- * Limite connue : la recherche par nom (T-59) n'est pas implémentée par ce
- * ticket. Chaque campagne ouvre son écran détail (T-60).
+ * La recherche par nom (T-59, paramètre contractuel `q` de
+ * `GET /campaigns`) filtre côté serveur les campagnes dont le nom
+ * correspond à la saisie. La saisie est amortie (`debounceTime`) pour ne
+ * déclencher une requête qu'une fois l'utilisateur arrêté de taper, et
+ * `distinctUntilChanged` évite une requête redondante si la valeur amortie
+ * n'a pas changé. Chaque nouvelle recherche revient à la première page, se
+ * combine avec le filtre de statut déjà actif et chaque campagne ouvre son
+ * écran détail (T-60).
  *
  * Les commandes de pagination restent montées et focusables pendant le
  * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
@@ -49,6 +56,8 @@ export class CampaignsListPage {
   ];
 
   readonly statusFilter = signal<CampaignStatus | ''>('');
+  readonly nameQuery = signal('');
+  private readonly nameQueryInput = new Subject<string>();
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly campaignPage = signal<CampaignPage | null>(null);
@@ -66,12 +75,22 @@ export class CampaignsListPage {
   });
 
   constructor() {
+    this.nameQueryInput
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadPage(0));
+
     this.loadPage(this.requestedPage());
   }
 
   onStatusFilterChange(event: Event): void {
     this.statusFilter.set((event.target as HTMLSelectElement).value as CampaignStatus | '');
     this.loadPage(0);
+  }
+
+  onNameQueryInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.nameQuery.set(value);
+    this.nameQueryInput.next(value.trim());
   }
 
   goToPreviousPage(): void {
@@ -104,7 +123,12 @@ export class CampaignsListPage {
     const requestId = ++this.requestSequence;
 
     this.campaignsService
-      .listCampaigns(page, undefined, undefined, this.statusFilter() || undefined)
+      .listCampaigns(
+        page,
+        undefined,
+        this.nameQuery().trim() || undefined,
+        this.statusFilter() || undefined,
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {

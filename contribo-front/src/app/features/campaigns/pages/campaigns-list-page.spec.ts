@@ -179,6 +179,96 @@ describe('CampaignsListPage', () => {
     expect(fixture.componentInstance.campaignPage()?.items[0].status).toBe('CLOSED');
   });
 
+  it('requests campaigns filtered by name after the search input is debounced', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedQueries: (string | undefined)[] = [];
+      const fixture = await createFixture((_page, _size, q) => {
+        requestedQueries.push(q);
+        return of(buildCampaignPage());
+      });
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#campaigns-search');
+      input.value = 'Solidarité';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      // La requête n'est déclenchée qu'après l'amortissement (debounceTime).
+      expect(requestedQueries).toEqual([undefined]);
+
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedQueries).toEqual([undefined, 'Solidarité']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('requests the first page again once the debounced search query changes', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedPages: number[] = [];
+      const fixture = await createFixture((page) => {
+        requestedPages.push(page);
+        return of(
+          buildCampaignPage({ page: { number: page, size: 1, totalElements: 2, totalPages: 2 } }),
+        );
+      });
+      fixture.detectChanges();
+
+      const nextButton = fixture.nativeElement.querySelectorAll(
+        'nav button',
+      )[1] as HTMLButtonElement;
+      nextButton.click();
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#campaigns-search');
+      input.value = 'Solidarité';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedPages).toEqual([0, 1, 0]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not request twice when the debounced search query is unchanged', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedQueries: (string | undefined)[] = [];
+      const fixture = await createFixture((_page, _size, q) => {
+        requestedQueries.push(q);
+        return of(buildCampaignPage());
+      });
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#campaigns-search');
+      input.value = '  Solidarité  ';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      // La valeur amortie ('Solidarité', une fois découpée) ne change pas
+      // même si l'utilisateur ajoute puis retire des espaces autour, donc
+      // aucune requête supplémentaire n'est déclenchée (distinctUntilChanged).
+      input.value = 'Solidarité';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedQueries).toEqual([undefined, 'Solidarité']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>
       of(buildCampaignPage({ page: { number: 0, size: 1, totalElements: 2, totalPages: 2 } })),
