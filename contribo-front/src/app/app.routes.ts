@@ -34,6 +34,14 @@ export const routes: Routes = [
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    // Écran liste des membres (T-21, US-MEM-002) : réservé aux rôles qui
+    // gèrent ou consultent le répertoire associatif ; le Membre dispose de
+    // son propre espace personnel (`/mon-espace`), pas de ce répertoire.
+    path: 'membres',
+    canMatch: [roleGuard('ADMINISTRATOR', 'TREASURER', 'OPERATOR')],
+    loadChildren: () => import('@features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
+  },
+  {
     path: 'campagnes',
     loadChildren: () =>
       import('@features/campaigns/campaigns.routes').then((m) => m.CAMPAIGNS_ROUTES),

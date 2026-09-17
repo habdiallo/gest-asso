@@ -42,7 +42,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 > Parcours cible : un utilisateur Administrateur/Trésorier/Opérateur consulte la liste des membres puis leur fiche détaillée.
 
-- [ ] 4.1 [T-21] (P0) Écran liste des membres : tableau avec Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut. — US-MEM-002 ; openapi:`listMembers`
+- [x] 4.1 [T-21] (P0) Écran liste des membres : tableau avec Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut. — US-MEM-002 ; openapi:`listMembers`
 - [ ] 4.2 [T-22] (P0) Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007
 - [ ] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
