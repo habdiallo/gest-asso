@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { authenticatedMatch } from '@core/session/authenticated.guard';
+import { roleGuard } from '@core/session/role.guard';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 
 export const routes: Routes = [
@@ -18,10 +19,10 @@ export const routes: Routes = [
   },
   {
     // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
-    // (US-REV-001). Nécessite une session active ; la garde de rôle dédiée
-    // interdisant les autres rôles (RG-ROLE-002) reste à ajouter par T-49.
+    // (US-REV-001). La garde de rôle limite déjà l'accès à ce seul rôle ;
+    // la garde de rôle générique et transverse (RG-ROLE-002) reste à ajouter par T-49.
     path: NAVIGATION_PATHS.incomeCategories.slice(1),
-    canMatch: [authenticatedMatch],
+    canMatch: [authenticatedMatch, roleGuard('ADMINISTRATOR')],
     loadChildren: () =>
       import('@features/income-categories/income-categories.routes').then(
         (m) => m.INCOME_CATEGORIES_ROUTES,
