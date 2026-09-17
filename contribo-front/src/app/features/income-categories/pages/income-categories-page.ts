@@ -12,11 +12,11 @@ import { formatInstant } from '../income-categories-dates';
  * `CatgoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
  * triées par libellé par le serveur (pas de tri/filtre applicatif ici).
  *
- * La route applicative applique déjà `roleGuard('ADMINISTRATOR')`
- * (`app.routes.ts`) : les autres rôles sont redirigés vers `/acces-refuse`
- * avant d'atteindre cette page. La garde de rôle générique et transverse
- * (RG-ROLE-002, T-49) reste à ajouter séparément ; le lien de navigation
- * n'est déjà proposé qu'à l'Administrateur (`core/navigation/navigation-items.ts`).
+ * La route applicative applique `roleGuard(UserRole.Administrator)` à la
+ * fois dans `app.routes.ts` et dans `income-categories.routes.ts`
+ * (RG-ROLE-002, T-49) : les autres rôles sont redirigés vers `/acces-refuse`
+ * avant d'atteindre cette page. Le lien de navigation n'est déjà proposé
+ * qu'à l'Administrateur (`core/navigation/navigation-items.ts`).
  *
  * Propose aussi la création d'une catégorie (T-50, `CreateIncomeCategoryDialog`) :
  * libellé obligatoire, sans champ de montant (RG-REV-001, RG-REV-002). Après
