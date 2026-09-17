@@ -37,9 +37,9 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  *
  * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
  * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
- * (`MembresService.createMember`). Le masquage de cette action pour
- * l'Opérateur et le Membre (RG-MEM-001) relève du ticket T-37 ; elle reste
- * visible ici pour tous les rôles qui accèdent à cet écran.
+ * (`MembresService.createMember`). Cette action est masquée pour l'Opérateur
+ * et le Membre (T-37, RG-MEM-001) : seuls l'Administrateur et le Trésorier la
+ * déclenchent, conformément à la spec `member-management-ui`.
  */
 @Component({
   selector: 'app-members-list-page',
@@ -57,9 +57,17 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
-  readonly showFinancialDetail = computed(
-    () => this.sessionService.user()?.role !== 'OPERATOR',
-  );
+  readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
+
+  /**
+   * Masquage de l'action "Ajouter un membre" pour l'Opérateur et le Membre
+   * (T-37, RG-MEM-001) : seuls l'Administrateur et le Trésorier créent un
+   * membre (US-MEM-001).
+   */
+  readonly canCreateMember = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === 'ADMINISTRATOR' || role === 'TREASURER';
+  });
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
@@ -101,7 +109,7 @@ export class MembersListPage {
   }
 
   openCreateDialog(): void {
-    if (this.createDialogOpen()) {
+    if (!this.canCreateMember() || this.createDialogOpen()) {
       return;
     }
     ++this.createDialogSession;
