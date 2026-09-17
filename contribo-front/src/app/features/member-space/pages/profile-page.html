@@ -1,8 +1,44 @@
 <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
   <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{ 'memberSpace.profile.title' | transloco }}
+    {{
+      (activeTab() === 'profile' ? 'memberSpace.profile.title' : 'memberSpace.dues.title')
+        | transloco
+    }}
   </h1>
-  <p class="mt-1 text-sm text-text-2">{{ 'memberSpace.profile.subtitle' | transloco }}</p>
+  @if (activeTab() === 'profile') {
+    <p class="mt-1 text-sm text-text-2">{{ 'memberSpace.profile.subtitle' | transloco }}</p>
+  }
+  <div
+    class="mt-6 flex gap-2 border-b border-line"
+    role="tablist"
+    [attr.aria-label]="'memberSpace.tabs.tablist' | transloco"
+  >
+    <button type="button" id="personal-tab-profile" role="tab" aria-controls="personal-panel-profile"
+      [attr.aria-selected]="activeTab() === 'profile'"
+      class="border-b-2 px-4 py-3 text-sm font-medium"
+      [class.border-gold-hover]="activeTab() === 'profile'"
+      [class.text-gold-hover]="activeTab() === 'profile'"
+      [class.border-transparent]="activeTab() !== 'profile'"
+      [class.text-text-2]="activeTab() !== 'profile'" (click)="selectTab('profile')">
+      {{ 'memberSpace.tabs.profile' | transloco }}
+    </button>
+    <button type="button" id="personal-tab-dues" role="tab" aria-controls="personal-panel-dues"
+      [attr.aria-selected]="activeTab() === 'dues'"
+      class="border-b-2 px-4 py-3 text-sm font-medium"
+      [class.border-gold-hover]="activeTab() === 'dues'"
+      [class.text-gold-hover]="activeTab() === 'dues'"
+      [class.border-transparent]="activeTab() !== 'dues'"
+      [class.text-text-2]="activeTab() !== 'dues'" (click)="selectTab('dues')">
+      {{ 'memberSpace.tabs.dues' | transloco }}
+    </button>
+  </div>
+
+  @if (activeTab() === 'dues') {
+    <section id="personal-panel-dues" role="tabpanel" aria-labelledby="personal-tab-dues" tabindex="0" class="mt-6">
+      <app-my-dues />
+    </section>
+  } @else {
+    <section id="personal-panel-profile" role="tabpanel" aria-labelledby="personal-tab-profile" tabindex="0">
 
   @if (member(); as member) {
     <section class="mt-6 rounded-card border border-line bg-surface-glass p-5">
@@ -97,5 +133,7 @@
     <p class="mt-8 text-sm text-text-2">{{ 'memberSpace.profile.readOnlyNote' | transloco }}</p>
   } @else {
     <p class="mt-6 text-error" role="alert">{{ 'memberSpace.profile.error' | transloco }}</p>
+  }
+    </section>
   }
 </main>
