@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { MembresService } from '@api';
 import type { MemberPage, MemberSummary } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -47,6 +48,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       { provide: MembresService, useValue: { listMembers } as unknown as MembresService },
     ],
   }).compileComponents();
