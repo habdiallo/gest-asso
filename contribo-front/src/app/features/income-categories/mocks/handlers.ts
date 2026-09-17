@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode } from '@api';
+import { ErrorCode, UserRole } from '@api';
 import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
@@ -31,6 +31,13 @@ function authenticationRequired(): Response {
   );
 }
 
+function accessDenied(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.AccessDenied, message: 'Accès réservé à l’Administrateur.' },
+    { status: 403 },
+  );
+}
+
 function validationError(): Response {
   return HttpResponse.json<ErrorResponse>(
     {
@@ -56,8 +63,11 @@ function duplicateCategoryLabel(): Response {
  * (T-48, T-50). Le contrat n'exige qu'une session valide côté `GET` (pas de
  * restriction 403) : c'est l'écran (réservé à l'Administrateur, US-REV-001)
  * qui restreint l'accès côté frontend, pas cette route consommée aussi par
- * d'autres formulaires. La création simule les deux règles métier RG-REV-001
- * (libellé obligatoire) et l'unicité du libellé (`DUPLICATE_CATEGORY_LABEL`).
+ * d'autres formulaires. `POST` est en revanche réservé à l'Administrateur
+ * par le contrat (`createIncomeCategory`) : un autre rôle authentifié reçoit
+ * un 403, conformément aux autres mutations mockées (`accessDenied()`). La
+ * création simule aussi les deux règles métier RG-REV-001 (libellé
+ * obligatoire) et l'unicité du libellé (`DUPLICATE_CATEGORY_LABEL`).
  */
 export const incomeCategoriesHandlers = [
   http.get('/api/v1/income-categories', async ({ request }): Promise<Response> => {
@@ -75,6 +85,9 @@ export const incomeCategoriesHandlers = [
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
     if (!account) {
       return authenticationRequired();
+    }
+    if (account.user.role !== UserRole.Administrator) {
+      return accessDenied();
     }
 
     const body = (await request.json()) as IncomeCategoryRequest;
