@@ -56,13 +56,20 @@ export const socialFundsHandlers = [
       return authenticationRequired();
     }
 
+    const url = new URL(request.url);
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const pageSize = Number(url.searchParams.get('size') ?? '20');
+    const totalElements = demoSocialFunds.length;
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
+    const items = demoSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+
     const page: SocialFundPage = {
-      items: demoSocialFunds,
+      items,
       page: {
-        number: 0,
-        size: 20,
-        totalElements: demoSocialFunds.length,
-        totalPages: 1,
+        number: pageNumber,
+        size: pageSize,
+        totalElements,
+        totalPages,
       },
     };
     return HttpResponse.json<SocialFundPage>(page);

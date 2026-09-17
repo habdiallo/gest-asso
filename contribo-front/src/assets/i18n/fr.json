@@ -46,6 +46,7 @@
   "socialFunds.empty": "Aucune cagnotte pour le moment.",
   "socialFunds.card.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",
   "socialFunds.card.contributorCount": "{{count}} contributeur(s)",
+  "socialFunds.pagination.nav": "Pagination des cagnottes",
   "socialFunds.pagination.previous": "Page précédente",
   "socialFunds.pagination.next": "Page suivante",
   "socialFunds.pagination.status": "Page {{current}} sur {{total}}",

@@ -33,8 +33,10 @@ function buildSocialFundPage(overrides: Partial<SocialFundPage> = {}): SocialFun
   };
 }
 
+type ListSocialFunds = (page?: number, size?: number) => Observable<SocialFundPage>;
+
 async function createFixture(
-  listSocialFunds: () => Observable<SocialFundPage>,
+  listSocialFunds: ListSocialFunds,
 ): Promise<ComponentFixture<SocialFundsListPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -59,6 +61,45 @@ async function createFixture(
 }
 
 describe('SocialFundsListPage', () => {
+  it('preserves focus while the next page loads and prevents repeated requests', async () => {
+    const pending = new Subject<SocialFundPage>();
+    const requestedPages: (number | undefined)[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return page === 0
+        ? of(
+            buildSocialFundPage({
+              page: { number: 0, size: 20, totalElements: 21, totalPages: 2 },
+            }),
+          )
+        : pending.asObservable();
+    });
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement;
+    const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.focus();
+    nextButton.click();
+    fixture.detectChanges();
+
+    expect(nextButton.isConnected).toBe(true);
+    expect(nextButton.disabled).toBe(false);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+    expect(document.activeElement).toBe(nextButton);
+    nextButton.click();
+    fixture.componentInstance.goToPreviousPage();
+    expect(requestedPages).toEqual([0, 1]);
+
+    pending.next(
+      buildSocialFundPage({ page: { number: 1, size: 20, totalElements: 21, totalPages: 2 } }),
+    );
+    pending.complete();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(nextButton);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+    expect(root.textContent).toContain('Page 2 sur 2');
+  });
+
   it('shows a loading state while the request is pending', async () => {
     const pending = new Subject<SocialFundPage>();
     const fixture = await createFixture(() => pending.asObservable());
@@ -88,12 +129,28 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).toContain('Mariage');
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('Famille Camara');
-    expect(root.textContent).toContain('4 750 000 GNF');
-    expect(root.textContent).toContain('7 000 000 GNF');
     expect(root.textContent).toContain('43 contributeur(s)');
 
     const progressBar = root.querySelector<HTMLElement>('.bg-gold');
     expect(progressBar?.style.width).toBe('67.9%');
+  });
+
+  it('shows the condensed GNF amounts with the full detailed value as a tooltip (RG-FMT-003)', async () => {
+    const fixture = await createFixture(() => of(buildSocialFundPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('4,8M GNF');
+    expect(root.textContent).toContain('7M GNF');
+    // La valeur détaillée reste disponible au survol et aux lecteurs d'écran.
+    expect(root.querySelector('[title] [aria-hidden="true"]')?.textContent).toBe('4,8M GNF');
+    expect(root.querySelector('[title] .sr-only')?.textContent).toBe('4 750 000 GNF');
+
+    const amountSpans = Array.from(root.querySelectorAll<HTMLElement>('[title]')).filter((el) =>
+      (el.getAttribute('title') ?? '').includes('GNF'),
+    );
+    expect(amountSpans.some((el) => el.getAttribute('title') === '4 750 000 GNF')).toBe(true);
+    expect(amountSpans.some((el) => el.getAttribute('title') === '7 000 000 GNF')).toBe(true);
   });
 
   it('hides the progress bar when no target amount is defined', async () => {
@@ -121,7 +178,7 @@ describe('SocialFundsListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('1 850 000 GNF');
+    expect(root.textContent).toContain('1,9M GNF');
     expect(root.querySelector('.bg-gold')).toBeNull();
   });
 
@@ -130,5 +187,88 @@ describe('SocialFundsListPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aucune cagnotte pour le moment.');
+  });
+
+  describe('pagination', () => {
+    function buildManyItems(count: number): SocialFundPage['items'] {
+      return Array.from({ length: count }, (_, index) => ({
+        id: `c0000000-0000-4000-8000-${index.toString().padStart(12, '0')}`,
+        title: `Cagnotte ${index + 1}`,
+        eventType: 'BIRTH',
+        beneficiary: 'Famille Test',
+        startDate: '2026-09-05',
+        endDate: '2026-09-28',
+        status: 'OPEN',
+        collectedAmount: 10_000,
+        contributorCount: 1,
+        contributionCount: 1,
+        currency: 'GNF',
+      }));
+    }
+
+    it('does not show pagination controls when a single page is returned', async () => {
+      const fixture = await createFixture(() => of(buildSocialFundPage()));
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('nav[aria-label]')).toBeNull();
+    });
+
+    it('shows pagination controls and requests the next page beyond 20 social funds', async () => {
+      const listSocialFunds = vi.fn((page = 0) =>
+        of(
+          buildSocialFundPage({
+            items: page === 0 ? buildManyItems(20) : buildManyItems(5),
+            page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+          }),
+        ),
+      );
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Page 1 sur 2');
+
+      const previousButton = root.querySelectorAll<HTMLButtonElement>('button')[0];
+      const nextButton = root.querySelectorAll<HTMLButtonElement>('button')[1];
+      expect(previousButton.getAttribute('aria-disabled')).toBe('true');
+      expect(nextButton.getAttribute('aria-disabled')).toBeNull();
+
+      nextButton.click();
+      fixture.detectChanges();
+
+      expect(listSocialFunds).toHaveBeenCalledWith(1, 20);
+      expect(root.textContent).toContain('Page 2 sur 2');
+      expect(previousButton.getAttribute('aria-disabled')).toBeNull();
+      expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+
+      previousButton.click();
+      fixture.detectChanges();
+
+      expect(listSocialFunds).toHaveBeenCalledWith(0, 20);
+      expect(root.textContent).toContain('Page 1 sur 2');
+    });
+
+    it('keeps the currently displayed page when a page change request fails', async () => {
+      const listSocialFunds = vi.fn((page = 0) =>
+        page === 0
+          ? of(
+              buildSocialFundPage({
+                items: buildManyItems(20),
+                page: { number: 0, size: 20, totalElements: 25, totalPages: 2 },
+              }),
+            )
+          : throwError(() => new Error('network error')),
+      );
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const nextButton = root.querySelectorAll<HTMLButtonElement>('button')[1];
+      nextButton.click();
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Page 1 sur 2');
+      expect(root.querySelector('[role="alert"]')).not.toBeNull();
+    });
   });
 });

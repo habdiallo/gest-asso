@@ -1,5 +1,5 @@
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <p class="text-xs uppercase tracking-[0.2em] text-text-3">
+  <p class="text-xs uppercase tracking-[0.2em] text-text-2">
     {{ 'socialFunds.kicker' | transloco }}
   </p>
   <h1 class="mt-1 font-display text-3xl uppercase tracking-wide text-gold-hover">
@@ -21,7 +21,10 @@
     @if (socialFunds().length === 0) {
       <p class="mt-3 text-text-2">{{ 'socialFunds.empty' | transloco }}</p>
     } @else {
-      <ul class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul
+        class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        [attr.aria-busy]="pageActionPending() ? 'true' : null"
+      >
         @for (socialFund of socialFunds(); track socialFund.id) {
           <li class="flex flex-col gap-3 rounded-card border border-line bg-surface-glass p-5">
             <div class="flex items-baseline justify-between gap-2">
@@ -47,10 +50,18 @@
             </p>
 
             <div>
+              @let collectedAmount = formatAmount(socialFund.collectedAmount);
               @if (socialFund.targetAmount; as targetAmount) {
+                @let objectiveAmount = formatAmount(targetAmount);
                 <p class="font-display text-2xl text-text">
-                  {{ formatAmount(socialFund.collectedAmount) }}
-                  <span class="text-sm text-text-3">/ {{ formatAmount(targetAmount) }}</span>
+                  <span [title]="collectedAmount.fullText">
+                    <span aria-hidden="true">{{ collectedAmount.text }}</span>
+                    <span class="sr-only">{{ collectedAmount.fullText }}</span>
+                  </span>
+                  <span class="text-sm text-text-2" [title]="objectiveAmount.fullText">
+                    / <span aria-hidden="true">{{ objectiveAmount.text }}</span>
+                    <span class="sr-only">{{ objectiveAmount.fullText }}</span>
+                  </span>
                 </p>
                 <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
                   <span
@@ -60,7 +71,10 @@
                 </div>
               } @else {
                 <p class="font-display text-2xl text-text">
-                  {{ formatAmount(socialFund.collectedAmount) }}
+                  <span [title]="collectedAmount.fullText">
+                    <span aria-hidden="true">{{ collectedAmount.text }}</span>
+                    <span class="sr-only">{{ collectedAmount.fullText }}</span>
+                  </span>
                 </p>
               }
             </div>
@@ -74,6 +88,46 @@
           </li>
         }
       </ul>
+
+      @if (totalPages() > 1) {
+        <nav
+          class="mt-6 flex flex-wrap items-center justify-between gap-3"
+          [attr.aria-label]="'socialFunds.pagination.nav' | transloco"
+        >
+          <button
+            type="button"
+            class="rounded-full border border-line px-4 py-2 text-sm text-text"
+            [class.opacity-50]="previousPageDisabled()"
+            [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
+            (click)="goToPreviousPage()"
+          >
+            {{ 'socialFunds.pagination.previous' | transloco }}
+          </button>
+
+          <p class="text-sm text-text-2" role="status">
+            {{
+              'socialFunds.pagination.status'
+                | transloco: { current: currentPageNumber(), total: totalPages() }
+            }}
+          </p>
+
+          <button
+            type="button"
+            class="rounded-full border border-line px-4 py-2 text-sm text-text"
+            [class.opacity-50]="nextPageDisabled()"
+            [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
+            (click)="goToNextPage()"
+          >
+            {{ 'socialFunds.pagination.next' | transloco }}
+          </button>
+        </nav>
+
+        @if (pageActionError()) {
+          <p class="mt-3 text-sm text-error" role="alert">
+            {{ 'socialFunds.error' | transloco }}
+          </p>
+        }
+      }
     }
   }
 </main>
