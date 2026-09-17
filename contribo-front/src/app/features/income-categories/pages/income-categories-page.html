@@ -1,0 +1,42 @@
+<main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
+  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
+    {{ 'incomeCategories.title' | transloco }}
+  </h1>
+
+  @if (loading()) {
+    <p class="mt-6 text-text-2" role="status">{{ 'incomeCategories.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <p class="mt-6 text-error" role="alert">{{ 'incomeCategories.error' | transloco }}</p>
+  } @else if (categories().length === 0) {
+    <p class="mt-6 text-text-2">{{ 'incomeCategories.empty' | transloco }}</p>
+  } @else {
+    <div class="mt-6 overflow-x-auto rounded-card border border-line">
+      <table class="w-full text-left">
+        <thead>
+          <tr
+            class="border-b border-line bg-surface-glass text-xs uppercase tracking-[0.08em] text-text-2"
+          >
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'incomeCategories.columns.label' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'incomeCategories.columns.memberCount' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'incomeCategories.columns.updatedAt' | transloco }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of categories(); track category.id) {
+            <tr class="border-b border-line last:border-b-0">
+              <td class="px-4 py-3 font-medium text-text">{{ category.label }}</td>
+              <td class="px-4 py-3 text-text-2">{{ category.memberCount }}</td>
+              <td class="px-4 py-3 text-text-2">{{ formatInstant(category.updatedAt) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
