@@ -90,3 +90,40 @@ export function formatGnfAmountCondensed(amount: number): CondensedGnfAmount {
 
   return { text, fullText, rawAmount: amount };
 }
+
+/**
+ * Un montant GNF n'a jamais de décimale (RG-FMT-001). Le seul séparateur de
+ * milliers admis en saisie est l'espace (affichage détaillé RG-FMT-002) :
+ * une virgule ou un point est donc toujours un séparateur décimal, jamais un
+ * séparateur de milliers. Leur présence doit faire refuser la saisie plutôt
+ * que la réinterpréter silencieusement en fusionnant la partie entière et la
+ * partie décimale (par exemple `1000,50` ne doit jamais devenir `100050`).
+ */
+export function containsGnfDecimalSeparator(rawValue: string): boolean {
+  return /[.,]/.test(rawValue);
+}
+
+/**
+ * Ne conserve que les chiffres d'une saisie de montant GNF déjà validée par
+ * `containsGnfDecimalSeparator` (RG-FMT-001) : tout caractère non numérique
+ * restant, comme les espaces du séparateur de milliers déjà affiché ou du
+ * bruit de saisie, est retiré avant reformatage ou conversion en entier.
+ */
+export function sanitizeGnfAmountDigits(rawValue: string): string {
+  return rawValue.replace(/\D/g, '');
+}
+
+/**
+ * Formate en direct les chiffres saisis dans un champ de montant, avec les
+ * mêmes séparateurs de milliers que l'affichage détaillé (RG-FMT-002), mais
+ * sans le suffixe « GNF » porté séparément par le champ de saisie.
+ *
+ * @param digits Chiffres bruts déjà filtrés par `sanitizeGnfAmountDigits`.
+ */
+export function formatGnfAmountInputDigits(digits: string): string {
+  if (!digits) {
+    return '';
+  }
+
+  return detailedAmountFormatter.format(Number(digits));
+}
