@@ -189,5 +189,6 @@
   "rolesUsers.roleDialogLabel": "Rôle applicatif",
   "rolesUsers.roleDialogCancel": "Annuler",
   "rolesUsers.roleDialogSave": "Enregistrer",
-  "rolesUsers.roleDialogError": "Impossible d'enregistrer le rôle. Réessayez plus tard."
+  "rolesUsers.roleDialogError": "Impossible d'enregistrer le rôle. Réessayez plus tard.",
+  "rolesUsers.operatorAuthorizationToggleLabel": "Autoriser l'enregistrement des paiements"
 }
