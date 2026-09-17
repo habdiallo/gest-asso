@@ -18,5 +18,7 @@ Ticket T-113, scope front, type fix, slug demarrage-mock, branche `front/fix-113
 
 ## 4. Livraison
 
-- [ ] 4.1 [T-113] Préparer la description PR selon le modèle, committer uniquement le périmètre et pousser la branche du ticket.
-- [ ] 4.2 [T-113] Ouvrir la PR vers main et rapporter les validations et limites ; la revue et la fusion restent à faire par le mainteneur.
+- [x] 4.1 [T-113] Préparer la description PR selon le modèle, committer uniquement le périmètre et pousser la branche du ticket.
+- [x] 4.2 [T-113] Ouvrir la PR vers main et rapporter les validations et limites ; la revue et la fusion restent à faire par le mainteneur.
+
+PR ouverte : https://github.com/habdiallo/gest-asso/pull/67. Revue et fusion à effectuer par le mainteneur.
