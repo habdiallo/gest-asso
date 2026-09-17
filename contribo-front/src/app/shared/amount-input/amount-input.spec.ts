@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AmountInput } from './amount-input';
 
 @Component({
@@ -13,7 +13,86 @@ class HostComponent {
   readonly control = new FormControl<number | null>(null);
 }
 
+@Component({
+  selector: 'app-optional-host',
+  imports: [ReactiveFormsModule, AmountInput],
+  template: `<app-amount-input [formControl]="form.controls.amount" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OptionalHostComponent {
+  readonly form = new FormGroup({
+    amount: new FormControl<number | null>(5000, Validators.min(2000)),
+  });
+}
+
 describe('AmountInput', () => {
+  it.each(['1000,50', '1000.50', '9007199254740993', '9'.repeat(309)])(
+    'makes an optional amount invalid for rejected input %s and recovers after correction',
+    (rawValue) => {
+      const fixture = TestBed.createComponent(OptionalHostComponent);
+      fixture.detectChanges();
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+      const form = fixture.componentInstance.form;
+
+      input.value = rawValue;
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      expect(form.valid).toBe(false);
+      expect(form.controls.amount.errors).toEqual({ gnfAmount: true });
+      expect(form.controls.amount.value).toBeNull();
+
+      input.value = '4000';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      expect(form.valid).toBe(true);
+      expect(form.controls.amount.errors).toBeNull();
+      expect(form.controls.amount.value).toBe(4000);
+    },
+  );
+
+  it('accepts an empty optional amount again and keeps the host validators', () => {
+    const fixture = TestBed.createComponent(OptionalHostComponent);
+    fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const form = fixture.componentInstance.form;
+
+    for (const rawValue of ['1000,50', '']) {
+      input.value = rawValue;
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    }
+    expect(form.valid).toBe(true);
+    expect(form.controls.amount.value).toBeNull();
+
+    input.value = '1000';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(form.valid).toBe(false);
+    expect(form.controls.amount.hasError('min')).toBe(true);
+    expect(form.controls.amount.hasError('gnfAmount')).toBe(false);
+  });
+
+  it('clears the input error when the parent resets the control', () => {
+    const fixture = TestBed.createComponent(OptionalHostComponent);
+    fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const form = fixture.componentInstance.form;
+    input.value = '1000,50';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(form.valid).toBe(false);
+
+    form.reset();
+    fixture.detectChanges();
+
+    expect(form.valid).toBe(true);
+    expect(input.value).toBe('');
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+  });
+
   it('formats digits live with a thousands separator as the user types', () => {
     const fixture = TestBed.createComponent(AmountInput);
     fixture.detectChanges();

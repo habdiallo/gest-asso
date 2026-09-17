@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { ControlValueAccessor } from '@angular/forms';
+import type { ControlValueAccessor, ValidatorFn } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
 import { filter, map } from 'rxjs';
 import {
@@ -57,6 +57,9 @@ export class AmountInput implements ControlValueAccessor, OnInit {
   readonly disabled = signal(false);
   readonly invalidAmount = signal(false);
 
+  private readonly amountValidator: ValidatorFn = () =>
+    this.invalidAmount() ? { gnfAmount: true } : null;
+
   private readonly touchedFallback = signal(false);
   private readonly touchedFromControl = signal<boolean | null>(null);
   readonly touched = computed(() => this.touchedFromControl() ?? this.touchedFallback());
@@ -93,6 +96,15 @@ export class AmountInput implements ControlValueAccessor, OnInit {
     if (!control) {
       return;
     }
+
+    // L'accessor lit déjà NgControl ; enregistrer le validateur ici évite
+    // une dépendance circulaire avec un provider NG_VALIDATORS useExisting.
+    control.addValidators(this.amountValidator);
+    control.updateValueAndValidity({ emitEvent: false });
+    this.destroyRef.onDestroy(() => {
+      control.removeValidators(this.amountValidator);
+      control.updateValueAndValidity({ emitEvent: false });
+    });
 
     this.touchedFromControl.set(control.touched);
     control.events
