@@ -34,6 +34,11 @@ export const routes: Routes = [
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    path: 'campagnes',
+    loadChildren: () =>
+      import('@features/campaigns/campaigns.routes').then((m) => m.CAMPAIGNS_ROUTES),
+  },
+  {
     // Écran liste des cagnottes (T-82), route/feature distincte de l'écran
     // des campagnes de cotisation (RG-CAG-001). `roleGuard` redirige vers la
     // connexion sans session, et vers l'accès refusé pour un rôle non listé

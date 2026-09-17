@@ -72,5 +72,13 @@
   "incomeCategories.empty": "Aucune catégorie de revenu.",
   "incomeCategories.columns.label": "Libellé",
   "incomeCategories.columns.memberCount": "Membres",
-  "incomeCategories.columns.updatedAt": "Dernière modification"
+  "incomeCategories.columns.updatedAt": "Dernière modification",
+  "campaigns.list.title": "Campagnes",
+  "campaigns.list.loading": "Chargement des campagnes…",
+  "campaigns.list.error": "Impossible de charger les campagnes. Réessayez plus tard.",
+  "campaigns.list.empty": "Aucune campagne.",
+  "campaigns.list.period": "Du {{start}} au {{end}}",
+  "campaigns.list.pageStatus": "Page {{page}} sur {{totalPages}}",
+  "campaigns.list.previousPage": "Page précédente",
+  "campaigns.list.nextPage": "Page suivante"
 }
