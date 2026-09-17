@@ -87,6 +87,34 @@ describe('MemberCreateForm', () => {
     );
   });
 
+  it('blocks submission and shows a clear error when the income category is missing (RG-MEM-002)', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.form.patchValue({
+      lastName: 'Diallo',
+      firstName: 'Amadou',
+      incomeCategoryId: '',
+    });
+    fixture.detectChanges();
+
+    const submitted = vi.fn();
+    fixture.componentInstance.submitted.subscribe(submitted);
+
+    const form: HTMLFormElement = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(submitted).not.toHaveBeenCalled();
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#member-create-income-category',
+    );
+    expect(select.getAttribute('aria-invalid')).toBe('true');
+    expect(select.getAttribute('aria-describedby')).toBe('member-create-income-category-error');
+    expect(
+      fixture.nativeElement.querySelector('#member-create-income-category-error')?.textContent,
+    ).toContain('La catégorie de revenu est obligatoire.');
+  });
+
   it('emits submitted with the built request when the form is valid, omitting empty optional fields', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();
