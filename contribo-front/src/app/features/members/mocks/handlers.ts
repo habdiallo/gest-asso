@@ -1,6 +1,12 @@
 import { HttpResponse, delay, http } from 'msw';
 import { CurrencyCode, ErrorCode, MemberStatus, UserRole } from '@api';
-import type { ErrorResponse, MemberDetails, MemberPage, MemberSummary } from '@api';
+import type {
+  CreateMemberRequest,
+  ErrorResponse,
+  MemberDetails,
+  MemberPage,
+  MemberSummary,
+} from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 /**
@@ -10,7 +16,7 @@ import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts'
  * absents pour un des membres, afin d'exercer l'affichage d'une valeur de
  * remplacement (cf. `.claude/rules/frontend/templates.md`).
  */
-const demoMembers: readonly MemberSummary[] = [
+const demoMembers: MemberSummary[] = [
   {
     id: '10700000-0000-4000-8000-000000000500',
     firstName: 'Amadou',
@@ -50,13 +56,25 @@ const demoMembers: readonly MemberSummary[] = [
 ];
 
 /**
+ * Duplique les identifiants et libellés connus de
+ * `features/income-categories/mocks/handlers.ts` (T-48) : les mocks MSW ne
+ * partagent pas de magasin commun entre features, ce fichier reste
+ * autonome pour construire un libellé plausible dans la réponse de création.
+ */
+const demoIncomeCategoryLabelsById: Readonly<Record<string, string>> = {
+  '10700000-0000-4000-8000-000000000101': 'Standard',
+  '10700000-0000-4000-8000-000000000102': 'Catégorie A',
+  '10700000-0000-4000-8000-000000000103': 'Catégorie B',
+};
+
+/**
  * Détails de fiche de démonstration pour `GET /api/v1/members/{memberId}`
  * (T-27). `account` et `financialSummary` complètent le contrat
  * `MemberDetails` ; ils ne sont pas affichés par cet écran, dont le
  * périmètre se limite au bloc informations personnelles, catégorie,
  * fonction et statut (US-MEM-003, cf. `member-detail-page.ts`).
  */
-const demoMemberDetails: ReadonlyMap<string, MemberDetails> = new Map(
+const demoMemberDetails: Map<string, MemberDetails> = new Map(
   demoMembers.map((member, index) => [
     member.id,
     {
@@ -119,6 +137,57 @@ export const membersHandlers = [
     }
 
     return HttpResponse.json<MemberPage>(buildMemberPageResponse());
+  }),
+
+  /**
+   * `POST /api/v1/members` (T-33) : construit un `MemberDetails` de
+   * démonstration avec le statut Actif par défaut (RG-MEM-003) et un compte
+   * utilisateur associé (rôle Membre). La validation "catégorie obligatoire"
+   * (RG-MEM-002) et le message de confirmation dédié (RG-MEM-004) relèvent
+   * des tickets T-34 et T-36.
+   */
+  http.post('/api/v1/members', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const body = (await request.json()) as CreateMemberRequest;
+    const member: MemberDetails = {
+      id: crypto.randomUUID(),
+      firstName: body.firstName,
+      lastName: body.lastName,
+      preferredName: body.preferredName,
+      displayName: `${body.firstName} ${body.lastName}`,
+      country: body.country,
+      city: body.city,
+      phone: body.phone,
+      incomeCategory: {
+        id: body.incomeCategoryId,
+        label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? 'Catégorie',
+      },
+      associationFunction: body.associationFunction,
+      status: MemberStatus.Active,
+      account: {
+        id: crypto.randomUUID(),
+        role: UserRole.Member,
+        operatorCanRecordPayments: false,
+        active: true,
+      },
+      financialSummary: {
+        totalDueAmount: 0,
+        totalPaidAmount: 0,
+        totalRemainingAmount: 0,
+        currency: CurrencyCode.Gnf,
+      },
+    };
+
+    const { account: memberAccount, financialSummary, ...summary } = member;
+    demoMembers.push(summary);
+    demoMemberDetails.set(member.id, { ...summary, account: memberAccount, financialSummary });
+
+    return HttpResponse.json<MemberDetails>(member, { status: 201 });
   }),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);

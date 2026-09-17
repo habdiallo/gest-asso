@@ -1,13 +1,70 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { CatgoriesDeRevenuService, MembresService } from '@api';
+import type {
+  CreateMemberRequest,
+  IncomeCategory,
+  MemberDetails,
+  MemberPage,
+  MemberSummary,
+} from '@api';
 import { provideRouter } from '@angular/router';
-import { MembresService } from '@api';
-import type { MemberPage, MemberSummary } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
+import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { MembersListPage } from './members-list-page';
+
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+const demoIncomeCategory: IncomeCategory = {
+  id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+  label: 'Catégorie B',
+  memberCount: 12,
+  updatedAt: '2026-08-01T09:00:00Z',
+};
+
+function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
+  return {
+    id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d99',
+    firstName: 'Mariama',
+    lastName: 'Barry',
+    displayName: 'Mariama Barry',
+    incomeCategory: { id: demoIncomeCategory.id, label: demoIncomeCategory.label },
+    status: 'ACTIVE',
+    account: {
+      id: 'c5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d99',
+      role: 'MEMBER',
+      operatorCanRecordPayments: false,
+      active: true,
+    },
+    financialSummary: {
+      totalDueAmount: 0,
+      totalPaidAmount: 0,
+      totalRemainingAmount: 0,
+      currency: 'GNF',
+    },
+    ...overrides,
+  };
+}
 
 function buildMember(overrides: Partial<MemberSummary> = {}): MemberSummary {
   return {
@@ -37,7 +94,16 @@ function buildMemberPage(overrides: Partial<MemberPage> = {}): MemberPage {
 
 async function createFixture(
   listMembers: (page?: number) => Observable<MemberPage>,
+  options: {
+    createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
+    listIncomeCategories?: () => Observable<IncomeCategory[]>;
+  } = {},
 ): Promise<ComponentFixture<MembersListPage>> {
+  const createMember =
+    options.createMember ?? ((): Observable<MemberDetails> => of(buildMemberDetails()));
+  const listIncomeCategories =
+    options.listIncomeCategories ?? ((): Observable<IncomeCategory[]> => of([demoIncomeCategory]));
+
   await TestBed.configureTestingModule({
     imports: [
       MembersListPage,
@@ -48,8 +114,15 @@ async function createFixture(
       }),
     ],
     providers: [
+      {
+        provide: MembresService,
+        useValue: { listMembers, createMember } as unknown as MembresService,
+      },
+      {
+        provide: CatgoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+      },
       provideRouter([]),
-      { provide: MembresService, useValue: { listMembers } as unknown as MembresService },
     ],
   }).compileComponents();
 
@@ -217,7 +290,7 @@ describe('MembersListPage', () => {
     );
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button');
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
     const previousButton = buttons[0] as HTMLButtonElement;
     const nextButton = buttons[1] as HTMLButtonElement;
 
@@ -263,11 +336,164 @@ describe('MembersListPage', () => {
     expect(listMembers).toHaveBeenCalledWith(0);
     expect(fixture.nativeElement.textContent).not.toContain('MembreVingtEtUnieme');
 
-    const nextButton = fixture.nativeElement.querySelectorAll('button')[1] as HTMLButtonElement;
+    const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
     nextButton.click();
     fixture.detectChanges();
 
     expect(listMembers).toHaveBeenCalledWith(1);
     expect(fixture.nativeElement.textContent).toContain('MembreVingtEtUnieme');
+  });
+
+  it('opens the create-member dialog from the button and closes it on cancel', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()));
+    fixture.detectChanges();
+
+    const openButton = Array.from(fixture.nativeElement.querySelectorAll('button')).find((button) =>
+      (button as HTMLButtonElement).textContent?.includes('Ajouter un membre'),
+    ) as HTMLButtonElement | undefined;
+    expect(openButton).toBeTruthy();
+    openButton?.click();
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    expect(dialog.open).toBe(true);
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm));
+    (form.componentInstance as MemberCreateForm).cancel();
+    fixture.detectChanges();
+
+    expect(dialog.open).toBe(false);
+  });
+
+  it('creates a member, refreshes the list and closes the dialog on success', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) => of(buildMemberDetails(request)));
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.setValue({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      preferredName: '',
+      country: '',
+      city: '',
+      phone: '',
+      incomeCategoryId: demoIncomeCategory.id,
+      associationFunction: '',
+    });
+    form.submit();
+    fixture.detectChanges();
+
+    expect(createMember).toHaveBeenCalledWith({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    expect(listMembers).toHaveBeenCalledWith(0);
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it.each([
+    ['success', false],
+    ['error', false],
+    ['success', true],
+    ['error', true],
+  ] as const)(
+    'preserves a reopened form after an old %s response with a new request pending: %s',
+    async (outcome, newRequestPending) => {
+      const oldRequest = new Subject<MemberDetails>();
+      const newRequest = new Subject<MemberDetails>();
+      const createMember = vi
+        .fn()
+        .mockReturnValueOnce(oldRequest.asObservable())
+        .mockReturnValueOnce(newRequest.asObservable());
+      const listMembers = vi.fn(() => of(buildMemberPage()));
+      const fixture = await createFixture(listMembers, { createMember });
+      const page = fixture.componentInstance;
+      page.openCreateDialog();
+      fixture.detectChanges();
+      const firstForm = fixture.debugElement.query(By.directive(MemberCreateForm))
+        .componentInstance as MemberCreateForm;
+      firstForm.form.patchValue({
+        lastName: 'Barry',
+        firstName: 'Mariama',
+        incomeCategoryId: demoIncomeCategory.id,
+      });
+      firstForm.submit();
+      fixture.detectChanges();
+      firstForm.cancel();
+      fixture.detectChanges();
+      page.openCreateDialog();
+      fixture.detectChanges();
+      const reopenedForm = fixture.debugElement.query(By.directive(MemberCreateForm))
+        .componentInstance as MemberCreateForm;
+      reopenedForm.form.patchValue({
+        lastName: 'Camara',
+        firstName: 'Fatou',
+        incomeCategoryId: demoIncomeCategory.id,
+      });
+      expect(reopenedForm.submitting()).toBe(false);
+      if (newRequestPending) {
+        reopenedForm.submit();
+        fixture.detectChanges();
+      }
+
+      const respond = (): void => {
+        if (outcome === 'success') {
+          oldRequest.next(buildMemberDetails());
+          oldRequest.complete();
+        } else {
+          oldRequest.error(new Error('old request failed'));
+        }
+        fixture.detectChanges();
+        expect(page.createDialogOpen()).toBe(true);
+        expect(page.createError()).toBe(false);
+        expect(fixture.debugElement.query(By.directive(MemberCreateForm)).componentInstance).toBe(
+          reopenedForm,
+        );
+        const name: HTMLInputElement = fixture.nativeElement.querySelector(
+          '#member-create-last-name',
+        );
+        expect(name.value).toBe('Camara');
+      };
+      respond();
+      expect(page.creating()).toBe(newRequestPending);
+      if (!newRequestPending) {
+        reopenedForm.submit();
+        fixture.detectChanges();
+      }
+      expect(createMember).toHaveBeenCalledTimes(2);
+      expect(page.creating()).toBe(true);
+      newRequest.next(buildMemberDetails({ lastName: 'Camara' }));
+      newRequest.complete();
+      fixture.detectChanges();
+      expect(page.createDialogOpen()).toBe(false);
+      expect(page.creating()).toBe(false);
+      expect(listMembers).toHaveBeenCalledTimes(outcome === 'success' ? 3 : 2);
+    },
+  );
+
+  it('shows an error banner and keeps the dialog open when member creation fails', async () => {
+    const createMember = vi.fn(() => throwError(() => new Error('network error')));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    fixture.componentInstance.handleCreateMember({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+    expect(fixture.nativeElement.querySelector('dialog [role="alert"]')?.textContent).toContain(
+      "Impossible d'enregistrer ce membre",
+    );
   });
 });

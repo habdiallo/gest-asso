@@ -9,8 +9,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
-import type { MemberPage } from '@api';
+import type { CreateMemberRequest, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
 /**
@@ -29,20 +31,31 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Limite connue : la vue restreinte de l'Opérateur (masquage du détail
  * financier, RG-MEM-008) n'est pas implémentée ici et fait l'objet du ticket
  * T-23 ; cet écran affiche les colonnes du contrat sans distinction de rôle.
+ *
+ * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
+ * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
+ * (`MembresService.createMember`). Le masquage de cette action pour
+ * l'Opérateur et le Membre (RG-MEM-001) relève du ticket T-37 ; elle reste
+ * visible ici pour tous les rôles qui accèdent à cet écran.
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe, RouterLink],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberCreateForm],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MembersListPage {
   private readonly membersService = inject(MembresService);
   private readonly destroyRef = inject(DestroyRef);
+  private createDialogSession = 0;
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
+
+  readonly createDialogOpen = signal(false);
+  readonly creating = signal(false);
+  readonly createError = signal(false);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -77,6 +90,51 @@ export class MembersListPage {
     if (page && page.page.number + 1 < page.page.totalPages) {
       this.loadPage(page.page.number + 1);
     }
+  }
+
+  openCreateDialog(): void {
+    if (this.createDialogOpen()) {
+      return;
+    }
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createError.set(false);
+    this.createDialogOpen.set(true);
+  }
+
+  closeCreateDialog(): void {
+    ++this.createDialogSession;
+    this.creating.set(false);
+    this.createDialogOpen.set(false);
+  }
+
+  handleCreateMember(request: CreateMemberRequest): void {
+    if (!this.createDialogOpen() || this.creating()) {
+      return;
+    }
+    const session = this.createDialogSession;
+    this.creating.set(true);
+    this.createError.set(false);
+
+    this.membersService
+      .createMember(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadPage(0);
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.closeCreateDialog();
+        },
+        error: () => {
+          if (session !== this.createDialogSession) {
+            return;
+          }
+          this.creating.set(false);
+          this.createError.set(true);
+        },
+      });
   }
 
   private loadPage(page: number): void {
