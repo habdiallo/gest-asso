@@ -1,0 +1,129 @@
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
+  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
+    {{ 'rolesUsers.title' | transloco }}
+  </h1>
+  <p class="mt-1 text-sm text-text-2">{{ 'rolesUsers.subtitle' | transloco }}</p>
+
+  <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-2 sm:max-w-xs sm:flex-1">
+      <label for="roles-users-search" class="text-sm font-medium text-text-2">
+        {{ 'rolesUsers.searchLabel' | transloco }}
+      </label>
+      <input
+        id="roles-users-search"
+        type="search"
+        (input)="onSearchInput($event)"
+        [placeholder]="'rolesUsers.searchPlaceholder' | transloco"
+        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2 sm:max-w-xs sm:flex-1">
+      <label for="roles-users-role-filter" class="text-sm font-medium text-text-2">
+        {{ 'rolesUsers.roleFilterLabel' | transloco }}
+      </label>
+      <select
+        id="roles-users-role-filter"
+        [value]="roleFilter()"
+        (change)="onRoleFilterChange($event)"
+        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="">{{ 'rolesUsers.roleFilterAll' | transloco }}</option>
+        @for (role of roleOptions; track role) {
+          <option [value]="role">{{ userRoleLabel(role) }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading() && !hasLoadedOnce()) {
+    <p class="mt-6 text-text-2" role="status">{{ 'rolesUsers.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <p class="mt-6 text-error" role="alert">{{ 'rolesUsers.error' | transloco }}</p>
+  } @else if (users().length === 0) {
+    <p class="mt-6 text-text-2">{{ 'rolesUsers.empty' | transloco }}</p>
+  } @else {
+    <!--
+      Le tableau et la pagination restent montés pendant un rechargement
+      (recherche/filtre/page suivante) : seul un état aria-disabled marque les
+      commandes, sans démonter le focus courant (accessibilite.md).
+    -->
+    <p class="sr-only" role="status" aria-live="polite">
+      @if (loading()) {
+        {{ 'rolesUsers.loading' | transloco }}
+      }
+    </p>
+    <section
+      class="mt-6 overflow-x-auto rounded-card border border-line bg-surface-glass"
+      [attr.aria-busy]="loading() ? 'true' : null"
+    >
+      <table class="w-full min-w-[640px] text-left">
+        <thead>
+          <tr class="border-b border-line text-xs uppercase tracking-[0.08em] text-text-2">
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'rolesUsers.columnUser' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'rolesUsers.columnRole' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'rolesUsers.columnOperatorAuthorization' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              {{ 'rolesUsers.columnAccount' | transloco }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (account of users(); track account.id) {
+            <tr class="border-b border-line last:border-b-0">
+              <td class="px-4 py-3 font-medium text-text">{{ account.member.displayName }}</td>
+              <td class="px-4 py-3 text-text">{{ userRoleLabel(account.role) }}</td>
+              <td class="px-4 py-3 text-text-2">
+                {{ operatorAuthorizationLabel(account) ?? '—' }}
+              </td>
+              <td class="px-4 py-3">
+                @if (account.active) {
+                  <span class="text-success">{{ 'rolesUsers.accountActive' | transloco }}</span>
+                } @else {
+                  <span class="text-text-2">{{ 'rolesUsers.accountInactive' | transloco }}</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    @if (pageMetadata(); as metadata) {
+      <div class="mt-4 flex items-center justify-between text-sm text-text-2">
+        <p>
+          {{
+            'rolesUsers.pageIndicator'
+              | transloco: { current: metadata.number + 1, total: metadata.totalPages || 1 }
+          }}
+        </p>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            [attr.aria-disabled]="previousDisabled() ? 'true' : null"
+            [class.opacity-40]="previousDisabled()"
+            (click)="goToPreviousPage()"
+            class="rounded-lg border border-line px-3 py-2 text-text"
+          >
+            {{ 'rolesUsers.previousPage' | transloco }}
+          </button>
+          <button
+            type="button"
+            [attr.aria-disabled]="nextDisabled() ? 'true' : null"
+            [class.opacity-40]="nextDisabled()"
+            (click)="goToNextPage()"
+            class="rounded-lg border border-line px-3 py-2 text-text"
+          >
+            {{ 'rolesUsers.nextPage' | transloco }}
+          </button>
+        </div>
+      </div>
+    }
+  }
+</main>
