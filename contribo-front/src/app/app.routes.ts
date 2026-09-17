@@ -33,6 +33,14 @@ export const routes: Routes = [
       import('@features/social-funds/social-funds.routes').then((m) => m.SOCIAL_FUNDS_ROUTES),
   },
   {
+    path: 'mon-espace',
+    // Espace personnel du membre (T-95) : profil en lecture seule, réservé à
+    // un utilisateur authentifié, quel que soit son rôle applicatif.
+    canMatch: [authenticatedMatch],
+    loadChildren: () =>
+      import('@features/member-space/member-space.routes').then((m) => m.MEMBER_SPACE_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },
