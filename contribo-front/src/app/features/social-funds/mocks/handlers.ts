@@ -47,65 +47,99 @@ const demoSocialFundDescriptions: Record<string, string> = {
   '10700000-0000-4000-8000-000000000501': 'Collecte de soutien à la famille éprouvée.',
 };
 
+const demoContributorNames = [
+  'Aïcha Bah',
+  'Ibrahima Sow',
+  'Fatoumata Diallo',
+  'Mamadou Barry',
+  'Kadiatou Condé',
+  'Ousmane Keïta',
+  'Djénabou Baldé',
+  'Alseny Touré',
+  'Hawa Kaba',
+  'Thierno Sylla',
+  'Mariama Cissé',
+  'Sékou Fofana',
+];
+
+const demoContributionMethods = [
+  PaymentMethod.MobileMoney,
+  PaymentMethod.Cash,
+  PaymentMethod.BankTransfer,
+];
+
+const demoContributionAmountCycle = [250000, 150000, 100000, 200000, 50000, 300000, 75000, 125000];
+
+/**
+ * Génère l'historique de démonstration d'une cagnotte à partir de ses propres
+ * agrégats (`contributionCount`, `contributorCount`, `collectedAmount`) pour
+ * que `GET /social-funds/{socialFundId}/contributions` reste cohérent avec le
+ * bilan présenté par `GET /social-funds/{socialFundId}` : même nombre de
+ * contributions, mêmes contributeurs distincts et somme des montants égale au
+ * montant collecté (T-91). Les montants suivent un cycle de valeurs
+ * plausibles ; le dernier absorbe l'écart d'arrondi pour garder une somme exacte.
+ */
+function buildDemoContributions(
+  summary: SocialFundSummary,
+  recordedBy: { userId: string; displayName: string },
+): Contribution[] {
+  const contributionCount = summary.contributionCount ?? 0;
+  const contributorCount = summary.contributorCount ?? 0;
+  const totalAmount = summary.collectedAmount ?? 0;
+  if (contributionCount === 0 || contributorCount === 0) {
+    return [];
+  }
+
+  const amounts = Array.from(
+    { length: contributionCount },
+    (_, index) => demoContributionAmountCycle[index % demoContributionAmountCycle.length],
+  );
+  const generatedSum = amounts.reduce((sum, amount) => sum + amount, 0);
+  amounts[amounts.length - 1] += totalAmount - generatedSum;
+
+  const latestDate = new Date(`${summary.endDate ?? summary.startDate}T00:00:00Z`);
+
+  return amounts.map((amount, index) => {
+    const memberIndex = index % contributorCount;
+    const contributionDate = new Date(latestDate);
+    contributionDate.setUTCDate(contributionDate.getUTCDate() - index);
+    const isoDate = contributionDate.toISOString().slice(0, 10);
+
+    return {
+      id: `${summary.id}-contrib-${String(index + 1).padStart(3, '0')}`,
+      member: {
+        id: `${summary.id}-member-${String(memberIndex + 1).padStart(3, '0')}`,
+        displayName: demoContributorNames[memberIndex % demoContributorNames.length],
+      },
+      socialFund: {
+        id: summary.id,
+        title: summary.title,
+        eventType: summary.eventType,
+        status: summary.status,
+      },
+      amount,
+      contributionDate: isoDate,
+      method: demoContributionMethods[index % demoContributionMethods.length],
+      recordedBy,
+      recordedAt: `${isoDate}T09:00:00Z`,
+      currency: 'GNF',
+    };
+  });
+}
+
 /**
  * Contributions de démonstration pour `GET /social-funds/{socialFundId}/contributions`
- * (T-91). Chaque cagnotte de démonstration possède quelques contributions,
- * de la plus récente à la plus ancienne, comme le fait le serveur réel.
+ * (T-91), de la plus récente à la plus ancienne, comme le fait le serveur réel.
  */
-const demoContributionsBySocialFundId: Record<string, Contribution[]> = {
-  '10700000-0000-4000-8000-000000000500': [
-    {
-      id: '10700000-0000-4000-8000-000000000600',
-      member: { id: '10700000-0000-4000-8000-000000000200', displayName: 'Aïcha Bah' },
-      socialFund: {
-        id: '10700000-0000-4000-8000-000000000500',
-        title: 'Mariage de Fanta et Sékou',
-        eventType: SocialEventType.Wedding,
-        status: SocialFundStatus.Open,
-      },
-      amount: 250000,
-      contributionDate: '2026-09-14',
-      method: PaymentMethod.MobileMoney,
-      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'Mamadou Sy' },
-      recordedAt: '2026-09-14T09:05:00Z',
-      currency: 'GNF',
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000601',
-      member: { id: '10700000-0000-4000-8000-000000000201', displayName: 'Ibrahima Sow' },
-      socialFund: {
-        id: '10700000-0000-4000-8000-000000000500',
-        title: 'Mariage de Fanta et Sékou',
-        eventType: SocialEventType.Wedding,
-        status: SocialFundStatus.Open,
-      },
-      amount: 150000,
-      contributionDate: '2026-09-10',
-      method: PaymentMethod.Cash,
-      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'Mamadou Sy' },
-      recordedAt: '2026-09-10T14:20:00Z',
-      currency: 'GNF',
-    },
-  ],
-  '10700000-0000-4000-8000-000000000501': [
-    {
-      id: '10700000-0000-4000-8000-000000000602',
-      member: { id: '10700000-0000-4000-8000-000000000202', displayName: 'Fatoumata Diallo' },
-      socialFund: {
-        id: '10700000-0000-4000-8000-000000000501',
-        title: 'Soutien à la famille Diallo',
-        eventType: SocialEventType.Death,
-        status: SocialFundStatus.Closed,
-      },
-      amount: 100000,
-      contributionDate: '2026-08-15',
-      method: PaymentMethod.BankTransfer,
-      recordedBy: { userId: '10700000-0000-4000-8000-000000000901', displayName: 'Aminata Camara' },
-      recordedAt: '2026-08-15T08:00:00Z',
-      currency: 'GNF',
-    },
-  ],
-};
+const demoContributionsBySocialFundId: Record<string, Contribution[]> = Object.fromEntries(
+  demoSocialFunds.map((summary) => [
+    summary.id,
+    buildDemoContributions(summary, {
+      userId: '10700000-0000-4000-8000-000000000900',
+      displayName: 'Mamadou Sy',
+    }),
+  ]),
+);
 
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
