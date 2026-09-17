@@ -60,10 +60,10 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 5.1 [T-33] (P0) Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`
   Retours de revue PR 46 corrigés : réponses isolées par session de dialogue, répertoire mock partagé avec les GET liste/fiche, téléphone facultatif validé selon le contrat avec erreur de champ. Tests de régression et build de production réussis.
 - [x] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
-- [ ] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
+- [x] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
 - [ ] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
-- [ ] 5.5 [T-37] (P0) Masquage de l'action "Ajouter un membre" pour les rôles Opérateur et Membre. — RG-MEM-001
-- [ ] 5.6 [T-38] (P0) Formulaire de modification d'un membre — tous champs pour Administrateur/Trésorier (y compris catégorie et fonction). — US-MEM-004
+- [x] 5.5 [T-37] (P0) Masquage de l'action "Ajouter un membre" pour les rôles Opérateur et Membre. — RG-MEM-001
+- [x] 5.6 [T-38] (P0) Formulaire de modification d'un membre — tous champs pour Administrateur/Trésorier (y compris catégorie et fonction). — US-MEM-004
 - [ ] 5.7 [T-39] (P0) Formulaire de modification d'un membre — variante Opérateur limitée aux champs téléphone, ville, pays, nom d'usage. — RG-MEM-017
 - [ ] 5.8 [T-40] (P0) Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018
 
@@ -101,7 +101,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 9.3 [T-59] (P2) Recherche par nom de campagne.
 - [x] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
   Validation du retour de revue PR 45 : accès Tab aux trois onglets, activation Entrée/Espace vérifiée dans Chrome. Tests et build de production réussis après synchronisation de main.
-- [ ] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
+- [x] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
 - [ ] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
 - [ ] 9.7 [T-63] (P2) Filtre par statut de cotisation (À payer / Partiellement payé / Payé / En retard).
 - [ ] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
@@ -112,7 +112,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
   Le contrat `CreateCampaignRequest` impose `categoryAmounts` (au moins une entrée) dans la même requête atomique. Ce ticket dérive ces entrées des catégories de revenu portées par au moins un membre actif, avec un montant provisoire de 0 GNF ; la saisie réelle du barème reste celle de T-68 via `PUT /campaigns/{campaignId}/category-amounts`. Le champ "membres concernés" est affiché en lecture seule : le contrat n'expose qu'une seule valeur (`ALL_ACTIVE_MEMBERS`) pour le MVP. Le masquage de l'action pour l'Opérateur et le Membre (T-67) et la validation de plage de dates (T-66) restent des tickets distincts, non traités ici (l'action reste visible pour tous les rôles accédant à l'écran, la validation de plage est déjà appliquée côté formulaire pour la cohérence de la saisie).
 - [ ] 10.2 [T-66] (P0) Validation "date de fin ≥ date de début". — RG-COT-005
 - [ ] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
-- [ ] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
+- [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
 - [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
 - [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
 
@@ -162,7 +162,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 > Parcours cible : un utilisateur Membre se connecte et consulte uniquement ses propres données.
 
 - [x] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
-- [ ] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
+- [x] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
 - [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
 - [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
 - [x] 16.5 [T-99] (P0) Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001

@@ -8,12 +8,24 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { CampagnesService } from '@api';
-import type { Campaign } from '@api';
+import { HttpErrorResponse } from '@angular/common/http';
+import type { FormControl } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CampagnesService, CampaignStatus, ErrorCode, UserRole } from '@api';
+import type {
+  Campaign,
+  CampaignCategoryAmountInput,
+  ErrorResponse,
+  UpdateCampaignCategoryAmountsRequest,
+} from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { SessionService } from '@core/session/session.service';
+import type { TranslationKey } from '@core/i18n/translation-keys';
+import { AmountInput } from '@shared/amount-input/amount-input';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
+import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
 export type CampaignDetailTab = 'bareme' | 'cotisations' | 'bilan';
@@ -26,20 +38,35 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * accessibles sans rechargement de page (`campaigns.routes.ts` restreint
  * déjà l'accès aux mêmes rôles que la liste via `roleGuard`).
  *
- * Limites connues de ce ticket : seul l'onglet barème affiche des données
- * réelles (`categoryAmounts`, déjà renvoyées par `getCampaign`). Les onglets
- * cotisations (T-61, `openapi:listCampaignDues`) et bilan (T-77) restent des
- * emplacements réservés, sans agrégats ni tableau complet, en attendant leur
- * ticket dédié.
+ * L'onglet cotisations (T-61) charge la situation paginée des membres via
+ * `openapi:listCampaignDues`. Le bilan (T-77) reste un emplacement réservé.
  *
  * La sélection d'onglet utilise le motif ARIA `tablist`/`tab`/`tabpanel` avec
  * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres) afin de
  * ne pas bloquer la navigation clavier flèches gauche/droite du ticket T-64 :
  * cet écran fournit uniquement le changement d'onglet au clic/Entrée/Espace.
+ *
+ * Formulaire de configuration du barème (T-68, `openapi:updateCampaignCategoryAmounts`) :
+ * un champ de saisie de montant par catégorie de revenu déjà portée par la
+ * campagne, réservé à l'Administrateur et au Trésorier, et proposé uniquement
+ * tant que la campagne est à venir (`CampaignStatus.Upcoming`), conformément à
+ * la contrainte contractuelle (avant la date de début, sans règlement existant).
+ * Ce contrôle IHM ne remplace pas l'autorisation backend : une tentative hors
+ * de cette fenêtre échoue côté serveur avec `CAMPAIGN_NOT_EDITABLE` (409),
+ * affiché comme message d'erreur si elle survient malgré tout (par exemple si
+ * la campagne a démarré entre le chargement de l'écran et l'enregistrement).
+ * L'état retourné par l'appel remplace la campagne affichée (montants,
+ * membres concernés et montants attendus recalculés), sans recalcul local.
+ *
+ * Limite connue : le signalement visuel d'une catégorie sans montant configuré
+ * (T-69) et le formatage GNF en direct pendant la frappe (T-70) restent des
+ * tickets dédiés ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
+ * en direct, mais aucun repère visuel supplémentaire n'est ajouté pour une
+ * catégorie sans montant.
  */
 @Component({
   selector: 'app-campaign-detail-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -47,6 +74,8 @@ export class CampaignDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -59,6 +88,27 @@ export class CampaignDetailPage {
   readonly tabs = CAMPAIGN_DETAIL_TABS;
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
+
+  /** Administrateur/Trésorier seuls : Opérateur et Membre n'éditent jamais le barème. */
+  readonly canEditBareme = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
+
+  /** Édition proposée uniquement avant la date de début de la campagne. */
+  readonly canEditBaremeNow = computed(
+    () => this.canEditBareme() && this.campaign()?.status === CampaignStatus.Upcoming,
+  );
+
+  readonly editingBareme = signal(false);
+  readonly submittingBareme = signal(false);
+  readonly baremeErrorMessage = signal<TranslationKey | null>(null);
+
+  readonly baremeAmounts = this.formBuilder.array<FormControl<number | null>>([]);
+  readonly baremeForm = this.formBuilder.group({ amounts: this.baremeAmounts });
+
+  /** Invalide toute réponse encore en vol si l'écran change de campagne ou d'état d'édition. */
+  private baremeRequestToken = 0;
 
   constructor() {
     const campaignId = this.route.snapshot.paramMap.get('campaignId');
@@ -76,6 +126,107 @@ export class CampaignDetailPage {
 
   isActiveTab(tab: CampaignDetailTab): boolean {
     return this.activeTab() === tab;
+  }
+
+  startEditingBareme(): void {
+    if (!this.canEditBaremeNow()) {
+      return;
+    }
+
+    this.baremeRequestToken++;
+    this.baremeAmounts.clear();
+    for (const categoryAmount of this.categoryAmounts()) {
+      this.baremeAmounts.push(
+        this.formBuilder.control<number | null>(categoryAmount.amount, [
+          Validators.required,
+          Validators.min(0),
+        ]),
+      );
+    }
+    this.baremeErrorMessage.set(null);
+    this.submittingBareme.set(false);
+    this.editingBareme.set(true);
+  }
+
+  cancelEditingBareme(): void {
+    this.baremeRequestToken++;
+    this.editingBareme.set(false);
+    this.submittingBareme.set(false);
+    this.baremeErrorMessage.set(null);
+  }
+
+  submitBareme(): void {
+    const campaign = this.campaign();
+    if (!campaign || this.submittingBareme()) {
+      return;
+    }
+
+    if (this.baremeForm.invalid) {
+      this.baremeForm.markAllAsTouched();
+      return;
+    }
+
+    const categoryAmounts = this.categoryAmounts();
+    const amounts = this.baremeAmounts.getRawValue();
+    const categoryAmountInputs: CampaignCategoryAmountInput[] = categoryAmounts.map(
+      (categoryAmount, index) => ({
+        incomeCategoryId: categoryAmount.incomeCategory.id,
+        amount: amounts[index] ?? 0,
+      }),
+    );
+    // `categoryAmounts` est typé `Set<...>` par le générateur (uniqueItems du
+    // contrat), mais le corps JSON transmis doit rester un tableau : un vrai
+    // `Set` se sérialiserait en `{}` (`JSON.stringify(new Set(...))`). On
+    // conserve donc un tableau au moment de l'appel, avec ce transtypage vers
+    // le type généré uniquement pour satisfaire le compilateur.
+    const payload: UpdateCampaignCategoryAmountsRequest = {
+      categoryAmounts:
+        categoryAmountInputs as unknown as UpdateCampaignCategoryAmountsRequest['categoryAmounts'],
+    };
+
+    this.submittingBareme.set(true);
+    this.baremeErrorMessage.set(null);
+    const token = ++this.baremeRequestToken;
+
+    this.campaignsService
+      .updateCampaignCategoryAmounts(campaign.id, payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedCampaign) => {
+          if (token !== this.baremeRequestToken) {
+            return;
+          }
+          this.campaign.set(updatedCampaign);
+          this.submittingBareme.set(false);
+          this.editingBareme.set(false);
+        },
+        error: (error: unknown) => {
+          if (token !== this.baremeRequestToken) {
+            return;
+          }
+          this.submittingBareme.set(false);
+          this.baremeErrorMessage.set(this.resolveBaremeErrorKey(error));
+        },
+      });
+  }
+
+  private resolveBaremeErrorKey(error: unknown): TranslationKey {
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as ErrorResponse | undefined;
+      switch (body?.code) {
+        case ErrorCode.CampaignNotEditable:
+          return 'campaigns.detail.bareme.errorNotEditable';
+        case ErrorCode.ValidationError:
+          return 'campaigns.detail.bareme.errorValidation';
+        case ErrorCode.ResourceNotFound:
+          return 'campaigns.detail.bareme.errorNotFound';
+        case ErrorCode.AccessDenied:
+          return 'campaigns.detail.bareme.errorAccessDenied';
+        default:
+          return 'campaigns.detail.bareme.error';
+      }
+    }
+    return 'campaigns.detail.bareme.error';
   }
 
   private loadCampaign(campaignId: string): void {

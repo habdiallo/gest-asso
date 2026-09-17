@@ -152,10 +152,11 @@ async function createFixture(
     ],
   }).compileComponents();
 
-  if (options.role) {
-    const sessionService = TestBed.inject(SessionService);
-    sessionService.setUser(buildCurrentUser(options.role));
-  }
+  // Rôle par défaut Administrateur (T-37, RG-MEM-001) : les tests qui ne
+  // portent pas sur les droits par rôle restent inchangés, l'action "Ajouter
+  // un membre" étant visible pour l'Administrateur comme pour le Trésorier.
+  const sessionService = TestBed.inject(SessionService);
+  sessionService.setUser(buildCurrentUser(options.role ?? 'ADMINISTRATOR'));
 
   const fixture = TestBed.createComponent(MembersListPage);
   fixture.detectChanges();
@@ -422,6 +423,46 @@ describe('MembersListPage', () => {
     expect(dialog.open).toBe(false);
   });
 
+  it.each(['OPERATOR', 'MEMBER'] as const)(
+    'hides the "Ajouter un membre" action for %s (T-37, RG-MEM-001)',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberPage()), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes('Ajouter un membre'),
+      );
+      expect(openButton).toBeUndefined();
+      expect(root.querySelector('dialog')).toBeNull();
+    },
+  );
+
+  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+    'keeps the "Ajouter un membre" action visible for %s',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberPage()), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes('Ajouter un membre'),
+      );
+      expect(openButton).toBeTruthy();
+    },
+  );
+
+  it('does not open the create dialog when the role is not authorized (RG-MEM-001)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    expect(fixture.nativeElement.querySelector('dialog')).toBeNull();
+  });
+
   it('creates a member, refreshes the list and closes the dialog on success', async () => {
     const listMembers = vi.fn(() => of(buildMemberPage()));
     const createMember = vi.fn((request: CreateMemberRequest) => of(buildMemberDetails(request)));
@@ -452,6 +493,64 @@ describe('MembersListPage', () => {
     });
     expect(listMembers).toHaveBeenCalledWith(0);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('displays the default Actif status after creation, without a status field in the form (T-35, RG-MEM-003)', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) =>
+      of(buildMemberDetails({ ...request, displayName: 'Mariama Barry', status: 'ACTIVE' })),
+    );
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    expect(Object.keys(form.form.controls)).not.toContain('status');
+
+    form.form.setValue({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      preferredName: '',
+      country: '',
+      city: '',
+      phone: '',
+      incomeCategoryId: demoIncomeCategory.id,
+      associationFunction: '',
+    });
+    form.submit();
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const confirmation = root.querySelector('[role="status"]');
+    expect(confirmation?.textContent).toContain('Mariama Barry');
+    expect(confirmation?.textContent).toContain('Actif');
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('clears the creation confirmation when reopening the dialog', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) =>
+      of(buildMemberDetails({ ...request, displayName: 'Mariama Barry', status: 'ACTIVE' })),
+    );
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    fixture.componentInstance.handleCreateMember({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createdConfirmation()).not.toBeNull();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createdConfirmation()).toBeNull();
   });
 
   it.each([

@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
-import type { CreateMemberRequest, MemberPage } from '@api';
+import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -37,9 +37,18 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  *
  * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
  * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
- * (`MembresService.createMember`). Le masquage de cette action pour
- * l'Opérateur et le Membre (RG-MEM-001) relève du ticket T-37 ; elle reste
- * visible ici pour tous les rôles qui accèdent à cet écran.
+ * (`MembresService.createMember`). Cette action est masquée pour l'Opérateur
+ * et le Membre (T-37, RG-MEM-001) : seuls l'Administrateur et le Trésorier la
+ * déclenchent, conformément à la spec `member-management-ui`.
+ *
+ * Après une création réussie (T-35, RG-MEM-003) : le formulaire ne propose
+ * aucun champ de saisie du statut (`member-create-form.ts`, T-33) et cet
+ * écran affiche, une fois le dialogue fermé, une confirmation reprenant le
+ * nom du membre créé et son statut Actif par défaut, tel que renvoyé par
+ * `POST /members`. Le tri alphabétique de la liste (nom puis prénom) peut
+ * laisser le membre créé hors de la première page rechargée ; cette
+ * confirmation reste donc le retour visible immédiat, indépendamment de sa
+ * position dans le tableau.
  */
 @Component({
   selector: 'app-members-list-page',
@@ -57,13 +66,22 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
-  readonly showFinancialDetail = computed(
-    () => this.sessionService.user()?.role !== 'OPERATOR',
-  );
+  readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
+
+  /**
+   * Masquage de l'action "Ajouter un membre" pour l'Opérateur et le Membre
+   * (T-37, RG-MEM-001) : seuls l'Administrateur et le Trésorier créent un
+   * membre (US-MEM-001).
+   */
+  readonly canCreateMember = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === 'ADMINISTRATOR' || role === 'TREASURER';
+  });
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
   readonly createError = signal(false);
+  readonly createdConfirmation = signal<{ name: string; statusLabel: string } | null>(null);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -101,12 +119,13 @@ export class MembersListPage {
   }
 
   openCreateDialog(): void {
-    if (this.createDialogOpen()) {
+    if (!this.canCreateMember() || this.createDialogOpen()) {
       return;
     }
     ++this.createDialogSession;
     this.creating.set(false);
     this.createError.set(false);
+    this.createdConfirmation.set(null);
     this.createDialogOpen.set(true);
   }
 
@@ -128,11 +147,15 @@ export class MembersListPage {
       .createMember(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (member: MemberDetails) => {
           this.loadPage(0);
           if (session !== this.createDialogSession) {
             return;
           }
+          this.createdConfirmation.set({
+            name: member.displayName,
+            statusLabel: memberStatusLabel(member.status),
+          });
           this.closeCreateDialog();
         },
         error: () => {
