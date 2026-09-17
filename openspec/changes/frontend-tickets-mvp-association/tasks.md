@@ -57,7 +57,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 5. Membres — création et modification (`member-management-ui`)
 
-- [ ] 5.1 [T-33] (P0) Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`
+- [x] 5.1 [T-33] (P0) Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`
 - [ ] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
 - [ ] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
 - [ ] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
