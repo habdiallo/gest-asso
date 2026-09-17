@@ -845,6 +845,7 @@ paths:
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/SearchQuery'
         - $ref: '#/components/parameters/SocialFundStatusFilter'
+        - $ref: '#/components/parameters/SocialFundEventTypeFilter'
       responses:
         '200':
           description: Page de cagnottes sociales.
@@ -1106,6 +1107,12 @@ components:
       description: Filtre sur le statut de la cagnotte.
       schema:
         $ref: '#/components/schemas/SocialFundStatus'
+    SocialFundEventTypeFilter:
+      name: eventType
+      in: query
+      description: Filtre sur le type d'événement de la cagnotte.
+      schema:
+        $ref: '#/components/schemas/SocialEventType'
     DueStatusFilter:
       name: status
       in: query

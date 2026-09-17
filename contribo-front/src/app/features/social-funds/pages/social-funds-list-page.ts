@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CagnottesService } from '@api';
+import { CagnottesService, SocialEventType } from '@api';
 import type { SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
@@ -37,9 +37,11 @@ function progressBarWidth(progressRate: number): number {
  * jamais déduit ici de la fonction associative.
  *
  * La pagination (page précédente/suivante) exploite les métadonnées
- * `page.number`/`page.totalPages` renvoyées par le serveur. Limite connue :
- * la recherche et le filtre par type d'événement (T-83) ne sont pas encore
- * exploités par cet écran.
+ * `page.number`/`page.totalPages` renvoyées par le serveur. Le filtre par
+ * type d'événement (T-83) appelle `GET /social-funds?eventType=...`
+ * (paramètre `SocialFundEventTypeFilter` de `besoins/openapi.yaml`) et
+ * revient à la première page à chaque changement. Limite connue : la
+ * recherche texte (US-CAG) n'est pas encore exploitée par cet écran.
  */
 @Component({
   selector: 'app-social-funds-list-page',
@@ -50,6 +52,16 @@ function progressBarWidth(progressRate: number): number {
 export class SocialFundsListPage {
   private readonly socialFundsService = inject(CagnottesService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly eventTypeOptions: readonly SocialEventType[] = [
+    SocialEventType.Wedding,
+    SocialEventType.Baptism,
+    SocialEventType.Death,
+    SocialEventType.Birth,
+    SocialEventType.Other,
+  ];
+
+  readonly eventTypeFilter = signal<SocialEventType | ''>('');
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -105,6 +117,13 @@ export class SocialFundsListPage {
     this.fetchPage(currentPage.page.number + 1, { isInitialLoad: false });
   }
 
+  /** Applique le filtre par type d'événement (T-83) et revient à la première page. */
+  onEventTypeFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.eventTypeFilter.set(value as SocialEventType | '');
+    this.fetchPage(0, { isInitialLoad: false });
+  }
+
   private fetchPage(pageNumber: number, options: { isInitialLoad: boolean }): void {
     if (options.isInitialLoad) {
       this.loading.set(true);
@@ -115,7 +134,13 @@ export class SocialFundsListPage {
     }
 
     this.socialFundsService
-      .listSocialFunds(pageNumber, PAGE_SIZE)
+      .listSocialFunds(
+        pageNumber,
+        PAGE_SIZE,
+        undefined,
+        undefined,
+        this.eventTypeFilter() || undefined,
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {

@@ -44,6 +44,8 @@
   "socialFunds.error": "Impossible de charger les cagnottes. Réessayez plus tard.",
   "socialFunds.count": "{{count}} cagnotte(s)",
   "socialFunds.empty": "Aucune cagnotte pour le moment.",
+  "socialFunds.eventTypeFilterLabel": "Filtrer par type d'événement",
+  "socialFunds.eventTypeFilterAll": "Tous les types d'événement",
   "socialFunds.card.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",
   "socialFunds.card.contributorCount": "{{count}} contributeur(s)",
   "socialFunds.pagination.nav": "Pagination des cagnottes",

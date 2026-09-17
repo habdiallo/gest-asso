@@ -33,7 +33,13 @@ function buildSocialFundPage(overrides: Partial<SocialFundPage> = {}): SocialFun
   };
 }
 
-type ListSocialFunds = (page?: number, size?: number) => Observable<SocialFundPage>;
+type ListSocialFunds = (
+  page?: number,
+  size?: number,
+  q?: string,
+  status?: string,
+  eventType?: string,
+) => Observable<SocialFundPage>;
 
 async function createFixture(
   listSocialFunds: ListSocialFunds,
@@ -236,7 +242,7 @@ describe('SocialFundsListPage', () => {
       nextButton.click();
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenCalledWith(1, 20);
+      expect(listSocialFunds).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined);
       expect(root.textContent).toContain('Page 2 sur 2');
       expect(previousButton.getAttribute('aria-disabled')).toBeNull();
       expect(nextButton.getAttribute('aria-disabled')).toBe('true');
@@ -244,7 +250,7 @@ describe('SocialFundsListPage', () => {
       previousButton.click();
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenCalledWith(0, 20);
+      expect(listSocialFunds).toHaveBeenCalledWith(0, 20, undefined, undefined, undefined);
       expect(root.textContent).toContain('Page 1 sur 2');
     });
 
@@ -269,6 +275,75 @@ describe('SocialFundsListPage', () => {
 
       expect(root.textContent).toContain('Page 1 sur 2');
       expect(root.querySelector('[role="alert"]')).not.toBeNull();
+    });
+  });
+
+  describe('event type filter (T-83)', () => {
+    it('requests the first page filtered by the selected event type', async () => {
+      const listSocialFunds = vi.fn((page = 0) =>
+        of(
+          buildSocialFundPage({
+            page: { number: page, size: 20, totalElements: 1, totalPages: 1 },
+          }),
+        ),
+      );
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
+      expect(select).not.toBeNull();
+
+      select.value = 'DEATH';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(listSocialFunds).toHaveBeenCalledWith(0, 20, undefined, undefined, 'DEATH');
+    });
+
+    it('clears the filter and requests every event type again', async () => {
+      const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
+      select.value = 'WEDDING';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      select.value = '';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, undefined, undefined);
+    });
+
+    it('shows the empty-list message when no social fund matches the selected event type', async () => {
+      const listSocialFunds = vi.fn((...args: unknown[]) => {
+        const eventType = args[4] as string | undefined;
+        return of(
+          buildSocialFundPage({
+            items: eventType ? [] : buildSocialFundPage().items,
+            page: {
+              number: 0,
+              size: 20,
+              totalElements: eventType ? 0 : 1,
+              totalPages: eventType ? 0 : 1,
+            },
+          }),
+        );
+      });
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
+      select.value = 'BAPTISM';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Aucune cagnotte pour le moment.');
     });
   });
 });
