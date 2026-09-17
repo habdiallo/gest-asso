@@ -125,6 +125,38 @@ describe('EditIncomeCategoryDialog', () => {
     expect(req.request.body).toEqual({ label: 'Catégorie renommée' });
   });
 
+  it('does not call the API and shows a validation error when submitted with a blank label', () => {
+    const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
+    fixture.componentRef.setInput('category', buildCategory());
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fillLabel(fixture, '   ');
+
+    submitForm(fixture);
+    fixture.detectChanges();
+
+    httpMock.expectNone('/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10');
+    const labelInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#income-category-edit-label',
+    );
+    expect(labelInput.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('sends a trimmed label to the API', () => {
+    const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
+    fixture.componentRef.setInput('category', buildCategory());
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fillLabel(fixture, '  Catégorie renommée  ');
+
+    submitForm(fixture);
+
+    const req = httpMock.expectOne(
+      '/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+    );
+    expect(req.request.body).toEqual({ label: 'Catégorie renommée' });
+  });
+
   it('emits updated and closed after a successful modification', () => {
     const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
     fixture.componentRef.setInput('category', buildCategory());
@@ -174,5 +206,46 @@ describe('EditIncomeCategoryDialog', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
       'Une catégorie porte déjà ce libellé.',
     );
+  });
+
+  it('ignores a stale PATCH response after the dialog reopened on another category', () => {
+    const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
+    fixture.componentRef.setInput('category', buildCategory());
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fillLabel(fixture, 'Catégorie renommée');
+
+    const updatedEvents: unknown[] = [];
+    const closedEvents: unknown[] = [];
+    fixture.componentInstance.updated.subscribe((category) => updatedEvents.push(category));
+    fixture.componentInstance.closed.subscribe(() => closedEvents.push(undefined));
+
+    submitForm(fixture);
+    const staleReq = httpMock.expectOne(
+      '/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+    );
+
+    // Le dialogue est réutilisé pour une autre catégorie avant la réponse de la première requête.
+    fixture.componentRef.setInput('open', false);
+    fixture.componentRef.setInput(
+      'category',
+      buildCategory({ id: 'b6d3a1e1-2d2b-5f4b-0e2c-8f3b6c7d0e21', label: 'Catégorie B' }),
+    );
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    staleReq.flush({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      label: 'Catégorie renommée',
+      memberCount: 12,
+      updatedAt: '2026-09-17T10:00:00Z',
+    });
+
+    expect(updatedEvents).toHaveLength(0);
+    expect(closedEvents).toHaveLength(0);
+    const labelInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#income-category-edit-label',
+    );
+    expect(labelInput.value).toBe('Catégorie B');
   });
 });

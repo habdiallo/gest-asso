@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService, ErrorCode } from '@api';
 import type { ErrorResponse, IncomeCategory } from '@api';
@@ -6,6 +7,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+
+/** Rejette un libellé vide ou composé uniquement d'espaces (contrainte API). */
+function requireNonBlank(control: AbstractControl<string>): ValidationErrors | null {
+  return control.value.trim().length === 0 ? { required: true } : null;
+}
 
 /**
  * Formulaire de modification d'une catégorie de revenu (T-51), réservé à
@@ -44,18 +50,28 @@ export class EditIncomeCategoryDialog {
   readonly updated = output<IncomeCategory>();
 
   readonly form = this.formBuilder.nonNullable.group({
-    label: ['', [Validators.required, Validators.maxLength(100)]],
+    label: ['', [Validators.required, requireNonBlank, Validators.maxLength(100)]],
   });
 
   readonly submitting = signal(false);
   readonly errorMessage = signal<TranslationKey | null>(null);
 
+  /**
+   * Invalide toute réponse PATCH encore en vol lorsque le dialogue change de
+   * catégorie ou se ferme/rouvre, pour ne jamais fermer/mettre à jour le
+   * dialogue rouvert sur une autre catégorie avec une réponse obsolète.
+   */
+  private requestToken = 0;
+
   constructor() {
     effect(() => {
       const category = this.category();
-      if (this.open() && category) {
+      const open = this.open();
+      this.requestToken++;
+      if (open && category) {
         this.form.reset({ label: category.label });
         this.errorMessage.set(null);
+        this.submitting.set(false);
       }
     });
   }
@@ -79,14 +95,21 @@ export class EditIncomeCategoryDialog {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const { label } = this.form.getRawValue();
+    const label = this.form.getRawValue().label.trim();
+    const token = ++this.requestToken;
     this.incomeCategoriesService.updateIncomeCategory(category.id, { label }).subscribe({
       next: (updatedCategory) => {
+        if (token !== this.requestToken) {
+          return;
+        }
         this.submitting.set(false);
         this.updated.emit(updatedCategory);
         this.closed.emit();
       },
       error: (error: unknown) => {
+        if (token !== this.requestToken) {
+          return;
+        }
         this.submitting.set(false);
         this.errorMessage.set(this.resolveErrorKey(error));
       },
