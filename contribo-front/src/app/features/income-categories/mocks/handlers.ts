@@ -58,6 +58,13 @@ function duplicateCategoryLabel(): Response {
   );
 }
 
+function categoryNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Catégorie introuvable.' },
+    { status: 404 },
+  );
+}
+
 /**
  * Handlers MSW de démonstration pour `GET`/`POST /api/v1/income-categories`
  * (T-48, T-50). Le contrat n'exige qu'une session valide côté `GET` (pas de
@@ -68,6 +75,12 @@ function duplicateCategoryLabel(): Response {
  * un 403, conformément aux autres mutations mockées (`accessDenied()`). La
  * création simule aussi les deux règles métier RG-REV-001 (libellé
  * obligatoire) et l'unicité du libellé (`DUPLICATE_CATEGORY_LABEL`).
+ *
+ * `PATCH /income-categories/{id}` (T-51, `updateIncomeCategory`) est réservé à
+ * l'Administrateur comme la création, simule les mêmes règles (libellé
+ * obligatoire, unicité) et renvoie `RESOURCE_NOT_FOUND` pour un identifiant
+ * inconnu. Seul le libellé change : `memberCount` reste inchangé, sans effet
+ * rétroactif sur les cotisations déjà établies (US-REV-002).
  */
 export const incomeCategoriesHandlers = [
   http.get('/api/v1/income-categories', async ({ request }): Promise<Response> => {
@@ -113,4 +126,49 @@ export const incomeCategoriesHandlers = [
 
     return HttpResponse.json<IncomeCategory>(created, { status: 201 });
   }),
+
+  http.patch(
+    '/api/v1/income-categories/:incomeCategoryId',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (account.user.role !== UserRole.Administrator) {
+        return accessDenied();
+      }
+
+      const incomeCategoryId = params['incomeCategoryId'] as string;
+      const existing = demoIncomeCategories.find((category) => category.id === incomeCategoryId);
+      if (!existing) {
+        return categoryNotFound();
+      }
+
+      const body = (await request.json()) as IncomeCategoryRequest;
+      const label = body.label?.trim();
+      if (!label) {
+        return validationError();
+      }
+
+      const alreadyExists = demoIncomeCategories.some(
+        (category) =>
+          category.id !== incomeCategoryId &&
+          category.label.localeCompare(label, 'fr', { sensitivity: 'base' }) === 0,
+      );
+      if (alreadyExists) {
+        return duplicateCategoryLabel();
+      }
+
+      const updated: IncomeCategory = {
+        ...existing,
+        label,
+        updatedAt: new Date().toISOString(),
+      };
+      const index = demoIncomeCategories.indexOf(existing);
+      demoIncomeCategories[index] = updated;
+
+      return HttpResponse.json<IncomeCategory>(updated);
+    },
+  ),
 ];

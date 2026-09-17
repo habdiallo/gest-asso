@@ -18,6 +18,13 @@
     (created)="handleCategoryCreated()"
   />
 
+  <app-edit-income-category-dialog
+    [open]="editDialogOpen()"
+    [category]="editingCategory()"
+    (closed)="handleEditDialogClosed()"
+    (updated)="handleCategoryUpdated()"
+  />
+
   @if (loading()) {
     <p class="mt-6 text-text-2" role="status">{{ 'incomeCategories.loading' | transloco }}</p>
   } @else if (loadError()) {
@@ -40,6 +47,9 @@
             <th scope="col" class="px-4 py-3 font-medium">
               {{ 'incomeCategories.columns.updatedAt' | transloco }}
             </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              <span class="sr-only">{{ 'incomeCategories.columns.actions' | transloco }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +58,18 @@
               <td class="px-4 py-3 font-medium text-text">{{ category.label }}</td>
               <td class="px-4 py-3 text-text-2">{{ category.memberCount }}</td>
               <td class="px-4 py-3 text-text-2">{{ formatInstant(category.updatedAt) }}</td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  (click)="openEditDialog(category)"
+                  [attr.aria-label]="
+                    'incomeCategories.actions.edit' | transloco: { label: category.label }
+                  "
+                  class="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
+                >
+                  {{ 'incomeCategories.actions.editButton' | transloco }}
+                </button>
+              </td>
             </tr>
           }
         </tbody>
