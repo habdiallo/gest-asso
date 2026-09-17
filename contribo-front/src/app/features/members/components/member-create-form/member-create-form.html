@@ -72,8 +72,15 @@
         id="member-create-phone"
         type="tel"
         formControlName="phone"
+        [attr.aria-invalid]="phoneInvalid() ? true : null"
+        [attr.aria-describedby]="phoneInvalid() ? 'member-create-phone-error' : null"
         class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
+      @if (phoneInvalid()) {
+        <p id="member-create-phone-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.phoneInvalid' | transloco }}
+        </p>
+      }
     </div>
 
     <div>

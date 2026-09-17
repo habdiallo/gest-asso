@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserRole, UtilisateursEtRlesService } from '@api';
 import type { UserAccount, UserAccountPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { Subject, catchError, of, switchMap } from 'rxjs';
 import { operatorAuthorizationLabel, userRoleLabel } from '../roles-users-labels';
 
@@ -27,10 +28,19 @@ const SEARCH_DEBOUNCE_MS = 300;
  * gestion des erreurs dans la requête du `switchMap` pour permettre les
  * recherches suivantes).
  *
- * Limite connue : ni le changement de rôle (T-53), ni l'affichage de la
- * fonction associative (T-54), ni le contrôle `peut_enregistrer_paiements`
- * (T-55/T-56) ne sont exposés depuis cet écran ; seule la consultation de la
- * liste est du périmètre de ce ticket.
+ * Le sélecteur de rôle applicatif (T-53) ouvre, depuis la "fiche" d'un
+ * utilisateur (dialogue `app-form-dialog`, composant partagé T-15), les 4
+ * rôles du contrat et appelle `PUT /users/{userId}` (`updateUserAccess`,
+ * openapi:`UpdateUserAccessRequest`). L'attribut `operatorCanRecordPayments`
+ * n'est pas exposé ici (T-55/T-56) : sa valeur courante est conservée pour un
+ * rôle Opérateur, sinon forcée à `false`, conformément à la contrainte du
+ * contrat ("operatorCanRecordPayments doit être false pour tout rôle
+ * différent de OPERATOR"). La fonction associative n'est ni affichée ni
+ * modifiée depuis cet écran (RG-ROLE-006, T-54).
+ *
+ * Limite connue : ni l'affichage de la fonction associative (T-54), ni le
+ * contrôle `peut_enregistrer_paiements` (T-55/T-56) ne sont exposés depuis
+ * cet écran.
  *
  * Le tableau et les commandes de pagination restent montés pendant un
  * rechargement (recherche, filtre ou changement de page) : seules
@@ -40,7 +50,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 @Component({
   selector: 'app-roles-users-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, FormDialog],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -77,6 +87,13 @@ export class RolesUsersPage {
   readonly userRoleLabel = userRoleLabel;
   readonly operatorAuthorizationLabel = operatorAuthorizationLabel;
 
+  /** Compte dont la fiche de changement de rôle (T-53) est ouverte, ou `null` si fermée. */
+  readonly roleDialogAccount = signal<UserAccount | null>(null);
+  /** Rôle sélectionné dans le dialogue, initialisé au rôle courant à l'ouverture. */
+  readonly roleDraft = signal<UserRole | null>(null);
+  readonly savingRole = signal(false);
+  readonly roleSaveError = signal(false);
+
   private readonly refetch = new Subject<void>();
   private searchDebounceHandle: ReturnType<typeof setTimeout> | undefined;
 
@@ -99,10 +116,15 @@ export class RolesUsersPage {
       )
       .subscribe((page) => {
         this.loading.set(false);
-        if (page) {
-          this.result.set(page);
-        } else {
+        if (!page) {
           this.loadError.set(true);
+          return;
+        }
+        this.result.set(page);
+        const lastPageIndex = Math.max(0, page.page.totalPages - 1);
+        if (this.page() > lastPageIndex) {
+          this.page.set(lastPageIndex);
+          this.refetch.next();
         }
       });
 
@@ -139,5 +161,77 @@ export class RolesUsersPage {
     }
     this.page.update((current) => current + 1);
     this.refetch.next();
+  }
+
+  /** Ouvre la fiche de changement de rôle (T-53) pour le compte donné. */
+  openRoleDialog(account: UserAccount): void {
+    this.roleDialogAccount.set(account);
+    this.roleDraft.set(account.role);
+    this.roleSaveError.set(false);
+  }
+
+  /** Ferme la fiche, quelle que soit la cause (Échap, bouton Annuler, succès). */
+  closeRoleDialog(): void {
+    this.roleDialogAccount.set(null);
+    this.roleDraft.set(null);
+    this.roleSaveError.set(false);
+    this.savingRole.set(false);
+  }
+
+  onRoleDraftChange(event: Event): void {
+    this.roleDraft.set((event.target as HTMLSelectElement).value as UserRole);
+  }
+
+  /**
+   * Confirme le changement de rôle (US-ROLE-001) : appelle `updateUserAccess`
+   * avec `operatorCanRecordPayments` conservé pour un rôle Opérateur, forcé à
+   * `false` sinon (contrainte du contrat, hors périmètre T-53/T-55).
+   *
+   * La requête est rattachée à `account.id` : si la fiche a été fermée puis
+   * une autre ouverte entre-temps, une réponse tardive ne touche plus l'état
+   * du dialogue (fermeture, `savingRole`, erreur) désormais associé à cette
+   * autre fiche. En cas de succès, la liste est rechargée avec les critères
+   * courants (recherche/filtre/page) plutôt qu'un remplacement local, afin
+   * qu'une ligne qui ne correspond plus au filtre de rôle actif disparaisse
+   * et que les métadonnées de pagination restent cohérentes.
+   */
+  confirmRoleChange(event: Event, account: UserAccount): void {
+    event.preventDefault();
+    if (this.savingRole()) {
+      return;
+    }
+    const role = this.roleDraft();
+    if (!role) {
+      return;
+    }
+
+    const accountId = account.id;
+    const operatorCanRecordPayments =
+      role === UserRole.Operator ? account.operatorCanRecordPayments : false;
+
+    this.savingRole.set(true);
+    this.roleSaveError.set(false);
+    this.usersService
+      .updateUserAccess(accountId, { role, operatorCanRecordPayments })
+      .pipe(
+        catchError(() => of(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((updated) => {
+        const dialogStillOpenForThisAccount = this.roleDialogAccount()?.id === accountId;
+        if (dialogStillOpenForThisAccount) {
+          this.savingRole.set(false);
+        }
+        if (!updated) {
+          if (dialogStillOpenForThisAccount) {
+            this.roleSaveError.set(true);
+          }
+          return;
+        }
+        if (dialogStillOpenForThisAccount) {
+          this.closeRoleDialog();
+        }
+        this.refetch.next();
+      });
   }
 }

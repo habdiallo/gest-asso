@@ -48,7 +48,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
 - [ ] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
 - [ ] 4.6 [T-26] (P2) Filtre par catégorie de revenu dans la liste des membres.
-- [ ] 4.7 [T-27] (P0) Écran fiche membre : bloc informations personnelles, catégorie, fonction, statut. — US-MEM-003 ; openapi:`getMember`
+- [x] 4.7 [T-27] (P0) Écran fiche membre : bloc informations personnelles, catégorie, fonction, statut. — US-MEM-003 ; openapi:`getMember`
 - [ ] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
 - [ ] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.
 - [ ] 4.10 [T-30] (P1) Fiche membre — onglet contributions aux cagnottes.
@@ -58,6 +58,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 5. Membres — création et modification (`member-management-ui`)
 
 - [x] 5.1 [T-33] (P0) Formulaire de création de membre (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie, Fonction). — US-MEM-001 ; openapi:`createMember`
+  Retours de revue PR 46 corrigés : réponses isolées par session de dialogue, répertoire mock partagé avec les GET liste/fiche, téléphone facultatif validé selon le contrat avec erreur de champ. Tests de régression et build de production réussis.
 - [ ] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
 - [ ] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
 - [ ] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
@@ -86,7 +87,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 8. Rôles et utilisateurs (`roles-users-ui`)
 
 - [x] 8.1 [T-52] (P1) Écran liste des utilisateurs avec rôle applicatif affiché, réservé à l'Administrateur. — RG-ROLE-002 ; openapi:`listUsers`
-- [ ] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
+- [x] 8.2 [T-53] (P1) Sélecteur de changement de rôle applicatif (4 rôles) sur la fiche d'un utilisateur. — US-ROLE-001 ; openapi:`updateUserRole`
 - [ ] 8.3 [T-54] (P2) Affichage de la fonction associative comme information distincte, non modifiable depuis cet écran. — RG-ROLE-006
 - [ ] 8.4 [T-55] (P1) Contrôle d'activation/désactivation de `peut_enregistrer_paiements` pour un compte Opérateur. — §2.3 ; openapi:`updateOperatorAuthorization`
 - [ ] 8.5 [T-56] (P1) Masquage du contrôle `peut_enregistrer_paiements` pour les comptes non-Opérateur.
@@ -135,7 +136,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 > Parcours cible : un utilisateur consulte la liste des cagnottes (visuellement distincte des campagnes), en crée une, puis suit sa collecte.
 
 - [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
-- [ ] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
+- [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [ ] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
 - [ ] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.

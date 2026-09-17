@@ -51,7 +51,14 @@ export class MemberCreateForm {
     preferredName: [''],
     country: [''],
     city: [''],
-    phone: [''],
+    phone: [
+      '',
+      [
+        Validators.minLength(7),
+        Validators.maxLength(25),
+        Validators.pattern(/^\+?[0-9][0-9 ()-]{6,24}$/),
+      ],
+    ],
     incomeCategoryId: ['', Validators.required],
     associationFunction: [''],
   });
@@ -79,6 +86,11 @@ export class MemberCreateForm {
 
   firstNameInvalid(): boolean {
     const control = this.form.controls.firstName;
+    return control.invalid && control.touched;
+  }
+
+  phoneInvalid(): boolean {
+    const control = this.form.controls.phone;
     return control.invalid && control.touched;
   }
 

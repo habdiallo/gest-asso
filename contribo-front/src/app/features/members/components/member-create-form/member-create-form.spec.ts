@@ -119,6 +119,57 @@ describe('MemberCreateForm', () => {
     ]);
   });
 
+  it.each(['abc', '123456', '12345678901234567890123456', '+1234567890123456789012345'])(
+    'blocks the invalid phone %s and associates the error with the field',
+    async (phone) => {
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.componentInstance.form.patchValue({
+        lastName: 'Diallo',
+        firstName: 'Amadou',
+        incomeCategoryId: categories[0].id,
+        phone,
+      });
+      const submitted = vi.fn();
+      fixture.componentInstance.submitted.subscribe(submitted);
+      const form: HTMLFormElement = fixture.nativeElement.querySelector('form');
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(submitted).not.toHaveBeenCalled();
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#member-create-phone');
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+      expect(input.getAttribute('aria-describedby')).toBe('member-create-phone-error');
+      expect(
+        fixture.nativeElement.querySelector('#member-create-phone-error')?.textContent,
+      ).toContain('7 à 25 caractères');
+    },
+  );
+
+  it.each(['1234567', '+224 622 12 34 56', '1234567890123456789012345'])(
+    'transmits the valid optional phone %s',
+    async (phone) => {
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.componentInstance.form.patchValue({
+        lastName: 'Diallo',
+        firstName: 'Amadou',
+        incomeCategoryId: categories[0].id,
+        phone,
+      });
+      const submitted = vi.fn();
+      fixture.componentInstance.submitted.subscribe(submitted);
+      fixture.componentInstance.submit();
+
+      expect(submitted).toHaveBeenCalledWith({
+        lastName: 'Diallo',
+        firstName: 'Amadou',
+        incomeCategoryId: categories[0].id,
+        phone,
+      });
+    },
+  );
+
   it('does not resubmit while a submission is already in progress', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();

@@ -14,7 +14,24 @@
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.error' | transloco }}</p>
   } @else {
-    <p class="mt-6 text-sm text-text-2">
+    <div class="mt-6 flex flex-col gap-2 sm:max-w-xs">
+      <label for="social-funds-event-type-filter" class="text-sm font-medium text-text-2">
+        {{ 'socialFunds.eventTypeFilterLabel' | transloco }}
+      </label>
+      <select
+        id="social-funds-event-type-filter"
+        [value]="eventTypeFilter()"
+        (change)="onEventTypeFilterChange($event)"
+        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="">{{ 'socialFunds.eventTypeFilterAll' | transloco }}</option>
+        @for (eventType of eventTypeOptions; track eventType) {
+          <option [value]="eventType">{{ socialEventTypeLabel(eventType) }}</option>
+        }
+      </select>
+    </div>
+
+    <p class="mt-4 text-sm text-text-2" role="status" aria-live="polite">
       {{ 'socialFunds.count' | transloco: { count: totalCount() } }}
     </p>
 

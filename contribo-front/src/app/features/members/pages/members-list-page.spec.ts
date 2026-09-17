@@ -9,6 +9,7 @@ import type {
   MemberPage,
   MemberSummary,
 } from '@api';
+import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
@@ -121,6 +122,7 @@ async function createFixture(
         provide: CatgoriesDeRevenuService,
         useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
       },
+      provideRouter([]),
     ],
   }).compileComponents();
 
@@ -274,8 +276,8 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    const activeBadge = rows[0].querySelector('td:last-child span');
-    const inactiveBadge = rows[1].querySelector('td:last-child span');
+    const activeBadge = rows[0].querySelector('td:nth-last-child(2) span');
+    const inactiveBadge = rows[1].querySelector('td:nth-last-child(2) span');
 
     expect(activeBadge?.className).not.toEqual(inactiveBadge?.className);
     expect(activeBadge?.className).toContain('text-success');
@@ -394,6 +396,86 @@ describe('MembersListPage', () => {
     expect(listMembers).toHaveBeenCalledWith(0);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
+
+  it.each([
+    ['success', false],
+    ['error', false],
+    ['success', true],
+    ['error', true],
+  ] as const)(
+    'preserves a reopened form after an old %s response with a new request pending: %s',
+    async (outcome, newRequestPending) => {
+      const oldRequest = new Subject<MemberDetails>();
+      const newRequest = new Subject<MemberDetails>();
+      const createMember = vi
+        .fn()
+        .mockReturnValueOnce(oldRequest.asObservable())
+        .mockReturnValueOnce(newRequest.asObservable());
+      const listMembers = vi.fn(() => of(buildMemberPage()));
+      const fixture = await createFixture(listMembers, { createMember });
+      const page = fixture.componentInstance;
+      page.openCreateDialog();
+      fixture.detectChanges();
+      const firstForm = fixture.debugElement.query(By.directive(MemberCreateForm))
+        .componentInstance as MemberCreateForm;
+      firstForm.form.patchValue({
+        lastName: 'Barry',
+        firstName: 'Mariama',
+        incomeCategoryId: demoIncomeCategory.id,
+      });
+      firstForm.submit();
+      fixture.detectChanges();
+      firstForm.cancel();
+      fixture.detectChanges();
+      page.openCreateDialog();
+      fixture.detectChanges();
+      const reopenedForm = fixture.debugElement.query(By.directive(MemberCreateForm))
+        .componentInstance as MemberCreateForm;
+      reopenedForm.form.patchValue({
+        lastName: 'Camara',
+        firstName: 'Fatou',
+        incomeCategoryId: demoIncomeCategory.id,
+      });
+      expect(reopenedForm.submitting()).toBe(false);
+      if (newRequestPending) {
+        reopenedForm.submit();
+        fixture.detectChanges();
+      }
+
+      const respond = (): void => {
+        if (outcome === 'success') {
+          oldRequest.next(buildMemberDetails());
+          oldRequest.complete();
+        } else {
+          oldRequest.error(new Error('old request failed'));
+        }
+        fixture.detectChanges();
+        expect(page.createDialogOpen()).toBe(true);
+        expect(page.createError()).toBe(false);
+        expect(fixture.debugElement.query(By.directive(MemberCreateForm)).componentInstance).toBe(
+          reopenedForm,
+        );
+        const name: HTMLInputElement = fixture.nativeElement.querySelector(
+          '#member-create-last-name',
+        );
+        expect(name.value).toBe('Camara');
+      };
+      respond();
+      expect(page.creating()).toBe(newRequestPending);
+      if (!newRequestPending) {
+        reopenedForm.submit();
+        fixture.detectChanges();
+      }
+      expect(createMember).toHaveBeenCalledTimes(2);
+      expect(page.creating()).toBe(true);
+      newRequest.next(buildMemberDetails({ lastName: 'Camara' }));
+      newRequest.complete();
+      fixture.detectChanges();
+      expect(page.createDialogOpen()).toBe(false);
+      expect(page.creating()).toBe(false);
+      expect(listMembers).toHaveBeenCalledTimes(outcome === 'success' ? 3 : 2);
+    },
+  );
 
   it('shows an error banner and keeps the dialog open when member creation fails', async () => {
     const createMember = vi.fn(() => throwError(() => new Error('network error')));
