@@ -13,13 +13,7 @@ import { CampagnesService, DueStatus } from '@api';
 import type { DuePage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-
-const DUE_STATUS_LABELS: Record<DueStatus, string> = {
-  DUE: 'campaigns.detail.cotisations.status.due',
-  PARTIALLY_PAID: 'campaigns.detail.cotisations.status.partiallyPaid',
-  PAID: 'campaigns.detail.cotisations.status.paid',
-  OVERDUE: 'campaigns.detail.cotisations.status.overdue',
-};
+import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 
 @Component({
   selector: 'app-campaign-dues-tab',
@@ -37,7 +31,7 @@ export class CampaignDuesTab implements OnInit {
   readonly loadError = signal(false);
   readonly duePage = signal<DuePage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
-  readonly statusLabels = DUE_STATUS_LABELS;
+  readonly statusLabels = DUE_STATUS_TRANSLATION_KEYS;
   readonly paidStatus = DueStatus.Paid;
   readonly overdueStatus = DueStatus.Overdue;
 
