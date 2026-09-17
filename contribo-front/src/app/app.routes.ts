@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { authenticatedMatch } from '@core/session/authenticated.guard';
+import { roleGuard } from '@core/session/role.guard';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,14 @@ export const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+  {
+    // Écran liste des membres (T-21, US-MEM-002) : réservé aux rôles qui
+    // gèrent ou consultent le répertoire associatif ; le Membre dispose de
+    // son propre espace personnel (`/mon-espace`), pas de ce répertoire.
+    path: 'membres',
+    canMatch: [roleGuard('ADMINISTRATOR', 'TREASURER', 'OPERATOR')],
+    loadChildren: () => import('@features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
   },
   {
     path: '',

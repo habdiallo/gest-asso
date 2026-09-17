@@ -36,5 +36,20 @@
   "dashboard.member.totalContributions": "Total des contributions",
   "dashboard.member.contributedSocialFunds": "Cagnottes soutenues",
   "dashboard.member.recentDuesTitle": "Cotisations récentes",
-  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente."
+  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente.",
+  "members.title": "Membres",
+  "members.loading": "Chargement des membres…",
+  "members.error": "Impossible de charger la liste des membres. Réessayez plus tard.",
+  "members.empty": "Aucun membre enregistré.",
+  "members.summary": "{{active}} membre(s) actif(s) sur {{total}} membre(s) enregistré(s)",
+  "members.valueMissing": "Non renseigné",
+  "members.columns.lastName": "Nom",
+  "members.columns.firstName": "Prénom",
+  "members.columns.preferredName": "Nom d'usage",
+  "members.columns.country": "Pays",
+  "members.columns.city": "Ville",
+  "members.columns.phone": "Téléphone",
+  "members.columns.incomeCategory": "Catégorie",
+  "members.columns.function": "Fonction",
+  "members.columns.status": "Statut"
 }

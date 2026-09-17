@@ -1,0 +1,68 @@
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
+  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
+    {{ 'members.title' | transloco }}
+  </h1>
+
+  @if (loading()) {
+    <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
+  } @else if (memberPage(); as page) {
+    <p class="mt-1 text-sm text-text-2">
+      {{
+        'members.summary' | transloco: { active: page.summary.active, total: page.summary.total }
+      }}
+    </p>
+
+    @if (page.items.length === 0) {
+      <p class="mt-6 text-text-2">{{ 'members.empty' | transloco }}</p>
+    } @else {
+      <div class="mt-6 overflow-x-auto rounded-card border border-line">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-line text-xs uppercase tracking-[0.08em] text-text-2">
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.lastName' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.firstName' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">
+                {{ 'members.columns.preferredName' | transloco }}
+              </th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.country' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.city' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.phone' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">
+                {{ 'members.columns.incomeCategory' | transloco }}
+              </th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.function' | transloco }}</th>
+              <th scope="col" class="px-4 py-3">{{ 'members.columns.status' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of page.items; track member.id) {
+              <tr class="border-b border-line last:border-0">
+                <td class="px-4 py-3 text-text">{{ member.lastName }}</td>
+                <td class="px-4 py-3 text-text">{{ member.firstName }}</td>
+                <td class="px-4 py-3 text-text-2">
+                  {{ member.preferredName || ('members.valueMissing' | transloco) }}
+                </td>
+                <td class="px-4 py-3 text-text-2">
+                  {{ member.country || ('members.valueMissing' | transloco) }}
+                </td>
+                <td class="px-4 py-3 text-text-2">
+                  {{ member.city || ('members.valueMissing' | transloco) }}
+                </td>
+                <td class="px-4 py-3 text-text-2">
+                  {{ member.phone || ('members.valueMissing' | transloco) }}
+                </td>
+                <td class="px-4 py-3 text-text-2">{{ member.incomeCategory.label }}</td>
+                <td class="px-4 py-3 text-text-2">
+                  {{ member.associationFunction || ('members.valueMissing' | transloco) }}
+                </td>
+                <td class="px-4 py-3 text-text-2">{{ memberStatusLabel(member.status) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</main>
