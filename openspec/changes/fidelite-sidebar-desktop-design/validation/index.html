@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparaison des captures de sidebar</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#f3f4f6;color:#17202c;margin:24px}h1{font-size:22px}label{display:inline-block;margin:0 20px 20px 0}select{font:inherit;padding:6px}main{display:flex;gap:24px;flex-wrap:wrap}figure{margin:0}figcaption{font-weight:600;margin-bottom:12px}.crop{width:256px;height:900px;overflow:hidden;box-shadow:0 2px 12px #0003}.crop img{width:1440px;height:900px;max-width:none;display:block}p{max-width:760px;line-height:1.5}a{color:#245fb0}.full{display:block;margin-top:10px}
+</style>
+<h1>Application et prototype, captures de l'état courant</h1>
+<p>Google Chrome, viewport de 1440 × 900, polices chargées. Navigation réelle vers Membres et tabulation clavier. Pour figer l'image, les états survol et focus sont verrouillés dans l'inspecteur après leur déclenchement. Aucun code du dépôt n'a été modifié pour ces captures.</p>
+<label>Thème <select id="theme"><option value="dark">Sombre</option><option value="light">Clair</option></select></label>
+<label>État <select id="state"><option value="normal">Normal, tableau de bord</option><option value="hover">Survol de Membres</option><option value="active">Membres actif</option><option value="focus">Focus clavier sur Membres actif</option></select></label>
+<main>
+<figure><figcaption>Application</figcaption><div class="crop"><img id="app" alt="Sidebar de l'application"></div><a id="app-full" class="full" target="_blank">Ouvrir la capture entière</a></figure>
+<figure><figcaption>Prototype de référence</figcaption><div class="crop"><img id="design" alt="Sidebar du prototype"></div><a id="design-full" class="full" target="_blank">Ouvrir la capture entière</a></figure>
+</main>
+<script>
+const theme=document.querySelector('#theme'),state=document.querySelector('#state');
+function update(){for(const name of ['app','design']){const path=`${name}-${theme.value}-${state.value}-full.png`;document.getElementById(name).src=path;document.getElementById(name+'-full').href=path;}}
+theme.addEventListener('change',update);state.addEventListener('change',update);update();
+</script>
+</html>

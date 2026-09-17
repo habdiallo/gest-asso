@@ -1,0 +1,572 @@
+[
+  {
+    "name": "app",
+    "state": "normal",
+    "theme": "dark",
+    "url": "http://localhost:4200/",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(165, 169, 180)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "ContriboGestion associativeMembresCampagnesCagnottesMon espaceAdministrationCatégories de revenuRôle"
+  },
+  {
+    "name": "app",
+    "state": "hover",
+    "theme": "dark",
+    "url": "http://localhost:4200/",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": true,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(248, 249, 250)",
+      "background": "rgb(24, 28, 39)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "ContriboGestion associativeMembresCampagnesCagnottesMon espaceAdministrationCatégories de revenuRôle"
+  },
+  {
+    "name": "app",
+    "state": "active",
+    "theme": "dark",
+    "url": "http://localhost:4200/membres",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": true,
+      "color": "rgb(229, 195, 88)",
+      "background": "rgba(242, 202, 80, 0.1)",
+      "border": "color(srgb 0.94902 0.792157 0.313726 / 0.28)"
+    },
+    "focusedText": "Membres"
+  },
+  {
+    "name": "app",
+    "state": "focus",
+    "theme": "dark",
+    "url": "http://localhost:4200/membres",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": true,
+      "active": true,
+      "color": "rgb(229, 195, 88)",
+      "background": "rgba(242, 202, 80, 0.1)",
+      "border": "color(srgb 0.94902 0.792157 0.313726 / 0.28)"
+    },
+    "focusedText": "Membres"
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "dark",
+    "width": 375,
+    "rootSize": "16px",
+    "headerHeight": 57,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 220.7421875,
+    "logoutRight": 359,
+    "headerBottom": 57,
+    "contentTop": 57,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "dark",
+    "width": 820,
+    "rootSize": "16px",
+    "headerHeight": 57,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 665.7421875,
+    "logoutRight": 804,
+    "headerBottom": 57,
+    "contentTop": 57,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "dark",
+    "width": 375,
+    "rootSize": "32px",
+    "headerHeight": 203,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 68.484375,
+    "logoutRight": 343,
+    "headerBottom": 203,
+    "contentTop": 203,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "app",
+    "state": "normal",
+    "theme": "light",
+    "url": "http://localhost:4200/",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(94, 96, 104)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "ContriboGestion associativeMembresCampagnesCagnottesMon espaceAdministrationCatégories de revenuRôle"
+  },
+  {
+    "name": "app",
+    "state": "hover",
+    "theme": "light",
+    "url": "http://localhost:4200/",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": true,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(18, 19, 22)",
+      "background": "rgb(243, 239, 234)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "ContriboGestion associativeMembresCampagnesCagnottesMon espaceAdministrationCatégories de revenuRôle"
+  },
+  {
+    "name": "app",
+    "state": "active",
+    "theme": "light",
+    "url": "http://localhost:4200/membres",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": true,
+      "color": "rgb(138, 105, 46)",
+      "background": "rgba(179, 143, 77, 0.09)",
+      "border": "color(srgb 0.701961 0.560784 0.301961 / 0.28)"
+    },
+    "focusedText": "Membres"
+  },
+  {
+    "name": "app",
+    "state": "focus",
+    "theme": "light",
+    "url": "http://localhost:4200/membres",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": true,
+      "active": true,
+      "color": "rgb(138, 105, 46)",
+      "background": "rgba(179, 143, 77, 0.09)",
+      "border": "color(srgb 0.701961 0.560784 0.301961 / 0.28)"
+    },
+    "focusedText": "Membres"
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "light",
+    "width": 375,
+    "rootSize": "16px",
+    "headerHeight": 57,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 220.7421875,
+    "logoutRight": 359,
+    "headerBottom": 57,
+    "contentTop": 57,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "light",
+    "width": 820,
+    "rootSize": "16px",
+    "headerHeight": 57,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 665.7421875,
+    "logoutRight": 804,
+    "headerBottom": 57,
+    "contentTop": 57,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "app",
+    "state": "mobile",
+    "theme": "light",
+    "width": 375,
+    "rootSize": "32px",
+    "headerHeight": 203,
+    "logoutText": "Se déconnecter",
+    "logoutLeft": 68.484375,
+    "logoutRight": 343,
+    "headerBottom": 203,
+    "contentTop": 203,
+    "links": [
+      {
+        "label": "Membres",
+        "href": "/membres"
+      },
+      {
+        "label": "Catégories de revenu",
+        "href": "/categories-de-revenu"
+      },
+      {
+        "label": "Campagnes",
+        "href": "/campagnes"
+      },
+      {
+        "label": "Cagnottes",
+        "href": "/cagnottes"
+      },
+      {
+        "label": "Rôles et utilisateurs",
+        "href": "/roles-utilisateurs"
+      },
+      {
+        "label": "Mon espace",
+        "href": "/mon-espace"
+      }
+    ]
+  },
+  {
+    "name": "design",
+    "state": "normal",
+    "theme": "dark",
+    "url": "http://127.0.0.1:63343/index.html#dashboard",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(165, 169, 180)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "hover",
+    "theme": "dark",
+    "url": "http://127.0.0.1:63343/index.html#dashboard",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": true,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(248, 249, 250)",
+      "background": "rgb(24, 28, 39)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "active",
+    "theme": "dark",
+    "url": "http://127.0.0.1:63343/index.html#members",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": true,
+      "color": "rgb(242, 202, 80)",
+      "background": "rgba(242, 202, 80, 0.1)",
+      "border": "color(srgb 0.94902 0.792157 0.313726 / 0.28)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "focus",
+    "theme": "dark",
+    "url": "http://127.0.0.1:63343/index.html#members",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": true,
+      "active": true,
+      "color": "rgb(242, 202, 80)",
+      "background": "rgba(242, 202, 80, 0.1)",
+      "border": "color(srgb 0.94902 0.792157 0.313726 / 0.28)"
+    },
+    "focusedText": "Membres"
+  },
+  {
+    "name": "design",
+    "state": "normal",
+    "theme": "light",
+    "url": "http://127.0.0.1:63343/index.html#dashboard",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(94, 96, 104)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "hover",
+    "theme": "light",
+    "url": "http://127.0.0.1:63343/index.html#dashboard",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": true,
+      "focusVisible": false,
+      "active": false,
+      "color": "rgb(18, 19, 22)",
+      "background": "rgb(243, 239, 234)",
+      "border": "rgba(0, 0, 0, 0)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "active",
+    "theme": "light",
+    "url": "http://127.0.0.1:63343/index.html#members",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": false,
+      "active": true,
+      "color": "rgb(179, 143, 77)",
+      "background": "rgba(179, 143, 77, 0.09)",
+      "border": "color(srgb 0.701961 0.560784 0.301961 / 0.28)"
+    },
+    "focusedText": "CONTRIBOGestion associative\n      \n        Tableau de bordMembresCotisationsCagnottesAdministrationU"
+  },
+  {
+    "name": "design",
+    "state": "focus",
+    "theme": "light",
+    "url": "http://127.0.0.1:63343/index.html#members",
+    "fontStatus": "loaded",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "link": {
+      "text": "Membres",
+      "hover": false,
+      "focusVisible": true,
+      "active": true,
+      "color": "rgb(179, 143, 77)",
+      "background": "rgba(179, 143, 77, 0.09)",
+      "border": "color(srgb 0.701961 0.560784 0.301961 / 0.28)"
+    },
+    "focusedText": "Membres"
+  }
+]

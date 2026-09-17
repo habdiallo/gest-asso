@@ -124,4 +124,46 @@ describe('NavigationMenu', () => {
     expect(links.map((link) => link.textContent?.trim())).toEqual(['Mon espace']);
     expect(links.map((link) => link.getAttribute('href'))).toEqual(['/mon-espace']);
   });
+
+  it.each([
+    [
+      'ADMINISTRATOR',
+      [
+        '/membres',
+        '/campagnes',
+        '/cagnottes',
+        '/mon-espace',
+        '/categories-de-revenu',
+        '/roles-utilisateurs',
+      ],
+    ],
+    ['TREASURER', ['/membres', '/campagnes', '/cagnottes', '/mon-espace']],
+    ['OPERATOR', ['/membres', '/campagnes', '/cagnottes', '/mon-espace']],
+    ['MEMBER', ['/mon-espace']],
+  ] as const)('keeps the allowed destinations in the vertical menu for %s', (role, paths) => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse(role));
+    const fixture = TestBed.createComponent(NavigationMenu);
+    fixture.componentRef.setInput('orientation', 'vertical');
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const links = Array.from(root.querySelectorAll('nav a'));
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(paths);
+    expect(root.querySelectorAll('.sidebar-nav-section').length).toBe(
+      role === 'ADMINISTRATOR' ? 1 : 0,
+    );
+    expect(
+      links.every((link) => link.querySelector('svg')?.getAttribute('aria-hidden') === 'true'),
+    ).toBe(true);
+
+    fixture.componentRef.setInput('orientation', 'horizontal');
+    fixture.detectChanges();
+    expect(root.querySelector('.sidebar-nav-section')).toBeNull();
+    expect(root.querySelector('svg')).toBeNull();
+    expect(
+      Array.from(root.querySelectorAll('nav a'))
+        .map((link) => link.getAttribute('href'))
+        .sort(),
+    ).toEqual([...paths].sort());
+  });
 });

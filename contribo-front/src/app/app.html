@@ -1,13 +1,42 @@
 @if (isAuthenticated()) {
   <!-- Barre latérale desktop/tablette (>= 821px), cf. design/styles.css .sidebar. -->
-  <aside
-    class="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-line bg-surface-glass px-4 py-6 min-[821px]:flex"
-  >
-    <span class="px-2 font-display text-2xl uppercase tracking-wide text-gold-hover">Contribo</span>
-    <app-navigation-menu orientation="vertical" class="mt-8 flex-1 overflow-y-auto" />
-    <div class="mt-auto flex items-center gap-2 border-t border-line pt-4">
-      <app-theme-toggle class="shrink-0" />
-      <app-logout-button class="min-w-0 max-w-full" />
+  <aside class="desktop-sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-mark">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M5 18V6l7 12V6l7 12V6" />
+          <path d="M3 3h18M3 21h18" />
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-brand-name">Contribo</div>
+        <div class="sidebar-brand-caption">Gestion associative</div>
+      </div>
+    </div>
+    <app-navigation-menu orientation="vertical" class="sidebar-navigation" />
+    <div class="sidebar-footer">
+      <div class="sidebar-profile">
+        @if (sidebarProfile(); as profile) {
+          <div class="sidebar-avatar" aria-hidden="true">{{ profile.initials }}</div>
+          <div class="sidebar-profile-copy">
+            <strong [title]="profile.name">{{ profile.name }}</strong>
+            <span>{{ profile.role }}</span>
+          </div>
+        }
+      </div>
+      <div class="sidebar-actions">
+        <app-theme-toggle class="shrink-0" />
+        <app-logout-button class="min-w-0 max-w-full" />
+      </div>
     </div>
   </aside>
 

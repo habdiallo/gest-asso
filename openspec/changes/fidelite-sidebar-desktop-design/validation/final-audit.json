@@ -1,0 +1,3115 @@
+{
+  "desktop": [
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 330,
+        "right": 255,
+        "bottom": 426
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 327,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 370
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 375,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 418
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 330,
+        "right": 255,
+        "bottom": 426
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 327,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 370
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 375,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 418
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 330,
+        "right": 255,
+        "bottom": 426
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 327,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 370
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 375,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 418
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 330,
+        "right": 255,
+        "bottom": 426
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 327,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 370
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 375,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 418
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(100, 102, 110)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(100, 102, 110)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(100, 102, 110)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(100, 102, 110)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 195,
+        "right": 255,
+        "bottom": 291
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 144,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 187
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 192,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 235
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 240,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 283
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 51,
+        "right": 255,
+        "bottom": 147
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(100, 102, 110)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 51,
+        "right": 255,
+        "bottom": 147
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "dark",
+      "rootSize": "16px"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 1440,
+      "height": 900,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 900,
+        "right": 256,
+        "bottom": 900
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 51,
+        "right": 255,
+        "bottom": 147
+      },
+      "footer": {
+        "x": 20,
+        "y": 777,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 880
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 1024,
+      "height": 768,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 768,
+        "right": 256,
+        "bottom": 768
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 51,
+        "right": 255,
+        "bottom": 147
+      },
+      "footer": {
+        "x": 20,
+        "y": 645,
+        "width": 215,
+        "height": 103,
+        "right": 235,
+        "bottom": 748
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 43,
+            "right": 235,
+            "bottom": 139
+          },
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "256px",
+      "theme": "light",
+      "rootSize": "16px",
+      "activeAccent": "rgb(138, 105, 46)"
+    }
+  ],
+  "stress": [
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 540,
+        "right": 255,
+        "bottom": 636
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(229, 195, 88)",
+          "background": "rgba(242, 202, 80, 0.1)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 411,
+            "width": 215,
+            "height": 106,
+            "right": 235,
+            "bottom": 517
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 522,
+            "width": 215,
+            "height": 106,
+            "right": 235,
+            "bottom": 628
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "dark",
+      "rootSize": "32px",
+      "activeAccent": "rgb(229, 195, 88)"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 540,
+        "right": 255,
+        "bottom": 636
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "ACAwa CamaraAdministrateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Catégories de revenu",
+          "href": "/categories-de-revenu",
+          "rect": {
+            "x": 20,
+            "y": 411,
+            "width": 215,
+            "height": 106,
+            "right": 235,
+            "bottom": 517
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Rôles et utilisateurs",
+          "href": "/roles-utilisateurs",
+          "rect": {
+            "x": 20,
+            "y": 522,
+            "width": 215,
+            "height": 106,
+            "right": 235,
+            "bottom": 628
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "light",
+      "rootSize": "32px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 279,
+        "right": 255,
+        "bottom": 375
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(229, 195, 88)",
+          "background": "rgba(242, 202, 80, 0.1)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "dark",
+      "rootSize": "32px",
+      "activeAccent": "rgb(229, 195, 88)"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 279,
+        "right": 255,
+        "bottom": 375
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "MBMoussa BarryTrésorier",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "light",
+      "rootSize": "32px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 279,
+        "right": 255,
+        "bottom": 375
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(229, 195, 88)",
+          "background": "rgba(242, 202, 80, 0.1)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(165, 169, 180)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "dark",
+      "rootSize": "32px",
+      "activeAccent": "rgb(229, 195, 88)"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 279,
+        "right": 255,
+        "bottom": 375
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "FSFatou SowOpérateur",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Membres",
+          "href": "/membres",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": true
+        },
+        {
+          "text": "Campagnes",
+          "href": "/campagnes",
+          "rect": {
+            "x": 20,
+            "y": 165,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 229
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Cagnottes",
+          "href": "/cagnottes",
+          "rect": {
+            "x": 20,
+            "y": 234,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 298
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        },
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 303,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 367
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(94, 96, 104)",
+          "background": "rgba(0, 0, 0, 0)",
+          "current": null,
+          "focus": false
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "light",
+      "rootSize": "32px",
+      "activeAccent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 72,
+        "right": 255,
+        "bottom": 168
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(229, 195, 88)",
+          "background": "rgba(242, 202, 80, 0.1)",
+          "current": "page",
+          "focus": true
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "dark",
+      "rootSize": "32px",
+      "activeAccent": "rgb(229, 195, 88)"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 1024,
+      "height": 360,
+      "side": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 360,
+        "right": 256,
+        "bottom": 360
+      },
+      "display": "flex",
+      "padding": "28px 20px 20px",
+      "backdrop": "blur(24px)",
+      "nav": {
+        "x": 0,
+        "y": 96,
+        "width": 255,
+        "height": 72,
+        "right": 255,
+        "bottom": 168
+      },
+      "footer": {
+        "x": 20,
+        "y": 216,
+        "width": 215,
+        "height": 305,
+        "right": 235,
+        "bottom": 521
+      },
+      "profile": "MDMariama DialloMembre",
+      "brand": {
+        "x": 28,
+        "y": 28,
+        "width": 38,
+        "height": 38,
+        "right": 66,
+        "bottom": 66
+      },
+      "rows": [
+        {
+          "text": "Mon espace",
+          "href": "/mon-espace",
+          "rect": {
+            "x": 20,
+            "y": 96,
+            "width": 215,
+            "height": 64,
+            "right": 235,
+            "bottom": 160
+          },
+          "fontSize": "28px",
+          "lineHeight": "42px",
+          "color": "rgb(138, 105, 46)",
+          "background": "rgba(179, 143, 77, 0.09)",
+          "current": "page",
+          "focus": true
+        }
+      ],
+      "scrollWidth": 255,
+      "clientWidth": 255,
+      "contentPadding": "512px",
+      "theme": "light",
+      "rootSize": "32px",
+      "activeAccent": "rgb(138, 105, 46)"
+    }
+  ],
+  "responsive": [
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "administrator",
+      "color": "dark",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 820,
+      "display": "none",
+      "contentPadding": "0px"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 821,
+      "display": "flex",
+      "contentPadding": "256px"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "width": 375,
+      "display": "none",
+      "contentPadding": "0px"
+    }
+  ],
+  "interactions": [
+    {
+      "role": "administrator",
+      "color": "dark",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(206, 186, 121)"
+    },
+    {
+      "role": "administrator",
+      "color": "dark",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "administrator",
+      "color": "light",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "administrator",
+      "type": "keyboard-logout",
+      "passed": true
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(206, 186, 121)"
+    },
+    {
+      "role": "treasurer",
+      "color": "dark",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "treasurer",
+      "color": "light",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "treasurer",
+      "type": "keyboard-logout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(214, 189, 110)"
+    },
+    {
+      "role": "operator",
+      "color": "dark",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "type": "active",
+      "path": "/membres",
+      "accent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "operator",
+      "color": "light",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "type": "keyboard-logout",
+      "passed": true
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "type": "active",
+      "path": "/mon-espace",
+      "accent": "rgb(214, 189, 110)"
+    },
+    {
+      "role": "member",
+      "color": "dark",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "type": "active",
+      "path": "/mon-espace",
+      "accent": "rgb(138, 105, 46)"
+    },
+    {
+      "role": "member",
+      "color": "light",
+      "type": "keyboard-focus",
+      "passed": true
+    },
+    {
+      "role": "member",
+      "type": "keyboard-logout",
+      "passed": true
+    }
+  ],
+  "mobileComparison": []
+}

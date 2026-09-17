@@ -139,6 +139,46 @@ describe('App', () => {
     expect(harness.routeNativeElement?.querySelector('main')).toBeTruthy();
   });
 
+  it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
+    'shows the current session identity in the desktop sidebar for %s',
+    (role) => {
+      const session = TestBed.inject(SessionService);
+      session.setSession(buildLoginResponse(role));
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const profile = root.querySelector('aside .sidebar-profile');
+      expect(profile?.querySelector('strong')?.textContent).toBe('Awa Camara');
+      expect(profile?.querySelector('.sidebar-avatar')?.textContent).toBe('AC');
+      expect(profile?.querySelector('a, button')).toBeNull();
+      expect(root.querySelector('header .sidebar-profile')).toBeNull();
+      expect(root.querySelector('aside app-theme-toggle button')).toBeTruthy();
+      expect(root.querySelector('aside app-logout-button button')?.textContent?.trim()).toBe(
+        'Se déconnecter',
+      );
+
+      const user = buildLoginResponse(role).user;
+      session.setUser({ ...user, member: { ...user.member, displayName: 'Fatoumata Keita' } });
+      fixture.detectChanges();
+      expect(profile?.querySelector('strong')?.textContent).toBe('Fatoumata Keita');
+      expect(profile?.querySelector('strong')?.getAttribute('title')).toBe('Fatoumata Keita');
+      expect(profile?.querySelector('.sidebar-avatar')?.textContent).toBe('FK');
+    },
+  );
+
+  it('keeps sidebar actions without a fabricated identity while the user is loading', () => {
+    TestBed.inject(SessionService).token.set('session-token-value');
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('aside .sidebar-profile strong')).toBeNull();
+    expect(root.querySelector('aside .sidebar-avatar')).toBeNull();
+    expect(root.querySelector('aside app-theme-toggle button')).toBeTruthy();
+    expect(root.querySelector('aside app-logout-button button')).toBeTruthy();
+  });
+
   it('redirects an unknown route to the home feature', async () => {
     const harness = await RouterTestingHarness.create('/unknown');
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');

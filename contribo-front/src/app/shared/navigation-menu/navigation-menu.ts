@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { navigationItemsForRole } from '@core/navigation/navigation-items';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 
 /**
@@ -9,10 +10,33 @@ import { SessionService } from '@core/session/session.service';
  */
 export type NavigationMenuOrientation = 'horizontal' | 'vertical';
 
+const SIDEBAR_ICONS: Readonly<Record<string, readonly string[]>> = {
+  [NAVIGATION_PATHS.members]: [
+    'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2',
+    'M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  ],
+  [NAVIGATION_PATHS.incomeCategories]: [
+    'M20.59 13.41 11 3.83V2H4v7h1.83l9.58 9.59a2 2 0 0 0 2.82 0l2.36-2.36a2 2 0 0 0 0-2.82z',
+  ],
+  [NAVIGATION_PATHS.campaigns]: [
+    'M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
+    'M16 3v4M8 3v4M3 11h18',
+  ],
+  [NAVIGATION_PATHS.socialFunds]: [
+    'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z',
+  ],
+  [NAVIGATION_PATHS.rolesAndUsers]: [
+    'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',
+    'M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  ],
+  [NAVIGATION_PATHS.memberSpace]: ['M4 21a8 8 0 0 1 16 0'],
+};
+
 @Component({
   selector: 'app-navigation-menu',
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './navigation-menu.html',
+  styleUrl: './navigation-menu.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationMenu {
@@ -21,16 +45,26 @@ export class NavigationMenu {
   readonly orientation = input<NavigationMenuOrientation>('horizontal');
 
   readonly items = computed(() => navigationItemsForRole(this.sessionService.user()?.role ?? null));
+  readonly iconPaths = SIDEBAR_ICONS;
+  readonly navigationPaths = NAVIGATION_PATHS;
+  readonly verticalSections = computed(() => {
+    const administrative = (path: string): boolean =>
+      path === NAVIGATION_PATHS.incomeCategories || path === NAVIGATION_PATHS.rolesAndUsers;
+    return [
+      { label: null, items: this.items().filter((item) => !administrative(item.path)) },
+      { label: 'Administration', items: this.items().filter((item) => administrative(item.path)) },
+    ].filter((section) => section.items.length > 0);
+  });
 
   readonly navClasses = computed(() =>
     this.orientation() === 'vertical'
-      ? 'flex flex-col gap-1'
+      ? 'sidebar-nav'
       : 'flex flex-nowrap items-center justify-around gap-1 overflow-x-auto px-2 py-2 min-[821px]:px-6 min-[821px]:py-4',
   );
 
   readonly linkClasses = computed(() =>
     this.orientation() === 'vertical'
-      ? 'block rounded-lg px-3 py-2 text-sm text-text-2 transition-colors hover:bg-surface-2 hover:text-text'
+      ? 'sidebar-link'
       : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[821px]:text-sm',
   );
 }
