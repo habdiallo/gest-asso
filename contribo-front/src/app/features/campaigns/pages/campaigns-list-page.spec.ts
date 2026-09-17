@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampagnesService } from '@api';
+import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
@@ -26,7 +26,12 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
 }
 
 async function createFixture(
-  listCampaigns: (page: number) => Observable<CampaignPage>,
+  listCampaigns: (
+    page: number,
+    size?: number,
+    q?: string,
+    status?: CampaignStatus,
+  ) => Observable<CampaignPage>,
 ): Promise<ComponentFixture<CampaignsListPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -94,6 +99,48 @@ describe('CampaignsListPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aucune campagne.');
+  });
+
+  it('requests campaigns filtered by status when the status filter changes', async () => {
+    const requestedStatuses: (CampaignStatus | undefined)[] = [];
+    const fixture = await createFixture((_page, _size, _q, status) => {
+      requestedStatuses.push(status);
+      return of(buildCampaignPage());
+    });
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Closed;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
+  });
+
+  it('requests the first page again when the status filter changes', async () => {
+    const requestedPages: number[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return of(
+        buildCampaignPage({ page: { number: page, size: 1, totalElements: 2, totalPages: 2 } }),
+      );
+    });
+    fixture.detectChanges();
+
+    const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.click();
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Open;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedPages).toEqual([0, 1, 0]);
   });
 
   it('disables the previous page control on the first page and enables the next one', async () => {

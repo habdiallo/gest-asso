@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CampagnesService } from '@api';
+import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatCalendarDate } from '../campaign-dates';
@@ -16,11 +16,13 @@ import { campaignStatusLabel } from '../campaign-status-labels';
 /**
  * Écran liste des campagnes (T-57, `openapi:listCampaigns`) : nom, période
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
- * restreint déjà l'accès par rôle via `roleGuard`).
+ * restreint déjà l'accès par rôle via `roleGuard`). Le filtre par statut
+ * (T-58, paramètre contractuel `status`) restreint la liste aux campagnes
+ * ouvertes ou clôturées ; les campagnes à venir restent visibles via
+ * l'option « Toutes ».
  *
- * Limites connues : le filtre par statut (T-58) et la recherche par nom
- * (T-59) ne sont pas implémentés par ce ticket ; seule la pagination de
- * base (page suivante/précédente) est fournie ici.
+ * Limite connue : la recherche par nom (T-59) n'est pas implémentée par ce
+ * ticket.
  *
  * Les commandes de pagination restent montées et focusables pendant le
  * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
@@ -39,6 +41,12 @@ export class CampaignsListPage {
 
   private readonly requestedPage = signal(0);
 
+  readonly statusFilterOptions: readonly CampaignStatus[] = [
+    CampaignStatus.Open,
+    CampaignStatus.Closed,
+  ];
+
+  readonly statusFilter = signal<CampaignStatus | ''>('');
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly campaignPage = signal<CampaignPage | null>(null);
@@ -57,6 +65,11 @@ export class CampaignsListPage {
 
   constructor() {
     this.loadPage(this.requestedPage());
+  }
+
+  onStatusFilterChange(event: Event): void {
+    this.statusFilter.set((event.target as HTMLSelectElement).value as CampaignStatus | '');
+    this.loadPage(0);
   }
 
   goToPreviousPage(): void {
@@ -85,7 +98,7 @@ export class CampaignsListPage {
     this.loadError.set(false);
 
     this.campaignsService
-      .listCampaigns(page)
+      .listCampaigns(page, undefined, undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {
