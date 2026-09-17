@@ -1,11 +1,18 @@
 <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
   <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{ activeTab() === 'profile' ? ('memberSpace.profile.title' | transloco) : 'Mes cotisations' }}
+    {{
+      (activeTab() === 'profile' ? 'memberSpace.profile.title' : 'memberSpace.dues.title')
+        | transloco
+    }}
   </h1>
   @if (activeTab() === 'profile') {
     <p class="mt-1 text-sm text-text-2">{{ 'memberSpace.profile.subtitle' | transloco }}</p>
   }
-  <div class="mt-6 flex gap-2 border-b border-line" role="tablist" aria-label="Mon espace personnel">
+  <div
+    class="mt-6 flex gap-2 border-b border-line"
+    role="tablist"
+    [attr.aria-label]="'memberSpace.tabs.tablist' | transloco"
+  >
     <button type="button" id="personal-tab-profile" role="tab" aria-controls="personal-panel-profile"
       [attr.aria-selected]="activeTab() === 'profile'"
       class="border-b-2 px-4 py-3 text-sm font-medium"
@@ -13,7 +20,7 @@
       [class.text-gold-hover]="activeTab() === 'profile'"
       [class.border-transparent]="activeTab() !== 'profile'"
       [class.text-text-2]="activeTab() !== 'profile'" (click)="selectTab('profile')">
-      Mon profil
+      {{ 'memberSpace.tabs.profile' | transloco }}
     </button>
     <button type="button" id="personal-tab-dues" role="tab" aria-controls="personal-panel-dues"
       [attr.aria-selected]="activeTab() === 'dues'"
@@ -22,7 +29,7 @@
       [class.text-gold-hover]="activeTab() === 'dues'"
       [class.border-transparent]="activeTab() !== 'dues'"
       [class.text-text-2]="activeTab() !== 'dues'" (click)="selectTab('dues')">
-      Mes cotisations
+      {{ 'memberSpace.tabs.dues' | transloco }}
     </button>
   </div>
 

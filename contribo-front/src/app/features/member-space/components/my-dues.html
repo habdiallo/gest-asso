@@ -1,17 +1,17 @@
-<p class="mb-5 text-sm text-text-2">Votre situation détaillée pour chaque campagne.</p>
+<p class="mb-5 text-sm text-text-2">{{ 'memberSpace.dues.intro' | transloco }}</p>
 
 @if (loading()) {
-  <p role="status" class="mb-4 text-text-2">Chargement de vos cotisations…</p>
+  <p role="status" class="mb-4 text-text-2">{{ 'memberSpace.dues.loading' | transloco }}</p>
 }
 @if (loadError()) {
   <div class="mb-4 flex flex-wrap items-center gap-3">
-    <p role="alert" class="text-error">Impossible de charger vos cotisations.</p>
+    <p role="alert" class="text-error">{{ 'memberSpace.dues.error' | transloco }}</p>
     <button
       type="button"
       class="rounded-button border border-line px-4 py-2 text-text"
       (click)="retry()"
     >
-      Réessayer
+      {{ 'memberSpace.dues.retry' | transloco }}
     </button>
   </div>
 }
@@ -19,7 +19,7 @@
 @if (result(); as result) {
   @if (result.items.length === 0) {
     <p class="rounded-card border border-line bg-surface p-5 text-text-2">
-      Aucune cotisation pour le moment.
+      {{ 'memberSpace.dues.empty' | transloco }}
     </p>
   } @else {
     <div class="space-y-4" [attr.aria-busy]="loading()">
@@ -39,20 +39,26 @@
               [class.text-warning]="due.status === dueStatus.PartiallyPaid"
               [class.text-error]="due.status === dueStatus.Overdue"
             >
-              {{ statusLabels[due.status] }}
+              {{ statusLabels[due.status] | transloco }}
             </span>
           </div>
           <dl class="mt-5 grid gap-4 sm:grid-cols-3">
             <div>
-              <dt class="text-xs uppercase tracking-wide text-text-2">Montant dû</dt>
+              <dt class="text-xs uppercase tracking-wide text-text-2">
+                {{ 'memberSpace.dues.columns.dueAmount' | transloco }}
+              </dt>
               <dd class="mt-1 font-semibold text-text">{{ formatAmount(due.dueAmount) }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-text-2">Montant payé</dt>
+              <dt class="text-xs uppercase tracking-wide text-text-2">
+                {{ 'memberSpace.dues.columns.paidAmount' | transloco }}
+              </dt>
               <dd class="mt-1 font-semibold text-success">{{ formatAmount(due.paidAmount) }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-text-2">Reste à payer</dt>
+              <dt class="text-xs uppercase tracking-wide text-text-2">
+                {{ 'memberSpace.dues.columns.remainingAmount' | transloco }}
+              </dt>
               <dd class="mt-1 font-semibold text-text">{{ formatAmount(due.remainingAmount) }}</dd>
             </div>
           </dl>
@@ -60,7 +66,7 @@
       }
     </div>
     <nav
-      aria-label="Pages de mes cotisations"
+      [attr.aria-label]="'memberSpace.dues.pagination.nav' | transloco"
       class="mt-5 flex flex-wrap items-center justify-between gap-3"
     >
       <button
@@ -69,10 +75,13 @@
         [disabled]="loading() || result.page.number <= 0"
         (click)="loadPage(result.page.number - 1)"
       >
-        Précédent
+        {{ 'memberSpace.dues.pagination.previous' | transloco }}
       </button>
       <p class="text-sm text-text-2" role="status">
-        Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }}
+        {{
+          'memberSpace.dues.pagination.status'
+            | transloco : { current: result.page.number + 1, total: result.page.totalPages }
+        }}
       </p>
       <button
         type="button"
@@ -80,7 +89,7 @@
         [disabled]="loading() || result.page.number + 1 >= result.page.totalPages"
         (click)="loadPage(result.page.number + 1)"
       >
-        Suivant
+        {{ 'memberSpace.dues.pagination.next' | transloco }}
       </button>
     </nav>
   }
