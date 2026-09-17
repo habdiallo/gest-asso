@@ -3,6 +3,8 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import type { CurrentUser } from '@api';
 import { CurrencyCode, MemberStatus, UserRole } from '@api';
+import { EspacePersonnelService } from '@api';
+import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
@@ -45,6 +47,13 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
       {
         provide: SessionService,
         useValue: { user: signal(user) } as unknown as SessionService,
+      },
+      {
+        provide: EspacePersonnelService,
+        useValue: {
+          listMyDues: () =>
+            of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
+        } as unknown as EspacePersonnelService,
       },
     ],
   }).compileComponents();
@@ -91,7 +100,8 @@ describe('ProfilePage', () => {
     const fixture = await createFixture(buildCurrentUser());
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('button')).toBeNull();
+    expect(root.querySelector('button[aria-controls="personal-panel-profile"]')).not.toBeNull();
+    expect(root.querySelector('button[aria-controls="personal-panel-dues"]')).not.toBeNull();
     expect(root.querySelector('input')).toBeNull();
   });
 

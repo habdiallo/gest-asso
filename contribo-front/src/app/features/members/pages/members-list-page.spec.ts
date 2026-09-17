@@ -495,6 +495,64 @@ describe('MembersListPage', () => {
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 
+  it('displays the default Actif status after creation, without a status field in the form (T-35, RG-MEM-003)', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) =>
+      of(buildMemberDetails({ ...request, displayName: 'Mariama Barry', status: 'ACTIVE' })),
+    );
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    expect(Object.keys(form.form.controls)).not.toContain('status');
+
+    form.form.setValue({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      preferredName: '',
+      country: '',
+      city: '',
+      phone: '',
+      incomeCategoryId: demoIncomeCategory.id,
+      associationFunction: '',
+    });
+    form.submit();
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const confirmation = root.querySelector('[role="status"]');
+    expect(confirmation?.textContent).toContain('Mariama Barry');
+    expect(confirmation?.textContent).toContain('Actif');
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('clears the creation confirmation when reopening the dialog', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) =>
+      of(buildMemberDetails({ ...request, displayName: 'Mariama Barry', status: 'ACTIVE' })),
+    );
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    fixture.componentInstance.handleCreateMember({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createdConfirmation()).not.toBeNull();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createdConfirmation()).toBeNull();
+  });
+
   it.each([
     ['success', false],
     ['error', false],

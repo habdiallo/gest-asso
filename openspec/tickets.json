@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 112,
+  "nextTicketId": 113,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2121,10 +2121,34 @@
         "4.1",
         "4.2"
       ],
-      "dependencies": [14, 10, 11, 12],
+      "dependencies": [
+        14,
+        10,
+        11,
+        12
+      ],
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-sidebar-desktop-design",
       "branchAfterInitialization": "front/fix-111-sidebar-desktop-design"
+    },
+    {
+      "id": 112,
+      "title": "Corriger la règle frontend i18n.md : Transloco est installé et utilisé (fr.json), la mention 'aucun outil de traduction installé' est obsolète.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "fix",
+      "slug": "corriger-regle-i18n-transloco",
+      "change": "corriger-regle-i18n-transloco",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/fix-000-corriger-regle-i18n-transloco",
+      "branchAfterInitialization": "docs/fix-112-corriger-regle-i18n-transloco"
     }
   ]
 }
