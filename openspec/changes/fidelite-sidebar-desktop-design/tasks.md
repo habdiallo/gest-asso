@@ -28,6 +28,8 @@ Acceptation : blocs de marque, navigation et identité conformes à la référen
 ## 4. Préparer puis publier une seule PR T-111
 
 - [x] 4.1 [T-111] Relire le diff pour confirmer le périmètre exclusivement visuel de la sidebar, vérifier `node scripts/tickets.mjs check --base-ref origin/main` et la validation OpenSpec, mettre à jour uniquement les étapes réalisées et préparer la description selon `.github/pull_request_template.md` avec captures comparatives, validations et éventuels écarts justifiés.
-- [ ] 4.2 [T-111] Lorsque la livraison est demandée, ajouter explicitement les seuls fichiers T-111, committer avec un titre `fix(front): T-111 ...`, pousser uniquement `front/fix-111-sidebar-desktop-design` et ouvrir sa PR vers `main` ; suivre revue et CI sans fusion ni auto-merge sans demande explicite.
+- [x] 4.2 [T-111] Lorsque la livraison est demandée, ajouter explicitement les seuls fichiers T-111, committer avec un titre `fix(front): T-111 ...`, pousser uniquement `front/fix-111-sidebar-desktop-design` et ouvrir sa PR vers `main` ; suivre revue et CI sans fusion ni auto-merge sans demande explicite.
 
 La génération de cette proposition ne réalise pas les tâches applicatives. La publication de la PR et sa fusion sont des étapes distinctes ; aucun second ticket n'est prévu.
+
+Livraison demandée et publiée dans la [PR 58](https://github.com/habdiallo/gest-asso/pull/58), vers `main`. Captures comparatives et validations jointes ; revue et fusion restent à effectuer séparément.
