@@ -1,4 +1,5 @@
 import {
+  containsGnfDecimalSeparator,
   formatGnfAmountDetailed,
   formatGnfAmountInputDigits,
   sanitizeGnfAmountDigits,
@@ -37,12 +38,30 @@ describe('sanitizeGnfAmountDigits', () => {
     expect(sanitizeGnfAmountDigits('1 250 000')).toBe('1250000');
   });
 
-  it('removes a decimal separator and its fractional digits, keeping only integer digits', () => {
-    expect(sanitizeGnfAmountDigits('12,5a0.3')).toBe('12503');
-  });
-
   it('returns an empty string when there is no digit to keep', () => {
     expect(sanitizeGnfAmountDigits('GNF')).toBe('');
+  });
+});
+
+describe('containsGnfDecimalSeparator', () => {
+  it('detects a comma decimal separator', () => {
+    expect(containsGnfDecimalSeparator('1000,50')).toBe(true);
+  });
+
+  it('detects a period decimal separator', () => {
+    expect(containsGnfDecimalSeparator('1000.50')).toBe(true);
+  });
+
+  it('detects a decimal separator mixed with stray characters', () => {
+    expect(containsGnfDecimalSeparator('12,5a0.3')).toBe(true);
+  });
+
+  it('returns false for a value using only the admitted thousands separator', () => {
+    expect(containsGnfDecimalSeparator('1 250 000')).toBe(false);
+  });
+
+  it('returns false for a plain digit string', () => {
+    expect(containsGnfDecimalSeparator('1250000')).toBe(false);
   });
 });
 

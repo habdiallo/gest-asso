@@ -12,7 +12,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
 import { filter, map } from 'rxjs';
-import { formatGnfAmountInputDigits, sanitizeGnfAmountDigits } from '@core/formatting/currency';
+import {
+  containsGnfDecimalSeparator,
+  formatGnfAmountInputDigits,
+  sanitizeGnfAmountDigits,
+} from '@core/formatting/currency';
 
 let nextInstanceId = 0;
 
@@ -51,17 +55,28 @@ export class AmountInput implements ControlValueAccessor, OnInit {
   readonly value = signal<number | null>(null);
   readonly displayValue = signal('');
   readonly disabled = signal(false);
+  readonly invalidAmount = signal(false);
 
   private readonly touchedFallback = signal(false);
   private readonly touchedFromControl = signal<boolean | null>(null);
   readonly touched = computed(() => this.touchedFromControl() ?? this.touchedFallback());
 
   readonly showRequiredError = computed(
-    () => this.touched() && this.required() && this.value() === null,
+    () => this.touched() && this.required() && this.value() === null && !this.invalidAmount(),
+  );
+
+  readonly showInvalidAmountError = computed(() => this.invalidAmount());
+
+  readonly showError = computed(() => this.showRequiredError() || this.showInvalidAmountError());
+
+  readonly errorMessage = computed(() =>
+    this.showInvalidAmountError()
+      ? "Le montant saisi n'est pas valide. Saisissez uniquement un nombre entier, sans décimale."
+      : 'Le montant est obligatoire.',
   );
 
   readonly describedBy = computed(() =>
-    this.showRequiredError() ? `${this.unitHintId} ${this.errorId}` : this.unitHintId,
+    this.showError() ? `${this.unitHintId} ${this.errorId}` : this.unitHintId,
   );
 
   private onChange: (value: number | null) => void = () => {};
@@ -90,6 +105,8 @@ export class AmountInput implements ControlValueAccessor, OnInit {
   }
 
   writeValue(value: number | null): void {
+    this.invalidAmount.set(false);
+
     if (value === null) {
       this.value.set(null);
       this.displayValue.set('');
@@ -114,15 +131,43 @@ export class AmountInput implements ControlValueAccessor, OnInit {
   }
 
   handleInput(event: Event): void {
-    const rawValue = (event.target as HTMLInputElement).value;
+    const target = event.target as HTMLInputElement;
+    const rawValue = target.value;
+
+    if (containsGnfDecimalSeparator(rawValue)) {
+      this.rejectInvalidAmount(target, rawValue);
+      return;
+    }
+
     const digits = sanitizeGnfAmountDigits(rawValue);
-    const formatted = formatGnfAmountInputDigits(digits);
     const numericValue = digits ? Number(digits) : null;
 
+    if (numericValue !== null && !Number.isSafeInteger(numericValue)) {
+      this.rejectInvalidAmount(target, rawValue);
+      return;
+    }
+
+    const formatted = formatGnfAmountInputDigits(digits);
+    this.invalidAmount.set(false);
     this.displayValue.set(formatted);
     this.value.set(numericValue);
-    (event.target as HTMLInputElement).value = formatted;
+    target.value = formatted;
     this.onChange(numericValue);
+  }
+
+  /**
+   * Refuse une saisie non convertible en entier GNF valide (décimale,
+   * infinie ou hors de la plage des entiers sûrs) : conserve le texte brut
+   * saisi pour que l'association puisse le corriger, marque le champ
+   * invalide et ne propage jamais de valeur numérique erronée au formulaire
+   * hôte (RG-FMT-001).
+   */
+  private rejectInvalidAmount(target: HTMLInputElement, rawValue: string): void {
+    this.invalidAmount.set(true);
+    this.displayValue.set(rawValue);
+    this.value.set(null);
+    target.value = rawValue;
+    this.onChange(null);
   }
 
   handleBlur(): void {

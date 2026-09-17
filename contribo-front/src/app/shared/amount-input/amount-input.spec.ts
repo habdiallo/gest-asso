@@ -26,7 +26,20 @@ describe('AmountInput', () => {
     expect(input.value).toBe('1 250 000');
   });
 
-  it('rejects non-digit characters, keeping only the integer part of the input', () => {
+  it('strips stray non-digit characters that are not a decimal separator', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '1a2b5c0';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(input.value).toBe('1 250');
+    expect(fixture.componentInstance.value()).toBe(1250);
+  });
+
+  it('rejects a pasted decimal value instead of reinterpreting it as a larger integer', () => {
     const fixture = TestBed.createComponent(AmountInput);
     fixture.detectChanges();
 
@@ -35,7 +48,95 @@ describe('AmountInput', () => {
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(input.value).toBe('12 503');
+    expect(input.value).toBe('12,5a0.3');
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
+  });
+
+  it('rejects a decimal amount with a comma separator, without turning it into an integer 100x larger', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '1000,50';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(input.value).not.toBe('100050');
+  });
+
+  it('rejects a decimal amount with a period separator', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '1000.50';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(input.value).not.toBe('100050');
+  });
+
+  it('rejects a value that exceeds Number.MAX_SAFE_INTEGER instead of silently propagating an imprecise value', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '9007199254740993';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
+  });
+
+  it('rejects a value so large it would convert to Infinity instead of propagating it', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '9'.repeat(309);
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('propagates null instead of an invalid amount to the bound reactive form control', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '1000,50';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.control.value).toBeNull();
+  });
+
+  it('accepts a valid amount again after a rejected decimal input is corrected', () => {
+    const fixture = TestBed.createComponent(AmountInput);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    input.value = '1000,50';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.value()).toBeNull();
+
+    input.value = '1000';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.value()).toBe(1000);
+    expect(input.value).toBe('1 000');
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
 
   it('propagates a validated integer back to the bound reactive form control', () => {
