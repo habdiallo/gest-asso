@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { MyDues } from '../components/my-dues';
 import { memberStatusLabel } from '../member-status-labels';
 
 /**
@@ -21,7 +22,7 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, MyDues],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,4 +32,9 @@ export class ProfilePage {
   readonly member = computed<MemberSummary | null>(() => this.session.user()?.member ?? null);
 
   readonly memberStatusLabel = memberStatusLabel;
+  readonly activeTab = signal<'profile' | 'dues'>('profile');
+
+  selectTab(tab: 'profile' | 'dues'): void {
+    this.activeTab.set(tab);
+  }
 }
