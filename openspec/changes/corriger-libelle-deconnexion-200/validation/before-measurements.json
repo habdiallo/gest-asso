@@ -1,0 +1,164 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "fontSize": "32px",
+    "theme": "dark",
+    "headerVisible": true,
+    "header": {
+      "left": 0,
+      "top": 0,
+      "right": 320,
+      "bottom": 112,
+      "width": 320,
+      "height": 112
+    },
+    "owner": {
+      "left": 0,
+      "top": 0,
+      "right": 320,
+      "bottom": 112,
+      "width": 320,
+      "height": 112
+    },
+    "button": {
+      "left": 242.3125,
+      "top": -1.5,
+      "right": 512.671875,
+      "bottom": 112.5,
+      "width": 270.359375,
+      "height": 114
+    },
+    "themeButton": {
+      "left": 146.3125,
+      "top": 15.5,
+      "right": 226.3125,
+      "bottom": 95.5,
+      "width": 80,
+      "height": 80
+    },
+    "brand": {
+      "left": 32,
+      "top": 27.5,
+      "right": 146.3125,
+      "bottom": 83.5,
+      "width": 114.3125,
+      "height": 56
+    },
+    "textFragments": [
+      {
+        "left": 383.734375,
+        "top": 17.5,
+        "right": 414.078125,
+        "bottom": 52.5
+      },
+      {
+        "left": 320.71875,
+        "top": 57.5,
+        "right": 477.09375,
+        "bottom": 92.5
+      }
+    ],
+    "accessibleText": "Se déconnecter",
+    "content": {
+      "left": 0,
+      "top": 0,
+      "right": 320,
+      "bottom": 656,
+      "width": 320,
+      "height": 656
+    },
+    "firstContent": {
+      "left": 0,
+      "top": 112,
+      "right": 320,
+      "bottom": 528,
+      "width": 320,
+      "height": 416
+    },
+    "contentPaddingTop": "112px",
+    "documentWidth": 320,
+    "controlsOverlap": false
+  },
+  {
+    "width": 375,
+    "height": 667,
+    "fontSize": "32px",
+    "theme": "dark",
+    "headerVisible": true,
+    "header": {
+      "left": 0,
+      "top": 0,
+      "right": 375,
+      "bottom": 112,
+      "width": 375,
+      "height": 112
+    },
+    "owner": {
+      "left": 0,
+      "top": 0,
+      "right": 375,
+      "bottom": 112,
+      "width": 375,
+      "height": 112
+    },
+    "button": {
+      "left": 242.3125,
+      "top": -1.5,
+      "right": 512.671875,
+      "bottom": 112.5,
+      "width": 270.359375,
+      "height": 114
+    },
+    "themeButton": {
+      "left": 146.3125,
+      "top": 15.5,
+      "right": 226.3125,
+      "bottom": 95.5,
+      "width": 80,
+      "height": 80
+    },
+    "brand": {
+      "left": 32,
+      "top": 27.5,
+      "right": 146.3125,
+      "bottom": 83.5,
+      "width": 114.3125,
+      "height": 56
+    },
+    "textFragments": [
+      {
+        "left": 383.734375,
+        "top": 17.5,
+        "right": 414.078125,
+        "bottom": 52.5
+      },
+      {
+        "left": 320.71875,
+        "top": 57.5,
+        "right": 477.09375,
+        "bottom": 92.5
+      }
+    ],
+    "accessibleText": "Se déconnecter",
+    "content": {
+      "left": 0,
+      "top": 0,
+      "right": 375,
+      "bottom": 2908,
+      "width": 375,
+      "height": 2908
+    },
+    "firstContent": {
+      "left": 0,
+      "top": 112,
+      "right": 375,
+      "bottom": 2780,
+      "width": 375,
+      "height": 2668
+    },
+    "contentPaddingTop": "112px",
+    "documentWidth": 375,
+    "controlsOverlap": false
+  }
+]

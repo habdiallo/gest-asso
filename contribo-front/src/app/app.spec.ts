@@ -107,6 +107,32 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('app-navigation-menu nav')).toBeTruthy();
   });
 
+  it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
+    'keeps the complete logout action for %s and removes the authenticated shell after activation',
+    async (role) => {
+      const session = TestBed.inject(SessionService);
+      session.setSession(buildLoginResponse(role));
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const logout = root.querySelector('header app-logout-button button') as HTMLButtonElement;
+      expect(logout.textContent?.trim()).toBe('Se déconnecter');
+      expect(logout.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+      logout.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(session.token()).toBeNull();
+      expect(localStorage.getItem('contribo-session-token')).toBeNull();
+      expect(TestBed.inject(Router).url).toBe('/login');
+      expect(root.querySelector('header')).toBeNull();
+      expect(root.querySelector('aside')).toBeNull();
+      expect(root.querySelector('app-logout-button')).toBeNull();
+      expect(root.querySelector('app-theme-toggle button')).toBeTruthy();
+    },
+  );
+
   it('loads the home feature at the root route', async () => {
     const harness = await RouterTestingHarness.create('/');
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
