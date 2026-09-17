@@ -29,6 +29,15 @@
     }
   </app-form-dialog>
 
+  @if (createdConfirmation(); as confirmation) {
+    <p class="mt-4 rounded-card bg-success-wash px-4 py-3 text-sm text-success" role="status">
+      {{
+        'members.create.success'
+          | transloco: { name: confirmation.name, status: confirmation.statusLabel }
+      }}
+    </p>
+  }
+
   @if (loading() && !memberPage()) {
     <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
   } @else if (loadError() && !memberPage()) {

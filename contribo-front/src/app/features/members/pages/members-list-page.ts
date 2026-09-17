@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
-import type { CreateMemberRequest, MemberPage } from '@api';
+import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -40,6 +40,15 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * (`MembresService.createMember`). Le masquage de cette action pour
  * l'Opérateur et le Membre (RG-MEM-001) relève du ticket T-37 ; elle reste
  * visible ici pour tous les rôles qui accèdent à cet écran.
+ *
+ * Après une création réussie (T-35, RG-MEM-003) : le formulaire ne propose
+ * aucun champ de saisie du statut (`member-create-form.ts`, T-33) et cet
+ * écran affiche, une fois le dialogue fermé, une confirmation reprenant le
+ * nom du membre créé et son statut Actif par défaut, tel que renvoyé par
+ * `POST /members`. Le tri alphabétique de la liste (nom puis prénom) peut
+ * laisser le membre créé hors de la première page rechargée ; cette
+ * confirmation reste donc le retour visible immédiat, indépendamment de sa
+ * position dans le tableau.
  */
 @Component({
   selector: 'app-members-list-page',
@@ -57,13 +66,12 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
-  readonly showFinancialDetail = computed(
-    () => this.sessionService.user()?.role !== 'OPERATOR',
-  );
+  readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
   readonly createError = signal(false);
+  readonly createdConfirmation = signal<{ name: string; statusLabel: string } | null>(null);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -107,6 +115,7 @@ export class MembersListPage {
     ++this.createDialogSession;
     this.creating.set(false);
     this.createError.set(false);
+    this.createdConfirmation.set(null);
     this.createDialogOpen.set(true);
   }
 
@@ -128,11 +137,15 @@ export class MembersListPage {
       .createMember(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (member: MemberDetails) => {
           this.loadPage(0);
           if (session !== this.createDialogSession) {
             return;
           }
+          this.createdConfirmation.set({
+            name: member.displayName,
+            statusLabel: memberStatusLabel(member.status),
+          });
           this.closeCreateDialog();
         },
         error: () => {
