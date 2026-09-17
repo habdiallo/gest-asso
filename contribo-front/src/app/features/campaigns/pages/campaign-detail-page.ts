@@ -25,6 +25,7 @@ import type { TranslationKey } from '@core/i18n/translation-keys';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
+import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
 export type CampaignDetailTab = 'bareme' | 'cotisations' | 'bilan';
@@ -37,11 +38,8 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * accessibles sans rechargement de page (`campaigns.routes.ts` restreint
  * déjà l'accès aux mêmes rôles que la liste via `roleGuard`).
  *
- * Limites connues de ce ticket : seul l'onglet barème affiche des données
- * réelles (`categoryAmounts`, déjà renvoyées par `getCampaign`). Les onglets
- * cotisations (T-61, `openapi:listCampaignDues`) et bilan (T-77) restent des
- * emplacements réservés, sans agrégats ni tableau complet, en attendant leur
- * ticket dédié.
+ * L'onglet cotisations (T-61) charge la situation paginée des membres via
+ * `openapi:listCampaignDues`. Le bilan (T-77) reste un emplacement réservé.
  *
  * La sélection d'onglet utilise le motif ARIA `tablist`/`tab`/`tabpanel` avec
  * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres) afin de
@@ -68,7 +66,7 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  */
 @Component({
   selector: 'app-campaign-detail-page',
-  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput],
+  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

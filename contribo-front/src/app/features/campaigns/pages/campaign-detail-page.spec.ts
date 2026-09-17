@@ -90,7 +90,12 @@ async function createFixture(
       provideRouter([]),
       {
         provide: CampagnesService,
-        useValue: { getCampaign, updateCampaignCategoryAmounts } as unknown as CampagnesService,
+        useValue: {
+          getCampaign,
+          updateCampaignCategoryAmounts,
+          listCampaignDues: () =>
+            of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
+        } as unknown as CampagnesService,
       },
       {
         provide: ActivatedRoute,
@@ -181,9 +186,7 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-tabpanel-bareme')).toBeNull();
     const cotisationsPanel = root.querySelector('#campaign-tabpanel-cotisations');
     expect(cotisationsPanel).not.toBeNull();
-    expect(cotisationsPanel?.textContent).toContain(
-      'Le détail des cotisations sera disponible prochainement.',
-    );
+    expect(cotisationsPanel?.textContent).toContain('Aucune cotisation pour cette campagne.');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
