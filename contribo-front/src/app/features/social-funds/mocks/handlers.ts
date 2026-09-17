@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, SocialEventType, SocialFundStatus } from '@api';
+import { ErrorCode, SocialEventType, SocialFundStatus, UserRole } from '@api';
 import type {
   CreateSocialFundRequest,
   ErrorResponse,
@@ -48,6 +48,13 @@ function authenticationRequired(): Response {
   );
 }
 
+function accessDenied(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.AccessDenied, message: 'Accès réservé à l’Administrateur et au Trésorier.' },
+    { status: 403 },
+  );
+}
+
 /**
  * Handlers MSW de démonstration pour `GET /api/v1/social-funds` (T-82). Le
  * jeu de données couvre une cagnotte ouverte avec objectif (barre de
@@ -60,7 +67,10 @@ function authenticationRequired(): Response {
  * `POST /api/v1/social-funds` (T-84, `createSocialFund`) ajoute la nouvelle
  * cagnotte au jeu de démonstration : statut ouvert, aucun montant collecté,
  * `remainingToTargetAmount`/`progressRate` présents uniquement lorsqu'un
- * objectif est fourni (même règle que le serveur réel).
+ * objectif est fourni (même règle que le serveur réel). Réservé à
+ * l'Administrateur et au Trésorier, comme sur le contrat ; le masquage de
+ * l'action "Créer une cagnotte" pour l'Opérateur et le Membre (T-86,
+ * RG-CAG-002/003) est une étape IHM distincte.
  */
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
@@ -97,6 +107,9 @@ export const socialFundsHandlers = [
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
     if (!account) {
       return authenticationRequired();
+    }
+    if (account.user.role !== UserRole.Administrator && account.user.role !== UserRole.Treasurer) {
+      return accessDenied();
     }
 
     const body = (await request.json()) as CreateSocialFundRequest;

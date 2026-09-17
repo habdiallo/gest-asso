@@ -88,8 +88,18 @@
         id="social-fund-create-description"
         formControlName="description"
         rows="3"
+        maxlength="1000"
+        [attr.aria-invalid]="descriptionInvalid() ? true : null"
+        [attr.aria-describedby]="
+          descriptionInvalid() ? 'social-fund-create-description-error' : null
+        "
         class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       ></textarea>
+      @if (descriptionInvalid()) {
+        <p id="social-fund-create-description-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.create.fields.descriptionTooLong' | transloco }}
+        </p>
+      }
     </div>
 
     <div>
@@ -163,7 +173,9 @@
       [disabled]="submitting()"
       class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
-      {{ (submitting() ? 'socialFunds.create.submitting' : 'socialFunds.create.submit') | transloco }}
+      {{
+        (submitting() ? 'socialFunds.create.submitting' : 'socialFunds.create.submit') | transloco
+      }}
     </button>
   </div>
 </form>

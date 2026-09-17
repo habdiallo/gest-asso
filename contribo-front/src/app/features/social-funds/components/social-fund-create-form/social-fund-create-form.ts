@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { ValidatorFn } from '@angular/forms';
+import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { SocialEventType } from '@api';
 import type { CreateSocialFundRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -18,6 +18,15 @@ const dateRangeValidator: ValidatorFn = (group) => {
   const endDate = group.get('endDate')?.value as string;
   return startDate && endDate && endDate < startDate ? { dateRange: true } : null;
 };
+
+/**
+ * Rejette une chaîne vide ou composée uniquement d'espaces : `Validators.required`
+ * seul laisse passer un titre/bénéficiaire "blanc", envoyé vide après `trim()`
+ * alors que `CreateSocialFundRequest` impose `minLength: 1` et `pattern: '.*\S.*'`.
+ */
+function requireNonBlank(control: AbstractControl<string>): ValidationErrors | null {
+  return control.value.trim().length === 0 ? { required: true } : null;
+}
 
 /**
  * Formulaire de création d'une cagnotte (T-84, US-CAG-001) : Titre, Type
@@ -61,6 +70,7 @@ export class SocialFundCreateForm {
     {
       title: this.formBuilder.nonNullable.control('', [
         Validators.required,
+        requireNonBlank,
         Validators.maxLength(150),
       ]),
       eventType: this.formBuilder.nonNullable.control<SocialEventType | ''>(
@@ -70,6 +80,7 @@ export class SocialFundCreateForm {
       description: this.formBuilder.nonNullable.control('', Validators.maxLength(1000)),
       beneficiary: this.formBuilder.nonNullable.control('', [
         Validators.required,
+        requireNonBlank,
         Validators.maxLength(200),
       ]),
       startDate: this.formBuilder.nonNullable.control('', Validators.required),
@@ -91,6 +102,11 @@ export class SocialFundCreateForm {
 
   beneficiaryInvalid(): boolean {
     const control = this.form.controls.beneficiary;
+    return control.invalid && control.touched;
+  }
+
+  descriptionInvalid(): boolean {
+    const control = this.form.controls.description;
     return control.invalid && control.touched;
   }
 

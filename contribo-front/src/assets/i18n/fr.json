@@ -64,6 +64,7 @@
   "socialFunds.create.fields.eventTypePlaceholder": "Sélectionnez un type d'événement",
   "socialFunds.create.fields.eventTypeRequired": "Le type d'événement est obligatoire.",
   "socialFunds.create.fields.description": "Description",
+  "socialFunds.create.fields.descriptionTooLong": "La description ne doit pas dépasser 1000 caractères.",
   "socialFunds.create.fields.beneficiary": "Personne ou famille concernée",
   "socialFunds.create.fields.beneficiaryRequired": "La personne ou la famille concernée est obligatoire.",
   "socialFunds.create.fields.startDate": "Date de début",

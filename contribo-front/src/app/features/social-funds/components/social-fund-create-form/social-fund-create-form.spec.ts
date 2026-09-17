@@ -143,6 +143,59 @@ describe('SocialFundCreateForm', () => {
     expect(emitted).toHaveLength(0);
   });
 
+  it('blocks submission and marks the field invalid when the title is only whitespace', async () => {
+    const fixture = await createFixture();
+    fixture.componentInstance.form.setValue({ ...validValue, title: '   ' });
+
+    const emitted: CreateSocialFundRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(emitted).toHaveLength(0);
+    expect(fixture.componentInstance.titleInvalid()).toBe(true);
+  });
+
+  it('blocks submission and marks the field invalid when the beneficiary is only whitespace', async () => {
+    const fixture = await createFixture();
+    fixture.componentInstance.form.setValue({ ...validValue, beneficiary: '   ' });
+
+    const emitted: CreateSocialFundRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(emitted).toHaveLength(0);
+    expect(fixture.componentInstance.beneficiaryInvalid()).toBe(true);
+  });
+
+  it('shows a validation error when the target amount is zero', async () => {
+    const fixture = await createFixture();
+    fixture.componentInstance.form.setValue({ ...validValue, targetAmount: 0 });
+    fixture.componentInstance.form.controls.targetAmount.markAsTouched();
+    fixture.detectChanges();
+
+    const errorParagraph: HTMLParagraphElement | null =
+      fixture.nativeElement.querySelector('[role="alert"]');
+    const amountInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      'app-amount-input input',
+    );
+    expect(amountInput.getAttribute('aria-invalid')).toBe('true');
+    expect(errorParagraph?.textContent).toContain('au moins 1 GNF');
+  });
+
+  it('shows a validation error when the description exceeds 1000 characters', async () => {
+    const fixture = await createFixture();
+    fixture.componentInstance.form.setValue({ ...validValue, description: 'a'.repeat(1001) });
+    fixture.componentInstance.form.controls.description.markAsTouched();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.descriptionInvalid()).toBe(true);
+    expect(
+      fixture.nativeElement.querySelector('#social-fund-create-description-error')?.textContent,
+    ).toContain('1000 caractères');
+  });
+
   it('emits cancelled when the cancel button is activated', async () => {
     const fixture = await createFixture();
 
