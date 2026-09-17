@@ -116,10 +116,15 @@ export class RolesUsersPage {
       )
       .subscribe((page) => {
         this.loading.set(false);
-        if (page) {
-          this.result.set(page);
-        } else {
+        if (!page) {
           this.loadError.set(true);
+          return;
+        }
+        this.result.set(page);
+        const lastPageIndex = Math.max(0, page.page.totalPages - 1);
+        if (this.page() > lastPageIndex) {
+          this.page.set(lastPageIndex);
+          this.refetch.next();
         }
       });
 
@@ -180,8 +185,15 @@ export class RolesUsersPage {
   /**
    * Confirme le changement de rôle (US-ROLE-001) : appelle `updateUserAccess`
    * avec `operatorCanRecordPayments` conservé pour un rôle Opérateur, forcé à
-   * `false` sinon (contrainte du contrat, hors périmètre T-53/T-55). Reflète
-   * le nouveau rôle dans la liste en cas de succès sans recharger la page.
+   * `false` sinon (contrainte du contrat, hors périmètre T-53/T-55).
+   *
+   * La requête est rattachée à `account.id` : si la fiche a été fermée puis
+   * une autre ouverte entre-temps, une réponse tardive ne touche plus l'état
+   * du dialogue (fermeture, `savingRole`, erreur) désormais associé à cette
+   * autre fiche. En cas de succès, la liste est rechargée avec les critères
+   * courants (recherche/filtre/page) plutôt qu'un remplacement local, afin
+   * qu'une ligne qui ne correspond plus au filtre de rôle actif disparaisse
+   * et que les métadonnées de pagination restent cohérentes.
    */
   confirmRoleChange(event: Event, account: UserAccount): void {
     event.preventDefault();
@@ -193,36 +205,33 @@ export class RolesUsersPage {
       return;
     }
 
+    const accountId = account.id;
     const operatorCanRecordPayments =
       role === UserRole.Operator ? account.operatorCanRecordPayments : false;
 
     this.savingRole.set(true);
     this.roleSaveError.set(false);
     this.usersService
-      .updateUserAccess(account.id, { role, operatorCanRecordPayments })
+      .updateUserAccess(accountId, { role, operatorCanRecordPayments })
       .pipe(
         catchError(() => of(null)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((updated) => {
-        this.savingRole.set(false);
+        const dialogStillOpenForThisAccount = this.roleDialogAccount()?.id === accountId;
+        if (dialogStillOpenForThisAccount) {
+          this.savingRole.set(false);
+        }
         if (!updated) {
-          this.roleSaveError.set(true);
+          if (dialogStillOpenForThisAccount) {
+            this.roleSaveError.set(true);
+          }
           return;
         }
-        this.replaceAccount(updated);
-        this.closeRoleDialog();
+        if (dialogStillOpenForThisAccount) {
+          this.closeRoleDialog();
+        }
+        this.refetch.next();
       });
-  }
-
-  private replaceAccount(updated: UserAccount): void {
-    const current = this.result();
-    if (!current) {
-      return;
-    }
-    this.result.set({
-      ...current,
-      items: current.items.map((item) => (item.id === updated.id ? updated : item)),
-    });
   }
 }

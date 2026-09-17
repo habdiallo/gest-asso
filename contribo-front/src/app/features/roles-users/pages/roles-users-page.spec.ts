@@ -205,14 +205,15 @@ describe('RolesUsersPage', () => {
       expect(select.value).toBe(UserRole.Member);
     });
 
-    it('appelle updateUserAccess avec le nouveau rôle et reflète le résultat dans la liste', async () => {
+    it('appelle updateUserAccess avec le nouveau rôle et recharge la liste avec les critères courants', async () => {
       const account = accountForRoleTests();
       const updated: UserAccount = { ...account, role: UserRole.Treasurer };
       const updateUserAccess = vi.fn(() => of(updated) as never);
-      const fixture = await createFixture(
-        () => of(buildPage([account])) as never,
-        updateUserAccess,
+      let listCallCount = 0;
+      const listUsers = vi.fn(
+        () => (listCallCount++ === 0 ? of(buildPage([account])) : of(buildPage([updated]))) as never,
       );
+      const fixture = await createFixture(listUsers, updateUserAccess);
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
@@ -232,8 +233,108 @@ describe('RolesUsersPage', () => {
         role: UserRole.Treasurer,
         operatorCanRecordPayments: false,
       });
+      // La liste est rechargée (pas seulement remplacée localement) après la mutation,
+      // afin de refléter les nouveaux totaux/filtre servis par le serveur.
+      expect(listUsers).toHaveBeenCalledTimes(2);
       expect(root.querySelector('#role-dialog-select')).toBeNull();
       expect(root.textContent).toContain('Trésorier');
+    });
+
+    it('recharge la liste filtrée après un changement de rôle qui en sort le compte', async () => {
+      const account = buildAccount({
+        id: 'm5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+        role: UserRole.Member,
+        member: { id: 'n5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d22', displayName: 'Sekou Kaba' },
+      });
+      const updated: UserAccount = { ...account, role: UserRole.Treasurer };
+      const updateUserAccess = vi.fn(() => of(updated) as never);
+      let listCallCount = 0;
+      const listUsers = vi.fn(
+        () =>
+          (listCallCount++ === 0
+            ? of(buildPage([account]))
+            : of(buildPage([], { totalElements: 0 }))) as never,
+      );
+      const fixture = await createFixture(listUsers, updateUserAccess);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Sekou Kaba"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      select.value = UserRole.Treasurer;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      // Le refetch, pas un simple retrait local, recalcule totaux/filtre : le
+      // compte devenu Trésorier disparaît de la liste filtrée sur Membre.
+      expect(listUsers).toHaveBeenCalledTimes(2);
+      expect(root.textContent).toContain('Aucun utilisateur ne correspond');
+    });
+
+    it('ignore la réponse tardive de la fiche fermée A lorsque la fiche B est ouverte', async () => {
+      const accountA = buildAccount({
+        id: 'o5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d23',
+        role: UserRole.Member,
+        member: { id: 'p5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d24', displayName: 'Ibrahima Bah' },
+      });
+      const accountB = buildAccount({
+        id: 'q5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d25',
+        role: UserRole.Member,
+        member: { id: 'r5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d26', displayName: 'Awa Camara' },
+      });
+      const pendingA = new Subject<UserAccount>();
+      const updateUserAccess = vi.fn(() => pendingA.asObservable() as never);
+      const fixture = await createFixture(
+        () => of(buildPage([accountA, accountB])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Ibrahima Bah"]').click();
+      fixture.detectChanges();
+
+      const selectA = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      selectA.value = UserRole.Treasurer;
+      selectA.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      // Ferme la fiche de A (Annuler) pendant que sa requête de sauvegarde reste active.
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      cancelButton?.click();
+      fixture.detectChanges();
+      expect(root.querySelector('#role-dialog-select')).toBeNull();
+
+      // Ouvre la fiche de B et modifie sa sélection.
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Awa Camara"]').click();
+      fixture.detectChanges();
+      const selectB = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      selectB.value = UserRole.Operator;
+      selectB.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      // La réponse tardive de A arrive : la fiche de B doit rester ouverte avec sa saisie.
+      pendingA.next({ ...accountA, role: UserRole.Treasurer });
+      pendingA.complete();
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Rôle applicatif de Awa Camara');
+      const selectAfter = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      expect(selectAfter.value).toBe(UserRole.Operator);
     });
 
     it("force operatorCanRecordPayments à false lorsque le nouveau rôle n'est pas Opérateur", async () => {
