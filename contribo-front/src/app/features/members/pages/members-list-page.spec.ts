@@ -179,6 +179,36 @@ describe('MembersListPage', () => {
     expect(row?.textContent?.match(/Non renseigné/g)?.length).toBe(5);
   });
 
+  it('distinguishes active and inactive members visually in the status column (RG-MEM-007)', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildMemberPage({
+          items: [
+            buildMember({
+              id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+              lastName: 'Camara',
+              status: 'ACTIVE',
+            }),
+            buildMember({
+              id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+              lastName: 'Bangoura',
+              status: 'INACTIVE',
+            }),
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    const activeBadge = rows[0].querySelector('td:last-child span');
+    const inactiveBadge = rows[1].querySelector('td:last-child span');
+
+    expect(activeBadge?.className).not.toEqual(inactiveBadge?.className);
+    expect(activeBadge?.className).toContain('text-success');
+    expect(inactiveBadge?.className).not.toContain('text-success');
+  });
+
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>
       of(buildMemberPage({ page: { number: 0, size: 20, totalElements: 21, totalPages: 2 } })),

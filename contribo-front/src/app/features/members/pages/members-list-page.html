@@ -65,7 +65,23 @@
                 <td class="px-4 py-3 text-text-2">
                   {{ member.associationFunction || ('members.valueMissing' | transloco) }}
                 </td>
-                <td class="px-4 py-3 text-text-2">{{ memberStatusLabel(member.status) }}</td>
+                <td class="px-4 py-3">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                    [class.bg-success-wash]="memberIsActive(member.status)"
+                    [class.text-success]="memberIsActive(member.status)"
+                    [class.bg-surface-2]="!memberIsActive(member.status)"
+                    [class.text-text-2]="!memberIsActive(member.status)"
+                  >
+                    <span
+                      class="h-1.5 w-1.5 rounded-full"
+                      [class.bg-success]="memberIsActive(member.status)"
+                      [class.bg-text-3]="!memberIsActive(member.status)"
+                      aria-hidden="true"
+                    ></span>
+                    {{ memberStatusLabel(member.status) }}
+                  </span>
+                </td>
               </tr>
             }
           </tbody>
