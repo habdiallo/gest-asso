@@ -7,6 +7,25 @@ import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { RolesUsersPage } from './roles-users-page';
 
+/*
+ * jsdom (Vitest/`@angular/build:unit-test`) n'implémente pas `showModal()`/`close()`
+ * de `HTMLDialogElement` (https://github.com/jsdom/jsdom/issues/3294). Même correctif
+ * minimal que `form-dialog.spec.ts` pour permettre l'ouverture de la fiche de rôle (T-53)
+ * dans ces tests, sans vérifier le comportement natif réel (délégué au navigateur).
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
 function buildAccount(overrides: Partial<UserAccount> = {}): UserAccount {
   return {
     id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -30,6 +49,9 @@ function buildPage(
 
 async function createFixture(
   listUsers: () => ReturnType<UtilisateursEtRlesService['listUsers']>,
+  updateUserAccess?: (
+    ...args: Parameters<UtilisateursEtRlesService['updateUserAccess']>
+  ) => ReturnType<UtilisateursEtRlesService['updateUserAccess']>,
 ): Promise<ComponentFixture<RolesUsersPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -43,7 +65,7 @@ async function createFixture(
     providers: [
       {
         provide: UtilisateursEtRlesService,
-        useValue: { listUsers } as unknown as UtilisateursEtRlesService,
+        useValue: { listUsers, updateUserAccess } as unknown as UtilisateursEtRlesService,
       },
     ],
   }).compileComponents();
@@ -151,5 +173,248 @@ describe('RolesUsersPage', () => {
 
     expect(document.activeElement).toBe(nextButton);
     expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  describe('changement de rôle applicatif (T-53, US-ROLE-001)', () => {
+    function requireElement<T extends Element>(root: HTMLElement, selector: string): T {
+      const element = root.querySelector(selector);
+      if (!element) {
+        throw new Error(`Élément introuvable pour le sélecteur "${selector}".`);
+      }
+      return element as T;
+    }
+
+    function accountForRoleTests(): UserAccount {
+      return buildAccount({
+        id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d14',
+        role: UserRole.Member,
+        operatorCanRecordPayments: false,
+        member: { id: 'g5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d15', displayName: 'Mariama Diallo' },
+      });
+    }
+
+    it('ouvre la fiche de rôle avec le rôle courant présélectionné', async () => {
+      const fixture = await createFixture(() => of(buildPage([accountForRoleTests()])) as never);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      expect(select.value).toBe(UserRole.Member);
+    });
+
+    it('appelle updateUserAccess avec le nouveau rôle et recharge la liste avec les critères courants', async () => {
+      const account = accountForRoleTests();
+      const updated: UserAccount = { ...account, role: UserRole.Treasurer };
+      const updateUserAccess = vi.fn(() => of(updated) as never);
+      let listCallCount = 0;
+      const listUsers = vi.fn(
+        () => (listCallCount++ === 0 ? of(buildPage([account])) : of(buildPage([updated]))) as never,
+      );
+      const fixture = await createFixture(listUsers, updateUserAccess);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      select.value = UserRole.Treasurer;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      const form = requireElement<HTMLFormElement>(root, 'form');
+      form.dispatchEvent(new Event('submit', { cancelable: true }));
+      fixture.detectChanges();
+
+      expect(updateUserAccess).toHaveBeenCalledWith(account.id, {
+        role: UserRole.Treasurer,
+        operatorCanRecordPayments: false,
+      });
+      // La liste est rechargée (pas seulement remplacée localement) après la mutation,
+      // afin de refléter les nouveaux totaux/filtre servis par le serveur.
+      expect(listUsers).toHaveBeenCalledTimes(2);
+      expect(root.querySelector('#role-dialog-select')).toBeNull();
+      expect(root.textContent).toContain('Trésorier');
+    });
+
+    it('recharge la liste filtrée après un changement de rôle qui en sort le compte', async () => {
+      const account = buildAccount({
+        id: 'm5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+        role: UserRole.Member,
+        member: { id: 'n5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d22', displayName: 'Sekou Kaba' },
+      });
+      const updated: UserAccount = { ...account, role: UserRole.Treasurer };
+      const updateUserAccess = vi.fn(() => of(updated) as never);
+      let listCallCount = 0;
+      const listUsers = vi.fn(
+        () =>
+          (listCallCount++ === 0
+            ? of(buildPage([account]))
+            : of(buildPage([], { totalElements: 0 }))) as never,
+      );
+      const fixture = await createFixture(listUsers, updateUserAccess);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Sekou Kaba"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      select.value = UserRole.Treasurer;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      // Le refetch, pas un simple retrait local, recalcule totaux/filtre : le
+      // compte devenu Trésorier disparaît de la liste filtrée sur Membre.
+      expect(listUsers).toHaveBeenCalledTimes(2);
+      expect(root.textContent).toContain('Aucun utilisateur ne correspond');
+    });
+
+    it('ignore la réponse tardive de la fiche fermée A lorsque la fiche B est ouverte', async () => {
+      const accountA = buildAccount({
+        id: 'o5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d23',
+        role: UserRole.Member,
+        member: { id: 'p5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d24', displayName: 'Ibrahima Bah' },
+      });
+      const accountB = buildAccount({
+        id: 'q5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d25',
+        role: UserRole.Member,
+        member: { id: 'r5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d26', displayName: 'Awa Camara' },
+      });
+      const pendingA = new Subject<UserAccount>();
+      const updateUserAccess = vi.fn(() => pendingA.asObservable() as never);
+      const fixture = await createFixture(
+        () => of(buildPage([accountA, accountB])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Ibrahima Bah"]').click();
+      fixture.detectChanges();
+
+      const selectA = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      selectA.value = UserRole.Treasurer;
+      selectA.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      // Ferme la fiche de A (Annuler) pendant que sa requête de sauvegarde reste active.
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      cancelButton?.click();
+      fixture.detectChanges();
+      expect(root.querySelector('#role-dialog-select')).toBeNull();
+
+      // Ouvre la fiche de B et modifie sa sélection.
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Awa Camara"]').click();
+      fixture.detectChanges();
+      const selectB = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      selectB.value = UserRole.Operator;
+      selectB.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      // La réponse tardive de A arrive : la fiche de B doit rester ouverte avec sa saisie.
+      pendingA.next({ ...accountA, role: UserRole.Treasurer });
+      pendingA.complete();
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Rôle applicatif de Awa Camara');
+      const selectAfter = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      expect(selectAfter.value).toBe(UserRole.Operator);
+    });
+
+    it("force operatorCanRecordPayments à false lorsque le nouveau rôle n'est pas Opérateur", async () => {
+      const account = buildAccount({
+        role: UserRole.Operator,
+        operatorCanRecordPayments: true,
+        member: { id: 'h5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d16', displayName: 'Aminata Touré' },
+      });
+      const updateUserAccess = vi.fn(() => of({ ...account, role: UserRole.Member }) as never);
+      const fixture = await createFixture(
+        () => of(buildPage([account])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Aminata Touré"]').click();
+      fixture.detectChanges();
+
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      select.value = UserRole.Member;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      expect(updateUserAccess).toHaveBeenCalledWith(account.id, {
+        role: UserRole.Member,
+        operatorCanRecordPayments: false,
+      });
+    });
+
+    it("affiche une erreur et conserve la sélection lorsque l'API échoue", async () => {
+      const account = accountForRoleTests();
+      const updateUserAccess = vi.fn(() => throwError(() => new Error('network error')) as never);
+      const fixture = await createFixture(
+        () => of(buildPage([account])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
+        new Event('submit', { cancelable: true }),
+      );
+      fixture.detectChanges();
+
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        "Impossible d'enregistrer le rôle",
+      );
+      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
+      expect(select.value).toBe(UserRole.Member);
+    });
+
+    it('le bouton Annuler ferme la fiche sans appeler updateUserAccess', async () => {
+      const account = accountForRoleTests();
+      const updateUserAccess = vi.fn(() => of(account) as never);
+      const fixture = await createFixture(
+        () => of(buildPage([account])) as never,
+        updateUserAccess,
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
+      fixture.detectChanges();
+
+      const buttons = Array.from(root.querySelectorAll('button'));
+      const cancelButton = buttons.find((button) => button.textContent?.trim() === 'Annuler');
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('#role-dialog-select')).toBeNull();
+      expect(updateUserAccess).not.toHaveBeenCalled();
+    });
   });
 });
