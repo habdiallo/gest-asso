@@ -175,4 +175,26 @@ describe('App', () => {
 
     expect(TestBed.inject(Router).url).toBe('/');
   });
+
+  // T-99 (RG-DATA-001) : un Membre ne consulte que ses propres données via
+  // l'espace personnel (/mon-espace, T-95, `getMyProfile`), jamais la fiche
+  // d'un autre membre. `roleGuard('ADMINISTRATOR', 'TREASURER', 'OPERATOR')`
+  // protège déjà toute la route montée `membres` (T-21) ; ces tests
+  // confirment que ce mécanisme existant bloque bien la liste et la fiche
+  // détaillée pour ce rôle, sans garde supplémentaire à introduire.
+  it('redirects the Member role away from the members list route', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER'));
+
+    await RouterTestingHarness.create('/membres');
+
+    expect(TestBed.inject(Router).url).toBe('/acces-refuse');
+  });
+
+  it('redirects the Member role away from another member detail route', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER'));
+
+    await RouterTestingHarness.create('/membres/c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d99');
+
+    expect(TestBed.inject(Router).url).toBe('/acces-refuse');
+  });
 });

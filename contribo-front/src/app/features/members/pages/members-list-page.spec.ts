@@ -1,19 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { CatgoriesDeRevenuService, MembresService } from '@api';
+import { CatgoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
 import type {
   CreateMemberRequest,
+  CurrentUser,
   IncomeCategory,
   MemberDetails,
   MemberPage,
   MemberSummary,
+  UserRole,
 } from '@api';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
+import { SessionService } from '@core/session/session.service';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { MembersListPage } from './members-list-page';
 
@@ -92,11 +95,34 @@ function buildMemberPage(overrides: Partial<MemberPage> = {}): MemberPage {
   };
 }
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   listMembers: (page?: number) => Observable<MemberPage>,
   options: {
     createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
+    role?: UserRole;
   } = {},
 ): Promise<ComponentFixture<MembersListPage>> {
   const createMember =
@@ -125,6 +151,11 @@ async function createFixture(
       provideRouter([]),
     ],
   }).compileComponents();
+
+  if (options.role) {
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.setUser(buildCurrentUser(options.role));
+  }
 
   const fixture = TestBed.createComponent(MembersListPage);
   fixture.detectChanges();
@@ -283,6 +314,32 @@ describe('MembersListPage', () => {
     expect(activeBadge?.className).toContain('text-success');
     expect(inactiveBadge?.className).not.toContain('text-success');
   });
+
+  it('hides the income category column for an Opérateur (RG-MEM-008)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).not.toContain('Catégorie B');
+    expect(
+      Array.from(root.querySelectorAll('thead th')).some((th) =>
+        th.textContent?.includes('Catégorie'),
+      ),
+    ).toBe(false);
+    const row = root.querySelector('tbody tr');
+    expect(row?.querySelectorAll('td').length).toBe(9);
+  });
+
+  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+    'keeps the income category column visible for %s',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberPage()), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Catégorie B');
+    },
+  );
 
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>

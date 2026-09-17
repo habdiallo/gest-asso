@@ -21,10 +21,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
  *
  * N'appelle pas `POST /members` lui-même : émet `submitted` avec la requête
  * construite, l'appel API et le rafraîchissement de la liste restant à la
- * charge du composant appelant. La validation dédiée du champ catégorie
- * (RG-MEM-002, T-34), le statut par défaut affiché (T-35), le message de
- * confirmation de création de compte (T-36) et le masquage de l'action pour
- * l'Opérateur/le Membre (T-37) ne sont pas traités ici.
+ * charge du composant appelant. Le champ catégorie de revenu est obligatoire
+ * (RG-MEM-002, T-34) : la soumission est bloquée et un message d'erreur
+ * explicite s'affiche tant qu'aucune catégorie n'est sélectionnée. Le statut
+ * par défaut affiché (T-35), le message de confirmation de création de
+ * compte (T-36) et le masquage de l'action pour l'Opérateur/le Membre (T-37)
+ * ne sont pas traités ici.
  */
 @Component({
   selector: 'app-member-create-form',

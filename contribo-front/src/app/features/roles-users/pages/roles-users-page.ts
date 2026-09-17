@@ -31,16 +31,21 @@ const SEARCH_DEBOUNCE_MS = 300;
  * Le sélecteur de rôle applicatif (T-53) ouvre, depuis la "fiche" d'un
  * utilisateur (dialogue `app-form-dialog`, composant partagé T-15), les 4
  * rôles du contrat et appelle `PUT /users/{userId}` (`updateUserAccess`,
- * openapi:`UpdateUserAccessRequest`). L'attribut `operatorCanRecordPayments`
- * n'est pas exposé ici (T-55/T-56) : sa valeur courante est conservée pour un
- * rôle Opérateur, sinon forcée à `false`, conformément à la contrainte du
- * contrat ("operatorCanRecordPayments doit être false pour tout rôle
- * différent de OPERATOR"). La fonction associative n'est ni affichée ni
- * modifiée depuis cet écran (RG-ROLE-006, T-54).
+ * openapi:`UpdateUserAccessRequest`).
+ *
+ * Le contrôle `peut_enregistrer_paiements` (T-55, §2.3, RG-ROLE-007 à
+ * RG-ROLE-009) réutilise la même fiche et le même appel `updateUserAccess`,
+ * le contrat n'exposant pas d'opération dédiée : la case à cocher
+ * n'apparaît que lorsque le rôle sélectionné dans la fiche est Opérateur,
+ * initialisée à la valeur courante du compte à l'ouverture. Pour tout autre
+ * rôle, `operatorCanRecordPayments` est forcé à `false`, conformément à la
+ * contrainte du contrat ("operatorCanRecordPayments doit être false pour
+ * tout rôle différent de OPERATOR"). La fonction associative n'est ni
+ * affichée ni modifiée depuis cet écran (RG-ROLE-006, T-54).
  *
  * Limite connue : ni l'affichage de la fonction associative (T-54), ni le
- * contrôle `peut_enregistrer_paiements` (T-55/T-56) ne sont exposés depuis
- * cet écran.
+ * masquage complet du contrôle `peut_enregistrer_paiements` en dehors de
+ * cette fiche pour un compte non-Opérateur (T-56) ne sont couverts ici.
  *
  * Le tableau et les commandes de pagination restent montés pendant un
  * rechargement (recherche, filtre ou changement de page) : seules
@@ -64,6 +69,8 @@ export class RolesUsersPage {
     UserRole.Operator,
     UserRole.Member,
   ];
+  /** Rôle pour lequel le contrôle `peut_enregistrer_paiements` (T-55) s'applique. */
+  readonly operatorRole = UserRole.Operator;
 
   readonly searchTerm = signal('');
   readonly roleFilter = signal<UserRole | ''>('');
@@ -91,6 +98,12 @@ export class RolesUsersPage {
   readonly roleDialogAccount = signal<UserAccount | null>(null);
   /** Rôle sélectionné dans le dialogue, initialisé au rôle courant à l'ouverture. */
   readonly roleDraft = signal<UserRole | null>(null);
+  /**
+   * État de `peut_enregistrer_paiements` (T-55) sélectionné dans la fiche,
+   * initialisé à la valeur courante du compte à l'ouverture. N'est pertinent
+   * et affiché que lorsque `roleDraft()` vaut Opérateur.
+   */
+  readonly operatorAuthorizationDraft = signal(false);
   readonly savingRole = signal(false);
   readonly roleSaveError = signal(false);
 
@@ -167,6 +180,7 @@ export class RolesUsersPage {
   openRoleDialog(account: UserAccount): void {
     this.roleDialogAccount.set(account);
     this.roleDraft.set(account.role);
+    this.operatorAuthorizationDraft.set(account.operatorCanRecordPayments);
     this.roleSaveError.set(false);
   }
 
@@ -174,6 +188,7 @@ export class RolesUsersPage {
   closeRoleDialog(): void {
     this.roleDialogAccount.set(null);
     this.roleDraft.set(null);
+    this.operatorAuthorizationDraft.set(false);
     this.roleSaveError.set(false);
     this.savingRole.set(false);
   }
@@ -182,10 +197,16 @@ export class RolesUsersPage {
     this.roleDraft.set((event.target as HTMLSelectElement).value as UserRole);
   }
 
+  /** Bascule l'état de `peut_enregistrer_paiements` (T-55) dans la fiche ouverte. */
+  onOperatorAuthorizationDraftChange(event: Event): void {
+    this.operatorAuthorizationDraft.set((event.target as HTMLInputElement).checked);
+  }
+
   /**
-   * Confirme le changement de rôle (US-ROLE-001) : appelle `updateUserAccess`
-   * avec `operatorCanRecordPayments` conservé pour un rôle Opérateur, forcé à
-   * `false` sinon (contrainte du contrat, hors périmètre T-53/T-55).
+   * Confirme le changement de rôle (US-ROLE-001) et, le cas échéant, l'état
+   * de `peut_enregistrer_paiements` (T-55) : appelle `updateUserAccess` avec
+   * la valeur sélectionnée dans la fiche pour un rôle Opérateur, forcée à
+   * `false` sinon (contrainte du contrat).
    *
    * La requête est rattachée à `account.id` : si la fiche a été fermée puis
    * une autre ouverte entre-temps, une réponse tardive ne touche plus l'état
@@ -207,7 +228,7 @@ export class RolesUsersPage {
 
     const accountId = account.id;
     const operatorCanRecordPayments =
-      role === UserRole.Operator ? account.operatorCanRecordPayments : false;
+      role === UserRole.Operator ? this.operatorAuthorizationDraft() : false;
 
     this.savingRole.set(true);
     this.roleSaveError.set(false);

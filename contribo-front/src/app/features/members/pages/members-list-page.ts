@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
 import type { CreateMemberRequest, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
@@ -28,9 +29,11 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * textuel, pour ne pas reposer uniquement sur la couleur. Chaque ligne mène
  * à la fiche détaillée du membre (T-27, US-MEM-003).
  *
- * Limite connue : la vue restreinte de l'Opérateur (masquage du détail
- * financier, RG-MEM-008) n'est pas implémentée ici et fait l'objet du ticket
- * T-23 ; cet écran affiche les colonnes du contrat sans distinction de rôle.
+ * Vue restreinte de l'Opérateur (T-23, RG-MEM-008) : la colonne Catégorie de
+ * revenu, qui porte le détail financier du membre (montants de cotisation
+ * associés à la catégorie), est masquée pour le rôle Opérateur. Les autres
+ * colonnes (identité, coordonnées, fonction, statut) restent affichées, car
+ * elles sont nécessaires à ses opérations courantes.
  *
  * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
  * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
@@ -47,11 +50,16 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 export class MembersListPage {
   private readonly membersService = inject(MembresService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
+
+  readonly showFinancialDetail = computed(
+    () => this.sessionService.user()?.role !== 'OPERATOR',
+  );
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
