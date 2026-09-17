@@ -98,7 +98,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 9.1 [T-57] (P0) Écran liste des campagnes (nom, période, statut) pour Administrateur/Trésorier/Opérateur. — openapi:`listCampaigns`
 - [x] 9.2 [T-58] (P2) Filtre par statut de campagne (ouverte/clôturée).
-- [ ] 9.3 [T-59] (P2) Recherche par nom de campagne.
+- [x] 9.3 [T-59] (P2) Recherche par nom de campagne.
 - [x] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
   Validation du retour de revue PR 45 : accès Tab aux trois onglets, activation Entrée/Espace vérifiée dans Chrome. Tests et build de production réussis après synchronisation de main.
 - [ ] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`

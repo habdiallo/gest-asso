@@ -98,6 +98,8 @@
   "incomeCategories.editDialog.submit": "Enregistrer",
   "incomeCategories.editDialog.submitting": "Enregistrement…",
   "campaigns.list.title": "Campagnes",
+  "campaigns.list.searchLabel": "Rechercher",
+  "campaigns.list.searchPlaceholder": "Nom de la campagne",
   "campaigns.list.statusFilterLabel": "Statut",
   "campaigns.list.statusFilterAll": "Toutes",
   "campaigns.list.loading": "Chargement des campagnes…",
