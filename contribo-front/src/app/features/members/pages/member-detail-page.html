@@ -25,24 +25,23 @@
         (click)="openEditDialog()"
         class="mt-4 rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
       >
-        Modifier le membre
+        {{ 'members.edit.button' | transloco }}
       </button>
     }
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
-        Les modifications du membre ont été enregistrées.
+      {{ 'members.edit.success' | transloco }}
       </p>
     }
     <app-form-dialog
       [open]="editOpen() && canEdit()"
-      dialogTitle="Modifier le membre"
+      [dialogTitle]="'members.edit.dialogTitle' | transloco"
       (closed)="closeEditDialog()"
     >
       @if (editOpen() && canEdit()) {
         @if (editError()) {
           <p class="mb-4 text-sm text-error" role="alert">
-            Impossible d'enregistrer les modifications. Votre saisie est conservée, vous pouvez
-            réessayer.
+            {{ 'members.edit.error' | transloco }}
           </p>
         }
         <app-member-edit-form
