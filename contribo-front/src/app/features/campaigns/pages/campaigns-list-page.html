@@ -1,0 +1,64 @@
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
+  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
+    {{ 'campaigns.list.title' | transloco }}
+  </h1>
+
+  @if (loading()) {
+    <p class="mt-6 text-text-2" role="status">{{ 'campaigns.list.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <p class="mt-6 text-error" role="alert">{{ 'campaigns.list.error' | transloco }}</p>
+  } @else if (campaignPage(); as campaignPage) {
+    @if (campaignPage.items.length === 0) {
+      <p class="mt-6 text-text-2">{{ 'campaigns.list.empty' | transloco }}</p>
+    } @else {
+      <ul class="mt-6 flex flex-col gap-3">
+        @for (campaign of campaignPage.items; track campaign.id) {
+          <li class="rounded-card border border-line bg-surface p-4">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <span class="font-medium text-text">{{ campaign.name }}</span>
+              <span class="text-xs uppercase tracking-[0.08em] text-text-2">
+                {{ campaignStatusLabel(campaign.status) }}
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-text-2">
+              {{
+                'campaigns.list.period'
+                  | transloco
+                    : {
+                        start: formatCalendarDate(campaign.startDate),
+                        end: formatCalendarDate(campaign.endDate),
+                      }
+              }}
+            </p>
+          </li>
+        }
+      </ul>
+
+      <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
+        <button
+          type="button"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
+          [disabled]="campaignPage.page.number === 0"
+          (click)="goToPreviousPage()"
+        >
+          {{ 'campaigns.list.previousPage' | transloco }}
+        </button>
+        <p class="text-sm text-text-2" role="status">
+          {{
+            'campaigns.list.pageStatus'
+              | transloco
+                : { page: campaignPage.page.number + 1, totalPages: campaignPage.page.totalPages }
+          }}
+        </p>
+        <button
+          type="button"
+          class="rounded-card border border-line px-4 py-2 text-sm text-text disabled:opacity-40"
+          [disabled]="campaignPage.page.number + 1 >= campaignPage.page.totalPages"
+          (click)="goToNextPage()"
+        >
+          {{ 'campaigns.list.nextPage' | transloco }}
+        </button>
+      </nav>
+    }
+  }
+</main>

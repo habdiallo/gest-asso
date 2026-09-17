@@ -36,5 +36,13 @@
   "dashboard.member.totalContributions": "Total des contributions",
   "dashboard.member.contributedSocialFunds": "Cagnottes soutenues",
   "dashboard.member.recentDuesTitle": "Cotisations récentes",
-  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente."
+  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente.",
+  "campaigns.list.title": "Campagnes",
+  "campaigns.list.loading": "Chargement des campagnes…",
+  "campaigns.list.error": "Impossible de charger les campagnes. Réessayez plus tard.",
+  "campaigns.list.empty": "Aucune campagne.",
+  "campaigns.list.period": "Du {{start}} au {{end}}",
+  "campaigns.list.pageStatus": "Page {{page}} sur {{totalPages}}",
+  "campaigns.list.previousPage": "Page précédente",
+  "campaigns.list.nextPage": "Page suivante"
 }

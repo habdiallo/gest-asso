@@ -20,6 +20,11 @@ export const routes: Routes = [
     loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    path: 'campagnes',
+    loadChildren: () =>
+      import('@features/campaigns/campaigns.routes').then((m) => m.CAMPAIGNS_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },
