@@ -4,6 +4,7 @@ import { CatgoriesDeRevenuService } from '@api';
 import type { IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
+import { EditIncomeCategoryDialog } from '../components/edit-income-category-dialog/edit-income-category-dialog';
 import { formatInstant } from '../income-categories-dates';
 
 /**
@@ -23,10 +24,15 @@ import { formatInstant } from '../income-categories-dates';
  * création, la liste est rechargée depuis l'API pour rester triée par libellé
  * comme le garantit le contrat, plutôt que d'insérer la nouvelle catégorie
  * localement.
+ *
+ * Propose aussi la modification du libellé d'une catégorie existante (T-51,
+ * `EditIncomeCategoryDialog`), avec un avertissement rappelant l'absence
+ * d'effet rétroactif sur les cotisations déjà établies (US-REV-002). Après
+ * modification, la liste est également rechargée depuis l'API.
  */
 @Component({
   selector: 'app-income-categories-page',
-  imports: [TranslocoPipe, CreateIncomeCategoryDialog],
+  imports: [TranslocoPipe, CreateIncomeCategoryDialog, EditIncomeCategoryDialog],
   templateUrl: './income-categories-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -38,6 +44,8 @@ export class IncomeCategoriesPage {
   readonly loadError = signal(false);
   readonly categories = signal<IncomeCategory[]>([]);
   readonly createDialogOpen = signal(false);
+  readonly editDialogOpen = signal(false);
+  readonly editingCategory = signal<IncomeCategory | null>(null);
 
   readonly formatInstant = formatInstant;
 
@@ -54,6 +62,19 @@ export class IncomeCategoriesPage {
   }
 
   handleCategoryCreated(): void {
+    this.loadCategories();
+  }
+
+  openEditDialog(category: IncomeCategory): void {
+    this.editingCategory.set(category);
+    this.editDialogOpen.set(true);
+  }
+
+  handleEditDialogClosed(): void {
+    this.editDialogOpen.set(false);
+  }
+
+  handleCategoryUpdated(): void {
     this.loadCategories();
   }
 
