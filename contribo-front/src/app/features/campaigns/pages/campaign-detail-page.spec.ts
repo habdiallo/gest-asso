@@ -108,7 +108,7 @@ describe('CampaignDetailPage', () => {
     expect(baremeTab.getAttribute('aria-selected')).toBe('true');
     expect(baremeTab.tabIndex).toBe(0);
     expect(tabs[1].getAttribute('aria-selected')).toBe('false');
-    expect(tabs[1].tabIndex).toBe(-1);
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
 
     expect(root.querySelector('#campaign-tabpanel-bareme')).not.toBeNull();
     expect(root.querySelector('#campaign-tabpanel-cotisations')).toBeNull();
@@ -133,6 +133,7 @@ describe('CampaignDetailPage', () => {
     );
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
   });
 
   it('switches to the bilan tab', async () => {

@@ -72,6 +72,9 @@
             <th scope="col" class="px-4 py-3 font-medium">
               {{ 'rolesUsers.columnAccount' | transloco }}
             </th>
+            <th scope="col" class="px-4 py-3 font-medium">
+              <span class="sr-only">{{ 'rolesUsers.columnActions' | transloco }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -88,6 +91,18 @@
                 } @else {
                   <span class="text-text-2">{{ 'rolesUsers.accountInactive' | transloco }}</span>
                 }
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  (click)="openRoleDialog(account)"
+                  [attr.aria-label]="
+                    'rolesUsers.editRoleAction' | transloco: { name: account.member.displayName }
+                  "
+                  class="rounded-lg border border-line px-3 py-2 text-sm text-text hover:border-gold hover:text-gold-hover"
+                >
+                  {{ 'rolesUsers.editRoleLabel' | transloco }}
+                </button>
               </td>
             </tr>
           }
@@ -125,5 +140,58 @@
         </div>
       </div>
     }
+  }
+
+  @if (roleDialogAccount(); as account) {
+    <app-form-dialog
+      [open]="true"
+      [dialogTitle]="'rolesUsers.roleDialogTitle' | transloco: { name: account.member.displayName }"
+      [closeLabel]="'rolesUsers.roleDialogCancel' | transloco"
+      (closed)="closeRoleDialog()"
+    >
+      <form (submit)="confirmRoleChange($event, account)">
+        <div class="flex flex-col gap-2">
+          <label for="role-dialog-select" class="text-sm font-medium text-text-2">
+            {{ 'rolesUsers.roleDialogLabel' | transloco }}
+          </label>
+          <select
+            id="role-dialog-select"
+            [value]="roleDraft()"
+            (change)="onRoleDraftChange($event)"
+            class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+          >
+            @for (role of roleOptions; track role) {
+              <option [value]="role" [selected]="role === roleDraft()">
+                {{ userRoleLabel(role) }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (roleSaveError()) {
+          <p class="mt-3 text-sm text-error" role="alert">
+            {{ 'rolesUsers.roleDialogError' | transloco }}
+          </p>
+        }
+
+        <div class="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            (click)="closeRoleDialog()"
+            class="rounded-lg border border-line px-4 py-2 text-text"
+          >
+            {{ 'rolesUsers.roleDialogCancel' | transloco }}
+          </button>
+          <button
+            type="submit"
+            [attr.aria-disabled]="savingRole() ? 'true' : null"
+            [class.opacity-40]="savingRole()"
+            class="rounded-lg bg-gold px-4 py-2 font-medium text-gold-ink transition-colors hover:bg-gold-hover"
+          >
+            {{ 'rolesUsers.roleDialogSave' | transloco }}
+          </button>
+        </div>
+      </form>
+    </app-form-dialog>
   }
 </main>

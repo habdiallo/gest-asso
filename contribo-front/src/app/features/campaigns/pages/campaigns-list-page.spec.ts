@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CampagnesService } from '@api';
+import { CampagnesService, CampaignStatus } from '@api';
 import type { CampaignPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
@@ -27,7 +27,12 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
 }
 
 async function createFixture(
-  listCampaigns: (page: number) => Observable<CampaignPage>,
+  listCampaigns: (
+    page: number,
+    size?: number,
+    q?: string,
+    status?: CampaignStatus,
+  ) => Observable<CampaignPage>,
 ): Promise<ComponentFixture<CampaignsListPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -96,6 +101,82 @@ describe('CampaignsListPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aucune campagne.');
+  });
+
+  it('requests campaigns filtered by status when the status filter changes', async () => {
+    const requestedStatuses: (CampaignStatus | undefined)[] = [];
+    const fixture = await createFixture((_page, _size, _q, status) => {
+      requestedStatuses.push(status);
+      return of(buildCampaignPage());
+    });
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Closed;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
+  });
+
+  it('requests the first page again when the status filter changes', async () => {
+    const requestedPages: number[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return of(
+        buildCampaignPage({ page: { number: page, size: 1, totalElements: 2, totalPages: 2 } }),
+      );
+    });
+    fixture.detectChanges();
+
+    const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.click();
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Open;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedPages).toEqual([0, 1, 0]);
+  });
+
+  it('ignores a stale response that resolves after a later filter change', async () => {
+    const open$ = new Subject<CampaignPage>();
+    const closed$ = new Subject<CampaignPage>();
+    const fixture = await createFixture((_page, _size, _q, status) =>
+      status === CampaignStatus.Closed ? closed$.asObservable() : open$.asObservable(),
+    );
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#campaigns-status-filter',
+    );
+    select.value = CampaignStatus.Open;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    select.value = CampaignStatus.Closed;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    // Regression T-58 (P2) : la réponse OPEN, arrivée après la sélection de
+    // CLOSED, ne doit pas remplacer le résultat du filtre sélectionné en dernier.
+    closed$.next(
+      buildCampaignPage({
+        items: [{ ...buildCampaignPage().items[0], status: 'CLOSED' }],
+      }),
+    );
+    fixture.detectChanges();
+    open$.next(buildCampaignPage({ items: [{ ...buildCampaignPage().items[0], status: 'OPEN' }] }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.statusFilter()).toBe(CampaignStatus.Closed);
+    expect(fixture.componentInstance.campaignPage()?.items[0].status).toBe('CLOSED');
   });
 
   it('disables the previous page control on the first page and enables the next one', async () => {

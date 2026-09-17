@@ -7,10 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
 import type { MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { memberStatusLabel } from '../members-status-labels';
+import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
 /**
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
@@ -20,8 +21,10 @@ import { memberStatusLabel } from '../members-status-labels';
  * catégorie (T-26) ne sont pas exploités ici ; seule la pagination de base
  * (page suivante/précédente sur `page`/`size`) est fournie par ce ticket, afin
  * que l'ensemble du répertoire reste accessible au-delà des 20 premiers
- * membres. La distinction visuelle actif/inactif (RG-MEM-007) relève du
- * ticket T-22 ; seul le libellé textuel du statut est affiché par cet écran.
+ * membres. La colonne Statut affiche un badge distinguant visuellement les
+ * membres actifs des membres inactifs (T-22, RG-MEM-007), en plus du libellé
+ * textuel, pour ne pas reposer uniquement sur la couleur. Chaque ligne mène
+ * à la fiche détaillée du membre (T-27, US-MEM-003).
  *
  * Limite connue : la vue restreinte de l'Opérateur (masquage du détail
  * financier, RG-MEM-008) n'est pas implémentée ici et fait l'objet du ticket
@@ -29,7 +32,7 @@ import { memberStatusLabel } from '../members-status-labels';
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, RouterLink],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -50,6 +53,7 @@ export class MembersListPage {
   });
 
   readonly memberStatusLabel = memberStatusLabel;
+  readonly memberIsActive = memberIsActive;
 
   constructor() {
     this.loadPage(0);

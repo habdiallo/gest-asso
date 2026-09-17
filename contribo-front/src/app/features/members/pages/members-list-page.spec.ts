@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { MembresService } from '@api';
 import type { MemberPage, MemberSummary } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -47,6 +48,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       { provide: MembresService, useValue: { listMembers } as unknown as MembresService },
     ],
   }).compileComponents();
@@ -177,6 +179,36 @@ describe('MembersListPage', () => {
     const row = root.querySelector('tbody tr');
     expect(row?.textContent).toContain('Inactif');
     expect(row?.textContent?.match(/Non renseigné/g)?.length).toBe(5);
+  });
+
+  it('distinguishes active and inactive members visually in the status column (RG-MEM-007)', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildMemberPage({
+          items: [
+            buildMember({
+              id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+              lastName: 'Camara',
+              status: 'ACTIVE',
+            }),
+            buildMember({
+              id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+              lastName: 'Bangoura',
+              status: 'INACTIVE',
+            }),
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    const activeBadge = rows[0].querySelector('td:nth-last-child(2) span');
+    const inactiveBadge = rows[1].querySelector('td:nth-last-child(2) span');
+
+    expect(activeBadge?.className).not.toEqual(inactiveBadge?.className);
+    expect(activeBadge?.className).toContain('text-success');
+    expect(inactiveBadge?.className).not.toContain('text-success');
   });
 
   it('disables the previous page control on the first page and enables the next one', async () => {
