@@ -63,9 +63,11 @@
               <th scope="col" class="px-4 py-3">{{ 'members.columns.country' | transloco }}</th>
               <th scope="col" class="px-4 py-3">{{ 'members.columns.city' | transloco }}</th>
               <th scope="col" class="px-4 py-3">{{ 'members.columns.phone' | transloco }}</th>
-              <th scope="col" class="px-4 py-3">
-                {{ 'members.columns.incomeCategory' | transloco }}
-              </th>
+              @if (showFinancialDetail()) {
+                <th scope="col" class="px-4 py-3">
+                  {{ 'members.columns.incomeCategory' | transloco }}
+                </th>
+              }
               <th scope="col" class="px-4 py-3">{{ 'members.columns.function' | transloco }}</th>
               <th scope="col" class="px-4 py-3">{{ 'members.columns.status' | transloco }}</th>
               <th scope="col" class="px-4 py-3">
@@ -90,7 +92,9 @@
                 <td class="px-4 py-3 text-text-2">
                   {{ member.phone || ('members.valueMissing' | transloco) }}
                 </td>
-                <td class="px-4 py-3 text-text-2">{{ member.incomeCategory.label }}</td>
+                @if (showFinancialDetail()) {
+                  <td class="px-4 py-3 text-text-2">{{ member.incomeCategory.label }}</td>
+                }
                 <td class="px-4 py-3 text-text-2">
                   {{ member.associationFunction || ('members.valueMissing' | transloco) }}
                 </td>
