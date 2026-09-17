@@ -212,6 +212,8 @@
   "campaigns.detail.cotisations.error": "Impossible de charger les cotisations.",
   "campaigns.detail.cotisations.retry": "Réessayer",
   "campaigns.detail.cotisations.empty": "Aucune cotisation pour cette campagne.",
+  "campaigns.detail.cotisations.filter.label": "Filtrer par statut",
+  "campaigns.detail.cotisations.filter.all": "Tous les statuts",
   "campaigns.detail.cotisations.caption": "Situation des cotisations par membre",
   "campaigns.detail.cotisations.columns.member": "Membre",
   "campaigns.detail.cotisations.columns.incomeCategory": "Catégorie",

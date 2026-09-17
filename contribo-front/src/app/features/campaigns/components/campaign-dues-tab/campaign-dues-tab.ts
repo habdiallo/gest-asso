@@ -35,6 +35,15 @@ export class CampaignDuesTab implements OnInit {
   readonly paidStatus = DueStatus.Paid;
   readonly overdueStatus = DueStatus.Overdue;
 
+  /** Options du filtre de statut (T-63), dans l'ordre du cahier des charges. */
+  readonly statusOptions: readonly DueStatus[] = [
+    DueStatus.Due,
+    DueStatus.PartiallyPaid,
+    DueStatus.Paid,
+    DueStatus.Overdue,
+  ];
+  readonly statusFilter = signal<DueStatus | ''>('');
+
   readonly previousPageDisabled = computed(
     () => this.loading() || this.loadError() || (this.duePage()?.page.number ?? 0) === 0,
   );
@@ -58,6 +67,11 @@ export class CampaignDuesTab implements OnInit {
     }
   }
 
+  onStatusFilterChange(event: Event): void {
+    this.statusFilter.set((event.target as HTMLSelectElement).value as DueStatus | '');
+    this.loadPage(0);
+  }
+
   previousPage(): void {
     const result = this.duePage();
     if (result && !this.previousPageDisabled()) {
@@ -77,7 +91,13 @@ export class CampaignDuesTab implements OnInit {
     this.loading.set(true);
     this.loadError.set(false);
     this.campaignsService
-      .listCampaignDues(this.campaignId(), page)
+      .listCampaignDues(
+        this.campaignId(),
+        page,
+        undefined,
+        undefined,
+        this.statusFilter() || undefined,
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {

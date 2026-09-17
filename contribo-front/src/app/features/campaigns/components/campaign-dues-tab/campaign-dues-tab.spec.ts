@@ -33,7 +33,13 @@ const result: DuePage = {
 };
 
 async function createFixture(
-  listCampaignDues: () => Observable<DuePage> = () => of(result),
+  listCampaignDues: (
+    campaignId: string,
+    page?: number,
+    size?: number,
+    q?: string,
+    status?: DueStatus,
+  ) => Observable<DuePage> = () => of(result),
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -69,5 +75,27 @@ describe('CampaignDuesTab', () => {
       'Impossible de charger les cotisations.',
     );
     expect(fixture.nativeElement.querySelector('button')?.textContent).toContain('Réessayer');
+  });
+
+  it('reloads with the selected status filter and resets to the first page', async () => {
+    const listCampaignDues = vi.fn(() => of(result));
+    const fixture = await createFixture(listCampaignDues);
+    const root: HTMLElement = fixture.nativeElement;
+
+    listCampaignDues.mockClear();
+    const select = root.querySelector<HTMLSelectElement>('#campaign-dues-status-filter');
+    expect(select).toBeTruthy();
+
+    select!.value = DueStatus.Paid;
+    select!.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(listCampaignDues).toHaveBeenCalledWith(
+      result.items[0].campaign.id,
+      0,
+      undefined,
+      undefined,
+      DueStatus.Paid,
+    );
   });
 });
