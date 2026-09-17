@@ -36,5 +36,14 @@
   "dashboard.member.totalContributions": "Total des contributions",
   "dashboard.member.contributedSocialFunds": "Cagnottes soutenues",
   "dashboard.member.recentDuesTitle": "Cotisations récentes",
-  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente."
+  "dashboard.member.recentDuesEmpty": "Aucune cotisation récente.",
+  "socialFunds.kicker": "Solidarité",
+  "socialFunds.title": "Cagnottes",
+  "socialFunds.intro": "Collectes sociales indépendantes des campagnes de cotisation.",
+  "socialFunds.loading": "Chargement des cagnottes…",
+  "socialFunds.error": "Impossible de charger les cagnottes. Réessayez plus tard.",
+  "socialFunds.count": "{{count}} cagnotte(s)",
+  "socialFunds.empty": "Aucune cagnotte pour le moment.",
+  "socialFunds.card.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",
+  "socialFunds.card.contributorCount": "{{count}} contributeur(s)"
 }
