@@ -5,7 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ErrorCode, MembresService } from '@api';
 import type { ErrorResponse, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { map } from 'rxjs';
+import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { memberStatusLabel } from '../members-status-labels';
 
 /**
@@ -45,34 +45,29 @@ export class MemberDetailPage {
     this.route.paramMap
       .pipe(
         map((params) => params.get('memberId')),
+        filter((memberId): memberId is string => memberId !== null),
+        tap(() => {
+          this.loading.set(true);
+          this.loadError.set(false);
+          this.notFound.set(false);
+          this.member.set(null);
+        }),
+        switchMap((memberId) =>
+          this.membersService.getMember(memberId).pipe(
+            map((member) => ({ member, error: null }) as const),
+            catchError((error: unknown) => of({ member: null, error } as const)),
+          ),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((memberId) => {
-        if (memberId) {
-          this.loadMember(memberId);
-        }
-      });
-  }
-
-  private loadMember(memberId: string): void {
-    this.loading.set(true);
-    this.loadError.set(false);
-    this.notFound.set(false);
-    this.member.set(null);
-
-    this.membersService
-      .getMember(memberId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (member) => {
-          this.member.set(member);
-          this.loading.set(false);
-        },
-        error: (error: unknown) => {
-          this.loading.set(false);
+      .subscribe(({ member, error }) => {
+        this.loading.set(false);
+        if (error !== null) {
           this.loadError.set(true);
           this.notFound.set(isResourceNotFound(error));
-        },
+          return;
+        }
+        this.member.set(member);
       });
   }
 }

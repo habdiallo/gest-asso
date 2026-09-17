@@ -5,7 +5,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { ErrorCode, MembresService } from '@api';
 import type { ErrorResponse, MemberDetails } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberDetailPage } from './member-detail-page';
 
@@ -128,5 +128,46 @@ describe('MemberDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('[role="alert"]')?.textContent).toContain('introuvable');
+  });
+
+  it('ignores a late response from a member no longer selected by the route', async () => {
+    const memberIdA = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10';
+    const memberIdB = 'b5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20';
+    const responses = new Map<string, Subject<MemberDetails>>([
+      [memberIdA, new Subject<MemberDetails>()],
+      [memberIdB, new Subject<MemberDetails>()],
+    ]);
+    const paramMap = new Subject<ReturnType<typeof convertToParamMap>>();
+    const getMember = vi.fn((memberId: string) => responses.get(memberId)!.asObservable());
+
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+        { provide: ActivatedRoute, useValue: { paramMap: paramMap.asObservable() } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    paramMap.next(convertToParamMap({ memberId: memberIdA }));
+    paramMap.next(convertToParamMap({ memberId: memberIdB }));
+
+    responses.get(memberIdB)!.next(buildMemberDetails({ id: memberIdB, displayName: 'Membre B' }));
+    responses.get(memberIdA)!.next(buildMemberDetails({ id: memberIdA, displayName: 'Membre A' }));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Membre B');
+    expect(root.textContent).not.toContain('Membre A');
   });
 });
