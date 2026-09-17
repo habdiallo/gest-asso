@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CatgoriesDeRevenuService } from '@api';
 import type { IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
 import { formatInstant } from '../income-categories-dates';
 
 /**
@@ -16,10 +17,16 @@ import { formatInstant } from '../income-categories-dates';
  * avant d'atteindre cette page. La garde de rôle générique et transverse
  * (RG-ROLE-002, T-49) reste à ajouter séparément ; le lien de navigation
  * n'est déjà proposé qu'à l'Administrateur (`core/navigation/navigation-items.ts`).
+ *
+ * Propose aussi la création d'une catégorie (T-50, `CreateIncomeCategoryDialog`) :
+ * libellé obligatoire, sans champ de montant (RG-REV-001, RG-REV-002). Après
+ * création, la liste est rechargée depuis l'API pour rester triée par libellé
+ * comme le garantit le contrat, plutôt que d'insérer la nouvelle catégorie
+ * localement.
  */
 @Component({
   selector: 'app-income-categories-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, CreateIncomeCategoryDialog],
   templateUrl: './income-categories-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -30,10 +37,29 @@ export class IncomeCategoriesPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly categories = signal<IncomeCategory[]>([]);
+  readonly createDialogOpen = signal(false);
 
   readonly formatInstant = formatInstant;
 
   constructor() {
+    this.loadCategories();
+  }
+
+  openCreateDialog(): void {
+    this.createDialogOpen.set(true);
+  }
+
+  handleDialogClosed(): void {
+    this.createDialogOpen.set(false);
+  }
+
+  handleCategoryCreated(): void {
+    this.loadCategories();
+  }
+
+  private loadCategories(): void {
+    this.loading.set(true);
+    this.loadError.set(false);
     this.incomeCategoriesService
       .listIncomeCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))

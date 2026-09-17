@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
 import { ErrorCode } from '@api';
-import type { ErrorResponse, IncomeCategory } from '@api';
+import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
 const demoIncomeCategories: IncomeCategory[] = [
@@ -31,11 +31,33 @@ function authenticationRequired(): Response {
   );
 }
 
+function validationError(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.ValidationError,
+      message: 'Le libellé est obligatoire.',
+      fieldErrors: [
+        { field: 'label', code: ErrorCode.ValidationError, message: 'Libellé requis.' },
+      ],
+    },
+    { status: 400 },
+  );
+}
+
+function duplicateCategoryLabel(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.DuplicateCategoryLabel, message: 'Une catégorie porte déjà ce libellé.' },
+    { status: 409 },
+  );
+}
+
 /**
- * Handlers MSW de démonstration pour `GET /api/v1/income-categories` (T-48).
- * Le contrat n'exige qu'une session valide (pas de restriction 403) : c'est
- * l'écran (réservé à l'Administrateur, US-REV-001) qui restreint l'accès côté
- * frontend, pas cette route consommée aussi par d'autres formulaires.
+ * Handlers MSW de démonstration pour `GET`/`POST /api/v1/income-categories`
+ * (T-48, T-50). Le contrat n'exige qu'une session valide côté `GET` (pas de
+ * restriction 403) : c'est l'écran (réservé à l'Administrateur, US-REV-001)
+ * qui restreint l'accès côté frontend, pas cette route consommée aussi par
+ * d'autres formulaires. La création simule les deux règles métier RG-REV-001
+ * (libellé obligatoire) et l'unicité du libellé (`DUPLICATE_CATEGORY_LABEL`).
  */
 export const incomeCategoriesHandlers = [
   http.get('/api/v1/income-categories', async ({ request }): Promise<Response> => {
@@ -46,5 +68,36 @@ export const incomeCategoriesHandlers = [
     }
 
     return HttpResponse.json<IncomeCategory[]>(demoIncomeCategories);
+  }),
+
+  http.post('/api/v1/income-categories', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const body = (await request.json()) as IncomeCategoryRequest;
+    const label = body.label?.trim();
+    if (!label) {
+      return validationError();
+    }
+
+    const alreadyExists = demoIncomeCategories.some(
+      (category) => category.label.localeCompare(label, 'fr', { sensitivity: 'base' }) === 0,
+    );
+    if (alreadyExists) {
+      return duplicateCategoryLabel();
+    }
+
+    const created: IncomeCategory = {
+      id: crypto.randomUUID(),
+      label,
+      memberCount: 0,
+      updatedAt: new Date().toISOString(),
+    };
+    demoIncomeCategories.push(created);
+
+    return HttpResponse.json<IncomeCategory>(created, { status: 201 });
   }),
 ];

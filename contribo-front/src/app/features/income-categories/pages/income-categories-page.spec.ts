@@ -8,6 +8,26 @@ import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { IncomeCategoriesPage } from './income-categories-page';
 
+/*
+ * jsdom (utilisé par le runner Vitest/`@angular/build:unit-test`) ne
+ * synchronise pas `showModal()`/`close()`/l'événement `close` du `<dialog>`
+ * natif utilisé par `FormDialog` (T-15) : https://github.com/jsdom/jsdom/issues/3294
+ * (toujours ouvert en jsdom 28). Voir la même limite documentée dans
+ * `form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
 function buildCategory(overrides: Partial<IncomeCategory> = {}): IncomeCategory {
   return {
     id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -91,5 +111,28 @@ describe('IncomeCategoriesPage', () => {
     expect(root.textContent).toContain('31');
     const rows = root.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);
+  });
+
+  it('opens the create-category dialog when the "Ajouter" action is activated', async () => {
+    const fixture = await createFixture(() => of([]));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const addButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Ajouter une catégorie'),
+    );
+    if (!addButton) {
+      throw new Error('Bouton "Ajouter une catégorie" introuvable.');
+    }
+
+    addButton.click();
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement | null = root.querySelector('dialog');
+    if (!dialog) {
+      throw new Error('Dialogue introuvable.');
+    }
+
+    expect(dialog.getAttribute('aria-label')).toBe('Nouvelle catégorie de revenu');
   });
 });
