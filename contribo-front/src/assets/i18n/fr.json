@@ -116,5 +116,13 @@
   "rolesUsers.accountInactive": "Inactif",
   "rolesUsers.pageIndicator": "Page {{current}} / {{total}}",
   "rolesUsers.previousPage": "Précédent",
-  "rolesUsers.nextPage": "Suivant"
+  "rolesUsers.nextPage": "Suivant",
+  "rolesUsers.columnActions": "Actions",
+  "rolesUsers.editRoleLabel": "Modifier le rôle",
+  "rolesUsers.editRoleAction": "Modifier le rôle de {{name}}",
+  "rolesUsers.roleDialogTitle": "Rôle applicatif de {{name}}",
+  "rolesUsers.roleDialogLabel": "Rôle applicatif",
+  "rolesUsers.roleDialogCancel": "Annuler",
+  "rolesUsers.roleDialogSave": "Enregistrer",
+  "rolesUsers.roleDialogError": "Impossible d'enregistrer le rôle. Réessayez plus tard."
 }
