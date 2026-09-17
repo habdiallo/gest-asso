@@ -345,5 +345,43 @@ describe('SocialFundsListPage', () => {
 
       expect(root.textContent).toContain('Aucune cagnotte pour le moment.');
     });
+
+    it('ignores a late response from a filter no longer selected', async () => {
+      const responses = new Map<string, Subject<SocialFundPage>>([
+        ['', new Subject<SocialFundPage>()],
+        ['WEDDING', new Subject<SocialFundPage>()],
+        ['DEATH', new Subject<SocialFundPage>()],
+      ]);
+      const listSocialFunds = vi.fn((...args: unknown[]) => {
+        const eventType = (args[4] as string | undefined) ?? '';
+        return responses.get(eventType)!.asObservable();
+      });
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+      responses.get('')!.next(buildSocialFundPage());
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
+
+      select.value = 'WEDDING';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      select.value = 'DEATH';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      responses
+        .get('DEATH')!
+        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }));
+      responses
+        .get('WEDDING')!
+        .next(buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }] }));
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Deces');
+      expect(root.textContent).not.toContain('Mariage tardif');
+    });
   });
 });
