@@ -26,7 +26,7 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
 }
 
 async function createFixture(
-  listCampaigns: () => Observable<CampaignPage>,
+  listCampaigns: (page: number) => Observable<CampaignPage>,
 ): Promise<ComponentFixture<CampaignsListPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -106,7 +106,47 @@ describe('CampaignsListPage', () => {
     const previousButton = buttons[0] as HTMLButtonElement;
     const nextButton = buttons[1] as HTMLButtonElement;
 
-    expect(previousButton.disabled).toBe(true);
-    expect(nextButton.disabled).toBe(false);
+    expect(previousButton.getAttribute('aria-disabled')).toBe('true');
+    expect(nextButton.getAttribute('aria-disabled')).toBeNull();
+  });
+
+  it('keeps the pagination controls mounted and preserves keyboard focus while changing page', async () => {
+    const page0$ = new Subject<CampaignPage>();
+    const page1$ = new Subject<CampaignPage>();
+    const requestedPages: number[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return page === 0 ? page0$.asObservable() : page1$.asObservable();
+    });
+    page0$.next(buildCampaignPage({ page: pageMeta(0) }));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.focus();
+    expect(document.activeElement).toBe(nextButton);
+
+    nextButton.click();
+    fixture.detectChanges();
+
+    // Regression T-57 (P3) : la commande de pagination reste montée et gardait
+    // le focus clavier pendant le chargement de la page suivante, au lieu
+    // d'être démontée puis recréée sans restitution du focus (`document.activeElement`
+    // devenait BODY), cf. `.claude/rules/frontend/accessibilite.md`.
+    expect(root.querySelector('nav')).not.toBeNull();
+    expect(document.activeElement).toBe(nextButton);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+
+    page1$.next(buildCampaignPage({ page: pageMeta(1) }));
+    fixture.detectChanges();
+
+    expect(requestedPages).toEqual([0, 1]);
+    const nextButtonAfterLoad = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    expect(document.activeElement).toBe(nextButtonAfterLoad);
+    expect(document.activeElement).not.toBe(document.body);
   });
 });
+
+function pageMeta(number: number): CampaignPage['page'] {
+  return { number, size: 1, totalElements: 2, totalPages: 2 };
+}

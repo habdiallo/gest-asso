@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CampagnesService } from '@api';
 import type { CampaignPage } from '@api';
@@ -14,6 +21,11 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * Limites connues : le filtre par statut (T-58) et la recherche par nom
  * (T-59) ne sont pas implémentés par ce ticket ; seule la pagination de
  * base (page suivante/précédente) est fournie ici.
+ *
+ * Les commandes de pagination restent montées et focusables pendant le
+ * chargement d'une page (désactivation via `aria-disabled`, pas `disabled`),
+ * afin de ne pas perdre le focus clavier posé sur le bouton actionné
+ * (`.claude/rules/frontend/accessibilite.md`).
  */
 @Component({
   selector: 'app-campaigns-list-page',
@@ -34,20 +46,35 @@ export class CampaignsListPage {
   readonly formatCalendarDate = formatCalendarDate;
   readonly campaignStatusLabel = campaignStatusLabel;
 
+  readonly previousPageDisabled = computed(
+    () => this.loading() || (this.campaignPage()?.page.number ?? 0) === 0,
+  );
+
+  readonly nextPageDisabled = computed(() => {
+    const page = this.campaignPage();
+    return this.loading() || !page || page.page.number + 1 >= page.page.totalPages;
+  });
+
   constructor() {
     this.loadPage(this.requestedPage());
   }
 
   goToPreviousPage(): void {
+    if (this.previousPageDisabled()) {
+      return;
+    }
     const page = this.campaignPage();
-    if (page && page.page.number > 0) {
+    if (page) {
       this.loadPage(page.page.number - 1);
     }
   }
 
   goToNextPage(): void {
+    if (this.nextPageDisabled()) {
+      return;
+    }
     const page = this.campaignPage();
-    if (page && page.page.number + 1 < page.page.totalPages) {
+    if (page) {
       this.loadPage(page.page.number + 1);
     }
   }
