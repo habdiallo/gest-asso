@@ -24,5 +24,7 @@ Critères d'acceptation : bouton et libellé complets à 320/375 px et 100/200 %
 ## 4. Livrer par une nouvelle PR
 
 - [x] 4.1 [T-110] Relire le diff limité au ticket, vérifier `node scripts/tickets.mjs check --base-ref origin/main` et préparer une description de PR selon le modèle du dépôt, avec lien vers le constat de la PR 24 et résultats de validation.
-- [ ] 4.2 [T-110] Ajouter explicitement les fichiers T-110, committer avec un titre `fix(front): T-110 ...`, pousser uniquement sa branche et ouvrir une nouvelle PR vers `main`.
+- [x] 4.2 [T-110] Ajouter explicitement les fichiers T-110, committer avec un titre `fix(front): T-110 ...`, pousser uniquement sa branche et ouvrir une nouvelle PR vers `main`.
 - [ ] 4.3 [T-110] Traiter la revue et les contrôles CI de la nouvelle PR ; distinguer sa publication de sa fusion, effectuée uniquement sur demande explicite.
+
+Publication : [PR 47](https://github.com/habdiallo/gest-asso/pull/47), commit applicatif `a9731e6`. La revue GitHub et la décision de fusion restent à traiter séparément.
