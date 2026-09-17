@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import { ErrorCode, MembresService, UserRole } from '@api';
+import type { ErrorResponse, MemberDetails, UpdateMemberRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
+import { SessionService } from '@core/session/session.service';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { memberStatusLabel } from '../members-status-labels';
 
 /**
@@ -20,12 +30,12 @@ import { memberStatusLabel } from '../members-status-labels';
  * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
  * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
  * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * les actions de modification (T-31 et suivants) ne sont pas non plus
- * couvertes par ce ticket.
+ * la variante de modification Opérateur (T-39) restent à livrer.
+ * La modification complète Administrateur/Trésorier est fournie par T-38.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,6 +43,17 @@ export class MemberDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly membersService = inject(MembresService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly sessionService = inject(SessionService);
+  private editSession = 0;
+  readonly canEdit = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
+  readonly editOpen = signal(false);
+  readonly saving = signal(false);
+  readonly editError = signal(false);
+  readonly editSuccess = signal(false);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -47,6 +68,8 @@ export class MemberDetailPage {
         map((params) => params.get('memberId')),
         filter((memberId): memberId is string => memberId !== null),
         tap(() => {
+          this.closeEditDialog();
+          this.editSuccess.set(false);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
@@ -68,6 +91,54 @@ export class MemberDetailPage {
           return;
         }
         this.member.set(member);
+      });
+  }
+  openEditDialog(): void {
+    if (!this.canEdit() || !this.member() || this.editOpen()) {
+      return;
+    }
+    ++this.editSession;
+    this.editError.set(false);
+    this.editSuccess.set(false);
+    this.editOpen.set(true);
+  }
+
+  closeEditDialog(): void {
+    ++this.editSession;
+    this.editOpen.set(false);
+    this.saving.set(false);
+  }
+
+  updateMember(request: UpdateMemberRequest): void {
+    const member = this.member();
+    if (!this.canEdit() || !member || !this.editOpen() || this.saving()) {
+      return;
+    }
+    const session = this.editSession;
+    this.saving.set(true);
+    this.editError.set(false);
+    this.membersService
+      .updateMember(member.id, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          if (this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(updated);
+          if (session !== this.editSession) {
+            return;
+          }
+          this.closeEditDialog();
+          this.editSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.editSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.saving.set(false);
+          this.editError.set(true);
+        },
       });
   }
 }

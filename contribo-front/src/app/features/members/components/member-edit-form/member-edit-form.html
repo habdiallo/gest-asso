@@ -1,0 +1,227 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label
+        for="member-edit-last-name"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.lastName' | transloco }}
+      </label>
+      <input
+        id="member-edit-last-name"
+        type="text"
+        formControlName="lastName"
+        required
+        [attr.aria-invalid]="lastNameInvalid() ? true : null"
+        [attr.aria-describedby]="lastNameInvalid() ? 'member-edit-last-name-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (lastNameInvalid()) {
+        <p id="member-edit-last-name-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.lastNameRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-first-name"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.firstName' | transloco }}
+      </label>
+      <input
+        id="member-edit-first-name"
+        type="text"
+        formControlName="firstName"
+        required
+        [attr.aria-invalid]="firstNameInvalid() ? true : null"
+        [attr.aria-describedby]="firstNameInvalid() ? 'member-edit-first-name-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (firstNameInvalid()) {
+        <p id="member-edit-first-name-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.firstNameRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-preferred-name"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.preferredName' | transloco }}
+      </label>
+      <input
+        id="member-edit-preferred-name"
+        type="text"
+        formControlName="preferredName"
+        [attr.aria-invalid]="fieldInvalid('preferredName') ? true : null"
+        [attr.aria-describedby]="
+          fieldInvalid('preferredName') ? 'member-edit-preferred-name-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('preferredName')) {
+        <p id="member-edit-preferred-name-error" class="mt-2 text-sm text-error" role="alert">
+          Saisissez une valeur valide (100 caractères maximum). Un champ renseigné ne peut pas être
+          vidé, sauf le nom d'usage.
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-phone"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.phone' | transloco }}
+      </label>
+      <input
+        id="member-edit-phone"
+        type="tel"
+        formControlName="phone"
+        [attr.aria-invalid]="phoneInvalid() ? true : null"
+        [attr.aria-describedby]="phoneInvalid() ? 'member-edit-phone-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (phoneInvalid()) {
+        <p id="member-edit-phone-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.phoneInvalid' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-country"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.country' | transloco }}
+      </label>
+      <input
+        id="member-edit-country"
+        type="text"
+        formControlName="country"
+        [attr.aria-invalid]="fieldInvalid('country') ? true : null"
+        [attr.aria-describedby]="fieldInvalid('country') ? 'member-edit-country-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('country')) {
+        <p id="member-edit-country-error" class="mt-2 text-sm text-error" role="alert">
+          Saisissez une valeur valide (100 caractères maximum). Un champ renseigné ne peut pas être
+          vidé, sauf le nom d'usage.
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-city"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.city' | transloco }}
+      </label>
+      <input
+        id="member-edit-city"
+        type="text"
+        formControlName="city"
+        [attr.aria-invalid]="fieldInvalid('city') ? true : null"
+        [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-city-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('city')) {
+        <p id="member-edit-city-error" class="mt-2 text-sm text-error" role="alert">
+          Saisissez une valeur valide (100 caractères maximum). Un champ renseigné ne peut pas être
+          vidé, sauf le nom d'usage.
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-income-category"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.incomeCategory' | transloco }}
+      </label>
+      <select
+        id="member-edit-income-category"
+        formControlName="incomeCategoryId"
+        required
+        [attr.aria-invalid]="incomeCategoryInvalid() ? true : null"
+        [attr.aria-describedby]="
+          incomeCategoryInvalid() ? 'member-edit-income-category-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="" disabled>
+          {{ 'members.create.fields.incomeCategoryPlaceholder' | transloco }}
+        </option>
+        @for (category of categories(); track category.id) {
+          <option [value]="category.id">{{ category.label }}</option>
+        }
+      </select>
+      @if (incomeCategoryInvalid()) {
+        <p id="member-edit-income-category-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.incomeCategoryRequired' | transloco }}
+        </p>
+      }
+      @if (categoriesLoading()) {
+        <p class="mt-2 text-sm text-text-2" role="status">
+          {{ 'members.create.categoriesLoading' | transloco }}
+        </p>
+      } @else if (categoriesError()) {
+        <p class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.categoriesError' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-association-function"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.associationFunction' | transloco }}
+      </label>
+      <input
+        id="member-edit-association-function"
+        type="text"
+        formControlName="associationFunction"
+        [attr.aria-invalid]="fieldInvalid('associationFunction') ? true : null"
+        [attr.aria-describedby]="
+          fieldInvalid('associationFunction') ? 'member-edit-association-function-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('associationFunction')) {
+        <p id="member-edit-association-function-error" class="mt-2 text-sm text-error" role="alert">
+          Saisissez une valeur valide (100 caractères maximum). Un champ renseigné ne peut pas être
+          vidé, sauf le nom d'usage.
+        </p>
+      }
+    </div>
+  </div>
+
+  <p class="mt-4 text-sm text-text-2">
+    La modification de catégorie ne change pas les cotisations déjà établies.
+  </p>
+  <div class="mt-6 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+    >
+      {{ 'members.create.cancel' | transloco }}
+    </button>
+    <button
+      type="submit"
+      [disabled]="submitting() || !hasChanges()"
+      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+    >
+      {{ submitting() ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+    </button>
+  </div>
+</form>
