@@ -27,3 +27,27 @@ export function formatGnfAmountDetailed(amount: number): string {
 
   return `${detailedAmountFormatter.format(amount)} ${GNF_SUFFIX}`;
 }
+
+/**
+ * Ne conserve que les chiffres d'une saisie de montant GNF (RG-FMT-001) :
+ * tout caractère non numérique, y compris les séparateurs de milliers déjà
+ * affichés, est retiré avant reformatage ou conversion en entier.
+ */
+export function sanitizeGnfAmountDigits(rawValue: string): string {
+  return rawValue.replace(/\D/g, '');
+}
+
+/**
+ * Formate en direct les chiffres saisis dans un champ de montant, avec les
+ * mêmes séparateurs de milliers que l'affichage détaillé (RG-FMT-002), mais
+ * sans le suffixe « GNF » porté séparément par le champ de saisie.
+ *
+ * @param digits Chiffres bruts déjà filtrés par `sanitizeGnfAmountDigits`.
+ */
+export function formatGnfAmountInputDigits(digits: string): string {
+  if (!digits) {
+    return '';
+  }
+
+  return detailedAmountFormatter.format(Number(digits));
+}
