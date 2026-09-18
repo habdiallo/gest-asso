@@ -23,6 +23,7 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
@@ -63,10 +64,19 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * tickets dédiés ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
  * en direct, mais aucun repère visuel supplémentaire n'est ajouté pour une
  * catégorie sans montant.
+ *
+ * Clôture de la campagne (T-80, US-COT-008, `openapi:closeCampaign`) : action
+ * réservée à l'Administrateur et au Trésorier, proposée uniquement tant que la
+ * campagne n'est pas déjà clôturée. Une boîte de confirmation explicite (le
+ * dialogue générique `FormDialog`, T-15) rappelle que l'opération est
+ * définitive avant l'appel à `POST /campaigns/{campaignId}/closure`. L'état
+ * retourné par l'appel remplace la campagne affichée. La désactivation des
+ * autres actions de modification sur une campagne clôturée (barème, membres
+ * concernés, nouveau règlement) est un ticket dédié (T-81), hors périmètre ici.
  */
 @Component({
   selector: 'app-campaign-detail-page',
-  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab],
+  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab, FormDialog],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -109,6 +119,24 @@ export class CampaignDetailPage {
 
   /** Invalide toute réponse encore en vol si l'écran change de campagne ou d'état d'édition. */
   private baremeRequestToken = 0;
+
+  /** Administrateur/Trésorier seuls : Opérateur et Membre ne clôturent jamais une campagne. */
+  readonly canCloseCampaign = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
+
+  /** Action proposée uniquement tant que la campagne n'est pas déjà clôturée. */
+  readonly canCloseCampaignNow = computed(
+    () => this.canCloseCampaign() && this.campaign()?.status !== CampaignStatus.Closed,
+  );
+
+  readonly closeCampaignDialogOpen = signal(false);
+  readonly closingCampaign = signal(false);
+  readonly closeCampaignErrorMessage = signal<TranslationKey | null>(null);
+
+  /** Invalide toute réponse encore en vol si l'écran change de campagne. */
+  private closeCampaignRequestToken = 0;
 
   constructor() {
     const campaignId = this.route.snapshot.paramMap.get('campaignId');
@@ -227,6 +255,72 @@ export class CampaignDetailPage {
       }
     }
     return 'campaigns.detail.bareme.error';
+  }
+
+  openCloseCampaignDialog(): void {
+    if (!this.canCloseCampaignNow() || this.closeCampaignDialogOpen()) {
+      return;
+    }
+
+    this.closeCampaignErrorMessage.set(null);
+    this.closingCampaign.set(false);
+    this.closeCampaignDialogOpen.set(true);
+  }
+
+  cancelCloseCampaignDialog(): void {
+    this.closeCampaignRequestToken++;
+    this.closeCampaignDialogOpen.set(false);
+    this.closingCampaign.set(false);
+    this.closeCampaignErrorMessage.set(null);
+  }
+
+  confirmCloseCampaign(): void {
+    const campaign = this.campaign();
+    if (!campaign || this.closingCampaign()) {
+      return;
+    }
+
+    this.closingCampaign.set(true);
+    this.closeCampaignErrorMessage.set(null);
+    const token = ++this.closeCampaignRequestToken;
+
+    this.campaignsService
+      .closeCampaign(campaign.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (closedCampaign) => {
+          if (token !== this.closeCampaignRequestToken) {
+            return;
+          }
+          this.campaign.set(closedCampaign);
+          this.closingCampaign.set(false);
+          this.closeCampaignDialogOpen.set(false);
+        },
+        error: (error: unknown) => {
+          if (token !== this.closeCampaignRequestToken) {
+            return;
+          }
+          this.closingCampaign.set(false);
+          this.closeCampaignErrorMessage.set(this.resolveCloseCampaignErrorKey(error));
+        },
+      });
+  }
+
+  private resolveCloseCampaignErrorKey(error: unknown): TranslationKey {
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as ErrorResponse | undefined;
+      switch (body?.code) {
+        case ErrorCode.CampaignAlreadyClosed:
+          return 'campaigns.detail.close.errorAlreadyClosed';
+        case ErrorCode.ResourceNotFound:
+          return 'campaigns.detail.close.errorNotFound';
+        case ErrorCode.AccessDenied:
+          return 'campaigns.detail.close.errorAccessDenied';
+        default:
+          return 'campaigns.detail.close.error';
+      }
+    }
+    return 'campaigns.detail.close.error';
   }
 
   private loadCampaign(campaignId: string): void {
