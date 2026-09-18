@@ -1,14 +1,43 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { CagnottesService, ContributionsService, PaymentMethod, SocialEventType } from '@api';
-import type { Contribution, ContributionPage, SocialFund } from '@api';
+import {
+  CagnottesService,
+  ContributionsService,
+  CurrencyCode,
+  MemberStatus,
+  PaymentMethod,
+  SocialEventType,
+  UserRole,
+} from '@api';
+import type { Contribution, ContributionPage, CurrentUser, SocialFund } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { SessionService } from '@core/session/session.service';
 import { SocialFundDetailPage } from './social-fund-detail-page';
+
+/*
+ * jsdom (Vitest/`@angular/build:unit-test`) n'implémente pas `showModal()`/`close()`
+ * de `HTMLDialogElement` (https://github.com/jsdom/jsdom/issues/3294). Même correctif
+ * minimal que `roles-users-page.spec.ts`/`form-dialog.spec.ts` pour permettre
+ * l'ouverture de la confirmation de clôture (T-93) dans ces tests, sans vérifier le
+ * comportement natif réel (délégué au navigateur).
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
 
 const SOCIAL_FUND_ID = '10700000-0000-4000-8000-000000000500';
 
@@ -61,6 +90,28 @@ function buildContributionPage(overrides: Partial<ContributionPage> = {}): Contr
   };
 }
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: '10700000-0000-4000-8000-000000000900',
+    association: {
+      id: '10700000-0000-4000-8000-000000000901',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: '10700000-0000-4000-8000-000000000902',
+      firstName: 'Mamadou',
+      lastName: 'Sy',
+      displayName: 'Mamadou Sy',
+      incomeCategory: { id: '10700000-0000-4000-8000-000000000903', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(options: {
   getSocialFund: (socialFundId: string) => Observable<SocialFund>;
   listSocialFundContributions: (
@@ -68,9 +119,14 @@ async function createFixture(options: {
     page?: number,
     size?: number,
   ) => Observable<ContributionPage>;
+  closeSocialFund?: (socialFundId: string) => Observable<SocialFund>;
   socialFundId?: string;
+  role?: UserRole;
 }): Promise<ComponentFixture<SocialFundDetailPage>> {
   const socialFundId = options.socialFundId ?? SOCIAL_FUND_ID;
+  const closeSocialFund =
+    options.closeSocialFund ??
+    ((): Observable<SocialFund> => of(buildSocialFund({ status: 'CLOSED' })));
   await TestBed.configureTestingModule({
     imports: [
       SocialFundDetailPage,
@@ -84,7 +140,10 @@ async function createFixture(options: {
       provideRouter([]),
       {
         provide: CagnottesService,
-        useValue: { getSocialFund: options.getSocialFund } as unknown as CagnottesService,
+        useValue: {
+          getSocialFund: options.getSocialFund,
+          closeSocialFund,
+        } as unknown as CagnottesService,
       },
       {
         provide: ContributionsService,
@@ -98,6 +157,9 @@ async function createFixture(options: {
       },
     ],
   }).compileComponents();
+
+  const sessionService = TestBed.inject(SessionService);
+  sessionService.setUser(buildCurrentUser(options.role ?? UserRole.Administrator));
 
   const fixture = TestBed.createComponent(SocialFundDetailPage);
   fixture.detectChanges();
@@ -169,9 +231,9 @@ describe('SocialFundDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     const alerts = Array.from(root.querySelectorAll('[role="alert"]'));
-    expect(alerts.some((el) => el.textContent?.includes('Impossible de charger les contributions'))).toBe(
-      true,
-    );
+    expect(
+      alerts.some((el) => el.textContent?.includes('Impossible de charger les contributions')),
+    ).toBe(true);
   });
 
   it('shows the empty-list message when there is no contribution', async () => {
@@ -268,6 +330,160 @@ describe('SocialFundDetailPage', () => {
 
       expect(root.textContent).toContain('Page 1 sur 2');
       expect(root.querySelector('[role="alert"]')).not.toBeNull();
+    });
+  });
+
+  describe('clôture de la cagnotte (T-93, US-CAG-004)', () => {
+    function closeButton(root: HTMLElement): HTMLButtonElement | null {
+      return (
+        Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((button) =>
+          button.textContent?.includes('Clôturer la cagnotte'),
+        ) ?? null
+      );
+    }
+
+    it('hides the close action for an Opérateur', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Operator,
+      });
+      fixture.detectChanges();
+
+      expect(closeButton(fixture.nativeElement)).toBeNull();
+    });
+
+    it('hides the close action for a Membre', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Member,
+      });
+      fixture.detectChanges();
+
+      expect(closeButton(fixture.nativeElement)).toBeNull();
+    });
+
+    it('hides the close action once the social fund is already closed', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund({ status: 'CLOSED' })),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      expect(closeButton(fixture.nativeElement)).toBeNull();
+    });
+
+    it('shows the close action for an Administrateur and opens a confirmation dialog without calling the API', async () => {
+      const closeSocialFund = vi.fn(() => of(buildSocialFund({ status: 'CLOSED' })));
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        closeSocialFund,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const button = closeButton(root);
+      expect(button).not.toBeNull();
+      button?.click();
+      fixture.detectChanges();
+
+      const dialog = root.querySelector('dialog');
+      expect(dialog?.open).toBe(true);
+      expect(root.textContent).toContain('Mariage de Fanta et Sékou');
+      expect(closeSocialFund).not.toHaveBeenCalled();
+    });
+
+    it('shows the close action for a Trésorier', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Treasurer,
+      });
+      fixture.detectChanges();
+
+      expect(closeButton(fixture.nativeElement)).not.toBeNull();
+    });
+
+    it('closes the dialog without calling the API when cancelling', async () => {
+      const closeSocialFund = vi.fn(() => of(buildSocialFund({ status: 'CLOSED' })));
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        closeSocialFund,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      closeButton(root)?.click();
+      fixture.detectChanges();
+
+      const cancelButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('dialog')?.open).toBe(false);
+      expect(closeSocialFund).not.toHaveBeenCalled();
+    });
+
+    it('calls the closure API on confirmation and shows the social fund as closed', async () => {
+      const closeSocialFund = vi.fn((socialFundId: string) =>
+        of(buildSocialFund({ id: socialFundId, status: 'CLOSED' })),
+      );
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        closeSocialFund,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      closeButton(root)?.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+        (button) => button.textContent?.trim() === 'Confirmer la clôture',
+      );
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      expect(closeSocialFund).toHaveBeenCalledWith(SOCIAL_FUND_ID);
+      expect(root.querySelector('dialog')?.open).toBe(false);
+      expect(root.textContent).toContain('Clôturée');
+      expect(closeButton(root)).toBeNull();
+    });
+
+    it('shows an error and keeps the dialog open when the closure request fails', async () => {
+      const closeSocialFund = vi.fn(() => throwError(() => new Error('network error')));
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        closeSocialFund,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      closeButton(root)?.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+        (button) => button.textContent?.trim() === 'Confirmer la clôture',
+      );
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('dialog')?.open).toBe(true);
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        'Impossible de clôturer la cagnotte',
+      );
     });
   });
 });
