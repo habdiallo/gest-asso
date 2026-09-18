@@ -102,9 +102,9 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
   Validation du retour de revue PR 45 : accès Tab aux trois onglets, activation Entrée/Espace vérifiée dans Chrome. Tests et build de production réussis après synchronisation de main.
 - [x] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
-- [ ] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
+- [x] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
 - [ ] 9.7 [T-63] (P2) Filtre par statut de cotisation (À payer / Partiellement payé / Payé / En retard).
-- [ ] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
+- [x] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
 
 ## 10. Campagnes — création et configuration (`campaigns-ui`)
 
@@ -127,7 +127,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)
 
-- [ ] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
+- [x] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
 - [ ] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
 - [ ] 12.3 [T-79] (P2) Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.
 - [ ] 12.4 [T-80] (P1) Action "Clôturer la campagne" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`
@@ -140,7 +140,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
 - [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [x] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
-- [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
+- [x] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
 - [x] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
 
 ## 14. Cagnottes — contributions et suivi (`cagnottes-ui`)
@@ -163,7 +163,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
 - [x] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
-- [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
+- [x] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
 - [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
 - [x] 16.5 [T-99] (P0) Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001
 
