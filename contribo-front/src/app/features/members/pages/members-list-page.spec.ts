@@ -529,6 +529,36 @@ describe('MembersListPage', () => {
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 
+  it('confirms that a user account was created after a successful member creation (T-36, RG-MEM-004)', async () => {
+    const listMembers = vi.fn(() => of(buildMemberPage()));
+    const createMember = vi.fn((request: CreateMemberRequest) =>
+      of(buildMemberDetails({ ...request, displayName: 'Mariama Barry', status: 'ACTIVE' })),
+    );
+    const fixture = await createFixture(listMembers, { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.setValue({
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      preferredName: '',
+      country: '',
+      city: '',
+      phone: '',
+      incomeCategoryId: demoIncomeCategory.id,
+      associationFunction: '',
+    });
+    form.submit();
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const confirmation = root.querySelector('[role="status"]');
+    expect(confirmation?.textContent).toContain('compte utilisateur');
+  });
+
   it('clears the creation confirmation when reopening the dialog', async () => {
     const listMembers = vi.fn(() => of(buildMemberPage()));
     const createMember = vi.fn((request: CreateMemberRequest) =>

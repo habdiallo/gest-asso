@@ -49,6 +49,12 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * laisser le membre créé hors de la première page rechargée ; cette
  * confirmation reste donc le retour visible immédiat, indépendamment de sa
  * position dans le tableau.
+ *
+ * Cette confirmation précise également qu'un compte utilisateur a été créé
+ * automatiquement pour le membre (T-36, RG-MEM-004) : la création du membre
+ * entraîne toujours la création de son compte côté backend, sans champ
+ * dédié dans `MemberDetails` ; le message l'annonce donc systématiquement
+ * après une création réussie (clé `members.create.success`).
  */
 @Component({
   selector: 'app-members-list-page',
