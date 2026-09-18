@@ -104,7 +104,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
 - [ ] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
 - [ ] 9.7 [T-63] (P2) Filtre par statut de cotisation (À payer / Partiellement payé / Payé / En retard).
-- [ ] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
+- [x] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
 
 ## 10. Campagnes — création et configuration (`campaigns-ui`)
 
