@@ -166,7 +166,7 @@ describe('CampaignDetailPage', () => {
     expect(baremeTab.getAttribute('aria-selected')).toBe('true');
     expect(baremeTab.tabIndex).toBe(0);
     expect(tabs[1].getAttribute('aria-selected')).toBe('false');
-    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
 
     expect(root.querySelector('#campaign-tabpanel-bareme')).not.toBeNull();
     expect(root.querySelector('#campaign-tabpanel-cotisations')).toBeNull();
@@ -189,7 +189,7 @@ describe('CampaignDetailPage', () => {
     expect(cotisationsPanel?.textContent).toContain('Aucune cotisation pour cette campagne.');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
-    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
   });
 
   it('switches to the bilan tab', async () => {
@@ -206,6 +206,93 @@ describe('CampaignDetailPage', () => {
     expect(bilanPanel?.textContent).toContain(
       'Le bilan de la campagne sera disponible prochainement.',
     );
+  });
+
+  describe('keyboard navigation between tabs (T-64)', () => {
+    function findActiveTabButton(root: HTMLElement): HTMLButtonElement {
+      return root.querySelector('[role="tab"][aria-selected="true"]') as HTMLButtonElement;
+    }
+
+    function dispatchArrowKey(target: HTMLElement, key: 'ArrowLeft' | 'ArrowRight'): void {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    }
+
+    it('moves focus and activation to the next tab on ArrowRight, without a page reload', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+      expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
+      expect(root.querySelector('#campaign-tabpanel-bareme')).toBeNull();
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('moves focus and activation to the previous tab on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[2].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('wraps from the last tab to the first on ArrowRight', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[2].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[0]);
+    });
+
+    it('wraps from the first tab to the last on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[2].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[2]);
+    });
+
+    it('ignores other keys on the tablist', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findActiveTabButton(root).dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      );
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    });
   });
 
   it('shows the empty bareme message when there is no category amount', async () => {
