@@ -3,6 +3,7 @@ import type { MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { MyDues } from '../components/my-dues';
+import { MyContributions } from '../components/my-contributions';
 import { memberStatusLabel } from '../member-status-labels';
 
 /**
@@ -22,7 +23,7 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [TranslocoPipe, MyDues],
+  imports: [TranslocoPipe, MyDues, MyContributions],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -32,9 +33,9 @@ export class ProfilePage {
   readonly member = computed<MemberSummary | null>(() => this.session.user()?.member ?? null);
 
   readonly memberStatusLabel = memberStatusLabel;
-  readonly activeTab = signal<'profile' | 'dues'>('profile');
+  readonly activeTab = signal<'profile' | 'dues' | 'contributions'>('profile');
 
-  selectTab(tab: 'profile' | 'dues'): void {
+  selectTab(tab: 'profile' | 'dues' | 'contributions'): void {
     this.activeTab.set(tab);
   }
 }

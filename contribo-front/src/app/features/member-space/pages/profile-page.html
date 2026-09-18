@@ -1,9 +1,16 @@
 <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
   <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{
-      (activeTab() === 'profile' ? 'memberSpace.profile.title' : 'memberSpace.dues.title')
-        | transloco
-    }}
+    @switch (activeTab()) {
+      @case ('dues') {
+        {{ 'memberSpace.dues.title' | transloco }}
+      }
+      @case ('contributions') {
+        {{ 'memberSpace.contributions.title' | transloco }}
+      }
+      @default {
+        {{ 'memberSpace.profile.title' | transloco }}
+      }
+    }
   </h1>
   @if (activeTab() === 'profile') {
     <p class="mt-1 text-sm text-text-2">{{ 'memberSpace.profile.subtitle' | transloco }}</p>
@@ -13,127 +20,182 @@
     role="tablist"
     [attr.aria-label]="'memberSpace.tabs.tablist' | transloco"
   >
-    <button type="button" id="personal-tab-profile" role="tab" aria-controls="personal-panel-profile"
+    <button
+      type="button"
+      id="personal-tab-profile"
+      role="tab"
+      aria-controls="personal-panel-profile"
       [attr.aria-selected]="activeTab() === 'profile'"
       class="border-b-2 px-4 py-3 text-sm font-medium"
       [class.border-gold-hover]="activeTab() === 'profile'"
       [class.text-gold-hover]="activeTab() === 'profile'"
       [class.border-transparent]="activeTab() !== 'profile'"
-      [class.text-text-2]="activeTab() !== 'profile'" (click)="selectTab('profile')">
+      [class.text-text-2]="activeTab() !== 'profile'"
+      (click)="selectTab('profile')"
+    >
       {{ 'memberSpace.tabs.profile' | transloco }}
     </button>
-    <button type="button" id="personal-tab-dues" role="tab" aria-controls="personal-panel-dues"
+    <button
+      type="button"
+      id="personal-tab-dues"
+      role="tab"
+      aria-controls="personal-panel-dues"
       [attr.aria-selected]="activeTab() === 'dues'"
       class="border-b-2 px-4 py-3 text-sm font-medium"
       [class.border-gold-hover]="activeTab() === 'dues'"
       [class.text-gold-hover]="activeTab() === 'dues'"
       [class.border-transparent]="activeTab() !== 'dues'"
-      [class.text-text-2]="activeTab() !== 'dues'" (click)="selectTab('dues')">
+      [class.text-text-2]="activeTab() !== 'dues'"
+      (click)="selectTab('dues')"
+    >
       {{ 'memberSpace.tabs.dues' | transloco }}
+    </button>
+    <button
+      type="button"
+      id="personal-tab-contributions"
+      role="tab"
+      aria-controls="personal-panel-contributions"
+      [attr.aria-selected]="activeTab() === 'contributions'"
+      class="border-b-2 px-4 py-3 text-sm font-medium"
+      [class.border-gold-hover]="activeTab() === 'contributions'"
+      [class.text-gold-hover]="activeTab() === 'contributions'"
+      [class.border-transparent]="activeTab() !== 'contributions'"
+      [class.text-text-2]="activeTab() !== 'contributions'"
+      (click)="selectTab('contributions')"
+    >
+      {{ 'memberSpace.tabs.contributions' | transloco }}
     </button>
   </div>
 
-  @if (activeTab() === 'dues') {
-    <section id="personal-panel-dues" role="tabpanel" aria-labelledby="personal-tab-dues" tabindex="0" class="mt-6">
-      <app-my-dues />
-    </section>
-  } @else {
-    <section id="personal-panel-profile" role="tabpanel" aria-labelledby="personal-tab-profile" tabindex="0">
+  @switch (activeTab()) {
+    @case ('dues') {
+      <section
+        id="personal-panel-dues"
+        role="tabpanel"
+        aria-labelledby="personal-tab-dues"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-my-dues />
+      </section>
+    }
+    @case ('contributions') {
+      <section
+        id="personal-panel-contributions"
+        role="tabpanel"
+        aria-labelledby="personal-tab-contributions"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-my-contributions />
+      </section>
+    }
+    @default {
+      <section
+        id="personal-panel-profile"
+        role="tabpanel"
+        aria-labelledby="personal-tab-profile"
+        tabindex="0"
+      >
+        @if (member(); as member) {
+          <section class="mt-6 rounded-card border border-line bg-surface-glass p-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 class="font-display text-xl text-text">{{ member.displayName }}</h2>
+              <span class="text-xs uppercase tracking-[0.08em] text-text-2">
+                {{ memberStatusLabel(member.status) }}
+              </span>
+            </div>
+          </section>
 
-  @if (member(); as member) {
-    <section class="mt-6 rounded-card border border-line bg-surface-glass p-5">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="font-display text-xl text-text">{{ member.displayName }}</h2>
-        <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-          {{ memberStatusLabel(member.status) }}
-        </span>
-      </div>
-    </section>
+          <section class="mt-8">
+            <h2 class="font-display text-xl uppercase tracking-wide text-text">
+              {{ 'memberSpace.profile.personalInfoTitle' | transloco }}
+            </h2>
+            <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.lastName' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">{{ member.lastName }}</dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.firstName' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">{{ member.firstName }}</dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.preferredName' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">
+                  {{ member.preferredName ?? ('memberSpace.profile.notProvided' | transloco) }}
+                </dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.phone' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">
+                  {{ member.phone ?? ('memberSpace.profile.notProvided' | transloco) }}
+                </dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.country' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">
+                  {{ member.country ?? ('memberSpace.profile.notProvided' | transloco) }}
+                </dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.city' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">
+                  {{ member.city ?? ('memberSpace.profile.notProvided' | transloco) }}
+                </dd>
+              </div>
+            </dl>
+          </section>
 
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'memberSpace.profile.personalInfoTitle' | transloco }}
-      </h2>
-      <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.lastName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.lastName }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.firstName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.firstName }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.preferredName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.preferredName ?? ('memberSpace.profile.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.phone' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.phone ?? ('memberSpace.profile.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.country' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.country ?? ('memberSpace.profile.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.city' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.city ?? ('memberSpace.profile.notProvided' | transloco) }}
-          </dd>
-        </div>
-      </dl>
-    </section>
+          <section class="mt-8">
+            <h2 class="font-display text-xl uppercase tracking-wide text-text">
+              {{ 'memberSpace.profile.associationInfoTitle' | transloco }}
+            </h2>
+            <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.incomeCategory' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">{{ member.incomeCategory.label }}</dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.associationFunction' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">
+                  {{
+                    member.associationFunction ?? ('memberSpace.profile.notProvided' | transloco)
+                  }}
+                </dd>
+              </div>
+              <div class="rounded-card border border-line bg-surface p-4">
+                <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                  {{ 'memberSpace.profile.status' | transloco }}
+                </dt>
+                <dd class="mt-1 text-text">{{ memberStatusLabel(member.status) }}</dd>
+              </div>
+            </dl>
+          </section>
 
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'memberSpace.profile.associationInfoTitle' | transloco }}
-      </h2>
-      <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.incomeCategory' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.incomeCategory.label }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.associationFunction' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.associationFunction ?? ('memberSpace.profile.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberSpace.profile.status' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ memberStatusLabel(member.status) }}</dd>
-        </div>
-      </dl>
-    </section>
-
-    <p class="mt-8 text-sm text-text-2">{{ 'memberSpace.profile.readOnlyNote' | transloco }}</p>
-  } @else {
-    <p class="mt-6 text-error" role="alert">{{ 'memberSpace.profile.error' | transloco }}</p>
-  }
-    </section>
+          <p class="mt-8 text-sm text-text-2">
+            {{ 'memberSpace.profile.readOnlyNote' | transloco }}
+          </p>
+        } @else {
+          <p class="mt-6 text-error" role="alert">{{ 'memberSpace.profile.error' | transloco }}</p>
+        }
+      </section>
+    }
   }
 </main>
