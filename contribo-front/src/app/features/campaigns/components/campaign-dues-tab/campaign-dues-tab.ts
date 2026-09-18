@@ -13,8 +13,21 @@ import { CampagnesService, DueStatus } from '@api';
 import type { DuePage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { SessionService } from '@core/session/session.service';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 
+/**
+ * Onglet cotisations d'une campagne (T-61, US-COT-003, US-COT-004).
+ *
+ * Vue restreinte de l'Opérateur (T-62, RG-MEM-008) : la colonne Catégorie de
+ * revenu, qui porte le détail financier du membre, est masquée pour le rôle
+ * Opérateur, conformément à la vue limitée sans agrégat financier réservé
+ * prévue par la matrice des responsabilités. Les montants dû/payé/reste et le
+ * statut restent affichés : ils sont nécessaires à l'Opérateur pour ses
+ * opérations courantes (consultation de la situation, enregistrement d'un
+ * règlement lorsqu'il y est autorisé). Les autres rôles (Administrateur,
+ * Trésorier) et l'absence de rôle conservent la colonne inchangée.
+ */
 @Component({
   selector: 'app-campaign-dues-tab',
   imports: [TranslocoPipe],
@@ -24,6 +37,7 @@ import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n'
 export class CampaignDuesTab implements OnInit {
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
   private requestedPage = 0;
 
   readonly campaignId = input.required<string>();
@@ -34,6 +48,8 @@ export class CampaignDuesTab implements OnInit {
   readonly statusLabels = DUE_STATUS_TRANSLATION_KEYS;
   readonly paidStatus = DueStatus.Paid;
   readonly overdueStatus = DueStatus.Overdue;
+
+  readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(
     () => this.loading() || this.loadError() || (this.duePage()?.page.number ?? 0) === 0,
