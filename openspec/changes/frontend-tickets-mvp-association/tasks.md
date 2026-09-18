@@ -141,7 +141,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [x] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
 - [x] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
-- [ ] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
+- [x] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
 
 ## 14. Cagnottes — contributions et suivi (`cagnottes-ui`)
 
