@@ -145,7 +145,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 14. Cagnottes — contributions et suivi (`cagnottes-ui`)
 
-- [ ] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
+- [x] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
 - [ ] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
 - [ ] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
 - [ ] 14.4 [T-90] (P1) Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007

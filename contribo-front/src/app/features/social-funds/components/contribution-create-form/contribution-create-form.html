@@ -1,0 +1,113 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="mb-4">
+    <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+      {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
+    </span>
+    <p class="text-text">{{ socialFundTitle() }}</p>
+  </div>
+
+  @if (membersError()) {
+    <p class="mb-4 text-sm text-error" role="alert">
+      {{ 'socialFunds.recordContribution.membersError' | transloco }}
+    </p>
+  }
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label
+        for="contribution-create-member"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.recordContribution.fields.member' | transloco }}
+      </label>
+      <select
+        id="contribution-create-member"
+        formControlName="memberId"
+        required
+        [attr.aria-invalid]="memberIdInvalid() ? true : null"
+        [attr.aria-describedby]="memberIdInvalid() ? 'contribution-create-member-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="" disabled>
+          {{
+            (membersLoading()
+              ? 'socialFunds.recordContribution.fields.memberLoading'
+              : 'socialFunds.recordContribution.fields.memberPlaceholder'
+            ) | transloco
+          }}
+        </option>
+        @for (member of members(); track member.id) {
+          <option [value]="member.id">{{ member.displayName }}</option>
+        }
+      </select>
+      @if (memberIdInvalid()) {
+        <p id="contribution-create-member-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.recordContribution.fields.memberRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="contribution-create-date"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.recordContribution.fields.contributionDate' | transloco }}
+      </label>
+      <input
+        id="contribution-create-date"
+        type="date"
+        formControlName="contributionDate"
+        required
+        [attr.aria-invalid]="contributionDateInvalid() ? true : null"
+        [attr.aria-describedby]="
+          contributionDateInvalid() ? 'contribution-create-date-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (contributionDateInvalid()) {
+        <p id="contribution-create-date-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'socialFunds.recordContribution.fields.contributionDateRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <app-amount-input
+        formControlName="amount"
+        [required]="true"
+        [label]="'socialFunds.recordContribution.fields.amount' | transloco"
+      />
+    </div>
+
+    <div>
+      <app-payment-method-select
+        formControlName="method"
+        [required]="true"
+        [label]="'socialFunds.recordContribution.fields.method' | transloco"
+      />
+    </div>
+  </div>
+
+  <div class="mt-6 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+    >
+      {{ 'socialFunds.recordContribution.cancel' | transloco }}
+    </button>
+    <button
+      type="submit"
+      [disabled]="submitting()"
+      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+    >
+      {{
+        (submitting()
+          ? 'socialFunds.recordContribution.submitting'
+          : 'socialFunds.recordContribution.submit'
+        ) | transloco
+      }}
+    </button>
+  </div>
+</form>
