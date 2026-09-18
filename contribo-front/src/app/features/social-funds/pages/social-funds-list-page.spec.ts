@@ -204,6 +204,8 @@ describe('SocialFundsListPage', () => {
     expect(amountSpans.some((el) => el.getAttribute('title') === '7 000 000 GNF')).toBe(true);
   });
 
+  // T-85 : objectif de montant facultatif, avec masquage de la barre de
+  // progression et du comparatif "collecté / objectif" quand il est absent.
   it('hides the progress bar when no target amount is defined', async () => {
     const fixture = await createFixture(() =>
       of(
@@ -231,6 +233,8 @@ describe('SocialFundsListPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('1,9M GNF');
     expect(root.querySelector('[data-testid="social-fund-progress-bar"]')).toBeNull();
+    // Aucun comparatif "collecté / objectif" ne doit apparaître sans objectif défini.
+    expect(root.textContent).not.toContain('/');
   });
 
   it('shows the empty-list message when there is no social fund', async () => {
