@@ -37,11 +37,14 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  * le rafraîchissement de la liste restent à la charge du composant appelant
  * (même répartition des responsabilités que `MemberCreateForm`, T-33).
  *
- * L'objectif facultatif (`targetAmount`) est saisi avec `app-amount-input`
- * (T-19, formatage GNF en direct, valeur entière renvoyée au formulaire).
- * Le masquage de la barre de progression pour une cagnotte sans objectif
- * (T-85) et le masquage de l'action "Créer une cagnotte" pour l'Opérateur et
- * le Membre (T-86, RG-CAG-002/003) ne sont pas traités ici.
+ * L'objectif facultatif (`targetAmount`, T-85) est saisi avec
+ * `app-amount-input` (T-19, formatage GNF en direct, valeur entière renvoyée
+ * au formulaire) ; laissé vide, il est omis de la requête (voir `submit()`
+ * ci-dessous), ce qui laisse `SocialFund.targetAmount` absent côté serveur.
+ * Le masquage de la barre de progression qui en découle est traité côté
+ * affichage, dans `social-funds-list-page.ts`/`.html` (T-85). Le masquage de
+ * l'action "Créer une cagnotte" pour l'Opérateur et le Membre (T-86,
+ * RG-CAG-002/003) n'est pas traité ici.
  */
 @Component({
   selector: 'app-social-fund-create-form',
