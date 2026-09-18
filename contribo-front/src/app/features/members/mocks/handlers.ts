@@ -131,10 +131,13 @@ export function buildMemberPageResponse(): MemberPage {
 }
 
 /**
- * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21) et
+ * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21, filtre
+ * statut T-25 via le paramètre contractuel `status`) et
  * `GET /api/v1/members/{memberId}` (T-27). Seule l'authentification est
  * vérifiée ici ; la restriction du contenu affiché à l'Opérateur
- * (RG-MEM-008) relève du ticket T-23.
+ * (RG-MEM-008) relève du ticket T-23. Le résumé (`summary`) reste calculé
+ * sur l'ensemble des membres, indépendamment du filtre appliqué à `items`,
+ * conformément à `MemberPage` (`besoins/openapi.yaml`).
  */
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
@@ -144,7 +147,19 @@ export const membersHandlers = [
       return authenticationRequired();
     }
 
-    return HttpResponse.json<MemberPage>(buildMemberPageResponse());
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status') as MemberStatus | null;
+    const response = buildMemberPageResponse();
+    if (status) {
+      const items = response.items.filter((member) => member.status === status);
+      return HttpResponse.json<MemberPage>({
+        ...response,
+        items,
+        page: { ...response.page, totalElements: items.length },
+      });
+    }
+
+    return HttpResponse.json<MemberPage>(response);
   }),
 
   /**
