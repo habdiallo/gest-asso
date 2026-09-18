@@ -2,12 +2,19 @@ import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CagnottesService, SocialEventType } from '@api';
-import type { CreateSocialFundRequest, SocialFund, SocialFundPage } from '@api';
+import { CagnottesService, CurrencyCode, MemberStatus, SocialEventType } from '@api';
+import type {
+  CreateSocialFundRequest,
+  CurrentUser,
+  SocialFund,
+  SocialFundPage,
+  UserRole,
+} from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
+import { SessionService } from '@core/session/session.service';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { SocialFundsListPage } from './social-funds-list-page';
 
@@ -79,10 +86,33 @@ type ListSocialFunds = (
   eventType?: string,
 ) => Observable<SocialFundPage>;
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   listSocialFunds: ListSocialFunds,
   options: {
     createSocialFund?: (request: CreateSocialFundRequest) => Observable<SocialFund>;
+    role?: UserRole;
   } = {},
 ): Promise<ComponentFixture<SocialFundsListPage>> {
   const createSocialFund =
@@ -105,6 +135,12 @@ async function createFixture(
       },
     ],
   }).compileComponents();
+
+  // Rôle par défaut Administrateur (T-86) : les tests qui ne portent pas sur
+  // les droits par rôle restent inchangés, l'action "Créer une cagnotte"
+  // étant visible pour l'Administrateur comme pour le Trésorier.
+  const sessionService = TestBed.inject(SessionService);
+  sessionService.setUser(buildCurrentUser(options.role ?? 'ADMINISTRATOR'));
 
   const fixture = TestBed.createComponent(SocialFundsListPage);
   fixture.detectChanges();
@@ -422,13 +458,11 @@ describe('SocialFundsListPage', () => {
         .next(
           buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }),
         );
-      responses
-        .get('WEDDING')!
-        .next(
-          buildSocialFundPage({
-            items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }],
-          }),
-        );
+      responses.get('WEDDING')!.next(
+        buildSocialFundPage({
+          items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }],
+        }),
+      );
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Deces');
@@ -514,6 +548,47 @@ describe('SocialFundsListPage', () => {
       expect(fixture.nativeElement.querySelector('dialog [role="alert"]')?.textContent).toContain(
         'Impossible de créer la cagnotte',
       );
+    });
+  });
+
+  describe('role-based access to creation (T-86)', () => {
+    it.each(['OPERATOR', 'MEMBER'] as const)(
+      'hides the "Créer une cagnotte" action for %s (RG-CAG-002/003)',
+      async (role) => {
+        const fixture = await createFixture(() => of(buildSocialFundPage()), { role });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+          (button as HTMLButtonElement).textContent?.includes('Créer une cagnotte'),
+        );
+        expect(openButton).toBeUndefined();
+        expect(root.querySelector('dialog')).toBeNull();
+      },
+    );
+
+    it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+      'keeps the "Créer une cagnotte" action visible for %s',
+      async (role) => {
+        const fixture = await createFixture(() => of(buildSocialFundPage()), { role });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+          (button as HTMLButtonElement).textContent?.includes('Créer une cagnotte'),
+        );
+        expect(openButton).toBeTruthy();
+      },
+    );
+
+    it('does not open the create dialog when the role is not authorized (RG-CAG-002/003)', async () => {
+      const fixture = await createFixture(() => of(buildSocialFundPage()), { role: 'OPERATOR' });
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.createDialogOpen()).toBe(false);
     });
   });
 });

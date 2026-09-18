@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { catchError, map, of, Subject, switchMap } from 'rxjs';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
@@ -56,9 +57,14 @@ function progressBarWidth(progressRate: number): number {
  * `POST /social-funds` (`CagnottesService.createSocialFund`,
  * openapi:`createSocialFund`). Après création, la première page est
  * rechargée avec le filtre courant afin d'afficher la nouvelle cagnotte
- * (RG-CAG-002). Le masquage de cette action pour l'Opérateur et le Membre
- * (RG-CAG-002/003) relève du ticket T-86 ; elle reste visible ici pour tous
- * les rôles qui accèdent à cet écran.
+ * (RG-CAG-002).
+ *
+ * Masquage de l'action "Créer une cagnotte" pour l'Opérateur et le Membre
+ * (T-86) : seuls l'Administrateur et le Trésorier créent une cagnotte
+ * (US-CAG-001, spec `cagnottes-ui`). Le Membre n'accède déjà pas à cet écran
+ * (`roleGuard` sur la route `/cagnottes`, voir `app.routes.ts`) ; ce
+ * masquage protège en plus l'Opérateur, seul rôle non autorisé qui consulte
+ * effectivement cette liste.
  */
 @Component({
   selector: 'app-social-funds-list-page',
@@ -69,7 +75,18 @@ function progressBarWidth(progressRate: number): number {
 export class SocialFundsListPage {
   private readonly socialFundsService = inject(CagnottesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+
+  /**
+   * Masquage de l'action "Créer une cagnotte" pour l'Opérateur et le Membre
+   * (T-86) : seuls l'Administrateur et le Trésorier créent une cagnotte
+   * (US-CAG-001).
+   */
+  readonly canCreateSocialFund = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === 'ADMINISTRATOR' || role === 'TREASURER';
+  });
 
   readonly eventTypeOptions: readonly SocialEventType[] = [
     SocialEventType.Wedding,
@@ -179,9 +196,9 @@ export class SocialFundsListPage {
     this.fetchPage(0, { isInitialLoad: false });
   }
 
-  /** Ouvre le formulaire de création de cagnotte (T-84). */
+  /** Ouvre le formulaire de création de cagnotte (T-84), réservé à l'Administrateur et au Trésorier (T-86). */
   openCreateDialog(): void {
-    if (this.createDialogOpen()) {
+    if (!this.canCreateSocialFund() || this.createDialogOpen()) {
       return;
     }
     ++this.createDialogSession;
