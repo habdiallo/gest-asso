@@ -42,9 +42,8 @@ const demoCampaigns: CampaignSummary[] = [
 
 /**
  * Détail des campagnes de démonstration (T-60, `openapi:getCampaign`) :
- * description et barème (`categoryAmounts`). Le bilan financier
- * (`financialSummary`) est fourni pour rester fidèle au contrat, même si
- * l'onglet bilan de l'écran détail reste un emplacement réservé (T-77).
+ * description, barème (`categoryAmounts`) et bilan financier
+ * (`financialSummary`), affiché par l'onglet bilan de l'écran détail (T-77).
  */
 const demoCampaignDetails: Record<string, Campaign> = {
   '10700000-0000-4000-8000-000000000200': {

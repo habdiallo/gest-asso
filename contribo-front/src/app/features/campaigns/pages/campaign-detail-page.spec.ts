@@ -35,6 +35,14 @@ function buildCampaign(overrides: Partial<Campaign> = {}): Campaign {
         currency: CurrencyCode.Gnf,
       },
     ],
+    financialSummary: {
+      expectedAmount: 6_000_000,
+      collectedAmount: 4_000_000,
+      remainingAmount: 2_000_000,
+      collectionRate: 66.7,
+      dueCounts: { total: 60, paid: 40, partiallyPaid: 5, unpaid: 15 },
+      currency: CurrencyCode.Gnf,
+    },
     ...overrides,
   };
 }
@@ -192,7 +200,7 @@ describe('CampaignDetailPage', () => {
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
   });
 
-  it('switches to the bilan tab', async () => {
+  it('switches to the bilan tab and shows the campaign financial summary', async () => {
     const fixture = await createFixture(() => of(buildCampaign()));
     fixture.detectChanges();
 
@@ -203,8 +211,26 @@ describe('CampaignDetailPage', () => {
 
     const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
     expect(bilanPanel).not.toBeNull();
+    expect(bilanPanel?.textContent).toContain('Total attendu');
+    expect(bilanPanel?.textContent).toContain('6 000 000 GNF');
+    expect(bilanPanel?.textContent).toContain('Total encaissé');
+    expect(bilanPanel?.textContent).toContain('4 000 000 GNF');
+    expect(bilanPanel?.textContent).toContain('Reste à encaisser');
+    expect(bilanPanel?.textContent).toContain('2 000 000 GNF');
+  });
+
+  it('shows the unauthorized message on the bilan tab when financialSummary is absent', async () => {
+    const fixture = await createFixture(() => of(buildCampaign({ financialSummary: undefined })));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+    tabs[2].click();
+    fixture.detectChanges();
+
+    const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
     expect(bilanPanel?.textContent).toContain(
-      'Le bilan de la campagne sera disponible prochainement.',
+      "Vous n'êtes pas autorisé à consulter le bilan financier de cette campagne.",
     );
   });
 
