@@ -23,7 +23,9 @@
       <div class="overflow-x-auto rounded-xl border border-line bg-surface">
         <table class="w-full text-left text-sm">
           <caption class="sr-only">
-            {{ 'campaigns.detail.cotisations.caption' | transloco }}
+            {{
+              'campaigns.detail.cotisations.caption' | transloco
+            }}
           </caption>
           <thead>
             <tr class="border-b border-line text-xs uppercase tracking-wide text-text-2">
@@ -45,6 +47,13 @@
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.status' | transloco }}
               </th>
+              @if (canRecordPayments()) {
+                <th scope="col" class="px-4 py-3 font-medium">
+                  <span class="sr-only">
+                    {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                  </span>
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -70,6 +79,17 @@
                     >{{ statusLabels[due.status] | transloco }}</span
                   >
                 </td>
+                @if (canRecordPayments()) {
+                  <td class="whitespace-nowrap px-4 py-4 text-right">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-line px-3 py-2 text-xs text-text"
+                      (click)="openRecordPayment(due)"
+                    >
+                      {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                    </button>
+                  </td>
+                }
               </tr>
             }
           </tbody>
@@ -96,7 +116,7 @@
         <p class="text-text-2" role="status">
           {{
             'campaigns.detail.cotisations.pagination.status'
-              | transloco : { current: result.page.number + 1, total: result.page.totalPages }
+              | transloco: { current: result.page.number + 1, total: result.page.totalPages }
           }}
         </p>
         <button
@@ -111,4 +131,22 @@
       </nav>
     }
   }
+
+  <app-form-dialog
+    [open]="recordPaymentDue() !== null"
+    [dialogTitle]="'campaigns.detail.cotisations.recordPayment.dialogTitle' | transloco"
+    (closed)="closeRecordPayment()"
+  >
+    @if (recordPaymentDue(); as due) {
+      @if (recordPaymentError(); as errorKey) {
+        <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
+      <app-record-payment-form
+        [due]="due"
+        [submitting]="recordPaymentSubmitting()"
+        (submitted)="handleRecordPayment($event)"
+        (cancelled)="closeRecordPayment()"
+      />
+    }
+  </app-form-dialog>
 </div>
