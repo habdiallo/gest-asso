@@ -46,6 +46,7 @@ export class CampaignDuesTab implements OnInit {
   private requestedPage = 0;
   private recordPaymentSession = 0;
   private readonly duesWithPaymentInFlight = new Set<string>();
+  private loadRequestId = 0;
 
   readonly campaignId = input.required<string>();
   readonly loading = signal(true);
@@ -62,6 +63,14 @@ export class CampaignDuesTab implements OnInit {
   readonly recordPaymentDue = signal<Due | null>(null);
   readonly recordPaymentSubmitting = signal(false);
   readonly recordPaymentError = signal<TranslationKey | null>(null);
+  /** Options du filtre de statut (T-63), dans l'ordre du cahier des charges. */
+  readonly statusOptions: readonly DueStatus[] = [
+    DueStatus.Due,
+    DueStatus.PartiallyPaid,
+    DueStatus.Paid,
+    DueStatus.Overdue,
+  ];
+  readonly statusFilter = signal<DueStatus | ''>('');
   readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(
@@ -87,6 +96,11 @@ export class CampaignDuesTab implements OnInit {
     }
   }
 
+  onStatusFilterChange(event: Event): void {
+    this.statusFilter.set((event.target as HTMLSelectElement).value as DueStatus | '');
+    this.loadPage(0);
+  }
+
   previousPage(): void {
     const result = this.duePage();
     if (result && !this.previousPageDisabled()) {
@@ -101,19 +115,38 @@ export class CampaignDuesTab implements OnInit {
     }
   }
 
+  /**
+   * Charge une page de cotisations. Chaque appel (pagination, changement de
+   * filtre) attribue un identifiant de requête : une réponse tardive d'un
+   * appel antérieur (par exemple un filtre déjà remplacé) est ignorée plutôt
+   * que d'écraser le résultat du filtre courant avec des données obsolètes.
+   */
   private loadPage(page: number): void {
     this.requestedPage = page;
     this.loading.set(true);
     this.loadError.set(false);
+    const requestId = ++this.loadRequestId;
     this.campaignsService
-      .listCampaignDues(this.campaignId(), page)
+      .listCampaignDues(
+        this.campaignId(),
+        page,
+        undefined,
+        undefined,
+        this.statusFilter() || undefined,
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
+          if (requestId !== this.loadRequestId) {
+            return;
+          }
           this.duePage.set(result);
           this.loading.set(false);
         },
         error: () => {
+          if (requestId !== this.loadRequestId) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
         },
