@@ -38,7 +38,7 @@ l'erreur même sans pagination visible ; le changement de page normal
 
 ## 4. Livraison
 
-- [ ] 4.1 [T-114] Committer uniquement le périmètre du ticket et pousser la
+- [x] 4.1 [T-114] Committer uniquement le périmètre du ticket et pousser la
       branche `front/fix-114-filtre-evenement-cagnottes`.
 - [ ] 4.2 [T-114] Ouvrir la PR vers `main` avec le modèle du dépôt et
       rapporter les validations et limites ; la revue et la fusion restent à
