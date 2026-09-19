@@ -83,3 +83,76 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
     }
   });
 });
+
+describe('POST /api/v1/members/{memberId}/reactivation (mocks MSW, T-44)', () => {
+  const adminHeaders = {
+    Authorization: `Bearer ${demoAccounts[0].accessToken}`,
+    'Content-Type': 'application/json',
+  };
+
+  it('réactive un membre inactif pour un Administrateur et conserve son historique financier', async () => {
+    const inactiveMemberId = '10700000-0000-4000-8000-000000000502';
+    const before = (await (
+      await runRequest(
+        new Request(`http://localhost/api/v1/members/${inactiveMemberId}`, {
+          headers: adminHeaders,
+        }),
+      )
+    ).json()) as MemberDetails;
+    expect(before.status).toBe(MemberStatus.Inactive);
+
+    const response = await runRequest(
+      new Request(`http://localhost/api/v1/members/${inactiveMemberId}/reactivation`, {
+        method: 'POST',
+        headers: adminHeaders,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const reactivated = (await response.json()) as MemberDetails;
+    expect(reactivated.status).toBe(MemberStatus.Active);
+    expect(reactivated.financialSummary).toEqual(before.financialSummary);
+
+    const after = (await (
+      await runRequest(
+        new Request(`http://localhost/api/v1/members/${inactiveMemberId}`, {
+          headers: adminHeaders,
+        }),
+      )
+    ).json()) as MemberDetails;
+    expect(after.status).toBe(MemberStatus.Active);
+  });
+
+  it('refuse un conflit métier pour un membre déjà actif', async () => {
+    const activeMemberId = '10700000-0000-4000-8000-000000000500';
+
+    const response = await runRequest(
+      new Request(`http://localhost/api/v1/members/${activeMemberId}/reactivation`, {
+        method: 'POST',
+        headers: adminHeaders,
+      }),
+    );
+
+    expect(response.status).toBe(409);
+  });
+
+  it("refuse l'accès à un rôle autre qu'Administrateur", async () => {
+    const inactiveMemberId = '10700000-0000-4000-8000-000000000502';
+    const treasurerAccount = demoAccounts.find((account) => account.user.role === 'TREASURER');
+    if (!treasurerAccount) {
+      throw new Error('Aucun compte Trésorier de démonstration disponible.');
+    }
+
+    const response = await runRequest(
+      new Request(`http://localhost/api/v1/members/${inactiveMemberId}/reactivation`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${treasurerAccount.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+
+    expect(response.status).toBe(403);
+  });
+});

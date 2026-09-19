@@ -2,12 +2,65 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import { CurrencyCode, ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
+import type { CurrentUser, ErrorResponse, MemberDetails } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
+import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberDetailPage } from './member-detail-page';
+
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
+/**
+ * Le titre du dialogue de confirmation ("Réactiver le membre") reste présent
+ * dans le DOM même fermé (`app-form-dialog` garde son contenu projeté) :
+ * chercher le bouton d'ouverture précisément plutôt qu'une sous-chaîne du
+ * texte de la page évite un faux positif avec ce titre.
+ */
+function findReactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
+  return Array.from(root.querySelectorAll('button')).find(
+    (button) => button.textContent?.trim() === 'Réactiver',
+  );
+}
 
 function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
   return {
@@ -35,8 +88,13 @@ function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetai
 
 async function createFixture(
   getMember: (memberId: string) => Observable<MemberDetails>,
-  memberId = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+  options: {
+    memberId?: string;
+    reactivateMember?: (memberId: string) => Observable<MemberDetails>;
+    role?: UserRole;
+  } = {},
 ): Promise<ComponentFixture<MemberDetailPage>> {
+  const memberId = options.memberId ?? 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10';
   await TestBed.configureTestingModule({
     imports: [
       MemberDetailPage,
@@ -48,13 +106,23 @@ async function createFixture(
     ],
     providers: [
       provideRouter([]),
-      { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+      {
+        provide: MembresService,
+        useValue: {
+          getMember,
+          reactivateMember: options.reactivateMember ?? (() => new Observable<MemberDetails>()),
+        } as unknown as MembresService,
+      },
       {
         provide: ActivatedRoute,
         useValue: { paramMap: of(convertToParamMap({ memberId })) },
       },
     ],
   }).compileComponents();
+
+  if (options.role) {
+    TestBed.inject(SessionService).setUser(buildCurrentUser(options.role));
+  }
 
   const fixture = TestBed.createComponent(MemberDetailPage);
   fixture.detectChanges();
@@ -169,5 +237,113 @@ describe('MemberDetailPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Membre B');
     expect(root.textContent).not.toContain('Membre A');
+  });
+
+  describe('reactivation (T-44, US-MEM-006)', () => {
+    it('shows the "Réactiver" action for an Administrator on an inactive member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findReactivateButton(root)).toBeDefined();
+    });
+
+    it('hides the action for an Administrator on an already active member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Active })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findReactivateButton(root)).toBeUndefined();
+    });
+
+    it.each([UserRole.Treasurer, UserRole.Operator, UserRole.Member])(
+      'hides the action for role %s even on an inactive member',
+      async (role) => {
+        const fixture = await createFixture(
+          () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+          { role },
+        );
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        expect(findReactivateButton(root)).toBeUndefined();
+      },
+    );
+
+    it('calls reactivateMember and updates the displayed status after confirmation', async () => {
+      const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator, reactivateMember },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findReactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('Confirmer la réactivation'),
+      );
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      expect(reactivateMember).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10');
+      expect(root.querySelector('[role="status"]')?.textContent).toContain('a été réactivé');
+      expect(root.textContent).toContain('Actif');
+      expect(findReactivateButton(root)).toBeUndefined();
+    });
+
+    it('shows an error and keeps the dialog open when reactivation fails', async () => {
+      const reactivateMember = vi.fn(() => throwError(() => new Error('network error')));
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator, reactivateMember },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findReactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('Confirmer la réactivation'),
+      );
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      expect(reactivateMember).toHaveBeenCalled();
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        'Impossible de réactiver ce membre',
+      );
+    });
+
+    it('cancels without calling the API', async () => {
+      const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator, reactivateMember },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findReactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(reactivateMember).not.toHaveBeenCalled();
+      expect(findReactivateButton(root)).toBeDefined();
+    });
   });
 });

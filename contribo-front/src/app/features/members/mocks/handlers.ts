@@ -216,12 +216,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };
@@ -248,4 +250,49 @@ export const membersHandlers = [
 
     return HttpResponse.json<MemberDetails>(member);
   }),
+
+  /**
+   * `POST /api/v1/members/{memberId}/reactivation` (T-44, US-MEM-006) : réservé
+   * à l'Administrateur. Rend le membre actif sans modifier son historique
+   * financier (RG-MEM-020, RG-MEM-021) ; refuse par conflit métier la
+   * réactivation d'un membre déjà actif (RG-MEM-022), conformément au contrat.
+   */
+  http.post(
+    '/api/v1/members/:memberId/reactivation',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (account.user.role !== UserRole.Administrator) {
+        return accessDenied();
+      }
+
+      const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+      const existing = demoMemberDetails.get(memberId);
+      if (!existing) {
+        return memberNotFound();
+      }
+      if (existing.status === MemberStatus.Active) {
+        return HttpResponse.json<ErrorResponse>(
+          { code: ErrorCode.MemberAlreadyActive, message: 'Ce membre est déjà actif.' },
+          { status: 409 },
+        );
+      }
+
+      const reactivated: MemberDetails = {
+        ...existing,
+        status: MemberStatus.Active,
+        account: existing.account ? { ...existing.account, active: true } : existing.account,
+      };
+      demoMemberDetails.set(memberId, reactivated);
+      const index = demoMembers.findIndex((member) => member.id === memberId);
+      if (index >= 0) {
+        demoMembers[index] = { ...demoMembers[index], status: MemberStatus.Active };
+      }
+
+      return HttpResponse.json<MemberDetails>(reactivated);
+    },
+  ),
 ];

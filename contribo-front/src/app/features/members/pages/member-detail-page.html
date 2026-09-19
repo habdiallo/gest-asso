@@ -19,18 +19,34 @@
       </span>
     </div>
 
-    @if (canEdit()) {
-      <button
-        type="button"
-        (click)="openEditDialog()"
-        class="mt-4 rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
-      >
-        {{ 'members.edit.button' | transloco }}
-      </button>
-    }
+    <div class="mt-4 flex flex-wrap gap-3">
+      @if (canEdit()) {
+        <button
+          type="button"
+          (click)="openEditDialog()"
+          class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+        >
+          {{ 'members.edit.button' | transloco }}
+        </button>
+      }
+      @if (canReactivate()) {
+        <button
+          type="button"
+          (click)="openReactivateDialog()"
+          class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
+        >
+          {{ 'members.reactivate.button' | transloco }}
+        </button>
+      }
+    </div>
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
-      {{ 'members.edit.success' | transloco }}
+        {{ 'members.edit.success' | transloco }}
+      </p>
+    }
+    @if (reactivateSuccess()) {
+      <p class="mt-4 text-sm text-success" role="status">
+        {{ 'members.reactivate.success' | transloco }}
       </p>
     }
     <app-form-dialog
@@ -50,6 +66,41 @@
           (submitted)="updateMember($event)"
           (cancelled)="closeEditDialog()"
         />
+      }
+    </app-form-dialog>
+
+    <app-form-dialog
+      [open]="reactivateOpen() && canReactivate()"
+      [dialogTitle]="'members.reactivate.dialogTitle' | transloco"
+      (closed)="closeReactivateDialog()"
+    >
+      @if (reactivateOpen() && canReactivate()) {
+        @if (reactivateError()) {
+          <p class="mb-4 text-sm text-error" role="alert">
+            {{ 'members.reactivate.error' | transloco }}
+          </p>
+        }
+        <p class="text-sm text-text">{{ 'members.reactivate.confirmMessage' | transloco }}</p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeReactivateDialog()"
+            class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
+          >
+            {{ 'members.reactivate.cancel' | transloco }}
+          </button>
+          <button
+            type="button"
+            (click)="confirmReactivate()"
+            [disabled]="reactivating()"
+            class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover disabled:opacity-60"
+          >
+            {{
+              (reactivating() ? 'members.reactivate.confirming' : 'members.reactivate.confirm')
+                | transloco
+            }}
+          </button>
+        </div>
       }
     </app-form-dialog>
 

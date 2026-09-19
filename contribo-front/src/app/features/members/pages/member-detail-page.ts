@@ -9,7 +9,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ErrorCode, MembresService, UserRole } from '@api';
+import { ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
 import type { ErrorResponse, MemberDetails, UpdateMemberRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
@@ -26,11 +26,18 @@ import { memberStatusLabel } from '../members-status-labels';
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
+ * T-44 (US-MEM-006) ajoute l'action "Réactiver" sur un membre inactif,
+ * réservée à l'Administrateur (RG-MEM-020 à RG-MEM-022) : appelle
+ * `POST /members/{memberId}/reactivation` (`MembresService.reactivateMember`)
+ * après confirmation explicite, symétriquement à l'action "Désactiver"
+ * (T-41, sur une branche distincte, non implémentée ici).
+ *
  * Limite connue : la situation des cotisations, l'historique des règlements
  * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
  * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
  * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
+ * la variante de modification Opérateur (T-39) restent à livrer. L'action
+ * "Désactiver" sur un membre actif (T-41) reste à livrer séparément.
  * La modification complète Administrateur/Trésorier est fournie par T-38.
  */
 @Component({
@@ -55,6 +62,16 @@ export class MemberDetailPage {
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
 
+  private reactivateSession = 0;
+  readonly canReactivate = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator && this.member()?.status === MemberStatus.Inactive;
+  });
+  readonly reactivateOpen = signal(false);
+  readonly reactivating = signal(false);
+  readonly reactivateError = signal(false);
+  readonly reactivateSuccess = signal(false);
+
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly notFound = signal(false);
@@ -70,6 +87,8 @@ export class MemberDetailPage {
         tap(() => {
           this.closeEditDialog();
           this.editSuccess.set(false);
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(false);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
@@ -138,6 +157,55 @@ export class MemberDetailPage {
           }
           this.saving.set(false);
           this.editError.set(true);
+        },
+      });
+  }
+
+  openReactivateDialog(): void {
+    if (!this.canReactivate() || this.reactivateOpen()) {
+      return;
+    }
+    ++this.reactivateSession;
+    this.reactivateError.set(false);
+    this.reactivateSuccess.set(false);
+    this.reactivateOpen.set(true);
+  }
+
+  closeReactivateDialog(): void {
+    ++this.reactivateSession;
+    this.reactivateOpen.set(false);
+    this.reactivating.set(false);
+  }
+
+  confirmReactivate(): void {
+    const member = this.member();
+    if (!this.canReactivate() || !member || !this.reactivateOpen() || this.reactivating()) {
+      return;
+    }
+    const session = this.reactivateSession;
+    this.reactivating.set(true);
+    this.reactivateError.set(false);
+    this.membersService
+      .reactivateMember(member.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (reactivated) => {
+          if (this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(reactivated);
+          if (session !== this.reactivateSession) {
+            return;
+          }
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.reactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.reactivating.set(false);
+          this.reactivateError.set(true);
         },
       });
   }
