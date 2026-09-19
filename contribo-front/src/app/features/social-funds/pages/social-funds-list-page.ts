@@ -12,6 +12,7 @@ import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { catchError, map, of, Subject, switchMap } from 'rxjs';
@@ -69,7 +70,14 @@ const PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-social-funds-list-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton, SocialFundCreateForm],
+  imports: [
+    RouterLink,
+    TranslocoPipe,
+    EmptyState,
+    FormDialog,
+    LoadingSkeleton,
+    SocialFundCreateForm,
+  ],
   templateUrl: './social-funds-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

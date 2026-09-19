@@ -3,7 +3,7 @@
 } @else if (loadError() && payments().length === 0) {
   <p class="text-error" role="alert">{{ 'memberDetail.payments.error' | transloco }}</p>
 } @else if (payments().length === 0) {
-  <p class="text-text-2">{{ 'memberDetail.payments.empty' | transloco }}</p>
+  <app-empty-state [message]="'memberDetail.payments.empty' | transloco" />
 } @else {
   <div class="overflow-x-auto" [attr.aria-busy]="pageActionPending() ? 'true' : null">
     <table class="w-full text-left text-sm">

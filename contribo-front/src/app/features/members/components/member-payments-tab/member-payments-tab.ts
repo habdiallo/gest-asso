@@ -13,6 +13,7 @@ import { RglementsService } from '@api';
 import type { Payment, PaymentPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import {
   formatMemberPaymentCalendarDate,
   formatMemberPaymentDateTime,
@@ -37,7 +38,7 @@ const PAYMENTS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-member-payments-tab',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, EmptyState],
   templateUrl: './member-payments-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

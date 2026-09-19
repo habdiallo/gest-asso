@@ -88,7 +88,7 @@
     }
 
     @if (campaignPage.items.length === 0) {
-      <p class="mt-6 text-text-2">{{ 'campaigns.list.empty' | transloco }}</p>
+      <app-empty-state class="mt-6 block" [message]="'campaigns.list.empty' | transloco" />
     } @else {
       <ul class="mt-6 flex flex-col gap-3" [attr.aria-busy]="loading() ? 'true' : null">
         @for (campaign of campaignPage.items; track campaign.id) {

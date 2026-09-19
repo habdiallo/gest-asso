@@ -15,6 +15,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { formatCalendarDate } from '../../member-dates';
 
 /**
@@ -34,7 +35,7 @@ import { formatCalendarDate } from '../../member-dates';
  */
 @Component({
   selector: 'app-member-dues-tab',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, EmptyState],
   templateUrl: './member-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

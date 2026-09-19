@@ -13,6 +13,7 @@ import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } fr
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -88,7 +89,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, LoadingSkeleton, MemberCreateForm],
+  imports: [TranslocoPipe, RouterLink, EmptyState, FormDialog, LoadingSkeleton, MemberCreateForm],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

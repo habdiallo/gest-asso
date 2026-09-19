@@ -192,7 +192,10 @@
           {{ 'socialFunds.detail.contributionsError' | transloco }}
         </p>
       } @else if (contributions().length === 0) {
-        <p class="mt-4 text-text-2">{{ 'socialFunds.detail.contributionsEmpty' | transloco }}</p>
+        <app-empty-state
+          class="mt-4 block"
+          [message]="'socialFunds.detail.contributionsEmpty' | transloco"
+        />
       } @else {
         <div
           class="mt-4 overflow-x-auto"

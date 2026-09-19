@@ -18,9 +18,7 @@
 
 @if (result(); as result) {
   @if (result.items.length === 0) {
-    <p class="rounded-card border border-line bg-surface p-5 text-text-2">
-      {{ 'memberSpace.dues.empty' | transloco }}
-    </p>
+    <app-empty-state [message]="'memberSpace.dues.empty' | transloco" />
   } @else {
     <div class="space-y-4" [attr.aria-busy]="loading()">
       @for (due of result.items; track due.id) {
@@ -80,7 +78,7 @@
       <p class="text-sm text-text-2" role="status">
         {{
           'memberSpace.dues.pagination.status'
-            | transloco : { current: result.page.number + 1, total: result.page.totalPages }
+            | transloco: { current: result.page.number + 1, total: result.page.totalPages }
         }}
       </p>
       <button

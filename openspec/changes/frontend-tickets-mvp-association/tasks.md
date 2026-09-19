@@ -171,7 +171,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 17. Qualité transverse et finitions (P2)
 
 - [x] 17.1 [T-100] États de chargement (skeleton/spinner) pour les listes et fiches principales (membres, campagnes, cagnottes).
-- [ ] 17.2 [T-101] États vides ("aucun membre", "aucune campagne", "aucune contribution") sur chaque liste.
+- [x] 17.2 [T-101] États vides ("aucun membre", "aucune campagne", "aucune contribution") sur chaque liste.
 - [ ] 17.3 [T-102] Gestion uniforme des erreurs API (message générique + retry) sur les formulaires de création/modification.
 - [ ] 17.4 [T-103] Vérification d'accessibilité clavier sur l'ensemble des dialogues de formulaire (focus trap, échappement).
 - [ ] 17.5 [T-104] Revue de cohérence responsive (desktop/tablette/mobile) sur l'ensemble des écrans livrés, par comparaison avec le prototype `design/`.

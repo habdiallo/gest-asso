@@ -18,6 +18,7 @@ import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
 
 /**
@@ -39,7 +40,7 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
  */
 @Component({
   selector: 'app-campaign-dues-tab',
-  imports: [TranslocoPipe, FormDialog, RecordPaymentForm],
+  imports: [TranslocoPipe, EmptyState, FormDialog, RecordPaymentForm],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

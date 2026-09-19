@@ -6,11 +6,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { formatCalendarDate } from '../member-space-dates';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
+import { EmptyState } from '@shared/empty-state/empty-state';
 
 /** Cotisations personnelles, issues exclusivement de GET /me/dues (T-96). */
 @Component({
   selector: 'app-my-dues',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, EmptyState],
   templateUrl: './my-dues.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
