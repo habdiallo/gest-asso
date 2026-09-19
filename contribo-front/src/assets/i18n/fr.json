@@ -259,7 +259,7 @@
   "members.create.button": "Ajouter un membre",
   "members.create.dialogTitle": "Ajouter un membre",
   "members.create.error": "Impossible d'enregistrer ce membre. Réessayez plus tard.",
-  "members.create.success": "{{name}} a été ajouté(e) avec le statut {{status}}.",
+  "members.create.success": "{{name}} a été ajouté(e) avec le statut {{status}}. Son compte utilisateur a été créé automatiquement.",
   "members.create.submit": "Enregistrer",
   "members.create.submitting": "Enregistrement…",
   "members.create.cancel": "Annuler",
