@@ -118,7 +118,7 @@ function buildCurrentUser(role: UserRole): CurrentUser {
 }
 
 async function createFixture(
-  listMembers: (page?: number) => Observable<MemberPage>,
+  listMembers: (page?: number, size?: number, q?: string) => Observable<MemberPage>,
   options: {
     createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
@@ -391,15 +391,107 @@ describe('MembersListPage', () => {
     const fixture = await createFixture(listMembers);
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(0);
+    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined);
     expect(fixture.nativeElement.textContent).not.toContain('MembreVingtEtUnieme');
 
     const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
     nextButton.click();
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(1);
+    expect(listMembers).toHaveBeenCalledWith(1, undefined, undefined);
     expect(fixture.nativeElement.textContent).toContain('MembreVingtEtUnieme');
+  });
+
+  it('requests members filtered by name after the search input is debounced (T-24)', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedQueries: (string | undefined)[] = [];
+      const fixture = await createFixture((_page, _size, q) => {
+        requestedQueries.push(q);
+        return of(buildMemberPage());
+      });
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#members-search');
+      input.value = 'Diallo';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      // La requête n'est déclenchée qu'après l'amortissement (debounceTime).
+      expect(requestedQueries).toEqual([undefined]);
+
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedQueries).toEqual([undefined, 'Diallo']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('requests the first page again once the debounced search query changes (T-24)', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedPages: number[] = [];
+      const fixture = await createFixture((page) => {
+        requestedPages.push(page ?? 0);
+        return of(
+          buildMemberPage({
+            page: { number: page ?? 0, size: 1, totalElements: 2, totalPages: 2 },
+          }),
+        );
+      });
+      fixture.detectChanges();
+
+      const nextButton = fixture.nativeElement.querySelectorAll(
+        'nav button',
+      )[1] as HTMLButtonElement;
+      nextButton.click();
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#members-search');
+      input.value = 'Diallo';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedPages).toEqual([0, 1, 0]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not request twice when the debounced search query is unchanged (T-24)', async () => {
+    vi.useFakeTimers();
+    try {
+      const requestedQueries: (string | undefined)[] = [];
+      const fixture = await createFixture((_page, _size, q) => {
+        requestedQueries.push(q);
+        return of(buildMemberPage());
+      });
+      fixture.detectChanges();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#members-search');
+      input.value = '  Diallo  ';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      // La valeur amortie ('Diallo', une fois découpée) ne change pas même si
+      // l'utilisateur ajoute puis retire des espaces autour, donc aucune
+      // requête supplémentaire n'est déclenchée (distinctUntilChanged).
+      input.value = 'Diallo';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+
+      expect(requestedQueries).toEqual([undefined, 'Diallo']);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('opens the create-member dialog from the button and closes it on cancel', async () => {
@@ -491,7 +583,7 @@ describe('MembersListPage', () => {
       firstName: 'Mariama',
       incomeCategoryId: demoIncomeCategory.id,
     });
-    expect(listMembers).toHaveBeenCalledWith(0);
+    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 

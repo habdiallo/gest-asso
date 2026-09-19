@@ -117,21 +117,47 @@ function accessDenied(): Response {
   );
 }
 
-/** Construit la réponse `/members` pour l'ensemble des membres de démonstration. */
-export function buildMemberPageResponse(): MemberPage {
+function normalizeForSearch(value: string): string {
+  return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+/**
+ * Un membre correspond au terme de recherche (T-24) si l'un de ses champs
+ * nominatifs (nom, prénom, nom d'usage) le contient, comparaison insensible
+ * à la casse et aux accents.
+ */
+function matchesNameQuery(member: MemberSummary, normalizedQuery: string): boolean {
+  return [member.lastName, member.firstName, member.preferredName]
+    .filter((value): value is string => Boolean(value))
+    .some((value) => normalizeForSearch(value).includes(normalizedQuery));
+}
+
+/**
+ * Construit la réponse `/members` pour l'ensemble des membres de démonstration.
+ * `nameQuery` (T-24, paramètre contractuel `q`) filtre `items` sur les champs
+ * nominatifs ; `summary` reste calculé sur l'ensemble du répertoire, ces
+ * compteurs étant indépendants du filtre courant (`MemberCountSummary`).
+ */
+export function buildMemberPageResponse(nameQuery?: string): MemberPage {
+  const normalizedQuery = nameQuery?.trim() ? normalizeForSearch(nameQuery.trim()) : null;
+  const items = normalizedQuery
+    ? demoMembers.filter((member) => matchesNameQuery(member, normalizedQuery))
+    : [...demoMembers];
+
   return {
-    items: [...demoMembers],
+    items,
     summary: {
       total: demoMembers.length,
       active: demoMembers.filter((member) => member.status === MemberStatus.Active).length,
       inactive: demoMembers.filter((member) => member.status === MemberStatus.Inactive).length,
     },
-    page: { number: 0, size: demoMembers.length, totalElements: demoMembers.length, totalPages: 1 },
+    page: { number: 0, size: items.length, totalElements: items.length, totalPages: 1 },
   };
 }
 
 /**
- * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21) et
+ * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21,
+ * recherche par nom T-24 via le paramètre contractuel `q`) et
  * `GET /api/v1/members/{memberId}` (T-27). Seule l'authentification est
  * vérifiée ici ; la restriction du contenu affiché à l'Opérateur
  * (RG-MEM-008) relève du ticket T-23.
@@ -144,7 +170,10 @@ export const membersHandlers = [
       return authenticationRequired();
     }
 
-    return HttpResponse.json<MemberPage>(buildMemberPageResponse());
+    const url = new URL(request.url);
+    const nameQuery = url.searchParams.get('q') ?? undefined;
+
+    return HttpResponse.json<MemberPage>(buildMemberPageResponse(nameQuery));
   }),
 
   /**
@@ -216,12 +245,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };

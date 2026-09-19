@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { MembresService } from '@api';
 import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -20,14 +21,26 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. La recherche (T-24), le filtre statut (T-25) et le filtre
- * catégorie (T-26) ne sont pas exploités ici ; seule la pagination de base
- * (page suivante/précédente sur `page`/`size`) est fournie par ce ticket, afin
- * que l'ensemble du répertoire reste accessible au-delà des 20 premiers
- * membres. La colonne Statut affiche un badge distinguant visuellement les
- * membres actifs des membres inactifs (T-22, RG-MEM-007), en plus du libellé
- * textuel, pour ne pas reposer uniquement sur la couleur. Chaque ligne mène
- * à la fiche détaillée du membre (T-27, US-MEM-003).
+ * à US-MEM-002. Le filtre statut (T-25) et le filtre catégorie (T-26) ne sont
+ * pas exploités ici ; seule la pagination de base (page suivante/précédente
+ * sur `page`/`size`) est fournie par ce ticket, afin que l'ensemble du
+ * répertoire reste accessible au-delà des 20 premiers membres. La colonne
+ * Statut affiche un badge distinguant visuellement les membres actifs des
+ * membres inactifs (T-22, RG-MEM-007), en plus du libellé textuel, pour ne
+ * pas reposer uniquement sur la couleur. Chaque ligne mène à la fiche
+ * détaillée du membre (T-27, US-MEM-003).
+ *
+ * Recherche par nom (T-24, paramètre contractuel `q` de `GET /members`) :
+ * filtre côté serveur les membres dont un champ nominatif correspond à la
+ * saisie. La saisie est amortie (`debounceTime`) pour ne déclencher une
+ * requête qu'une fois l'utilisateur arrêté de taper. La déduplication compare
+ * le terme amorti au dernier terme effectivement chargé (`lastRequestedQuery`,
+ * mis à jour par tout appel à `loadPage`), afin qu'un retour à un terme déjà
+ * amorti ne soit pas supprimé comme redondant si une autre requête a été
+ * déclenchée dans l'intervalle. Une nouvelle recherche revient à la première
+ * page. Une réponse en retard (nouvelle recherche lancée avant que la
+ * précédente ne résolve) ne doit pas écraser le résultat de la dernière
+ * recherche saisie (`requestSequence`).
  *
  * Vue restreinte de l'Opérateur (T-23, RG-MEM-008) : la colonne Catégorie de
  * revenu, qui porte le détail financier du membre (montants de cotisation
@@ -61,6 +74,11 @@ export class MembersListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+  private requestSequence = 0;
+
+  readonly nameQuery = signal('');
+  private readonly nameQueryInput = new Subject<string>();
+  private lastRequestedQuery = '';
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -95,7 +113,22 @@ export class MembersListPage {
   readonly memberIsActive = memberIsActive;
 
   constructor() {
+    this.nameQueryInput
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value === this.lastRequestedQuery) {
+          return;
+        }
+        this.loadPage(0);
+      });
+
     this.loadPage(0);
+  }
+
+  onNameQueryInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.nameQuery.set(value);
+    this.nameQueryInput.next(value.trim());
   }
 
   goToPreviousPage(): void {
@@ -172,15 +205,28 @@ export class MembersListPage {
     this.loading.set(true);
     this.loadError.set(false);
 
+    // Une réponse en retard (nouvelle recherche lancée avant que la
+    // précédente ne résolve) ne doit pas écraser le résultat de la dernière
+    // recherche saisie.
+    const requestId = ++this.requestSequence;
+    const query = this.nameQuery().trim();
+    this.lastRequestedQuery = query;
+
     this.membersService
-      .listMembers(page)
+      .listMembers(page, undefined, query || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (memberPage) => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.memberPage.set(memberPage);
           this.loading.set(false);
         },
         error: () => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
         },

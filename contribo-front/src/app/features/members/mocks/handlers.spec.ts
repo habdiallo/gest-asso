@@ -82,4 +82,43 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
       expect(Object.values(MemberStatus)).toContain(member.status);
     }
   });
+
+  describe('recherche par nom (T-24)', () => {
+    it('filtre les membres dont un champ nominatif correspond au terme saisi', () => {
+      const response = buildMemberPageResponse('Diallo');
+
+      expect(response.items).toHaveLength(1);
+      expect(response.items[0].lastName).toBe('Diallo');
+    });
+
+    it('ignore la casse et les accents de la saisie', () => {
+      const response = buildMemberPageResponse('cAmArA');
+
+      expect(response.items.map((member) => member.lastName)).toEqual(['Camara']);
+    });
+
+    it('garde des compteurs globaux indépendants du filtre courant', () => {
+      const unfiltered = buildMemberPageResponse();
+      const filtered = buildMemberPageResponse('Diallo');
+
+      expect(filtered.summary).toEqual(unfiltered.summary);
+      expect(filtered.items.length).toBeLessThan(unfiltered.items.length);
+    });
+
+    it("renvoie une liste vide sans lever d'erreur quand aucun membre ne correspond", () => {
+      const response = buildMemberPageResponse('Terme introuvable');
+
+      expect(response.items).toEqual([]);
+    });
+
+    it('filtre via le paramètre `q` de la requête `GET /api/v1/members`', async () => {
+      const headers = { Authorization: `Bearer ${demoAccounts[0].accessToken}` };
+      const response = await runRequest(
+        new Request('http://localhost/api/v1/members?q=Sow', { headers }),
+      );
+      const page = (await response.json()) as MemberPage;
+
+      expect(page.items.map((member) => member.lastName)).toEqual(['Sow']);
+    });
+  });
 });
