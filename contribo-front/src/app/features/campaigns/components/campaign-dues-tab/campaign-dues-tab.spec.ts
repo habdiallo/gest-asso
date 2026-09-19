@@ -4,7 +4,7 @@ import { CampagnesService, CampaignStatus, CurrencyCode, DueStatus } from '@api'
 import type { DuePage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../../assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
@@ -59,6 +59,14 @@ async function createFixture(
   return fixture;
 }
 
+function getStatusFilterSelect(root: HTMLElement): HTMLSelectElement {
+  const select = root.querySelector<HTMLSelectElement>('#campaign-dues-status-filter');
+  if (!select) {
+    throw new Error('Le sélecteur de statut est introuvable.');
+  }
+  return select;
+}
+
 describe('CampaignDuesTab', () => {
   it('loads and renders campaign dues', async () => {
     const fixture = await createFixture();
@@ -83,11 +91,10 @@ describe('CampaignDuesTab', () => {
     const root: HTMLElement = fixture.nativeElement;
 
     listCampaignDues.mockClear();
-    const select = root.querySelector<HTMLSelectElement>('#campaign-dues-status-filter');
-    expect(select).toBeTruthy();
+    const select = getStatusFilterSelect(root);
 
-    select!.value = DueStatus.Paid;
-    select!.dispatchEvent(new Event('change'));
+    select.value = DueStatus.Paid;
+    select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
     expect(listCampaignDues).toHaveBeenCalledWith(
@@ -97,5 +104,38 @@ describe('CampaignDuesTab', () => {
       undefined,
       DueStatus.Paid,
     );
+  });
+
+  it('ignores a stale response received after a newer filter was applied', async () => {
+    const initial$ = new Subject<DuePage>();
+    const filtered$ = new Subject<DuePage>();
+    let callCount = 0;
+    const listCampaignDues = vi.fn(() => {
+      callCount += 1;
+      return callCount === 1 ? initial$.asObservable() : filtered$.asObservable();
+    });
+    const fixture = await createFixture(listCampaignDues);
+    const root: HTMLElement = fixture.nativeElement;
+
+    // Chargement initial encore en attente lorsque l'utilisateur choisit PAID.
+    const select = getStatusFilterSelect(root);
+    select.value = DueStatus.Paid;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const paidResult: DuePage = {
+      items: [{ ...result.items[0], status: DueStatus.Paid, remainingAmount: 0 }],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    filtered$.next(paidResult);
+    filtered$.complete();
+    fixture.detectChanges();
+
+    // Réponse tardive du chargement initial (statut DUE) : ne doit pas écraser le filtre courant.
+    initial$.next(result);
+    initial$.complete();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.duePage()?.items[0].status).toBe(DueStatus.Paid);
   });
 });

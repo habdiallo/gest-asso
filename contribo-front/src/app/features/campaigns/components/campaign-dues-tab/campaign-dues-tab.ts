@@ -25,6 +25,7 @@ export class CampaignDuesTab implements OnInit {
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
   private requestedPage = 0;
+  private loadRequestId = 0;
 
   readonly campaignId = input.required<string>();
   readonly loading = signal(true);
@@ -86,10 +87,17 @@ export class CampaignDuesTab implements OnInit {
     }
   }
 
+  /**
+   * Charge une page de cotisations. Chaque appel (pagination, changement de
+   * filtre) attribue un identifiant de requête : une réponse tardive d'un
+   * appel antérieur (par exemple un filtre déjà remplacé) est ignorée plutôt
+   * que d'écraser le résultat du filtre courant avec des données obsolètes.
+   */
   private loadPage(page: number): void {
     this.requestedPage = page;
     this.loading.set(true);
     this.loadError.set(false);
+    const requestId = ++this.loadRequestId;
     this.campaignsService
       .listCampaignDues(
         this.campaignId(),
@@ -101,10 +109,16 @@ export class CampaignDuesTab implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
+          if (requestId !== this.loadRequestId) {
+            return;
+          }
           this.duePage.set(result);
           this.loading.set(false);
         },
         error: () => {
+          if (requestId !== this.loadRequestId) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
         },
