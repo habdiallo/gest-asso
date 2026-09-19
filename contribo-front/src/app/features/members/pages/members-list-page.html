@@ -44,6 +44,25 @@
     </p>
   }
 
+  <div class="mt-6 flex flex-wrap gap-4">
+    <div class="flex flex-col gap-2 sm:max-w-xs">
+      <label for="members-status-filter" class="text-sm font-medium text-text-2">
+        {{ 'members.statusFilterLabel' | transloco }}
+      </label>
+      <select
+        id="members-status-filter"
+        [value]="statusFilter()"
+        (change)="onStatusFilterChange($event)"
+        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      >
+        <option value="">{{ 'members.statusFilterAll' | transloco }}</option>
+        @for (status of statusFilterOptions; track status) {
+          <option [value]="status">{{ memberStatusLabel(status) }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
   @if (loading() && !memberPage()) {
     <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
   } @else if (loadError() && !memberPage()) {

@@ -46,14 +46,14 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 4.2 [T-22] (P0) Distinction visuelle membres actifs / inactifs dans la liste. — RG-MEM-007
 - [x] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
-- [ ] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
+- [x] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
 - [ ] 4.6 [T-26] (P2) Filtre par catégorie de revenu dans la liste des membres.
 - [x] 4.7 [T-27] (P0) Écran fiche membre : bloc informations personnelles, catégorie, fonction, statut. — US-MEM-003 ; openapi:`getMember`
-- [ ] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
-- [ ] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.
-- [ ] 4.10 [T-30] (P1) Fiche membre — onglet contributions aux cagnottes.
+- [x] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
+- [x] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.
+- [x] 4.10 [T-30] (P1) Fiche membre — onglet contributions aux cagnottes.
 - [ ] 4.11 [T-31] (P1) Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.
-- [ ] 4.12 [T-32] (P1) Fiche membre en lecture seule pour un Opérateur non autorisé aux paiements (masquage des actions d'enregistrement). — §2.3
+- [x] 4.12 [T-32] (P1) Fiche membre en lecture seule pour un Opérateur non autorisé aux paiements (masquage des actions d'enregistrement). — §2.3
 
 ## 5. Membres — création et modification (`member-management-ui`)
 
@@ -61,18 +61,18 @@ déjà réalisées restent liées à l'initialisation historique `000`.
   Retours de revue PR 46 corrigés : réponses isolées par session de dialogue, répertoire mock partagé avec les GET liste/fiche, téléphone facultatif validé selon le contrat avec erreur de champ. Tests de régression et build de production réussis.
 - [x] 5.2 [T-34] (P0) Validation "catégorie de revenu obligatoire" sur le formulaire de création. — RG-MEM-002
 - [x] 5.3 [T-35] (P0) Statut Actif par défaut affiché après création, sans champ de saisie du statut. — RG-MEM-003
-- [ ] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
+- [x] 5.4 [T-36] (P1) Message de confirmation "compte utilisateur créé" après création d'un membre. — RG-MEM-004
 - [x] 5.5 [T-37] (P0) Masquage de l'action "Ajouter un membre" pour les rôles Opérateur et Membre. — RG-MEM-001
 - [x] 5.6 [T-38] (P0) Formulaire de modification d'un membre — tous champs pour Administrateur/Trésorier (y compris catégorie et fonction). — US-MEM-004
 - [ ] 5.7 [T-39] (P0) Formulaire de modification d'un membre — variante Opérateur limitée aux champs téléphone, ville, pays, nom d'usage. — RG-MEM-017
-- [ ] 5.8 [T-40] (P0) Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018
+- [x] 5.8 [T-40] (P0) Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018
 
 ## 6. Membres — activation (`member-management-ui`)
 
-- [ ] 6.1 [T-41] (P1) Action "Désactiver" sur la fiche d'un membre actif, réservée à l'Administrateur. — US-MEM-005 ; openapi:`deactivateMember`
+- [x] 6.1 [T-41] (P1) Action "Désactiver" sur la fiche d'un membre actif, réservée à l'Administrateur. — US-MEM-005 ; openapi:`deactivateMember`
 - [ ] 6.2 [T-42] (P1) Boîte de confirmation avant désactivation, mentionnant l'exclusion des futures campagnes. — RG-MEM-016
 - [ ] 6.3 [T-43] (P1) Mise à jour du statut affiché après désactivation, en conservant l'historique visible (cotisations, règlements, contributions). — RG-MEM-012 à RG-MEM-015
-- [ ] 6.4 [T-44] (P1) Action "Réactiver" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`
+- [x] 6.4 [T-44] (P1) Action "Réactiver" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`
 - [ ] 6.5 [T-45] (P1) Boîte de confirmation avant réactivation.
 - [ ] 6.6 [T-46] (P1) Masquage mutuel des actions "Désactiver"/"Réactiver" selon le statut courant du membre. — RG-MEM-022
 - [ ] 6.7 [T-47] (P1) Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019
@@ -102,9 +102,9 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 9.4 [T-60] (P0) Écran détail de campagne avec onglets (barème, cotisations, bilan). — US-COT-004
   Validation du retour de revue PR 45 : accès Tab aux trois onglets, activation Entrée/Espace vérifiée dans Chrome. Tests et build de production réussis après synchronisation de main.
 - [x] 9.5 [T-61] (P0) Onglet cotisations : tableau membre/catégorie/montant dû/montant payé/reste/statut. — US-COT-003, US-COT-004 ; openapi:`listCampaignDues`
-- [ ] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
+- [x] 9.6 [T-62] (P1) Vue restreinte de l'onglet cotisations pour l'Opérateur (sans agrégats réservés). — RG-MEM-008
 - [ ] 9.7 [T-63] (P2) Filtre par statut de cotisation (À payer / Partiellement payé / Payé / En retard).
-- [ ] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
+- [x] 9.8 [T-64] (P1) Navigation par onglets sans rechargement de page, avec navigation clavier flèches gauche/droite.
 
 ## 10. Campagnes — création et configuration (`campaigns-ui`)
 
@@ -127,7 +127,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)
 
-- [ ] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
+- [x] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
 - [ ] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
 - [ ] 12.3 [T-79] (P2) Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.
 - [x] 12.4 [T-80] (P1) Action "Clôturer la campagne" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`
@@ -140,12 +140,12 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 13.1 [T-82] (P1) Écran liste des cagnottes, visuellement séparé de l'écran campagnes. — RG-CAG-001 ; openapi:`listCagnottes`
 - [x] 13.2 [T-83] (P2) Filtre par type d'événement (Mariage, Baptême, Décès, Naissance, Autre).
 - [x] 13.3 [T-84] (P1) Formulaire de création d'une cagnotte (Titre, Type d'événement, Description, Personne/famille concernée, Date de début, Date de fin, Objectif). — US-CAG-001 ; openapi:`createCagnotte`
-- [ ] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
-- [ ] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
+- [x] 13.4 [T-85] (P2) Objectif de montant facultatif, avec masquage de la barre de progression si absent.
+- [x] 13.5 [T-86] (P1) Masquage de l'action "Créer une cagnotte" pour Opérateur et Membre.
 
 ## 14. Cagnottes — contributions et suivi (`cagnottes-ui`)
 
-- [ ] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
+- [x] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
 - [ ] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
 - [ ] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
 - [ ] 14.4 [T-90] (P1) Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007
@@ -163,8 +163,8 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 16.1 [T-95] (P0) Écran profil personnel en lecture seule (informations personnelles, catégorie, fonction, statut). — US-MBR-001 ; openapi:`getMyProfile`
 - [x] 16.2 [T-96] (P1) Onglet "Mes cotisations" : campagne, période, montant dû, montant payé, reste, statut. — US-MBR-002 ; openapi:`getMyDues`
-- [ ] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
-- [ ] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
+- [x] 16.3 [T-97] (P1) Absence de toute action de paiement en ligne sur l'écran "Mes cotisations". — Annexe A
+- [x] 16.4 [T-98] (P1) Onglet "Mes contributions" : liste des cagnottes contribuées, montant et date. — US-MBR-003 ; openapi:`getMyContributions`
 - [x] 16.5 [T-99] (P0) Garde de route confirmant qu'un Membre ne peut consulter que ses propres données (aucun accès à la fiche d'un autre membre). — RG-DATA-001
 
 ## 17. Qualité transverse et finitions (P2)

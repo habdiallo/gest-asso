@@ -1,3 +1,4 @@
+import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -26,6 +28,7 @@ import { AmountInput } from '@shared/amount-input/amount-input';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
+import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
@@ -40,12 +43,16 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * déjà l'accès aux mêmes rôles que la liste via `roleGuard`).
  *
  * L'onglet cotisations (T-61) charge la situation paginée des membres via
- * `openapi:listCampaignDues`. Le bilan (T-77) reste un emplacement réservé.
+ * `openapi:listCampaignDues`. Le bilan (T-77) affiche total attendu, total
+ * encaissé et reste à encaisser à partir de `campaign.financialSummary`,
+ * déjà inclus dans la réponse `openapi:getCampaign` : aucun appel réseau
+ * supplémentaire n'est effectué pour cet onglet.
  *
  * La sélection d'onglet utilise le motif ARIA `tablist`/`tab`/`tabpanel` avec
- * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres) afin de
- * ne pas bloquer la navigation clavier flèches gauche/droite du ticket T-64 :
- * cet écran fournit uniquement le changement d'onglet au clic/Entrée/Espace.
+ * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres, T-64) :
+ * les flèches gauche/droite déplacent le focus et activent l'onglet visé
+ * sans rechargement de page (état local `activeTab`, aucune navigation
+ * `Router`), en plus du changement au clic/Entrée/Espace déjà validé (T-60).
  *
  * Formulaire de configuration du barème (T-68, `openapi:updateCampaignCategoryAmounts`) :
  * un champ de saisie de montant par catégorie de revenu déjà portée par la
@@ -76,7 +83,14 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  */
 @Component({
   selector: 'app-campaign-detail-page',
-  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab, FormDialog],
+  imports: [
+    TranslocoPipe,
+    ReactiveFormsModule,
+    AmountInput,
+    CampaignDuesTab,
+    CampaignBilanTab,
+    FormDialog,
+  ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -96,6 +110,9 @@ export class CampaignDetailPage {
   readonly formatGnfAmountDetailed = formatGnfAmountDetailed;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly tabs = CAMPAIGN_DETAIL_TABS;
+
+  /** Boutons d'onglets, dans l'ordre du DOM (T-64 : focus programmatique flèches gauche/droite). */
+  private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
 
@@ -154,6 +171,26 @@ export class CampaignDetailPage {
 
   isActiveTab(tab: CampaignDetailTab): boolean {
     return this.activeTab() === tab;
+  }
+
+  /**
+   * Navigation clavier flèches gauche/droite entre onglets (T-64) : déplace
+   * l'onglet actif et le focus sans rechargement de page, avec retour au
+   * premier onglet après le dernier et inversement (comportement "roving
+   * tabindex" du motif ARIA `tab`, cf. WAI-ARIA Authoring Practices).
+   */
+  onTabsKeydown(event: KeyboardEvent): void {
+    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (delta === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const currentIndex = this.tabs.indexOf(this.activeTab());
+    const nextIndex = (currentIndex + delta + this.tabs.length) % this.tabs.length;
+    const nextTab = this.tabs[nextIndex];
+    this.selectTab(nextTab);
+    this.tabButtons()[nextIndex]?.nativeElement.focus();
   }
 
   startEditingBareme(): void {

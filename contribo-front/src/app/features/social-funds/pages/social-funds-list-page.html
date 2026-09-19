@@ -11,33 +11,37 @@
         {{ 'socialFunds.intro' | transloco }}
       </p>
     </div>
-    <button
-      type="button"
-      class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
-      (click)="openCreateDialog()"
-    >
-      {{ 'socialFunds.create.button' | transloco }}
-    </button>
+    @if (canCreateSocialFund()) {
+      <button
+        type="button"
+        class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+        (click)="openCreateDialog()"
+      >
+        {{ 'socialFunds.create.button' | transloco }}
+      </button>
+    }
   </div>
 
-  <app-form-dialog
-    [open]="createDialogOpen()"
-    [dialogTitle]="'socialFunds.create.dialogTitle' | transloco"
-    (closed)="closeCreateDialog()"
-  >
-    @if (createDialogOpen()) {
-      @if (createError()) {
-        <p class="mb-4 text-sm text-error" role="alert">
-          {{ 'socialFunds.create.error' | transloco }}
-        </p>
+  @if (canCreateSocialFund()) {
+    <app-form-dialog
+      [open]="createDialogOpen()"
+      [dialogTitle]="'socialFunds.create.dialogTitle' | transloco"
+      (closed)="closeCreateDialog()"
+    >
+      @if (createDialogOpen()) {
+        @if (createError()) {
+          <p class="mb-4 text-sm text-error" role="alert">
+            {{ 'socialFunds.create.error' | transloco }}
+          </p>
+        }
+        <app-social-fund-create-form
+          [submitting]="creating()"
+          (submitted)="handleCreateSocialFund($event)"
+          (cancelled)="closeCreateDialog()"
+        />
       }
-      <app-social-fund-create-form
-        [submitting]="creating()"
-        (submitted)="handleCreateSocialFund($event)"
-        (cancelled)="closeCreateDialog()"
-      />
-    }
-  </app-form-dialog>
+    </app-form-dialog>
+  }
 
   @if (loading()) {
     <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.loading' | transloco }}</p>
