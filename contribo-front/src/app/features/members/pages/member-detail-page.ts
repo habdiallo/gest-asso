@@ -58,10 +58,15 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * un membre actif, réservée à l'Administrateur, et remplace le membre affiché
  * par la réponse (statut Inactif), en conservant visibles les sections
  * historiques déjà livrées (cotisations, règlements, contributions). La
- * boîte de confirmation avant envoi (RG-MEM-016, T-42), le masquage mutuel
- * avec l'action "Réactiver" selon le statut courant (RG-MEM-022, T-46) et le
- * masquage pour les rôles Trésorier/Opérateur/Membre (T-47) restent à livrer
- * sur des tickets distincts. Les contributions restent le ticket T-30.
+ * boîte de confirmation avant envoi (RG-MEM-016, T-42) reste à livrer sur un
+ * ticket distinct. Les contributions restent le ticket T-30.
+ *
+ * Action "Réactiver" (T-44, US-MEM-006) : appelle `POST
+ * /members/{memberId}/reactivation` (`MembresService.reactivateMember`) pour
+ * un membre inactif, réservée à l'Administrateur, après confirmation
+ * explicite (RG-MEM-020 à RG-MEM-022). Le masquage mutuel avec l'action
+ * "Désactiver" selon le statut courant (T-46) et le masquage pour les rôles
+ * Trésorier/Opérateur/Membre (T-47) restent à livrer sur des tickets distincts.
  */
 @Component({
   selector: 'app-member-detail-page',
@@ -97,6 +102,16 @@ export class MemberDetailPage {
   readonly deactivateError = signal(false);
   readonly deactivateSuccess = signal(false);
 
+  private reactivateSession = 0;
+  readonly canReactivate = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator && this.member()?.status === MemberStatus.Inactive;
+  });
+  readonly reactivateOpen = signal(false);
+  readonly reactivating = signal(false);
+  readonly reactivateError = signal(false);
+  readonly reactivateSuccess = signal(false);
+
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly notFound = signal(false);
@@ -118,6 +133,8 @@ export class MemberDetailPage {
           this.deactivating.set(false);
           this.deactivateError.set(false);
           this.deactivateSuccess.set(false);
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(false);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
@@ -226,6 +243,55 @@ export class MemberDetailPage {
           }
           this.deactivating.set(false);
           this.deactivateError.set(true);
+        },
+      });
+  }
+
+  openReactivateDialog(): void {
+    if (!this.canReactivate() || this.reactivateOpen()) {
+      return;
+    }
+    ++this.reactivateSession;
+    this.reactivateError.set(false);
+    this.reactivateSuccess.set(false);
+    this.reactivateOpen.set(true);
+  }
+
+  closeReactivateDialog(): void {
+    ++this.reactivateSession;
+    this.reactivateOpen.set(false);
+    this.reactivating.set(false);
+  }
+
+  confirmReactivate(): void {
+    const member = this.member();
+    if (!this.canReactivate() || !member || !this.reactivateOpen() || this.reactivating()) {
+      return;
+    }
+    const session = this.reactivateSession;
+    this.reactivating.set(true);
+    this.reactivateError.set(false);
+    this.membersService
+      .reactivateMember(member.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (reactivated) => {
+          if (this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(reactivated);
+          if (session !== this.reactivateSession) {
+            return;
+          }
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.reactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.reactivating.set(false);
+          this.reactivateError.set(true);
         },
       });
   }
