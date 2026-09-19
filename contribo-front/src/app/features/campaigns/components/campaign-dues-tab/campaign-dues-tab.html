@@ -1,4 +1,21 @@
 <div [attr.aria-busy]="loading()">
+  <div class="mb-4 flex flex-col gap-2 sm:max-w-xs">
+    <label for="campaign-dues-status-filter" class="text-sm font-medium text-text-2">
+      {{ 'campaigns.detail.cotisations.filter.label' | transloco }}
+    </label>
+    <select
+      id="campaign-dues-status-filter"
+      [value]="statusFilter()"
+      (change)="onStatusFilterChange($event)"
+      class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+    >
+      <option value="">{{ 'campaigns.detail.cotisations.filter.all' | transloco }}</option>
+      @for (status of statusOptions; track status) {
+        <option [value]="status">{{ statusLabels[status] | transloco }}</option>
+      }
+    </select>
+  </div>
+
   @if (loading()) {
     <p class="text-text-2" role="status">
       {{ 'campaigns.detail.cotisations.loading' | transloco }}

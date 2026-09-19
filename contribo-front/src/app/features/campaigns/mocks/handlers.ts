@@ -139,6 +139,42 @@ const demoCampaignDues: Record<string, Due[]> = {
       paymentCount: 1,
       currency: CurrencyCode.Gnf,
     },
+    {
+      id: '10700000-0000-4000-8000-000000000411',
+      member: { id: '10700000-0000-4000-8000-000000000501', displayName: 'Fatoumata Bah' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 0,
+      remainingAmount: 100_000,
+      status: 'DUE',
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000412',
+      member: { id: '10700000-0000-4000-8000-000000000502', displayName: 'Mamadou Bah' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+      dueAmount: 250_000,
+      paidAmount: 250_000,
+      remainingAmount: 0,
+      status: 'PAID',
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000413',
+      member: { id: '10700000-0000-4000-8000-000000000503', displayName: 'Aissatou Sow' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 0,
+      remainingAmount: 100_000,
+      status: 'OVERDUE',
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
   ],
 };
 
@@ -448,7 +484,10 @@ export const campaignsHandlers = [
     const url = new URL(request.url);
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
-    const dues = demoCampaignDues[campaignId] ?? [];
+    const statusFilter = url.searchParams.get('status');
+    const dues = (demoCampaignDues[campaignId] ?? []).filter(
+      (due) => !statusFilter || due.status === statusFilter,
+    );
     const items = dues.slice(page * size, page * size + size);
     return HttpResponse.json<DuePage>({
       items,
