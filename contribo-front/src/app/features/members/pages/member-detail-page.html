@@ -4,7 +4,11 @@
   </a>
 
   @if (loading() && !member()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'memberDetail.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="detail"
+      [rows]="6"
+      [label]="'memberDetail.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">
       {{ (notFound() ? 'memberDetail.notFound' : 'memberDetail.error') | transloco }}

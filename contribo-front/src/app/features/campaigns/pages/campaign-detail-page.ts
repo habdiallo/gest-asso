@@ -26,6 +26,7 @@ import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
@@ -90,6 +91,7 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
     CampaignDuesTab,
     CampaignBilanTab,
     FormDialog,
+    LoadingSkeleton,
   ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

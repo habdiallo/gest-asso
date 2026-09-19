@@ -78,12 +78,12 @@
   </div>
 
   @if (loading() && !memberPage()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
+    <app-loading-skeleton variant="table" [rows]="5" [label]="'members.loading' | transloco" />
   } @else if (loadError() && !memberPage()) {
     <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
   } @else if (memberPage(); as page) {
     @if (loading()) {
-      <p class="mt-6 text-text-2" role="status">{{ 'members.loading' | transloco }}</p>
+      <app-loading-skeleton variant="table" [rows]="5" [label]="'members.loading' | transloco" />
     } @else if (loadError()) {
       <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
     }

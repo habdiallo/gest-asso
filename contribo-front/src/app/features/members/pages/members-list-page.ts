@@ -14,6 +14,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
@@ -87,7 +88,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberCreateForm],
+  imports: [TranslocoPipe, RouterLink, FormDialog, LoadingSkeleton, MemberCreateForm],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

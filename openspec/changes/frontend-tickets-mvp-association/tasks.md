@@ -110,8 +110,9 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 10.1 [T-65] (P0) Formulaire de création de campagne (Nom, Description, Date de début, Date de fin, membres concernés). — US-COT-001 ; openapi:`createCampaign`
   Le contrat `CreateCampaignRequest` impose `categoryAmounts` (au moins une entrée) dans la même requête atomique. Ce ticket dérive ces entrées des catégories de revenu portées par au moins un membre actif, avec un montant provisoire de 0 GNF ; la saisie réelle du barème reste celle de T-68 via `PUT /campaigns/{campaignId}/category-amounts`. Le champ "membres concernés" est affiché en lecture seule : le contrat n'expose qu'une seule valeur (`ALL_ACTIVE_MEMBERS`) pour le MVP. Le masquage de l'action pour l'Opérateur et le Membre (T-67) et la validation de plage de dates (T-66) restent des tickets distincts, non traités ici (l'action reste visible pour tous les rôles accédant à l'écran, la validation de plage est déjà appliquée côté formulaire pour la cohérence de la saisie).
-- [ ] 10.2 [T-66] (P0) Validation "date de fin ≥ date de début". — RG-COT-005
-- [ ] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
+- [x] 10.2 [T-66] (P0) Validation "date de fin ≥ date de début". — RG-COT-005
+  Le formulaire de création de campagne (T-65, `campaign-create-form`) portait déjà le validateur de plage (`dateRangeValidator`, cohérent avec `SocialFundCreateForm`, T-84) : erreur groupe si `endDate < startDate`, messages dédiés (`endDateRequired` vs `endDateBeforeStart`), `aria-invalid`/`aria-describedby` sur le champ date de fin. Aucune campagne n'expose de formulaire de modification des dates dans le contrat (seul le barème se modifie, T-68) : le périmètre de T-66 se limite donc à la création. Ce ticket ajoute la traçabilité `T-66` explicite au validateur et un test de cas limite (date de fin = date de début, valeur explicitement autorisée par RG-COT-005).
+- [x] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
 - [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
 - [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
 - [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
@@ -120,7 +121,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 11.1 [T-71] (P0) Formulaire d'enregistrement d'un règlement (Membre, Campagne, Montant, Date, Mode). — US-COT-005 ; openapi:`recordPayment`
 - [x] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
-- [ ] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
+- [x] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
 - [ ] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
 - [ ] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
 - [ ] 11.6 [T-76] (P1) Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).
@@ -147,7 +148,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
 - [ ] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
-- [ ] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
+- [x] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
 - [ ] 14.4 [T-90] (P1) Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007
 - [x] 14.5 [T-91] (P1) Onglet suivi de cagnotte : total collecté, nombre de contributeurs, liste des contributions. — US-CAG-003 ; openapi:`getCagnotteSummary`
 - [ ] 14.6 [T-92] (P2) Barre de progression objectif / reste à collecter, quand un objectif est défini.
@@ -169,7 +170,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 ## 17. Qualité transverse et finitions (P2)
 
-- [ ] 17.1 [T-100] États de chargement (skeleton/spinner) pour les listes et fiches principales (membres, campagnes, cagnottes).
+- [x] 17.1 [T-100] États de chargement (skeleton/spinner) pour les listes et fiches principales (membres, campagnes, cagnottes).
 - [ ] 17.2 [T-101] États vides ("aucun membre", "aucune campagne", "aucune contribution") sur chaque liste.
 - [ ] 17.3 [T-102] Gestion uniforme des erreurs API (message générique + retry) sur les formulaires de création/modification.
 - [ ] 17.4 [T-103] Vérification d'accessibilité clavier sur l'ensemble des dialogues de formulaire (focus trap, échappement).

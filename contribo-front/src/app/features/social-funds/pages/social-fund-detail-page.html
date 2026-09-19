@@ -4,7 +4,11 @@
   </a>
 
   @if (loading() && !socialFund()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.detail.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="detail"
+      [rows]="4"
+      [label]="'socialFunds.detail.loading' | transloco"
+    />
   } @else if (loadError() && !socialFund()) {
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.detail.error' | transloco }}</p>
   } @else if (socialFund(); as socialFund) {
@@ -36,15 +40,27 @@
       <p class="mt-3 text-sm text-text">{{ socialFund.description }}</p>
     }
 
-    @if (canCloseSocialFund()) {
-      <button
-        type="button"
-        (click)="openCloseDialog()"
-        class="mt-4 rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
-      >
-        {{ 'socialFunds.close.button' | transloco }}
-      </button>
-    }
+    <div class="mt-4 flex flex-wrap gap-3">
+      @if (canRecordContribution()) {
+        <button
+          type="button"
+          (click)="openRecordDialog()"
+          class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+        >
+          {{ 'socialFunds.recordContribution.button' | transloco }}
+        </button>
+      }
+
+      @if (canCloseSocialFund()) {
+        <button
+          type="button"
+          (click)="openCloseDialog()"
+          class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
+        >
+          {{ 'socialFunds.close.button' | transloco }}
+        </button>
+      }
+    </div>
 
     <app-form-dialog
       [open]="closeDialogOpen() && canCloseSocialFund()"
@@ -88,6 +104,29 @@
         </div>
       }
     </app-form-dialog>
+
+    @if (canRecordContribution()) {
+      <app-form-dialog
+        [open]="recordDialogOpen()"
+        [dialogTitle]="'socialFunds.recordContribution.dialogTitle' | transloco"
+        [closeLabel]="'socialFunds.recordContribution.cancel' | transloco"
+        (closed)="closeRecordDialog()"
+      >
+        @if (recordDialogOpen()) {
+          @if (recordContributionError()) {
+            <p class="mb-4 text-sm text-error" role="alert">
+              {{ 'socialFunds.recordContribution.error' | transloco }}
+            </p>
+          }
+          <app-contribution-create-form
+            [socialFundTitle]="socialFund.title"
+            [submitting]="recordingContribution()"
+            (submitted)="handleRecordContribution($event)"
+            (cancelled)="closeRecordDialog()"
+          />
+        }
+      </app-form-dialog>
+    }
 
     <section class="mt-8">
       <h2 class="font-display text-xl uppercase tracking-wide text-text">

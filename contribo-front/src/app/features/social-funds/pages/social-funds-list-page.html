@@ -44,7 +44,7 @@
   }
 
   @if (loading()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.loading' | transloco }}</p>
+    <app-loading-skeleton variant="grid" [rows]="3" [label]="'socialFunds.loading' | transloco" />
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.error' | transloco }}</p>
   } @else {

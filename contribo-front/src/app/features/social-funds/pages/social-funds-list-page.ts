@@ -13,6 +13,7 @@ import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from 
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { catchError, map, of, Subject, switchMap } from 'rxjs';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
@@ -83,7 +84,7 @@ function progressBarWidth(progressRate: number): number {
  */
 @Component({
   selector: 'app-social-funds-list-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog, SocialFundCreateForm],
+  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton, SocialFundCreateForm],
   templateUrl: './social-funds-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
