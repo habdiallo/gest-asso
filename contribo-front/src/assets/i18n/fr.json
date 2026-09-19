@@ -244,6 +244,8 @@
   "members.empty": "Aucun membre enregistré.",
   "members.summary": "{{active}} membre(s) actif(s) sur {{total}} membre(s) enregistré(s)",
   "members.valueMissing": "Non renseigné",
+  "members.statusFilterLabel": "Statut",
+  "members.statusFilterAll": "Tous",
   "members.columns.lastName": "Nom",
   "members.columns.firstName": "Prénom",
   "members.columns.preferredName": "Nom d'usage",

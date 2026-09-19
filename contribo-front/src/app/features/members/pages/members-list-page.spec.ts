@@ -118,7 +118,12 @@ function buildCurrentUser(role: UserRole): CurrentUser {
 }
 
 async function createFixture(
-  listMembers: (page?: number) => Observable<MemberPage>,
+  listMembers: (
+    page?: number,
+    size?: number,
+    q?: string,
+    status?: MemberStatus,
+  ) => Observable<MemberPage>,
   options: {
     createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
@@ -391,15 +396,91 @@ describe('MembersListPage', () => {
     const fixture = await createFixture(listMembers);
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(0);
+    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined, undefined);
     expect(fixture.nativeElement.textContent).not.toContain('MembreVingtEtUnieme');
 
     const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
     nextButton.click();
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(1);
+    expect(listMembers).toHaveBeenCalledWith(1, undefined, undefined, undefined);
     expect(fixture.nativeElement.textContent).toContain('MembreVingtEtUnieme');
+  });
+
+  it('requests members filtered by status when the status filter changes (T-25)', async () => {
+    const requestedStatuses: (MemberStatus | undefined)[] = [];
+    const fixture = await createFixture((_page, _size, _q, status) => {
+      requestedStatuses.push(status);
+      return of(buildMemberPage());
+    });
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#members-status-filter',
+    );
+    select.value = MemberStatus.Inactive;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedStatuses).toEqual([undefined, MemberStatus.Inactive]);
+  });
+
+  it('requests the first page again when the status filter changes (T-25)', async () => {
+    const requestedPages: (number | undefined)[] = [];
+    const fixture = await createFixture((page) => {
+      requestedPages.push(page);
+      return of(
+        buildMemberPage({ page: { number: page ?? 0, size: 1, totalElements: 2, totalPages: 2 } }),
+      );
+    });
+    fixture.detectChanges();
+
+    const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.click();
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#members-status-filter',
+    );
+    select.value = MemberStatus.Active;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(requestedPages).toEqual([0, 1, 0]);
+  });
+
+  it('ignores a stale response that resolves after a later filter change (T-25)', async () => {
+    const active$ = new Subject<MemberPage>();
+    const inactive$ = new Subject<MemberPage>();
+    const fixture = await createFixture((_page, _size, _q, status) =>
+      status === MemberStatus.Inactive ? inactive$.asObservable() : active$.asObservable(),
+    );
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '#members-status-filter',
+    );
+    select.value = MemberStatus.Active;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    select.value = MemberStatus.Inactive;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    // La réponse ACTIVE, arrivée après la sélection d'INACTIVE, ne doit pas
+    // remplacer le résultat du filtre sélectionné en dernier.
+    inactive$.next(
+      buildMemberPage({ items: [buildMember({ lastName: 'Bangoura', status: 'INACTIVE' })] }),
+    );
+    fixture.detectChanges();
+    active$.next(
+      buildMemberPage({ items: [buildMember({ lastName: 'Diallo', status: 'ACTIVE' })] }),
+    );
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.statusFilter()).toBe(MemberStatus.Inactive);
+    expect(fixture.componentInstance.memberPage()?.items[0].lastName).toBe('Bangoura');
   });
 
   it('opens the create-member dialog from the button and closes it on cancel', async () => {
@@ -491,7 +572,7 @@ describe('MembersListPage', () => {
       firstName: 'Mariama',
       incomeCategoryId: demoIncomeCategory.id,
     });
-    expect(listMembers).toHaveBeenCalledWith(0);
+    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined, undefined);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 
