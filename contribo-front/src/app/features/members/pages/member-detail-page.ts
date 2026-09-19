@@ -16,7 +16,20 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
+import { MemberPaymentsTab } from '../components/member-payments-tab/member-payments-tab';
 import { memberStatusLabel } from '../members-status-labels';
+
+/** Identifiant d'un onglet de la fiche membre (T-29, US-MEM-003). */
+export type MemberDetailTab = 'reglements';
+
+/**
+ * Un seul onglet est livré par ce ticket (T-29, historique des règlements).
+ * Les onglets situation des cotisations (T-28) et contributions aux
+ * cagnottes (T-30) restent des tickets dédiés qui étendront ce tableau ; la
+ * navigation clavier flèches gauche/droite entre onglets (T-31) reste elle
+ * aussi un ticket séparé.
+ */
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['reglements'];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -26,16 +39,22 @@ import { memberStatusLabel } from '../members-status-labels';
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
- * Limite connue : la situation des cotisations, l'historique des règlements
- * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
- * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
- * La modification complète Administrateur/Trésorier est fournie par T-38.
+ * Onglet historique des règlements (T-29, `openapi:listPayments`) : liste,
+ * du plus récent au plus ancien, les règlements du membre toutes campagnes
+ * confondues, via `MemberPaymentsTab`. Le motif ARIA `tablist`/`tab`/
+ * `tabpanel` est déjà posé pour accueillir les onglets à venir (T-28, T-30),
+ * sans navigation clavier flèches gauche/droite (T-31, ticket séparé).
+ *
+ * Limite connue : la situation des cotisations et les contributions aux
+ * cagnottes prévues par US-MEM-003 relèvent des tickets T-28 et T-30
+ * (contenu des onglets à ajouter). La restriction de la vue Opérateur
+ * (RG-MEM-008, T-23) et la variante de modification Opérateur (T-39)
+ * restent à livrer. La modification complète Administrateur/Trésorier est
+ * fournie par T-38.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberPaymentsTab],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -60,6 +79,9 @@ export class MemberDetailPage {
   readonly notFound = signal(false);
   readonly member = signal<MemberDetails | null>(null);
 
+  readonly activeTab = signal<MemberDetailTab>(MEMBER_DETAIL_TABS[0]);
+  readonly tabs = MEMBER_DETAIL_TABS;
+
   readonly memberStatusLabel = memberStatusLabel;
 
   constructor() {
@@ -70,6 +92,7 @@ export class MemberDetailPage {
         tap(() => {
           this.closeEditDialog();
           this.editSuccess.set(false);
+          this.activeTab.set(MEMBER_DETAIL_TABS[0]);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
@@ -93,6 +116,14 @@ export class MemberDetailPage {
         this.member.set(member);
       });
   }
+  selectTab(tab: MemberDetailTab): void {
+    this.activeTab.set(tab);
+  }
+
+  isActiveTab(tab: MemberDetailTab): boolean {
+    return this.activeTab() === tab;
+  }
+
   openEditDialog(): void {
     if (!this.canEdit() || !this.member() || this.editOpen()) {
       return;

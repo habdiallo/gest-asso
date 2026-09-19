@@ -1,11 +1,20 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CurrencyCode, ErrorCode, MemberStatus, UserRole } from '@api';
+import {
+  CampaignStatus,
+  CurrencyCode,
+  ErrorCode,
+  MemberStatus,
+  PaymentMethod,
+  UserRole,
+} from '@api';
 import type {
   CreateMemberRequest,
   ErrorResponse,
   MemberDetails,
   MemberPage,
   MemberSummary,
+  Payment,
+  PaymentPage,
   UpdateMemberRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -95,6 +104,69 @@ const demoMemberDetails: Map<string, MemberDetails> = new Map(
     },
   ]),
 );
+
+/**
+ * Références de campagnes dupliquées depuis `features/campaigns/mocks/handlers.ts`
+ * (T-57) : les mocks MSW ne partagent pas de magasin commun entre features,
+ * ce jeu de démonstration reste autonome pour construire des règlements
+ * plausibles (T-29).
+ */
+const demoCampaignReferences = [
+  {
+    id: '10700000-0000-4000-8000-000000000200',
+    name: 'Solidarité septembre',
+    startDate: '2026-09-01',
+    endDate: '2026-09-30',
+    status: CampaignStatus.Open,
+  },
+  {
+    id: '10700000-0000-4000-8000-000000000202',
+    name: 'Soutien juin 2026',
+    startDate: '2026-06-01',
+    endDate: '2026-06-30',
+    status: CampaignStatus.Closed,
+  },
+];
+
+const demoRecordedBy = {
+  userId: '10700000-0000-4000-8000-000000000900',
+  displayName: 'Mamadou Sy',
+};
+
+/**
+ * Règlements de démonstration pour `GET /api/v1/payments?memberId=...`
+ * (T-29), de la plus récente à la plus ancienne, comme le fait le serveur
+ * réel. Seul le premier membre du répertoire dispose d'un historique non
+ * vide, afin d'exercer aussi l'état "aucun règlement" (T-29).
+ */
+const demoPaymentsByMemberId: Record<string, Payment[]> = {
+  [demoMembers[0].id]: [
+    {
+      id: '10700000-0000-4000-8000-000000000700',
+      dueId: '10700000-0000-4000-8000-000000000800',
+      member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      campaign: demoCampaignReferences[0],
+      amount: 50_000,
+      paymentDate: '2026-09-12',
+      method: PaymentMethod.MobileMoney,
+      recordedBy: demoRecordedBy,
+      recordedAt: '2026-09-12T14:32:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000701',
+      dueId: '10700000-0000-4000-8000-000000000801',
+      member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      campaign: demoCampaignReferences[1],
+      amount: 100_000,
+      paymentDate: '2026-06-05',
+      method: PaymentMethod.Cash,
+      recordedBy: demoRecordedBy,
+      recordedAt: '2026-06-05T09:10:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
 
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
@@ -216,12 +288,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };
@@ -247,5 +321,33 @@ export const membersHandlers = [
     }
 
     return HttpResponse.json<MemberDetails>(member);
+  }),
+
+  /**
+   * Historique des règlements (T-29, `openapi:listPayments`), filtré par
+   * `memberId` pour l'onglet règlements de la fiche membre. La pagination
+   * suit le même modèle que les autres listes paginées de démonstration.
+   */
+  http.get('/api/v1/payments', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const url = new URL(request.url);
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const pageSize = Number(url.searchParams.get('size') ?? '20');
+    const memberId = url.searchParams.get('memberId');
+    const payments = memberId ? (demoPaymentsByMemberId[memberId] ?? []) : [];
+    const totalElements = payments.length;
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
+    const items = payments.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+
+    const page: PaymentPage = {
+      items,
+      page: { number: pageNumber, size: pageSize, totalElements, totalPages },
+    };
+    return HttpResponse.json<PaymentPage>(page);
   }),
 ];

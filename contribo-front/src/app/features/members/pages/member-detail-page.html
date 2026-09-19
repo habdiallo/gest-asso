@@ -30,7 +30,7 @@
     }
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
-      {{ 'members.edit.success' | transloco }}
+        {{ 'members.edit.success' | transloco }}
       </p>
     }
     <app-form-dialog
@@ -132,5 +132,42 @@
         </div>
       </dl>
     </section>
+
+    <div
+      class="mt-8 flex gap-2 border-b border-line"
+      role="tablist"
+      [attr.aria-label]="'memberDetail.tablist' | transloco"
+    >
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          [id]="'member-tab-' + tab"
+          role="tab"
+          [attr.aria-selected]="isActiveTab(tab) ? 'true' : 'false'"
+          [attr.aria-controls]="'member-tabpanel-' + tab"
+          [tabIndex]="isActiveTab(tab) ? 0 : -1"
+          class="border-b-2 px-4 py-2 text-sm font-medium"
+          [class.border-gold-hover]="isActiveTab(tab)"
+          [class.text-gold-hover]="isActiveTab(tab)"
+          [class.border-transparent]="!isActiveTab(tab)"
+          [class.text-text-2]="!isActiveTab(tab)"
+          (click)="selectTab(tab)"
+        >
+          {{ 'memberDetail.tabs.' + tab | transloco }}
+        </button>
+      }
+    </div>
+
+    @if (isActiveTab('reglements')) {
+      <section
+        id="member-tabpanel-reglements"
+        role="tabpanel"
+        aria-labelledby="member-tab-reglements"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-member-payments-tab [memberId]="member.id" />
+      </section>
+    }
   }
 </main>

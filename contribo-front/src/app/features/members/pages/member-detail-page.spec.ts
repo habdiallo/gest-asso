@@ -2,8 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import { ErrorCode, MembresService, RglementsService } from '@api';
+import type { ErrorResponse, MemberDetails, PaymentPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
@@ -33,6 +33,14 @@ function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetai
   };
 }
 
+function buildPaymentPage(overrides: Partial<PaymentPage> = {}): PaymentPage {
+  return {
+    items: [],
+    page: { number: 0, size: 20, totalElements: 0, totalPages: 0 },
+    ...overrides,
+  };
+}
+
 async function createFixture(
   getMember: (memberId: string) => Observable<MemberDetails>,
   memberId = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -49,6 +57,12 @@ async function createFixture(
     providers: [
       provideRouter([]),
       { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+      {
+        provide: RglementsService,
+        useValue: {
+          listPayments: () => of(buildPaymentPage()),
+        } as unknown as RglementsService,
+      },
       {
         provide: ActivatedRoute,
         useValue: { paramMap: of(convertToParamMap({ memberId })) },
@@ -130,6 +144,47 @@ describe('MemberDetailPage', () => {
     expect(root.querySelector('[role="alert"]')?.textContent).toContain('introuvable');
   });
 
+  it('renders the payments tab and requests the history for the current member', async () => {
+    const listPayments = vi.fn(() => of(buildPaymentPage()));
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: MembresService,
+          useValue: { getMember: () => of(buildMemberDetails()) } as unknown as MembresService,
+        },
+        { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(convertToParamMap({ memberId: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10' })),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="tablist"]')).not.toBeNull();
+    expect(root.textContent).toContain('Règlements');
+    expect(listPayments).toHaveBeenCalledWith(
+      0,
+      20,
+      undefined,
+      'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+    );
+  });
+
   it('ignores a late response from a member no longer selected by the route', async () => {
     const memberIdA = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10';
     const memberIdB = 'b5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20';
@@ -152,6 +207,12 @@ describe('MemberDetailPage', () => {
       providers: [
         provideRouter([]),
         { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+        {
+          provide: RglementsService,
+          useValue: {
+            listPayments: () => of(buildPaymentPage()),
+          } as unknown as RglementsService,
+        },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap.asObservable() } },
       ],
     }).compileComponents();
