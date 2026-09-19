@@ -109,6 +109,24 @@ describe('MemberPaymentsTab', () => {
     expect(root.textContent).toContain('Mobile Money');
   });
 
+  it('shows the author and the timestamp of each payment (RG-PAY-008, T-74)', async () => {
+    const fixture = await createFixture(() => of(buildPaymentPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    // L'horodatage attendu est calculé avec le même fuseau local que
+    // l'implémentation (`formatMemberPaymentDateTime`, sans `timeZone`
+    // explicite) : l'assertion reste correcte quel que soit le fuseau
+    // d'exécution du test.
+    const expectedRecordedAt = new Date('2026-09-12T14:32:00Z');
+    const hours = expectedRecordedAt.getHours().toString().padStart(2, '0');
+    const minutes = expectedRecordedAt.getMinutes().toString().padStart(2, '0');
+
+    expect(root.textContent).toContain('Mamadou Sy');
+    expect(root.textContent).toContain('12/09/2026');
+    expect(root.textContent).toContain(`${hours}:${minutes}`);
+  });
+
   it('requests the history filtered by the given member', async () => {
     const listPayments = vi.fn(() => of(buildPaymentPage()));
     await createFixture(listPayments);
