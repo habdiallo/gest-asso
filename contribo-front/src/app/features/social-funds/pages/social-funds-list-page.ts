@@ -204,10 +204,21 @@ export class SocialFundsListPage {
     this.fetchPage(currentPage.page.number + 1, { isInitialLoad: false });
   }
 
-  /** Applique le filtre par type d'événement (T-83) et revient à la première page. */
+  /**
+   * Applique le filtre par type d'événement (T-83) et revient à la première page.
+   *
+   * Correction T-114 (retours P2 de la PR #43) : vide immédiatement la page affichée
+   * (`page` remis à `null`) avant d'envoyer la requête de page zéro filtrée. Cela masque
+   * aussitôt la pagination (`totalPages() === 0`), ce qui empêche tout clic sur les
+   * boutons "Précédent"/"Suivant" issus de l'ancien filtre pendant que la nouvelle page
+   * zéro est en cours de chargement, et évite d'afficher des cagnottes qui ne
+   * correspondent plus au filtre courant. Si ce chargement échoue, la page reste `null`
+   * (traité comme une absence de page) plutôt que de conserver l'ancienne liste.
+   */
   onEventTypeFilterChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.eventTypeFilter.set(value as SocialEventType | '');
+    this.page.set(null);
     this.fetchPage(0, { isInitialLoad: false });
   }
 
