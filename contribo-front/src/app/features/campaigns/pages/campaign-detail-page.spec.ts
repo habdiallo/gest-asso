@@ -6,6 +6,7 @@ import { CampagnesService, CurrencyCode, ErrorCode, UserRole } from '@api';
 import type {
   Campaign,
   CurrentUser,
+  DuePage,
   ErrorResponse,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
@@ -95,6 +96,7 @@ async function createFixture(
       request: UpdateCampaignCategoryAmountsRequest,
     ) => Observable<Campaign>;
     closeCampaign?: (campaignId: string) => Observable<Campaign>;
+    listCampaignDues?: () => Observable<DuePage>;
     role?: UserRole;
     campaignId?: string;
   } = {},
@@ -124,8 +126,9 @@ async function createFixture(
           getCampaign,
           updateCampaignCategoryAmounts,
           closeCampaign,
-          listCampaignDues: () =>
-            of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
+          listCampaignDues:
+            options.listCampaignDues ??
+            (() => of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } })),
         } as unknown as CampagnesService,
       },
       {
@@ -758,6 +761,48 @@ describe('CampaignDetailPage', () => {
       expect(root.querySelector('[role="alert"]')?.textContent).toContain(
         'Cette campagne est déjà clôturée.',
       );
+    });
+
+    it('hides the record payment action of the cotisations tab on a closed campaign (T-81)', async () => {
+      const due: DuePage = {
+        items: [
+          {
+            id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            member: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', displayName: 'Amadou Diallo' },
+            campaign: {
+              id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+              name: 'Solidarité septembre',
+              startDate: '2026-09-01',
+              endDate: '2026-09-30',
+              status: 'CLOSED',
+            },
+            incomeCategorySnapshot: {
+              id: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              label: 'Standard',
+            },
+            dueAmount: 100_000,
+            paidAmount: 50_000,
+            remainingAmount: 50_000,
+            status: 'PARTIALLY_PAID',
+            paymentCount: 1,
+            currency: CurrencyCode.Gnf,
+          },
+        ],
+        page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+      };
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'CLOSED' })), {
+        role: UserRole.Treasurer,
+        listCampaignDues: () => of(due),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Cotisations')?.click();
+      fixture.detectChanges();
+
+      expect(
+        root.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ).toBe(false);
     });
   });
 });
