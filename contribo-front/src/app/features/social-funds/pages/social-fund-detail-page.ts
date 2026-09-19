@@ -166,11 +166,19 @@ export class SocialFundDetailPage {
     this.closeDialogOpen.set(true);
   }
 
-  /** Ferme la confirmation sans appeler l'API (bouton Annuler, Échap ou fermeture native). */
+  /**
+   * Ferme la confirmation sans appeler l'API (bouton Annuler, Échap ou
+   * fermeture native). Ignorée tant qu'une clôture est en cours : `FormDialog`
+   * ne bloque pas nativement son bouton Fermer ni Échap pendant une requête,
+   * donc cette garde évite qu'une fermeture démarre une seconde clôture
+   * simultanée avant que la première n'ait répondu.
+   */
   closeCloseDialog(): void {
+    if (this.closingSocialFund()) {
+      return;
+    }
     ++this.closeSocialFundSession;
     this.closeDialogOpen.set(false);
-    this.closingSocialFund.set(false);
   }
 
   /** Appelle `POST /social-funds/{socialFundId}/closure` après confirmation explicite. */

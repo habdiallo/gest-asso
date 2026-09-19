@@ -342,6 +342,17 @@ describe('SocialFundDetailPage', () => {
       );
     }
 
+    /**
+     * Boutons Annuler/Confirmer de la confirmation, hors bouton de fermeture
+     * natif de `FormDialog` (icône dans `<header>`, dont le nom accessible
+     * réutilise aussi la clé `socialFunds.close.cancel`, "Annuler").
+     */
+    function dialogButtonByText(root: HTMLElement, text: string): HTMLButtonElement | undefined {
+      return Array.from(
+        root.querySelectorAll<HTMLButtonElement>('dialog .overflow-y-auto button'),
+      ).find((button) => button.textContent?.trim() === text);
+    }
+
     it('hides the close action for an Opérateur', async () => {
       const fixture = await createFixture({
         getSocialFund: () => of(buildSocialFund()),
@@ -484,6 +495,46 @@ describe('SocialFundDetailPage', () => {
       expect(root.querySelector('[role="alert"]')?.textContent).toContain(
         'Impossible de clôturer la cagnotte',
       );
+    });
+
+    it('ignores Annuler while a closure request is still pending and sends only one request', async () => {
+      const response$ = new Subject<SocialFund>();
+      const closeSocialFund = vi.fn(() => response$.asObservable());
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        closeSocialFund,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      closeButton(root)?.click();
+      fixture.detectChanges();
+
+      const confirmButton = dialogButtonByText(root, 'Confirmer la clôture');
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      // Annuler (bouton de confirmation, pas la croix de FormDialog) pendant
+      // que la requête est encore en attente.
+      const cancelButton = dialogButtonByText(root, 'Annuler');
+      cancelButton?.click();
+      fixture.detectChanges();
+      expect(root.querySelector('dialog')?.open).toBe(true);
+
+      cancelButton?.click();
+      confirmButton?.click();
+      fixture.detectChanges();
+
+      expect(closeSocialFund).toHaveBeenCalledTimes(1);
+
+      response$.next(buildSocialFund({ status: 'CLOSED' }));
+      response$.complete();
+      fixture.detectChanges();
+
+      expect(root.querySelector('dialog')?.open).toBe(false);
+      expect(root.textContent).toContain('Clôturée');
     });
   });
 });
