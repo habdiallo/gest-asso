@@ -170,6 +170,24 @@ describe('RecordPaymentForm', () => {
     expect(fixture.componentInstance.form.controls.amount.hasError('max')).toBe(true);
   });
 
+  // Retour P3 de la revue de la PR #94 : sur une instance réutilisée pour une
+  // autre cotisation, le message max affiché par AmountInput doit se
+  // resynchroniser, pas seulement l'état `invalid` du FormGroup.
+  it('shows the AmountInput max error message when due changes on a reused instance with an amount already entered', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.form.controls.amount.setValue(40000);
+    fixture.componentInstance.form.controls.amount.markAsTouched();
+    fixture.detectChanges();
+
+    fixture.componentRef.setInput('due', { ...due, remainingAmount: 10000 });
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(fixture.componentInstance.form.controls.amount.hasError('max')).toBe(true);
+    expect(text).toContain('Le montant ne peut pas dépasser 10000 GNF.');
+  });
+
   it('does not resubmit while a submission is already in progress', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();

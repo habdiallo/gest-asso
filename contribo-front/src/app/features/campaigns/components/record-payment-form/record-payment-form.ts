@@ -23,6 +23,12 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  * serveur : l'appelant reste responsable d'afficher l'erreur
  * `PAYMENT_EXCEEDS_REMAINING_AMOUNT` retournée par l'API le cas échéant
  * (ex. concurrence entre deux règlements sur la même cotisation).
+ *
+ * Retour P3 de la revue de la PR #94 : `updateValueAndValidity` émet ici
+ * `statusChanges` (comportement par défaut), sans quoi `AmountInput`
+ * (`amount-input.ts`, qui ne se resynchronise que via cet Observable) garde
+ * un message d'erreur figé si `due` change sur une instance réutilisée avec
+ * un montant déjà saisi supérieur au nouveau reste à payer.
  */
 @Component({
   selector: 'app-record-payment-form',
@@ -55,7 +61,7 @@ export class RecordPaymentForm {
       amountControl.removeValidators(this.maxRemainingAmountValidator);
       this.maxRemainingAmountValidator = Validators.max(this.due().remainingAmount);
       amountControl.addValidators(this.maxRemainingAmountValidator);
-      amountControl.updateValueAndValidity({ emitEvent: false });
+      amountControl.updateValueAndValidity();
     });
   }
 
