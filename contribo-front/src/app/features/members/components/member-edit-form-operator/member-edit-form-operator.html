@@ -1,0 +1,119 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label
+        for="member-edit-operator-preferred-name"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.preferredName' | transloco }}
+      </label>
+      <input
+        id="member-edit-operator-preferred-name"
+        type="text"
+        formControlName="preferredName"
+        [attr.aria-invalid]="fieldInvalid('preferredName') ? true : null"
+        [attr.aria-describedby]="
+          fieldInvalid('preferredName') ? 'member-edit-operator-preferred-name-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('preferredName')) {
+        <p
+          id="member-edit-operator-preferred-name-error"
+          class="mt-2 text-sm text-error"
+          role="alert"
+        >
+          {{ 'members.edit.fields.valueInvalid' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-operator-phone"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.phone' | transloco }}
+      </label>
+      <input
+        id="member-edit-operator-phone"
+        type="tel"
+        formControlName="phone"
+        [attr.aria-invalid]="phoneInvalid() ? true : null"
+        [attr.aria-describedby]="phoneInvalid() ? 'member-edit-operator-phone-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (phoneInvalid()) {
+        <p id="member-edit-operator-phone-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.create.fields.phoneInvalid' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-operator-country"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.country' | transloco }}
+      </label>
+      <input
+        id="member-edit-operator-country"
+        type="text"
+        formControlName="country"
+        [attr.aria-invalid]="fieldInvalid('country') ? true : null"
+        [attr.aria-describedby]="
+          fieldInvalid('country') ? 'member-edit-operator-country-error' : null
+        "
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('country')) {
+        <p id="member-edit-operator-country-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.edit.fields.valueInvalid' | transloco }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label
+        for="member-edit-operator-city"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'members.create.fields.city' | transloco }}
+      </label>
+      <input
+        id="member-edit-operator-city"
+        type="text"
+        formControlName="city"
+        [attr.aria-invalid]="fieldInvalid('city') ? true : null"
+        [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-operator-city-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (fieldInvalid('city')) {
+        <p id="member-edit-operator-city-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'members.edit.fields.valueInvalid' | transloco }}
+        </p>
+      }
+    </div>
+  </div>
+
+  <p class="mt-4 text-sm text-text-2">
+    {{ 'members.edit.operatorNote' | transloco }}
+  </p>
+  <div class="mt-6 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+    >
+      {{ 'members.create.cancel' | transloco }}
+    </button>
+    <button
+      type="submit"
+      [disabled]="submitting() || !hasChanges()"
+      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+    >
+      {{ (submitting() ? 'members.edit.submitting' : 'members.edit.submit') | transloco }}
+    </button>
+  </div>
+</form>

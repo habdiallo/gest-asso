@@ -10,14 +10,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
-import type { ErrorResponse, MemberDetails, UpdateMemberRequest } from '@api';
+import type {
+  ErrorResponse,
+  MemberDetails,
+  UpdateMemberContactRequest,
+  UpdateMemberRequest,
+} from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
+import { MemberEditFormOperator } from '../components/member-edit-form-operator/member-edit-form-operator';
 import { MemberPaymentsTab } from '../components/member-payments-tab/member-payments-tab';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
@@ -78,9 +85,12 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
  * explicite (RG-MEM-020 à RG-MEM-022). Le masquage mutuel avec l'action
  * "Désactiver" selon le statut courant (T-46) et le masquage pour les rôles
  * Trésorier/Opérateur/Membre (T-47) restent à livrer sur des tickets distincts.
- * La restriction de la vue Opérateur (RG-MEM-008, T-23) et la variante de
- * modification Opérateur (T-39) restent à livrer. La modification complète
- * Administrateur/Trésorier est fournie par T-38.
+ * La restriction de la vue Opérateur (RG-MEM-008, T-23) est fournie par
+ * T-23. La modification complète Administrateur/Trésorier est fournie par
+ * T-38 ; la variante Opérateur limitée au téléphone, à la ville, au pays et
+ * au nom d'usage (RG-MEM-017) est fournie par T-39, quel que soit l'attribut
+ * `operatorCanRecordPayments`. Le retrait du contrôle de statut du
+ * formulaire général (RG-MEM-018) relève du ticket T-40, distinct.
  */
 @Component({
   selector: 'app-member-detail-page',
@@ -89,6 +99,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
     RouterLink,
     FormDialog,
     MemberEditForm,
+    MemberEditFormOperator,
     MemberDuesTab,
     MemberPaymentsTab,
     MemberContributionsTab,
@@ -103,10 +114,14 @@ export class MemberDetailPage {
 
   private readonly sessionService = inject(SessionService);
   private editSession = 0;
-  readonly canEdit = computed(() => {
+  readonly canEditFull = computed(() => {
     const role = this.sessionService.user()?.role;
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
+  readonly canEditRestricted = computed(
+    () => this.sessionService.user()?.role === UserRole.Operator,
+  );
+  readonly canEdit = computed(() => this.canEditFull() || this.canEditRestricted());
   readonly canRecordPayments = computed(() => this.sessionService.canRecordPayments());
   readonly editOpen = signal(false);
   readonly saving = signal(false);
@@ -207,6 +222,14 @@ export class MemberDetailPage {
   }
 
   updateMember(request: UpdateMemberRequest): void {
+    this.submitEdit((member) => this.membersService.updateMember(member.id, request));
+  }
+
+  updateMemberContact(request: UpdateMemberContactRequest): void {
+    this.submitEdit((member) => this.membersService.updateMemberContact(member.id, request));
+  }
+
+  private submitEdit(buildRequest: (member: MemberDetails) => Observable<MemberDetails>): void {
     const member = this.member();
     if (!this.canEdit() || !member || !this.editOpen() || this.saving()) {
       return;
@@ -214,8 +237,7 @@ export class MemberDetailPage {
     const session = this.editSession;
     this.saving.set(true);
     this.editError.set(false);
-    this.membersService
-      .updateMember(member.id, request)
+    buildRequest(member)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {

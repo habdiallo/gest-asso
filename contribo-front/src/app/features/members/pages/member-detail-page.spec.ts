@@ -374,6 +374,101 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).not.toContain('Membre A');
   });
 
+  it('opens the restricted operator edit form for an Operator (RG-MEM-017)', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Operator),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const editButton = root.querySelector<HTMLButtonElement>('button');
+    expect(editButton?.textContent).toContain('Modifier le membre');
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('#member-edit-operator-phone')).not.toBeNull();
+    expect(root.querySelector('#member-edit-last-name')).toBeNull();
+    expect(root.querySelector('#member-edit-income-category')).toBeNull();
+  });
+
+  it('submits an Operator edit through updateMemberContact, not updateMember (T-39)', async () => {
+    const member = buildMemberDetails();
+    const updateMemberContact = vi.fn(() => of(member));
+    const updateMember = vi.fn(() => of(member));
+
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: MembresService,
+          useValue: {
+            getMember: () => of(member),
+            updateMemberContact,
+            updateMember,
+          } as unknown as MembresService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ memberId: member.id })) },
+        },
+      ],
+    }).compileComponents();
+
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.setUser(buildCurrentUser(UserRole.Operator));
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('button')?.click();
+    fixture.detectChanges();
+
+    fixture.componentInstance.updateMemberContact({ city: 'Kindia' });
+    fixture.detectChanges();
+
+    expect(updateMemberContact).toHaveBeenCalledWith(member.id, { city: 'Kindia' });
+    expect(updateMember).not.toHaveBeenCalled();
+  });
+
+  it('opens the full edit form for an Administrator', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Administrator),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const editButton = root.querySelector<HTMLButtonElement>('button');
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('#member-edit-last-name')).not.toBeNull();
+    expect(root.querySelector('#member-edit-income-category')).not.toBeNull();
+  });
+
+  it('does not offer any edit action for a Member', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Member),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    // Le titre du dialogue affiche le même libellé que le bouton ("Modifier le
+    // membre") ; on vérifie donc l'absence d'un <button> déclencheur, pas du texte.
+    const editButtons = Array.from(root.querySelectorAll('button')).filter((button) =>
+      button.textContent?.includes('Modifier le membre'),
+    );
+    expect(editButtons).toHaveLength(0);
+  });
+
   describe('reactivation (T-44, US-MEM-006)', () => {
     it('shows the "Réactiver" action for an Administrator on an inactive member', async () => {
       const fixture = await createFixture(
@@ -659,7 +754,7 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).toContain('Partiellement payé');
   });
 
-  it('shows a read-only note and hides the edit action for an Operator not authorized to record payments (T-32, §2.3)', async () => {
+  it('shows a read-only note for an Operator not authorized to record payments, independent of the restricted edit action (T-32, §2.3 ; T-39, RG-MEM-017)', async () => {
     const fixture = await createFixture(() => of(buildMemberDetails()), {
       user: buildCurrentUser(UserRole.Operator, false),
     });
@@ -667,10 +762,13 @@ describe('MemberDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('[role="status"]')?.textContent).toContain('Lecture seule');
+    // La note "lecture seule" porte sur l'enregistrement des paiements ; elle
+    // ne masque pas l'action de modification restreinte de T-39, disponible
+    // pour l'Opérateur quel que soit `operatorCanRecordPayments`.
     const editButtons = Array.from(root.querySelectorAll('button')).filter((button) =>
       button.textContent?.includes('Modifier le membre'),
     );
-    expect(editButtons).toHaveLength(0);
+    expect(editButtons).toHaveLength(1);
   });
 
   it('hides the read-only note for an Operator authorized to record payments', async () => {

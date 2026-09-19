@@ -22,6 +22,7 @@ import type {
   MemberSummary,
   Payment,
   PaymentPage,
+  UpdateMemberContactRequest,
   UpdateMemberRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -456,6 +457,43 @@ export const membersHandlers = [
     }
     return HttpResponse.json<MemberDetails>(updated);
   }),
+  http.patch(
+    '/api/v1/members/:memberId/contact',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer &&
+        account.user.role !== UserRole.Operator
+      ) {
+        return accessDenied();
+      }
+
+      const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+      const existing = demoMemberDetails.get(memberId);
+      if (!existing) {
+        return memberNotFound();
+      }
+      const body = (await request.json()) as UpdateMemberContactRequest;
+      const updated: MemberDetails = {
+        ...existing,
+        ...body,
+        preferredName:
+          body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      };
+      demoMemberDetails.set(memberId, updated);
+      const index = demoMembers.findIndex((member) => member.id === memberId);
+      if (index >= 0) {
+        const { account: memberAccount, financialSummary, ...summary } = updated;
+        demoMembers[index] = summary;
+      }
+      return HttpResponse.json<MemberDetails>(updated);
+    },
+  ),
   /**
    * `POST /api/v1/members/{memberId}/deactivation` (T-41) : réservé à
    * l'Administrateur (US-MEM-005). Refuse une seconde désactivation par un
