@@ -2,6 +2,7 @@ import { HttpResponse, delay, http } from 'msw';
 import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, UserRole } from '@api';
 import type {
   Campaign,
+  CampaignCategoryAmountInput,
   CampaignPage,
   CampaignSummary,
   CreateCampaignRequest,
@@ -44,9 +45,8 @@ const demoCampaigns: CampaignSummary[] = [
 
 /**
  * Détail des campagnes de démonstration (T-60, `openapi:getCampaign`) :
- * description et barème (`categoryAmounts`). Le bilan financier
- * (`financialSummary`) est fourni pour rester fidèle au contrat, même si
- * l'onglet bilan de l'écran détail reste un emplacement réservé (T-77).
+ * description, barème (`categoryAmounts`) et bilan financier
+ * (`financialSummary`), affiché par l'onglet bilan de l'écran détail (T-77).
  */
 const demoCampaignDetails: Record<string, Campaign> = {
   '10700000-0000-4000-8000-000000000200': {
@@ -237,9 +237,20 @@ function campaignNotEditable(): Response {
   );
 }
 
-function isValidCategoryAmountEntry(
-  entry: unknown,
-): entry is { incomeCategoryId: string; amount: number } {
+function campaignAlreadyClosed(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.CampaignAlreadyClosed, message: 'Cette campagne est déjà clôturée.' },
+    { status: 409 },
+  );
+}
+
+// Le JSON transporte un tableau ; uniqueItems est représenté par un Set dans le DTO généré.
+type UpdateCampaignCategoryAmountsJson = Omit<
+  UpdateCampaignCategoryAmountsRequest,
+  'categoryAmounts'
+> & { categoryAmounts: CampaignCategoryAmountInput[] };
+
+function isValidCategoryAmountEntry(entry: unknown): entry is CampaignCategoryAmountInput {
   if (typeof entry !== 'object' || entry === null) {
     return false;
   }
@@ -253,7 +264,7 @@ function isValidCategoryAmountEntry(
 
 function isUpdateCampaignCategoryAmountsRequest(
   value: unknown,
-): value is UpdateCampaignCategoryAmountsRequest {
+): value is UpdateCampaignCategoryAmountsJson {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
@@ -439,6 +450,48 @@ export const campaignsHandlers = [
       demoCampaignDetails[campaignId] = updatedCampaign;
 
       return HttpResponse.json<Campaign>(updatedCampaign);
+    },
+  ),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/campaigns/{campaignId}/closure`
+   * (T-80, `closeCampaign`) : réservé à l'Administrateur et au Trésorier, refuse
+   * une campagne déjà clôturée, puis conserve le statut `CLOSED` pour les
+   * lectures suivantes du jeu de démonstration.
+   */
+  http.post(
+    '/api/v1/campaigns/:campaignId/closure',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer
+      ) {
+        return accessDenied();
+      }
+
+      const campaignId = typeof params['campaignId'] === 'string' ? params['campaignId'] : '';
+      const campaign = demoCampaignDetails[campaignId];
+      if (!campaign) {
+        return campaignNotFound();
+      }
+      if (campaign.status === CampaignStatus.Closed) {
+        return campaignAlreadyClosed();
+      }
+
+      const closedSummary: CampaignSummary = { ...campaign, status: CampaignStatus.Closed };
+      const closedCampaign: Campaign = { ...campaign, status: CampaignStatus.Closed };
+      demoCampaignDetails[campaignId] = closedCampaign;
+      const index = demoCampaigns.findIndex((item) => item.id === campaignId);
+      if (index !== -1) {
+        demoCampaigns[index] = closedSummary;
+      }
+
+      return HttpResponse.json<Campaign>(closedCampaign);
     },
   ),
 

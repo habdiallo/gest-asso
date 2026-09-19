@@ -85,4 +85,26 @@ describe('MemberEditForm', () => {
 
     expect(submitted).not.toHaveBeenCalled();
   });
+
+  it('exposes no status control, regardless of role (RG-MEM-018)', async () => {
+    const fixture = await createFixture();
+
+    expect(fixture.componentInstance.form.contains('status')).toBe(false);
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[formcontrolname="status"]')).toBeNull();
+    expect(root.querySelector('[id*="status" i]')).toBeNull();
+  });
+
+  it('never includes status in the update request, even if a caller tampers with the form', async () => {
+    const fixture = await createFixture();
+    const emitted: UpdateMemberRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+
+    fixture.componentInstance.form.patchValue({ city: 'Kindia' });
+    fixture.componentInstance.submit();
+
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]).not.toHaveProperty('status');
+  });
 });

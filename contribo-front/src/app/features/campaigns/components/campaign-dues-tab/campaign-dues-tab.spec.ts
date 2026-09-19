@@ -100,6 +100,28 @@ function buildPaymentResponse(): PaymentCreationResponse {
   };
 }
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   listCampaignDues: () => Observable<DuePage> = () => of(result),
   options: {
@@ -108,6 +130,7 @@ async function createFixture(
       request: CreatePaymentRequest,
     ) => Observable<PaymentCreationResponse>;
     user?: CurrentUser | null;
+    role?: UserRole;
   } = {},
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
@@ -130,6 +153,9 @@ async function createFixture(
 
   if (options.user !== undefined) {
     TestBed.inject(SessionService).user.set(options.user);
+  } else if (options.role) {
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.setUser(buildCurrentUser(options.role));
   }
 
   const fixture = TestBed.createComponent(CampaignDuesTab);
@@ -146,6 +172,32 @@ describe('CampaignDuesTab', () => {
     expect(root.textContent).toContain('Amadou Diallo');
     expect(root.textContent).toContain('Partiellement payé');
   });
+
+  it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {
+    const fixture = await createFixture(() => of(result), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).not.toContain('Standard');
+    expect(
+      Array.from(root.querySelectorAll('thead th')).some((th) =>
+        th.textContent?.includes('Catégorie'),
+      ),
+    ).toBe(false);
+    const row = root.querySelector('tbody tr');
+    expect(row?.querySelectorAll('td').length).toBe(4);
+  });
+
+  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+    'keeps the income category column visible for %s',
+    async (role) => {
+      const fixture = await createFixture(() => of(result), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Standard');
+    },
+  );
 
   it('shows a retry state when loading fails', async () => {
     const fixture = await createFixture(() => throwError(() => new Error('network error')));

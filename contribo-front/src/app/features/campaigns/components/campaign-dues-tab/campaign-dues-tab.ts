@@ -20,6 +20,18 @@ import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
 
+/**
+ * Onglet cotisations d'une campagne (T-61, US-COT-003, US-COT-004).
+ *
+ * Vue restreinte de l'Opérateur (T-62, RG-MEM-008) : la colonne Catégorie de
+ * revenu, qui porte le détail financier du membre, est masquée pour le rôle
+ * Opérateur, conformément à la vue limitée sans agrégat financier réservé
+ * prévue par la matrice des responsabilités. Les montants dû/payé/reste et le
+ * statut restent affichés : ils sont nécessaires à l'Opérateur pour ses
+ * opérations courantes (consultation de la situation, enregistrement d'un
+ * règlement lorsqu'il y est autorisé). Les autres rôles (Administrateur,
+ * Trésorier) et l'absence de rôle conservent la colonne inchangée.
+ */
 @Component({
   selector: 'app-campaign-dues-tab',
   imports: [TranslocoPipe, FormDialog, RecordPaymentForm],
@@ -29,8 +41,8 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
 export class CampaignDuesTab implements OnInit {
   private readonly campaignsService = inject(CampagnesService);
   private readonly paymentsService = inject(RglementsService);
-  private readonly sessionService = inject(SessionService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
   private requestedPage = 0;
   private recordPaymentSession = 0;
   private readonly duesWithPaymentInFlight = new Set<string>();
@@ -50,6 +62,7 @@ export class CampaignDuesTab implements OnInit {
   readonly recordPaymentDue = signal<Due | null>(null);
   readonly recordPaymentSubmitting = signal(false);
   readonly recordPaymentError = signal<TranslationKey | null>(null);
+  readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(
     () => this.loading() || this.loadError() || (this.duePage()?.page.number ?? 0) === 0,

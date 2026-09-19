@@ -32,9 +32,11 @@
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.member' | transloco }}
               </th>
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
-              </th>
+              @if (showIncomeCategory()) {
+                <th scope="col" class="px-4 py-3 font-medium">
+                  {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
+                </th>
+              }
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.dueAmount' | transloco }}
               </th>
@@ -60,7 +62,9 @@
             @for (due of result.items; track due.id) {
               <tr class="border-b border-line text-text last:border-b-0">
                 <th scope="row" class="px-4 py-4 font-medium">{{ due.member.displayName }}</th>
-                <td class="px-4 py-4 text-text-2">{{ due.incomeCategorySnapshot.label }}</td>
+                @if (showIncomeCategory()) {
+                  <td class="px-4 py-4 text-text-2">{{ due.incomeCategorySnapshot.label }}</td>
+                }
                 <td class="whitespace-nowrap px-4 py-4 font-mono">
                   {{ formatAmount(due.dueAmount) }}
                 </td>
