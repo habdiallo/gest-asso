@@ -8,10 +8,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CagnottesService, ContributionsService } from '@api';
+import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@api';
 import type { Contribution, ContributionPage, SocialFund } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { SessionService } from '@core/session/session.service';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
@@ -27,14 +29,19 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * (`social-funds.routes.ts`), protégée par le même `roleGuard` que la liste,
  * posé sur la route parente dans `app.routes.ts`.
  *
+ * Action de clôture (T-93, `openapi:closeSocialFund`) : réservée à
+ * l'Administrateur et au Trésorier, visible uniquement tant que la cagnotte
+ * est ouverte, avec confirmation explicite avant l'appel API (US-CAG-004).
+ *
  * Limite connue de ce ticket : ni la barre de progression objectif/reste à
  * collecter (T-92), ni le formulaire d'enregistrement d'une contribution
- * (T-87 à T-90), ni l'action de clôture (T-93/T-94) ne sont implémentés ici ;
- * ils restent des tickets dédiés sur ce même écran.
+ * (T-87 à T-90) ne sont implémentés ici. Le masquage de l'action
+ * d'enregistrement de contribution sur une cagnotte clôturée (T-94) reste un
+ * ticket dédié ; ce ticket n'affiche déjà aucune telle action sur cet écran.
  */
 @Component({
   selector: 'app-social-fund-detail-page',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe, FormDialog],
   templateUrl: './social-fund-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -43,10 +50,27 @@ export class SocialFundDetailPage {
   private readonly socialFundsService = inject(CagnottesService);
   private readonly contributionsService = inject(ContributionsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly socialFund = signal<SocialFund | null>(null);
+
+  /** Réservée à l'Administrateur et au Trésorier (T-93, US-CAG-004). */
+  private readonly canCloseSocialFundRole = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
+
+  /** Action visible uniquement tant que la cagnotte est ouverte. */
+  readonly canCloseSocialFund = computed(
+    () => this.canCloseSocialFundRole() && this.socialFund()?.status === SocialFundStatus.Open,
+  );
+
+  private closeSocialFundSession = 0;
+  readonly closeDialogOpen = signal(false);
+  readonly closingSocialFund = signal(false);
+  readonly closeSocialFundError = signal(false);
 
   readonly contributionsLoading = signal(true);
   readonly contributionsLoadError = signal(false);
@@ -130,6 +154,71 @@ export class SocialFundDetailPage {
     this.fetchContributionsPage(socialFundId, currentPage.page.number + 1, {
       isInitialLoad: false,
     });
+  }
+
+  /** Ouvre la confirmation de clôture ; ignoré hors droit ou dialogue déjà ouvert. */
+  openCloseDialog(): void {
+    if (!this.canCloseSocialFund() || this.closeDialogOpen()) {
+      return;
+    }
+    ++this.closeSocialFundSession;
+    this.closeSocialFundError.set(false);
+    this.closeDialogOpen.set(true);
+  }
+
+  /**
+   * Ferme la confirmation sans appeler l'API (bouton Annuler, Échap ou
+   * fermeture native). Ignorée tant qu'une clôture est en cours : `FormDialog`
+   * ne bloque pas nativement son bouton Fermer ni Échap pendant une requête,
+   * donc cette garde évite qu'une fermeture démarre une seconde clôture
+   * simultanée avant que la première n'ait répondu.
+   */
+  closeCloseDialog(): void {
+    if (this.closingSocialFund()) {
+      return;
+    }
+    ++this.closeSocialFundSession;
+    this.closeDialogOpen.set(false);
+  }
+
+  /** Appelle `POST /social-funds/{socialFundId}/closure` après confirmation explicite. */
+  confirmCloseSocialFund(): void {
+    const socialFund = this.socialFund();
+    if (
+      !this.canCloseSocialFund() ||
+      !socialFund ||
+      !this.closeDialogOpen() ||
+      this.closingSocialFund()
+    ) {
+      return;
+    }
+    const session = this.closeSocialFundSession;
+    this.closingSocialFund.set(true);
+    this.closeSocialFundError.set(false);
+
+    this.socialFundsService
+      .closeSocialFund(socialFund.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          if (this.socialFund()?.id !== socialFund.id) {
+            return;
+          }
+          this.socialFund.set(updated);
+          if (session !== this.closeSocialFundSession) {
+            return;
+          }
+          this.closeDialogOpen.set(false);
+          this.closingSocialFund.set(false);
+        },
+        error: () => {
+          if (session !== this.closeSocialFundSession) {
+            return;
+          }
+          this.closingSocialFund.set(false);
+          this.closeSocialFundError.set(true);
+        },
+      });
   }
 
   private loadSocialFund(socialFundId: string): void {

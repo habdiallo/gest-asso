@@ -163,6 +163,13 @@ function accessDenied(): Response {
   );
 }
 
+function socialFundAlreadyClosed(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.SocialFundAlreadyClosed, message: 'Cette cagnotte est déjà clôturée.' },
+    { status: 409 },
+  );
+}
+
 function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
   return {
     ...summary,
@@ -309,6 +316,42 @@ export const socialFundsHandlers = [
         },
       };
       return HttpResponse.json<ContributionPage>(page);
+    },
+  ),
+
+  /**
+   * Clôture d'une cagnotte (T-93, `openapi:closeSocialFund`) : réservée à
+   * l'Administrateur et au Trésorier, refuse une cagnotte déjà clôturée, puis
+   * conserve le statut `CLOSED` pour les lectures suivantes du jeu de
+   * démonstration.
+   */
+  http.post(
+    '/api/v1/social-funds/:socialFundId/closure',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer
+      ) {
+        return accessDenied();
+      }
+
+      const socialFundId = params['socialFundId'] as string;
+      const index = demoSocialFunds.findIndex((item) => item.id === socialFundId);
+      if (index === -1) {
+        return socialFundNotFound();
+      }
+      if (demoSocialFunds[index].status === SocialFundStatus.Closed) {
+        return socialFundAlreadyClosed();
+      }
+
+      demoSocialFunds[index] = { ...demoSocialFunds[index], status: SocialFundStatus.Closed };
+
+      return HttpResponse.json<SocialFund>(buildDemoSocialFund(demoSocialFunds[index]));
     },
   ),
 ];
