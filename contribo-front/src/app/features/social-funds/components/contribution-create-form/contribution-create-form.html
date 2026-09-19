@@ -15,6 +15,21 @@
   <div class="grid gap-4 sm:grid-cols-2">
     <div>
       <label
+        for="contribution-create-member-search"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'socialFunds.recordContribution.fields.memberSearchLabel' | transloco }}
+      </label>
+      <input
+        id="contribution-create-member-search"
+        type="search"
+        [value]="membersQuery()"
+        (input)="onMembersQueryInput($event)"
+        [placeholder]="'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco"
+        class="mb-2 h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+
+      <label
         for="contribution-create-member"
         class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
@@ -44,6 +59,38 @@
         <p id="contribution-create-member-error" class="mt-2 text-sm text-error" role="alert">
           {{ 'socialFunds.recordContribution.fields.memberRequired' | transloco }}
         </p>
+      }
+
+      @if (memberPageStatus(); as status) {
+        <nav
+          class="mt-2 flex items-center justify-between gap-3 text-sm"
+          [attr.aria-label]="'socialFunds.recordContribution.membersPagination.nav' | transloco"
+        >
+          <button
+            type="button"
+            class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+            [disabled]="membersPreviousPageDisabled()"
+            [attr.aria-disabled]="membersPreviousPageDisabled()"
+            (click)="membersPreviousPage()"
+          >
+            {{ 'socialFunds.recordContribution.membersPagination.previous' | transloco }}
+          </button>
+          <p class="text-text-2" role="status">
+            {{
+              'socialFunds.recordContribution.membersPagination.status'
+                | transloco: { current: status.current, total: status.total }
+            }}
+          </p>
+          <button
+            type="button"
+            class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+            [disabled]="membersNextPageDisabled()"
+            [attr.aria-disabled]="membersNextPageDisabled()"
+            (click)="membersNextPage()"
+          >
+            {{ 'socialFunds.recordContribution.membersPagination.next' | transloco }}
+          </button>
+        </nav>
       }
     </div>
 

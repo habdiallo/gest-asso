@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   input,
   output,
@@ -10,13 +11,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MembresService } from '@api';
-import type { CreateContributionRequest, MemberSummary, PaymentMethod } from '@api';
+import type { CreateContributionRequest, MemberPage, PaymentMethod } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Subject, debounceTime } from 'rxjs';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { PaymentMethodSelect } from '@shared/payment-method-select/payment-method-select';
 
 /** Taille de page utilisée pour charger la liste des membres sélectionnables (`GET /members`). */
-const MEMBERS_PAGE_SIZE = 100;
+const MEMBERS_PAGE_SIZE = 20;
 
 /**
  * Formulaire d'enregistrement d'une contribution à une cagnotte (T-87,
@@ -35,13 +37,17 @@ const MEMBERS_PAGE_SIZE = 100;
  *
  * Sélection du membre : la liste est chargée via `GET /members`
  * (`MembresService.listMembers`, même dépendance que `MembersListPage`),
- * sans filtre de statut ni recherche : `US-CAG-002`/RG-CAG-004 à 007 ne
- * restreignent pas la contribution aux membres actifs. Limite connue de ce
- * ticket : une seule page de 100 membres est chargée (maximum autorisé par
- * le contrat, `PageSize.maximum: 100`), sans pagination ni recherche dans le
- * sélecteur ; au-delà de ce volume, un membre non affiché reste
- * indisponible à la sélection. Cette amélioration (recherche/pagination du
- * sélecteur) n'est pas ticketisée séparément à ce jour.
+ * sans filtre de statut : `US-CAG-002`/RG-CAG-004 à 007 ne restreignent pas
+ * la contribution aux membres actifs. Une association peut compter plus de
+ * membres qu'une seule page n'en affiche (`PageSize.maximum: 100` du
+ * contrat) : le sélecteur propose donc une recherche par nom (paramètre
+ * contractuel `q`, amortie avec `debounceTime`, même motif que
+ * `CampaignsListPage`, T-59) et une pagination (page précédente/suivante),
+ * afin qu'un membre situé au-delà de la première page reste sélectionnable.
+ * Chaque nouvelle recherche revient à la première page ; une réponse tardive
+ * d'une requête précédente (recherche ou pagination) est ignorée via un
+ * identifiant de requête, pour ne jamais afficher une liste qui ne
+ * correspond plus à la recherche courante.
  *
  * Ce composant construit le formulaire et sa validation ; son intégration
  * dans l'écran de suivi de cagnotte (`SocialFundDetailPage`), l'appel API
@@ -65,7 +71,27 @@ export class ContributionCreateForm {
 
   readonly membersLoading = signal(true);
   readonly membersError = signal(false);
-  readonly members = signal<MemberSummary[]>([]);
+  private readonly memberPage = signal<MemberPage | null>(null);
+  readonly members = computed(() => this.memberPage()?.items ?? []);
+
+  readonly membersQuery = signal('');
+  private readonly membersQueryInput = new Subject<string>();
+  private membersRequestId = 0;
+
+  readonly membersPreviousPageDisabled = computed(
+    () => this.membersLoading() || (this.memberPage()?.page.number ?? 0) === 0,
+  );
+  readonly membersNextPageDisabled = computed(() => {
+    const page = this.memberPage();
+    return this.membersLoading() || !page || page.page.number + 1 >= page.page.totalPages;
+  });
+  readonly memberPageStatus = computed(() => {
+    const page = this.memberPage();
+    if (!page || page.page.totalPages <= 1) {
+      return null;
+    }
+    return { current: page.page.number + 1, total: page.page.totalPages };
+  });
 
   readonly form = this.formBuilder.group({
     memberId: this.formBuilder.nonNullable.control('', Validators.required),
@@ -75,15 +101,57 @@ export class ContributionCreateForm {
   });
 
   constructor() {
+    this.membersQueryInput
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadMembers(0));
+
+    this.loadMembers(0);
+  }
+
+  onMembersQueryInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.membersQuery.set(value);
+    this.membersQueryInput.next(value.trim());
+  }
+
+  membersPreviousPage(): void {
+    const page = this.memberPage();
+    if (page && !this.membersPreviousPageDisabled()) {
+      this.loadMembers(page.page.number - 1);
+    }
+  }
+
+  membersNextPage(): void {
+    const page = this.memberPage();
+    if (page && !this.membersNextPageDisabled()) {
+      this.loadMembers(page.page.number + 1);
+    }
+  }
+
+  private loadMembers(page: number): void {
+    this.membersLoading.set(true);
+    this.membersError.set(false);
+
+    // Une réponse tardive (recherche ou pagination déjà remplacée) ne doit
+    // pas écraser la liste correspondant à la recherche/page courante.
+    const requestId = ++this.membersRequestId;
+    const query = this.membersQuery().trim();
+
     this.membersService
-      .listMembers(0, MEMBERS_PAGE_SIZE)
+      .listMembers(page, MEMBERS_PAGE_SIZE, query || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (memberPage) => {
-          this.members.set(memberPage.items);
+          if (requestId !== this.membersRequestId) {
+            return;
+          }
+          this.memberPage.set(memberPage);
           this.membersLoading.set(false);
         },
         error: () => {
+          if (requestId !== this.membersRequestId) {
+            return;
+          }
           this.membersError.set(true);
           this.membersLoading.set(false);
         },

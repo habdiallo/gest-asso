@@ -34,7 +34,8 @@ const memberPage: MemberPage = {
 };
 
 async function createFixture(
-  listMembers: () => Observable<MemberPage> = () => of(memberPage),
+  listMembers: (page?: number, size?: number, q?: string) => Observable<MemberPage> = () =>
+    of(memberPage),
 ): Promise<ComponentFixture<ContributionCreateForm>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -187,11 +188,69 @@ describe('ContributionCreateForm', () => {
     const emitted: void[] = [];
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
-    const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]',
-    ) as HTMLButtonElement;
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('button[type="button"]'),
+    ) as HTMLButtonElement[];
+    const cancelButton = buttons.find((button) => button.textContent?.trim() === 'Annuler');
+    if (!cancelButton) {
+      throw new Error('Le bouton Annuler est introuvable.');
+    }
     cancelButton.click();
 
     expect(emitted).toHaveLength(1);
+  });
+
+  it('searches members by name, resets to the first page and debounces the request', async () => {
+    const listMembers = vi.fn(() => of(memberPage));
+    const fixture = await createFixture(listMembers);
+    await fixture.whenStable();
+    listMembers.mockClear();
+
+    const searchInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#contribution-create-member-search',
+    );
+    searchInput.value = 'Fanta';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(listMembers).not.toHaveBeenCalled();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    expect(listMembers).toHaveBeenCalledWith(0, 20, 'Fanta');
+  });
+
+  it('loads the next page of members and ignores a stale response from a previous page', async () => {
+    const secondPage: MemberPage = {
+      items: [
+        {
+          id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d13',
+          firstName: 'Mariama',
+          lastName: 'Sow',
+          displayName: 'Sow Mariama',
+          incomeCategory: { id: 'cat-1', label: 'Standard' },
+          status: MemberStatus.Active,
+        },
+      ],
+      summary: { total: 21, active: 21, inactive: 0 },
+      page: { number: 1, size: 20, totalElements: 21, totalPages: 2 },
+    };
+    const firstPageMultiple: MemberPage = {
+      ...memberPage,
+      page: { number: 0, size: 20, totalElements: 21, totalPages: 2 },
+    };
+    const listMembers = vi.fn((page?: number) => of(page === 0 ? firstPageMultiple : secondPage));
+    const fixture = await createFixture(listMembers);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    fixture.componentInstance.membersNextPage();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(listMembers).toHaveBeenLastCalledWith(1, 20, undefined);
+    const options = Array.from(
+      fixture.nativeElement.querySelectorAll('#contribution-create-member option'),
+    ).map((option) => (option as HTMLOptionElement).textContent?.trim());
+    expect(options).toContain('Sow Mariama');
   });
 });
