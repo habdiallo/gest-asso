@@ -297,6 +297,8 @@
   "members.loading": "Chargement des membres…",
   "members.error": "Impossible de charger la liste des membres. Réessayez plus tard.",
   "members.empty": "Aucun membre enregistré.",
+  "members.searchLabel": "Rechercher",
+  "members.searchPlaceholder": "Nom du membre",
   "members.summary": "{{active}} membre(s) actif(s) sur {{total}} membre(s) enregistré(s)",
   "members.valueMissing": "Non renseigné",
   "members.statusFilterLabel": "Statut",

@@ -46,6 +46,20 @@
 
   <div class="mt-6 flex flex-wrap gap-4">
     <div class="flex flex-col gap-2 sm:max-w-xs">
+      <label for="members-search" class="text-sm font-medium text-text-2">
+        {{ 'members.searchLabel' | transloco }}
+      </label>
+      <input
+        id="members-search"
+        type="search"
+        maxlength="100"
+        [value]="nameQuery()"
+        (input)="onNameQueryInput($event)"
+        [placeholder]="'members.searchPlaceholder' | transloco"
+        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+    </div>
+    <div class="flex flex-col gap-2 sm:max-w-xs">
       <label for="members-status-filter" class="text-sm font-medium text-text-2">
         {{ 'members.statusFilterLabel' | transloco }}
       </label>
