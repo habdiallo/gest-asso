@@ -1065,11 +1065,18 @@ describe('MemberDetailPage', () => {
       const root: HTMLElement = fixture.nativeElement;
 
       // Désactivation : le statut affiché passe à Inactif sur la même
-      // instance de page, sans navigation ni rechargement complet.
+      // instance de page, sans navigation ni rechargement complet. La
+      // désactivation nécessite désormais une confirmation explicite (T-42).
       const deactivateButton = Array.from(root.querySelectorAll('button')).find(
         (element) => element.textContent?.trim() === 'Désactiver',
       ) as HTMLButtonElement;
       deactivateButton.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll('button')).find((element) =>
+        element.textContent?.includes('Confirmer la désactivation'),
+      ) as HTMLButtonElement;
+      confirmButton.click();
       fixture.detectChanges();
 
       expect(deactivateMember).toHaveBeenCalledWith(memberId);
