@@ -16,9 +16,7 @@
     </button>
   } @else if (result(); as result) {
     @if (result.items.length === 0) {
-      <p class="text-text-2" role="status">
-        {{ 'memberDetail.contributions.empty' | transloco }}
-      </p>
+      <app-empty-state [message]="'memberDetail.contributions.empty' | transloco" />
     } @else {
       <div class="overflow-x-auto rounded-xl border border-line bg-surface">
         <table class="w-full text-left text-sm">

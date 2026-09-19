@@ -13,6 +13,7 @@ import { ContributionsService } from '@api';
 import type { ContributionPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { formatMemberCalendarDate } from '../../members-dates';
 import { memberContributionMethodLabel } from '../../members-contribution-method-labels';
 
@@ -29,7 +30,7 @@ import { memberContributionMethodLabel } from '../../members-contribution-method
  */
 @Component({
   selector: 'app-member-contributions-tab',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, EmptyState],
   templateUrl: './member-contributions-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

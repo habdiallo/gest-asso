@@ -14,6 +14,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { canRecordPayments } from '@core/session/payment-authorization';
 import { SessionService } from '@core/session/session.service';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
@@ -75,7 +76,14 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-social-fund-detail-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton, ContributionCreateForm],
+  imports: [
+    RouterLink,
+    TranslocoPipe,
+    EmptyState,
+    FormDialog,
+    LoadingSkeleton,
+    ContributionCreateForm,
+  ],
   templateUrl: './social-fund-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
