@@ -1,0 +1,100 @@
+<div [attr.aria-busy]="loading()">
+  @if (loading()) {
+    <p class="text-text-2" role="status">
+      {{ 'memberDetail.contributions.loading' | transloco }}
+    </p>
+  } @else if (loadError()) {
+    <p class="text-error" role="alert">
+      {{ 'memberDetail.contributions.error' | transloco }}
+    </p>
+    <button
+      type="button"
+      class="mt-3 rounded-lg border border-line px-4 py-2 text-sm text-text"
+      (click)="retry()"
+    >
+      {{ 'memberDetail.contributions.retry' | transloco }}
+    </button>
+  } @else if (result(); as result) {
+    @if (result.items.length === 0) {
+      <p class="text-text-2" role="status">
+        {{ 'memberDetail.contributions.empty' | transloco }}
+      </p>
+    } @else {
+      <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+        <table class="w-full text-left text-sm">
+          <caption class="sr-only">
+            {{
+              'memberDetail.contributions.caption' | transloco
+            }}
+          </caption>
+          <thead>
+            <tr class="border-b border-line text-xs uppercase tracking-wide text-text-2">
+              <th scope="col" class="px-4 py-3 font-medium">
+                {{ 'memberDetail.contributions.columns.socialFund' | transloco }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium">
+                {{ 'memberDetail.contributions.columns.amount' | transloco }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium">
+                {{ 'memberDetail.contributions.columns.date' | transloco }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium">
+                {{ 'memberDetail.contributions.columns.method' | transloco }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (contribution of result.items; track contribution.id) {
+              <tr class="border-b border-line text-text last:border-b-0">
+                <th scope="row" class="px-4 py-4 font-medium">
+                  {{ contribution.socialFund.title }}
+                </th>
+                <td class="whitespace-nowrap px-4 py-4 font-mono">
+                  {{ formatAmount(contribution.amount) }}
+                </td>
+                <td class="whitespace-nowrap px-4 py-4">
+                  {{ formatDate(contribution.contributionDate) }}
+                </td>
+                <td class="px-4 py-4">{{ methodLabel(contribution.method) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  @if (result(); as result) {
+    @if (result.page.totalPages > 1) {
+      <nav
+        class="mt-6 flex items-center justify-between gap-3 text-sm"
+        [attr.aria-label]="'memberDetail.contributions.pagination.nav' | transloco"
+      >
+        <button
+          type="button"
+          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          [disabled]="previousPageDisabled()"
+          [attr.aria-disabled]="previousPageDisabled()"
+          (click)="previousPage()"
+        >
+          {{ 'memberDetail.contributions.pagination.previous' | transloco }}
+        </button>
+        <p class="text-text-2" role="status">
+          {{
+            'memberDetail.contributions.pagination.status'
+              | transloco: { current: result.page.number + 1, total: result.page.totalPages }
+          }}
+        </p>
+        <button
+          type="button"
+          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          [disabled]="nextPageDisabled()"
+          [attr.aria-disabled]="nextPageDisabled()"
+          (click)="nextPage()"
+        >
+          {{ 'memberDetail.contributions.pagination.next' | transloco }}
+        </button>
+      </nav>
+    }
+  }
+</div>
