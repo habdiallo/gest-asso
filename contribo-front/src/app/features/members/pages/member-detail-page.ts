@@ -17,12 +17,20 @@ import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
+import { MemberPaymentsTab } from '../components/member-payments-tab/member-payments-tab';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
-/** Identifiant d'un onglet de la fiche membre (T-28, US-MEM-003). */
-export type MemberDetailTab = 'informations' | 'cotisations';
+/** Identifiant d'un onglet de la fiche membre (US-MEM-003). */
+export type MemberDetailTab = 'informations' | 'cotisations' | 'reglements';
 
-const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisations'];
+/**
+ * Onglets "Situation des cotisations" (T-28) et "Historique des règlements"
+ * (T-29) livrés par ces tickets. L'onglet "Contributions aux cagnottes"
+ * (T-30) reste un ticket dédié qui étendra ce tableau ; la navigation
+ * clavier flèches gauche/droite entre onglets (T-31) reste elle aussi un
+ * ticket séparé.
+ */
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisations', 'reglements'];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -32,16 +40,18 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
- * Limite connue : la situation des cotisations, l'historique des règlements
- * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
- * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
- * La modification complète Administrateur/Trésorier est fournie par T-38.
+ * Limite connue : les contributions aux cagnottes prévues par US-MEM-003
+ * relèvent du ticket T-30 (contenu de l'onglet à ajouter). La restriction de
+ * la vue Opérateur (RG-MEM-008, T-23) et la variante de modification
+ * Opérateur (T-39) restent à livrer. La modification complète
+ * Administrateur/Trésorier est fournie par T-38.
  *
  * Onglets (US-MEM-003) : "Informations" reprend le bloc de base ;
  * "Situation des cotisations" (T-28) charge `openapi:listMemberDues` via
- * `MemberDuesTab`, avec activation au clic ou par Entrée/Espace.
+ * `MemberDuesTab` ; "Historique des règlements" (T-29) liste, du plus récent
+ * au plus ancien, les règlements du membre toutes campagnes confondues via
+ * `MemberPaymentsTab`. Activation au clic ou par Entrée/Espace, sans
+ * navigation clavier flèches gauche/droite (T-31, ticket séparé).
  *
  * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
  * /members/{memberId}/deactivation` (`MembresService.deactivateMember`) pour
@@ -51,14 +61,11 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * boîte de confirmation avant envoi (RG-MEM-016, T-42), le masquage mutuel
  * avec l'action "Réactiver" selon le statut courant (RG-MEM-022, T-46) et le
  * masquage pour les rôles Trésorier/Opérateur/Membre (T-47) restent à livrer
- * sur des tickets distincts.
- * La navigation clavier flèches gauche/droite entre onglets (T-31) reste un
- * ticket dédié, non livré ici. Les règlements et contributions restent les
- * tickets T-29 et T-30.
+ * sur des tickets distincts. Les contributions restent le ticket T-30.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberDuesTab],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberDuesTab, MemberPaymentsTab],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -95,9 +102,9 @@ export class MemberDetailPage {
   readonly notFound = signal(false);
   readonly member = signal<MemberDetails | null>(null);
 
-  readonly memberStatusLabel = memberStatusLabel;
-  readonly tabs = MEMBER_DETAIL_TABS;
   readonly activeTab = signal<MemberDetailTab>(MEMBER_DETAIL_TABS[0]);
+  readonly tabs = MEMBER_DETAIL_TABS;
+  readonly memberStatusLabel = memberStatusLabel;
 
   constructor() {
     this.route.paramMap
