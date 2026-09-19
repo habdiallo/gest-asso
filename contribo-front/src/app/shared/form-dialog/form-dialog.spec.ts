@@ -116,4 +116,75 @@ describe('FormDialog', () => {
     );
     expect(buttons).toHaveLength(1);
   });
+
+  /*
+   * T-103 : vérification d'accessibilité clavier (piège de focus, fermeture par Échap).
+   *
+   * Le piège de focus et la fermeture par Échap sont assurés par le navigateur pour
+   * tout `<dialog>` ouvert via `showModal()` (contrairement à un simple attribut/propriété
+   * `open`, qui ne déclenche ni l'un ni l'autre) : voir la spécification HTML de l'élément
+   * `dialog`. jsdom ne réimplémente pas ce comportement natif (limite documentée en tête de
+   * fichier), donc le piège de focus réel et l'appui clavier sur Échap ne sont pas
+   * observables ici. Les tests ci-dessous vérifient à la place le contrat que le composant
+   * doit respecter pour que ce comportement natif s'applique : l'élément est bien un
+   * `<dialog>` et l'ouverture/fermeture passe par `showModal()`/`close()`, jamais par une
+   * manipulation directe de l'attribut `open` ou une réimplémentation manuelle du piège de
+   * focus/d'Échap. Tous les dialogues de formulaire du dépôt (member-create-form,
+   * campaign-create-form, record-payment-form, social-fund-create-form,
+   * contribution-create-form, create/edit-income-category-dialog, etc.) délèguent
+   * entièrement leur rendu de dialogue à `app-form-dialog` : aucun n'implémente de balisage
+   * ou de gestion clavier concurrente, donc le comportement vérifié ici s'applique à tous.
+   */
+  it('renders a native <dialog> element, the only element whose showModal() gives the browser-managed focus trap and Escape-to-close', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');
+    fixture.detectChanges();
+
+    const dialog: HTMLElement = fixture.nativeElement.querySelector('dialog');
+    expect(dialog.tagName).toBe('DIALOG');
+  });
+
+  it('calls the native showModal() (not a direct open attribute/property write) when the open input becomes true', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    const showModalSpy = vi.spyOn(dialog, 'showModal');
+
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    expect(showModalSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls the native close() (not a direct open attribute/property write) when the open input becomes false', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    const closeSpy = vi.spyOn(dialog, 'close');
+
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
+
+    expect(closeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes via the native close() when the explicit close button is activated, not via a manual keyboard/focus reimplementation', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    const closeSpy = vi.spyOn(dialog, 'close');
+
+    const closeButton: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    closeButton.click();
+
+    expect(closeSpy).toHaveBeenCalledTimes(1);
+  });
 });
