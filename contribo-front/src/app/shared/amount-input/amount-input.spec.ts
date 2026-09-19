@@ -25,6 +25,18 @@ class OptionalHostComponent {
   });
 }
 
+@Component({
+  selector: 'app-max-host',
+  imports: [ReactiveFormsModule, AmountInput],
+  template: `<app-amount-input [formControl]="form.controls.amount" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MaxHostComponent {
+  readonly form = new FormGroup({
+    amount: new FormControl<number | null>(5000, Validators.max(50000)),
+  });
+}
+
 describe('AmountInput', () => {
   it.each(['1000,50', '1000.50', '9007199254740993', '9'.repeat(309)])(
     'makes an optional amount invalid for rejected input %s and recovers after correction',
@@ -90,6 +102,24 @@ describe('AmountInput', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
       'au moins 2000 GNF',
+    );
+  });
+
+  it('shows and announces the parent max error once the control is touched (RG-PAY-007)', () => {
+    const fixture = TestBed.createComponent(MaxHostComponent);
+    fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const form = fixture.componentInstance.form;
+
+    input.value = '75000';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(form.controls.amount.hasError('max')).toBe(true);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'ne peut pas dépasser 50000 GNF',
     );
   });
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { CreatePaymentRequest, Due, PaymentMethod } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -16,10 +16,19 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  * appelant (même répartition des responsabilités que `CampaignCreateForm`,
  * T-65, et `SocialFundCreateForm`, T-84).
  *
- * Limites connues, couvertes par des tickets dédiés : ce formulaire ne bloque
- * pas localement un montant supérieur au reste à payer avant soumission
- * (RG-PAY-007, T-72) ; l'appelant reste responsable d'afficher l'erreur
- * `PAYMENT_EXCEEDS_REMAINING_AMOUNT` retournée par l'API le cas échéant.
+ * Bloque également localement un montant de règlement supérieur au reste à
+ * payer de la cotisation `due` sélectionnée, avec un message explicite
+ * (RG-PAY-007, T-72), via `Validators.max(due().remainingAmount)` réévalué à
+ * chaque changement de `due`. Ce contrôle IHM ne remplace pas la validation
+ * serveur : l'appelant reste responsable d'afficher l'erreur
+ * `PAYMENT_EXCEEDS_REMAINING_AMOUNT` retournée par l'API le cas échéant
+ * (ex. concurrence entre deux règlements sur la même cotisation).
+ *
+ * Retour P3 de la revue de la PR #94 : `updateValueAndValidity` émet ici
+ * `statusChanges` (comportement par défaut), sans quoi `AmountInput`
+ * (`amount-input.ts`, qui ne se resynchronise que via cet Observable) garde
+ * un message d'erreur figé si `due` change sur une instance réutilisée avec
+ * un montant déjà saisi supérieur au nouveau reste à payer.
  */
 @Component({
   selector: 'app-record-payment-form',
@@ -40,6 +49,21 @@ export class RecordPaymentForm {
     paymentDate: this.formBuilder.nonNullable.control('', Validators.required),
     method: this.formBuilder.control<PaymentMethod | null>(null, Validators.required),
   });
+
+  private maxRemainingAmountValidator = Validators.max(Infinity);
+
+  constructor() {
+    // RG-PAY-007 (T-72) : borne le montant saisissable au reste à payer de la
+    // cotisation sélectionnée. Réévalué si `due` change (ex. instance
+    // réutilisée par l'appelant pour une autre cotisation).
+    effect(() => {
+      const amountControl = this.form.controls.amount;
+      amountControl.removeValidators(this.maxRemainingAmountValidator);
+      this.maxRemainingAmountValidator = Validators.max(this.due().remainingAmount);
+      amountControl.addValidators(this.maxRemainingAmountValidator);
+      amountControl.updateValueAndValidity();
+    });
+  }
 
   paymentDateInvalid(): boolean {
     const control = this.form.controls.paymentDate;
