@@ -41,16 +41,44 @@ async function createFixture(
 }
 
 describe('CampaignBilanTab', () => {
-  it('affiche le total attendu, le total encaisse et le reste a encaisser', async () => {
+  it('affiche le total attendu, le total encaisse et le reste a encaisser en notation condensee', async () => {
     const fixture = await createFixture(buildFinancialSummary());
     const root: HTMLElement = fixture.nativeElement;
 
     expect(root.textContent).toContain('Total attendu');
-    expect(root.textContent).toContain('12 500 000 GNF');
     expect(root.textContent).toContain('Total encaissé');
-    expect(root.textContent).toContain('8 375 000 GNF');
     expect(root.textContent).toContain('Reste à encaisser');
-    expect(root.textContent).toContain('4 125 000 GNF');
+
+    const amountSpans = root.querySelectorAll<HTMLElement>('dd > span[title]');
+    expect(amountSpans).toHaveLength(3);
+
+    const [expectedAmount, collectedAmount, remainingAmount] = Array.from(amountSpans);
+    expect(expectedAmount.getAttribute('title')).toBe('12 500 000 GNF');
+    expect(expectedAmount.querySelector('[aria-hidden="true"]')?.textContent).toBe('12,5M GNF');
+    expect(expectedAmount.querySelector('.sr-only')?.textContent).toBe('12 500 000 GNF');
+
+    expect(collectedAmount.getAttribute('title')).toBe('8 375 000 GNF');
+    expect(collectedAmount.querySelector('[aria-hidden="true"]')?.textContent).toBe('8,4M GNF');
+    expect(collectedAmount.querySelector('.sr-only')?.textContent).toBe('8 375 000 GNF');
+
+    expect(remainingAmount.getAttribute('title')).toBe('4 125 000 GNF');
+    expect(remainingAmount.querySelector('[aria-hidden="true"]')?.textContent).toBe('4,1M GNF');
+    expect(remainingAmount.querySelector('.sr-only')?.textContent).toBe('4 125 000 GNF');
+  });
+
+  it("donne acces a la valeur brute en dessous du seuil de condensation via l'info-bulle", async () => {
+    const fixture = await createFixture(
+      buildFinancialSummary({ expectedAmount: 750, collectedAmount: 500, remainingAmount: 250 }),
+    );
+    const root: HTMLElement = fixture.nativeElement;
+
+    const amountSpans = root.querySelectorAll<HTMLElement>('dd > span[title]');
+    const [expectedAmount, collectedAmount, remainingAmount] = Array.from(amountSpans);
+
+    expect(expectedAmount.getAttribute('title')).toBe('750 GNF');
+    expect(expectedAmount.querySelector('[aria-hidden="true"]')?.textContent).toBe('750 GNF');
+    expect(collectedAmount.getAttribute('title')).toBe('500 GNF');
+    expect(remainingAmount.getAttribute('title')).toBe('250 GNF');
   });
 
   it('affiche un message quand le bilan financier est absent (role non autorise)', async () => {
