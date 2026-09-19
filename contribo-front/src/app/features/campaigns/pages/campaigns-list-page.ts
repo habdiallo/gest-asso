@@ -8,9 +8,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { CampagnesService, CampaignStatus } from '@api';
+import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { Subject, debounceTime } from 'rxjs';
@@ -49,10 +50,13 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * `POST /campaigns` (`CampagnesService.createCampaign`,
  * openapi:`createCampaign`). Après création, la première page est
  * rechargée avec les filtres courants afin d'afficher la nouvelle campagne.
- * Le masquage de cette action pour l'Opérateur et le Membre (T-67,
- * RG-COT-001) relève d'un ticket distinct ; elle reste visible ici pour
- * tous les rôles qui accèdent à cet écran (même approche que
- * `SocialFundsListPage`, T-84/T-86).
+ *
+ * Masquage de l'action "Créer une campagne" pour l'Opérateur et le Membre
+ * (T-67) : seuls l'Administrateur et le Trésorier créent une campagne
+ * (US-COT-001, spec `campaigns-ui`), même approche que `SocialFundsListPage`
+ * (T-84/T-86). Le Membre n'accède déjà pas à cet écran (`roleGuard` sur la
+ * route `/campagnes`, voir `app.routes.ts`) ; ce masquage protège en plus
+ * l'Opérateur, seul rôle non autorisé qui consulte effectivement cette liste.
  */
 @Component({
   selector: 'app-campaigns-list-page',
@@ -63,10 +67,21 @@ import { campaignStatusLabel } from '../campaign-status-labels';
 export class CampaignsListPage {
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
 
   private readonly requestedPage = signal(0);
   private requestSequence = 0;
+
+  /**
+   * Masquage de l'action "Créer une campagne" pour l'Opérateur et le Membre
+   * (T-67) : seuls l'Administrateur et le Trésorier créent une campagne
+   * (US-COT-001).
+   */
+  readonly canCreateCampaign = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
@@ -141,9 +156,9 @@ export class CampaignsListPage {
     }
   }
 
-  /** Ouvre le formulaire de création de campagne (T-65). */
+  /** Ouvre le formulaire de création de campagne (T-65), réservé à l'Administrateur et au Trésorier (T-67). */
   openCreateDialog(): void {
-    if (this.createDialogOpen()) {
+    if (!this.canCreateCampaign() || this.createDialogOpen()) {
       return;
     }
     ++this.createDialogSession;

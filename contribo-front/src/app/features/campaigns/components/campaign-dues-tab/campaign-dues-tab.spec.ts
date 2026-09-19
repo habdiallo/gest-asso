@@ -245,6 +245,40 @@ describe('CampaignDuesTab', () => {
     ).toBe(true);
   });
 
+  it("hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)", async () => {
+    const fixture = await createFixture(undefined, {
+      user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: false },
+    });
+
+    expect(
+      fixture.nativeElement.textContent.includes(
+        fr['campaigns.detail.cotisations.recordPayment.action'],
+      ),
+    ).toBe(false);
+    expect(
+      Array.from(fixture.nativeElement.querySelectorAll('thead th')).some((th) =>
+        (th as HTMLElement).textContent?.includes(
+          fr['campaigns.detail.cotisations.recordPayment.action'],
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it('shows the record payment action for an Opérateur authorized via peut_enregistrer_paiements (T-73, §2.3)', async () => {
+    const fixture = await createFixture(undefined, {
+      user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: true },
+    });
+
+    const actionButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtons.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(true);
+  });
+
   it('records a payment and replaces the due with the state returned by the API', async () => {
     const createPayment = vi.fn(() => of(buildPaymentResponse()));
     const fixture = await createFixture(undefined, { createPayment, user: treasurer });
