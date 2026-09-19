@@ -135,6 +135,9 @@ export class CampaignDetailPage {
    * Catégorie sans montant configuré dans le barème (T-69) : `0` est la
    * valeur par défaut attribuée à la création de la campagne
    * (`campaign-create-form.ts`), avant toute saisie d'un montant dédié.
+   * `startEditingBareme` interdit désormais la resaisie de `0`
+   * (`Validators.min(1)`), donc `amount === 0` ne peut provenir que de cette
+   * valeur par défaut, jamais d'une catégorie à 0 GNF délibérément validée.
    */
   categoryAmountUnconfigured(amount: number): boolean {
     return amount === 0;
@@ -231,7 +234,7 @@ export class CampaignDetailPage {
       this.baremeAmounts.push(
         this.formBuilder.control<number | null>(categoryAmount.amount, [
           Validators.required,
-          Validators.min(0),
+          Validators.min(1),
         ]),
       );
     }

@@ -521,6 +521,34 @@ describe('CampaignDetailPage', () => {
       );
     });
 
+    it('blocks submission when an amount of 0 is typed (P2, PR #115: 0 must stay reserved for "not configured")', async () => {
+      const updateCampaignCategoryAmounts = vi.fn(() => of(buildCampaign({ status: 'UPCOMING' })));
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts,
+      });
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const input = root.querySelector('input[inputmode="numeric"]') as HTMLInputElement;
+      input.value = '0';
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+
+      const form = root.querySelector('form') as HTMLFormElement;
+      form.dispatchEvent(new Event('submit'));
+      fixture.detectChanges();
+
+      expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        "Le montant doit être d'au moins 1 GNF.",
+      );
+    });
+
     it('shows a dedicated error message when the campaign is no longer editable', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
         role: UserRole.Administrator,
