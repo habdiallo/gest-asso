@@ -123,7 +123,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
 - [x] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
 - [x] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
-- [ ] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
+- [x] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
 - [ ] 11.6 [T-76] (P1) Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).
 
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)

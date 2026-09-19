@@ -17,6 +17,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import fr from '../../../../../assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
@@ -399,6 +400,58 @@ describe('CampaignDuesTab', () => {
 
     expect(fixture.componentInstance.duePage()?.items[0].paidAmount).toBe(75_000);
     expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
+  });
+
+  it('recalculates and refreshes the remaining amount and status after several successive payments, including one that fully settles the due (T-75, RG-PAY-004 a RG-PAY-006)', async () => {
+    const secondPaymentResponse: PaymentCreationResponse = {
+      ...buildPaymentResponse(),
+      due: { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+    };
+    const createPayment = vi
+      .fn<(dueId: string, request: CreatePaymentRequest) => Observable<PaymentCreationResponse>>()
+      .mockReturnValueOnce(of(buildPaymentResponse()))
+      .mockReturnValueOnce(of(secondPaymentResponse));
+    const fixture = await createFixture(undefined, { createPayment, user: treasurer });
+    const root: HTMLElement = fixture.nativeElement;
+
+    // Etat initial : cotisation partiellement payee, reste a payer de 50 000 GNF.
+    expect(root.textContent).toContain('Partiellement payé');
+    expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
+
+    // Premier reglement partiel : reste a payer recalcule a 25 000 GNF, statut inchange.
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
+    expect(fixture.componentInstance.duePage()?.items[0].status).toBe(DueStatus.PartiallyPaid);
+    expect(root.textContent).toContain(formatGnfAmountDetailed(25_000));
+    expect(root.textContent).toContain('Partiellement payé');
+
+    // Second reglement, sur la cotisation rafraichie, soldant totalement le reste a payer.
+    const refreshedDue = fixture.componentInstance.duePage()!.items[0];
+    fixture.componentInstance.openRecordPayment(refreshedDue);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+
+    expect(createPayment).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance.duePage()?.items[0].paidAmount).toBe(100_000);
+    expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(0);
+    expect(fixture.componentInstance.duePage()?.items[0].status).toBe(DueStatus.Paid);
+    expect(root.textContent).toContain(formatGnfAmountDetailed(0));
+
+    // Le badge de statut de la ligne (et non l'option du filtre) affiche desormais "Payé".
+    const statusBadge = root.querySelector('tbody td span');
+    expect(statusBadge?.textContent?.trim()).toBe('Payé');
+    expect(statusBadge?.classList.contains('text-success')).toBe(true);
   });
 
   it('closes the dialog when cancelled', async () => {
