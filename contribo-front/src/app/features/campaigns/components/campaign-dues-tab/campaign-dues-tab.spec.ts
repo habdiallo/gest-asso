@@ -137,6 +137,7 @@ async function createFixture(
     ) => Observable<PaymentCreationResponse>;
     user?: CurrentUser | null;
     role?: UserRole;
+    campaignClosed?: boolean;
   } = {},
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
@@ -166,6 +167,9 @@ async function createFixture(
 
   const fixture = TestBed.createComponent(CampaignDuesTab);
   fixture.componentRef.setInput('campaignId', result.items[0].campaign.id);
+  if (options.campaignClosed !== undefined) {
+    fixture.componentRef.setInput('campaignClosed', options.campaignClosed);
+  }
   fixture.detectChanges();
   return fixture;
 }
@@ -243,6 +247,38 @@ describe('CampaignDuesTab', () => {
         button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
       ),
     ).toBe(true);
+  });
+
+  it('hides the record payment action on a closed campaign, even for an authorized Treasurer (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
+
+    expect(
+      fixture.nativeElement.textContent.includes(
+        fr['campaigns.detail.cotisations.recordPayment.action'],
+      ),
+    ).toBe(false);
+  });
+
+  it('keeps the record payment action visible on an open campaign for an authorized Treasurer (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: false });
+
+    const actionButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtons.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(true);
+  });
+
+  it('ignores an attempt to open the record payment dialog on a closed campaign (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
+
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
   });
 
   it("hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)", async () => {

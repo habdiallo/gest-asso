@@ -31,6 +31,11 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
  * opérations courantes (consultation de la situation, enregistrement d'un
  * règlement lorsqu'il y est autorisé). Les autres rôles (Administrateur,
  * Trésorier) et l'absence de rôle conservent la colonne inchangée.
+ *
+ * L'enregistrement d'un nouveau règlement est également masqué sur une
+ * campagne clôturée (T-81, RG-COT), quel que soit le rôle par ailleurs
+ * autorisé : voir l'entrée `campaignClosed`, transmise par
+ * `CampaignDetailPage` à partir du statut de la campagne.
  */
 @Component({
   selector: 'app-campaign-dues-tab',
@@ -49,6 +54,8 @@ export class CampaignDuesTab implements OnInit {
   private loadRequestId = 0;
 
   readonly campaignId = input.required<string>();
+  /** Campagne clôturée (T-81) : masque l'enregistrement d'un nouveau règlement, quel que soit le rôle par ailleurs autorisé. */
+  readonly campaignClosed = input<boolean>(false);
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly duePage = signal<DuePage | null>(null);
@@ -59,6 +66,15 @@ export class CampaignDuesTab implements OnInit {
 
   /** Administrateur/Trésorier/Opérateur autorisé uniquement (RG-ROLE-007 à RG-ROLE-009). */
   readonly canRecordPayments = this.sessionService.canRecordPayments;
+
+  /**
+   * Action masquée sur une campagne clôturée (T-81), quel que soit le rôle
+   * par ailleurs autorisé. Ce contrôle IHM ne remplace pas l'autorisation
+   * serveur (voir `api-client.md`).
+   */
+  readonly canRecordPaymentsNow = computed(
+    () => this.canRecordPayments() && !this.campaignClosed(),
+  );
 
   readonly recordPaymentDue = signal<Due | null>(null);
   readonly recordPaymentSubmitting = signal(false);
@@ -155,7 +171,7 @@ export class CampaignDuesTab implements OnInit {
 
   /** Ouvre le formulaire d'enregistrement d'un règlement (T-71, US-COT-005) pour la cotisation choisie. */
   openRecordPayment(due: Due): void {
-    if (this.recordPaymentDue()) {
+    if (!this.canRecordPaymentsNow() || this.recordPaymentDue()) {
       return;
     }
     ++this.recordPaymentSession;
