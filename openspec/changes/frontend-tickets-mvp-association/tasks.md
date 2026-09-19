@@ -156,7 +156,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 15. Cagnottes — clôture (`cagnottes-ui`)
 
 - [x] 15.1 [T-93] (P1) Action "Clôturer la cagnotte" réservée à Administrateur/Trésorier, avec confirmation. — US-CAG-004 ; openapi:`closeCagnotte`
-- [ ] 15.2 [T-94] (P1) Masquage de l'action d'enregistrement de contribution sur une cagnotte clôturée.
+- [x] 15.2 [T-94] (P1) Masquage de l'action d'enregistrement de contribution sur une cagnotte clôturée.
 
 ## 16. Espace personnel du membre (`member-space-ui`)
 
