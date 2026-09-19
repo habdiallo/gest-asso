@@ -9,14 +9,14 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ErrorCode, MembresService, UserRole } from '@api';
+import { ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
 import type { ErrorResponse, MemberDetails, UpdateMemberRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
-import { memberStatusLabel } from '../members-status-labels';
+import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -32,6 +32,16 @@ import { memberStatusLabel } from '../members-status-labels';
  * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
  * la variante de modification Opérateur (T-39) restent à livrer.
  * La modification complète Administrateur/Trésorier est fournie par T-38.
+ *
+ * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
+ * /members/{memberId}/deactivation` (`MembresService.deactivateMember`) pour
+ * un membre actif, réservée à l'Administrateur, et remplace le membre affiché
+ * par la réponse (statut Inactif), en conservant visibles les sections
+ * historiques déjà livrées (cotisations, règlements, contributions). La
+ * boîte de confirmation avant envoi (RG-MEM-016, T-42), le masquage mutuel
+ * avec l'action "Réactiver" selon le statut courant (RG-MEM-022, T-46) et le
+ * masquage pour les rôles Trésorier/Opérateur/Membre (T-47) restent à livrer
+ * sur des tickets distincts.
  */
 @Component({
   selector: 'app-member-detail-page',
@@ -55,6 +65,18 @@ export class MemberDetailPage {
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
 
+  private deactivateSession = 0;
+  readonly canDeactivate = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return (
+      role === UserRole.Administrator &&
+      memberIsActive(this.member()?.status ?? MemberStatus.Inactive)
+    );
+  });
+  readonly deactivating = signal(false);
+  readonly deactivateError = signal(false);
+  readonly deactivateSuccess = signal(false);
+
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly notFound = signal(false);
@@ -70,6 +92,10 @@ export class MemberDetailPage {
         tap(() => {
           this.closeEditDialog();
           this.editSuccess.set(false);
+          ++this.deactivateSession;
+          this.deactivating.set(false);
+          this.deactivateError.set(false);
+          this.deactivateSuccess.set(false);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
@@ -138,6 +164,37 @@ export class MemberDetailPage {
           }
           this.saving.set(false);
           this.editError.set(true);
+        },
+      });
+  }
+
+  deactivateMember(): void {
+    const member = this.member();
+    if (!this.canDeactivate() || !member || this.deactivating()) {
+      return;
+    }
+    const session = ++this.deactivateSession;
+    this.deactivating.set(true);
+    this.deactivateError.set(false);
+    this.deactivateSuccess.set(false);
+    this.membersService
+      .deactivateMember(member.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          if (session !== this.deactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(updated);
+          this.deactivating.set(false);
+          this.deactivateSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.deactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.deactivating.set(false);
+          this.deactivateError.set(true);
         },
       });
   }

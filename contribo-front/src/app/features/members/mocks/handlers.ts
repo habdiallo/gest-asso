@@ -117,6 +117,13 @@ function accessDenied(): Response {
   );
 }
 
+function memberAlreadyInactive(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.MemberAlreadyInactive, message: 'Ce membre est déjà inactif.' },
+    { status: 409 },
+  );
+}
+
 /** Construit la réponse `/members` pour l'ensemble des membres de démonstration. */
 export function buildMemberPageResponse(): MemberPage {
   return {
@@ -216,12 +223,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };
@@ -233,6 +242,47 @@ export const membersHandlers = [
     }
     return HttpResponse.json<MemberDetails>(updated);
   }),
+  /**
+   * `POST /api/v1/members/{memberId}/deactivation` (T-41) : réservé à
+   * l'Administrateur (US-MEM-005). Refuse une seconde désactivation par un
+   * conflit métier, conserve les données historiques du membre (RG-MEM-012 à
+   * RG-MEM-015). La boîte de confirmation (T-42) et l'action symétrique
+   * "Réactiver" (T-44) relèvent d'autres tickets.
+   */
+  http.post(
+    '/api/v1/members/:memberId/deactivation',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (account.user.role !== UserRole.Administrator) {
+        return accessDenied();
+      }
+
+      const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+      const existing = demoMemberDetails.get(memberId);
+      if (!existing) {
+        return memberNotFound();
+      }
+      if (existing.status === MemberStatus.Inactive) {
+        return memberAlreadyInactive();
+      }
+
+      const updated: MemberDetails = {
+        ...existing,
+        status: MemberStatus.Inactive,
+        account: { ...existing.account, active: false },
+      };
+      demoMemberDetails.set(memberId, updated);
+      const index = demoMembers.findIndex((member) => member.id === memberId);
+      if (index >= 0) {
+        demoMembers[index] = { ...demoMembers[index], status: MemberStatus.Inactive };
+      }
+      return HttpResponse.json<MemberDetails>(updated);
+    },
+  ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
