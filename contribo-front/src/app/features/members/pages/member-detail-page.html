@@ -29,6 +29,19 @@
           {{ 'members.edit.button' | transloco }}
         </button>
       }
+      @if (canDeactivate()) {
+        <button
+          type="button"
+          (click)="deactivateMember()"
+          [disabled]="deactivating()"
+          class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
+        >
+          {{
+            (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.button')
+              | transloco
+          }}
+        </button>
+      }
       @if (canReactivate()) {
         <button
           type="button"
@@ -42,6 +55,16 @@
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
         {{ 'members.edit.success' | transloco }}
+      </p>
+    }
+    @if (deactivateSuccess()) {
+      <p class="mt-4 text-sm text-success" role="status">
+        {{ 'members.deactivate.success' | transloco }}
+      </p>
+    }
+    @if (deactivateError()) {
+      <p class="mt-4 text-sm text-error" role="alert">
+        {{ 'members.deactivate.error' | transloco }}
       </p>
     }
     @if (reactivateSuccess()) {
@@ -104,84 +127,142 @@
       }
     </app-form-dialog>
 
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'memberDetail.personalInfoTitle' | transloco }}
-      </h2>
-      <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.lastName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.lastName }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.firstName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.firstName }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.preferredName' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.preferredName || ('memberDetail.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.phone' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.phone || ('memberDetail.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.country' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.country || ('memberDetail.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.city' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.city || ('memberDetail.notProvided' | transloco) }}
-          </dd>
-        </div>
-      </dl>
-    </section>
+    <div
+      class="mt-8 flex gap-2 border-b border-line"
+      role="tablist"
+      [attr.aria-label]="'memberDetail.tablist' | transloco"
+    >
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          [id]="'member-tab-' + tab"
+          role="tab"
+          [attr.aria-selected]="isActiveTab(tab) ? 'true' : 'false'"
+          [attr.aria-controls]="'member-tabpanel-' + tab"
+          [tabIndex]="isActiveTab(tab) ? 0 : -1"
+          class="border-b-2 px-4 py-2 text-sm font-medium"
+          [class.border-gold-hover]="isActiveTab(tab)"
+          [class.text-gold-hover]="isActiveTab(tab)"
+          [class.border-transparent]="!isActiveTab(tab)"
+          [class.text-text-2]="!isActiveTab(tab)"
+          (click)="selectTab(tab)"
+        >
+          {{ 'memberDetail.tabs.' + tab | transloco }}
+        </button>
+      }
+    </div>
 
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'memberDetail.associationInfoTitle' | transloco }}
-      </h2>
-      <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.incomeCategory' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ member.incomeCategory.label }}</dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.associationFunction' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">
-            {{ member.associationFunction || ('memberDetail.notProvided' | transloco) }}
-          </dd>
-        </div>
-        <div class="rounded-card border border-line bg-surface p-4">
-          <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'memberDetail.status' | transloco }}
-          </dt>
-          <dd class="mt-1 text-text">{{ memberStatusLabel(member.status) }}</dd>
-        </div>
-      </dl>
-    </section>
+    @if (isActiveTab('informations')) {
+      <section
+        id="member-tabpanel-informations"
+        role="tabpanel"
+        aria-labelledby="member-tab-informations"
+        tabindex="0"
+      >
+        <section class="mt-6">
+          <h2 class="font-display text-xl uppercase tracking-wide text-text">
+            {{ 'memberDetail.personalInfoTitle' | transloco }}
+          </h2>
+          <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.lastName' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ member.lastName }}</dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.firstName' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ member.firstName }}</dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.preferredName' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ member.preferredName || ('memberDetail.notProvided' | transloco) }}
+              </dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.phone' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ member.phone || ('memberDetail.notProvided' | transloco) }}
+              </dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.country' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ member.country || ('memberDetail.notProvided' | transloco) }}
+              </dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.city' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ member.city || ('memberDetail.notProvided' | transloco) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="mt-8">
+          <h2 class="font-display text-xl uppercase tracking-wide text-text">
+            {{ 'memberDetail.associationInfoTitle' | transloco }}
+          </h2>
+          <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.incomeCategory' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ member.incomeCategory.label }}</dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.associationFunction' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ member.associationFunction || ('memberDetail.notProvided' | transloco) }}
+              </dd>
+            </div>
+            <div class="rounded-card border border-line bg-surface p-4">
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
+                {{ 'memberDetail.status' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ memberStatusLabel(member.status) }}</dd>
+            </div>
+          </dl>
+        </section>
+      </section>
+    }
+
+    @if (isActiveTab('cotisations')) {
+      <section
+        id="member-tabpanel-cotisations"
+        role="tabpanel"
+        aria-labelledby="member-tab-cotisations"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-member-dues-tab [memberId]="member.id" />
+      </section>
+    }
+
+    @if (isActiveTab('reglements')) {
+      <section
+        id="member-tabpanel-reglements"
+        role="tabpanel"
+        aria-labelledby="member-tab-reglements"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-member-payments-tab [memberId]="member.id" />
+      </section>
+    }
   }
 </main>
