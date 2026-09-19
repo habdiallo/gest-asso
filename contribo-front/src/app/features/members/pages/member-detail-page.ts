@@ -10,9 +10,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ErrorCode, MembresService, UserRole } from '@api';
-import type { ErrorResponse, MemberDetails, UpdateMemberRequest } from '@api';
+import type {
+  ErrorResponse,
+  MemberDetails,
+  UpdateMemberContactRequest,
+  UpdateMemberRequest,
+} from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
@@ -119,6 +125,14 @@ export class MemberDetailPage {
   }
 
   updateMember(request: UpdateMemberRequest): void {
+    this.submitEdit((member) => this.membersService.updateMember(member.id, request));
+  }
+
+  updateMemberContact(request: UpdateMemberContactRequest): void {
+    this.submitEdit((member) => this.membersService.updateMemberContact(member.id, request));
+  }
+
+  private submitEdit(buildRequest: (member: MemberDetails) => Observable<MemberDetails>): void {
     const member = this.member();
     if (!this.canEdit() || !member || !this.editOpen() || this.saving()) {
       return;
@@ -126,8 +140,7 @@ export class MemberDetailPage {
     const session = this.editSession;
     this.saving.set(true);
     this.editError.set(false);
-    this.membersService
-      .updateMember(member.id, request)
+    buildRequest(member)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {

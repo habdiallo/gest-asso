@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { MemberDetails, UpdateMemberRequest } from '@api';
+import type { MemberDetails, UpdateMemberContactRequest } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import fr from '../../../../../assets/i18n/fr.json';
 import { MemberEditFormOperator } from './member-edit-form-operator';
@@ -65,13 +65,25 @@ describe('MemberEditFormOperator', () => {
 
   it('emits only the changed restricted fields', async () => {
     const fixture = await createFixture();
-    const emitted: UpdateMemberRequest[] = [];
+    const emitted: UpdateMemberContactRequest[] = [];
     fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
 
     fixture.componentInstance.form.patchValue({ city: 'Kindia', preferredName: '' });
     fixture.componentInstance.submit();
 
     expect(emitted).toEqual([{ city: 'Kindia', preferredName: null }]);
+  });
+
+  it('blocks submission and marks the phone field invalid when an existing phone is cleared', async () => {
+    const fixture = await createFixture();
+    const submitted = vi.fn();
+    fixture.componentInstance.submitted.subscribe(submitted);
+
+    fixture.componentInstance.form.patchValue({ phone: '' });
+    fixture.componentInstance.submit();
+
+    expect(submitted).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.phoneInvalid()).toBe(true);
   });
 
   it('does not emit when the form has no changes', async () => {

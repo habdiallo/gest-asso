@@ -6,6 +6,7 @@ import type {
   MemberDetails,
   MemberPage,
   MemberSummary,
+  UpdateMemberContactRequest,
   UpdateMemberRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -203,11 +204,7 @@ export const membersHandlers = [
     if (!account) {
       return authenticationRequired();
     }
-    if (
-      account.user.role !== UserRole.Administrator &&
-      account.user.role !== UserRole.Treasurer &&
-      account.user.role !== UserRole.Operator
-    ) {
+    if (account.user.role !== UserRole.Administrator && account.user.role !== UserRole.Treasurer) {
       return accessDenied();
     }
 
@@ -220,12 +217,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };
@@ -237,6 +236,43 @@ export const membersHandlers = [
     }
     return HttpResponse.json<MemberDetails>(updated);
   }),
+  http.patch(
+    '/api/v1/members/:memberId/contact',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer &&
+        account.user.role !== UserRole.Operator
+      ) {
+        return accessDenied();
+      }
+
+      const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+      const existing = demoMemberDetails.get(memberId);
+      if (!existing) {
+        return memberNotFound();
+      }
+      const body = (await request.json()) as UpdateMemberContactRequest;
+      const updated: MemberDetails = {
+        ...existing,
+        ...body,
+        preferredName:
+          body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      };
+      demoMemberDetails.set(memberId, updated);
+      const index = demoMembers.findIndex((member) => member.id === memberId);
+      if (index >= 0) {
+        const { account: memberAccount, financialSummary, ...summary } = updated;
+        demoMembers[index] = summary;
+      }
+      return HttpResponse.json<MemberDetails>(updated);
+    },
+  ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));

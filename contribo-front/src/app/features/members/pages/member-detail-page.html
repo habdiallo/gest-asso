@@ -30,7 +30,7 @@
     }
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
-      {{ 'members.edit.success' | transloco }}
+        {{ 'members.edit.success' | transloco }}
       </p>
     }
     <app-form-dialog
@@ -55,7 +55,7 @@
           <app-member-edit-form-operator
             [member]="member"
             [submitting]="saving()"
-            (submitted)="updateMember($event)"
+            (submitted)="updateMemberContact($event)"
             (cancelled)="closeEditDialog()"
           />
         }

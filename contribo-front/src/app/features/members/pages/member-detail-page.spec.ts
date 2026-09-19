@@ -239,6 +239,54 @@ describe('MemberDetailPage', () => {
     expect(root.querySelector('#member-edit-income-category')).toBeNull();
   });
 
+  it('submits an Operator edit through updateMemberContact, not updateMember (T-39)', async () => {
+    const member = buildMemberDetails();
+    const updateMemberContact = vi.fn(() => of(member));
+    const updateMember = vi.fn(() => of(member));
+
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: MembresService,
+          useValue: {
+            getMember: () => of(member),
+            updateMemberContact,
+            updateMember,
+          } as unknown as MembresService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ memberId: member.id })) },
+        },
+      ],
+    }).compileComponents();
+
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.setUser(buildCurrentUser(UserRole.Operator));
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('button')?.click();
+    fixture.detectChanges();
+
+    fixture.componentInstance.updateMemberContact({ city: 'Kindia' });
+    fixture.detectChanges();
+
+    expect(updateMemberContact).toHaveBeenCalledWith(member.id, { city: 'Kindia' });
+    expect(updateMember).not.toHaveBeenCalled();
+  });
+
   it('opens the full edit form for an Administrator', async () => {
     const fixture = await createFixture(
       () => of(buildMemberDetails()),

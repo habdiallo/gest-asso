@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { UpdateMemberRequest, MemberDetails } from '@api';
+import type { UpdateMemberContactRequest, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 /**
@@ -24,7 +24,7 @@ export class MemberEditFormOperator implements OnInit {
 
   readonly member = input.required<MemberDetails>();
   readonly submitting = input(false);
-  readonly submitted = output<UpdateMemberRequest>();
+  readonly submitted = output<UpdateMemberContactRequest>();
   readonly cancelled = output<void>();
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -49,7 +49,7 @@ export class MemberEditFormOperator implements OnInit {
       city: member.city ?? '',
       phone: member.phone ?? '',
     });
-    for (const key of ['country', 'city'] as const) {
+    for (const key of ['country', 'city', 'phone'] as const) {
       if (member[key]) {
         this.form.controls[key].addValidators(Validators.required);
         this.form.controls[key].updateValueAndValidity();
@@ -67,10 +67,10 @@ export class MemberEditFormOperator implements OnInit {
     return control.invalid && control.touched;
   }
 
-  buildRequest(): UpdateMemberRequest {
+  buildRequest(): UpdateMemberContactRequest {
     const raw = this.form.getRawValue();
     const member = this.member();
-    const request: UpdateMemberRequest = {};
+    const request: UpdateMemberContactRequest = {};
     for (const key of ['country', 'city', 'phone'] as const) {
       if (raw[key] !== (member[key] ?? '')) {
         request[key] = raw[key];
