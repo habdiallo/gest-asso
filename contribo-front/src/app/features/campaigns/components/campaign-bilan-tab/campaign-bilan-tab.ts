@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { CampaignFinancialSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { formatGnfAmountCondensed } from '@core/formatting/currency';
 
 /**
  * Onglet bilan de campagne (T-77, US-COT-007) : total attendu, total encaissé
@@ -19,11 +19,13 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
  * lue depuis `financialSummary.dueCounts` (contrat `DueCountSummary`) : ce
  * décompte est déjà agrégé côté serveur (paid/partiallyPaid/unpaid), ce
  * composant n'effectue aucun recalcul local à partir d'une liste de
- * cotisations.
+ * cotisations. Ce sont des effectifs de membres, pas des montants : ils ne
+ * passent pas par la notation condensée.
  *
- * Limite connue, hors périmètre de T-77/T-78 : la notation condensée des
- * montants (T-79) n'est pas encore appliquée ici ; seule la valeur détaillée
- * des trois totaux l'est.
+ * Les trois totaux (attendu, encaissé, reste à encaisser) utilisent la
+ * notation condensée GNF (T-79) : la valeur brute reste accessible via une
+ * info-bulle (`title`) et un texte masqué visuellement pour les lecteurs
+ * d'écran, selon le même patron que `social-funds-list-page.html`.
  */
 @Component({
   selector: 'app-campaign-bilan-tab',
@@ -34,5 +36,5 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 export class CampaignBilanTab {
   readonly financialSummary = input<CampaignFinancialSummary | undefined>(undefined);
 
-  readonly formatAmount = formatGnfAmountDetailed;
+  readonly formatAmount = formatGnfAmountCondensed;
 }
