@@ -37,6 +37,12 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
  * campagne clôturée (T-81, RG-COT), quel que soit le rôle par ailleurs
  * autorisé : voir l'entrée `campaignClosed`, transmise par
  * `CampaignDetailPage` à partir du statut de la campagne.
+ *
+ * L'action est enfin masquée ligne par ligne sur une cotisation déjà soldée
+ * (statut Payé, T-76) : sans reste à payer, aucun nouveau règlement n'est
+ * possible sur cette cotisation. Ce masquage s'applique immédiatement après
+ * un règlement qui solde le reste à payer (T-75 rafraîchit l'état affiché
+ * avec la réponse serveur), sans attendre un rechargement de la page.
  */
 @Component({
   selector: 'app-campaign-dues-tab',
@@ -170,9 +176,14 @@ export class CampaignDuesTab implements OnInit {
       });
   }
 
-  /** Ouvre le formulaire d'enregistrement d'un règlement (T-71, US-COT-005) pour la cotisation choisie. */
+  /**
+   * Ouvre le formulaire d'enregistrement d'un règlement (T-71, US-COT-005) pour
+   * la cotisation choisie. Refuse également une cotisation déjà soldée (statut
+   * Payé, T-76) : le bouton correspondant est masqué dans le template, ce
+   * contrôle protège l'appel direct de la méthode.
+   */
   openRecordPayment(due: Due): void {
-    if (!this.canRecordPaymentsNow() || this.recordPaymentDue()) {
+    if (!this.canRecordPaymentsNow() || due.status === this.paidStatus || this.recordPaymentDue()) {
       return;
     }
     ++this.recordPaymentSession;

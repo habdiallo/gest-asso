@@ -71,11 +71,11 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 
 - [x] 6.1 [T-41] (P1) Action "Désactiver" sur la fiche d'un membre actif, réservée à l'Administrateur. — US-MEM-005 ; openapi:`deactivateMember`
 - [x] 6.2 [T-42] (P1) Boîte de confirmation avant désactivation, mentionnant l'exclusion des futures campagnes. — RG-MEM-016
-- [ ] 6.3 [T-43] (P1) Mise à jour du statut affiché après désactivation, en conservant l'historique visible (cotisations, règlements, contributions). — RG-MEM-012 à RG-MEM-015
+- [x] 6.3 [T-43] (P1) Mise à jour du statut affiché après désactivation, en conservant l'historique visible (cotisations, règlements, contributions). — RG-MEM-012 à RG-MEM-015
 - [x] 6.4 [T-44] (P1) Action "Réactiver" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`
-- [ ] 6.5 [T-45] (P1) Boîte de confirmation avant réactivation.
-- [ ] 6.6 [T-46] (P1) Masquage mutuel des actions "Désactiver"/"Réactiver" selon le statut courant du membre. — RG-MEM-022
-- [ ] 6.7 [T-47] (P1) Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019
+- [x] 6.5 [T-45] (P1) Boîte de confirmation avant réactivation.
+- [x] 6.6 [T-46] (P1) Masquage mutuel des actions "Désactiver"/"Réactiver" selon le statut courant du membre. — RG-MEM-022
+- [x] 6.7 [T-47] (P1) Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019
 
 ## 7. Catégories de revenu (`income-categories-ui`)
 
@@ -115,7 +115,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
 - [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
 - [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
-- [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
+- [x] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
 
 ## 11. Campagnes — règlements (`campaigns-ui`)
 
@@ -123,8 +123,8 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
 - [x] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
 - [x] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
-- [ ] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
-- [ ] 11.6 [T-76] (P1) Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).
+- [x] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
+- [x] 11.6 [T-76] (P1) Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).
 
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)
 
