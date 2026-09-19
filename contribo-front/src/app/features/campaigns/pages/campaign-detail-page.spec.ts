@@ -492,6 +492,45 @@ describe('CampaignDetailPage', () => {
       expect(root.textContent).toContain(formatGnfAmountDetailed(120_000));
     });
 
+    it('formats the bareme amount field live with GNF thousands separators while typing and submits the raw integer (T-70)', async () => {
+      let capturedRequest: UpdateCampaignCategoryAmountsRequest | undefined;
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts: (_campaignId, request) => {
+          capturedRequest = request;
+          return of(buildCampaign({ status: 'UPCOMING' }));
+        },
+      });
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const input = root.querySelector('input[inputmode="numeric"]') as HTMLInputElement;
+
+      input.value = '1250000';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      // Formatage GNF en direct pendant la frappe (RG-FMT-002) : séparateurs
+      // de milliers affichés, sans décimale, avec le suffixe GNF porté par
+      // `AmountInput` à côté du champ.
+      expect(input.value).toBe(formatGnfAmountInputDigits('1250000'));
+      expect(root.textContent).toContain('GNF');
+
+      const form = root.querySelector('form') as HTMLFormElement;
+      form.dispatchEvent(new Event('submit'));
+      fixture.detectChanges();
+
+      // La valeur transmise à l'API reste un entier non formaté (RG-FMT-001).
+      expect(capturedRequest).toEqual({
+        categoryAmounts: [
+          { incomeCategoryId: '10700000-0000-4000-8000-000000000101', amount: 1_250_000 },
+        ],
+      });
+    });
+
     it('blocks submission and shows a required error when an amount is cleared', async () => {
       const updateCampaignCategoryAmounts = vi.fn(() => of(buildCampaign({ status: 'UPCOMING' })));
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
