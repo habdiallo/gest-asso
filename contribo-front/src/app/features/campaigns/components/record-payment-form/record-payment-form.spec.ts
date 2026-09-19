@@ -112,6 +112,64 @@ describe('RecordPaymentForm', () => {
     expect(emitted).toHaveLength(0);
   });
 
+  it('blocks a payment amount exceeding the remaining amount, with an explicit message (RG-PAY-007)', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.form.setValue({
+      amount: 50001,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.Cash,
+    });
+    fixture.componentInstance.form.controls.amount.markAsTouched();
+    fixture.detectChanges();
+
+    const emitted: CreatePaymentRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+
+    expect(emitted).toHaveLength(0);
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Le montant ne peut pas dépasser 50000 GNF.');
+  });
+
+  it('accepts a payment amount equal to the remaining amount', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.form.setValue({
+      amount: 50000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.Cash,
+    });
+
+    const emitted: CreatePaymentRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+
+    expect(emitted).toEqual([
+      { amount: 50000, paymentDate: '2026-09-18', method: PaymentMethod.Cash },
+    ]);
+  });
+
+  it('re-evaluates the maximum allowed amount when the due input changes', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+
+    fixture.componentRef.setInput('due', { ...due, remainingAmount: 10000 });
+    fixture.detectChanges();
+    fixture.componentInstance.form.setValue({
+      amount: 15000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.Cash,
+    });
+
+    const emitted: CreatePaymentRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+
+    expect(emitted).toHaveLength(0);
+    expect(fixture.componentInstance.form.controls.amount.hasError('max')).toBe(true);
+  });
+
   it('does not resubmit while a submission is already in progress', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();
