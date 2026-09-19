@@ -80,6 +80,12 @@ function findReactivateButton(root: HTMLElement): HTMLButtonElement | undefined 
   );
 }
 
+function findDeactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
+  return Array.from(root.querySelectorAll('button')).find(
+    (button) => button.textContent?.trim() === 'Désactiver',
+  );
+}
+
 const emptyDuePage: DuePage = {
   items: [],
   page: { number: 0, size: 20, totalElements: 0, totalPages: 1 },
@@ -692,6 +698,32 @@ describe('MemberDetailPage', () => {
 
       expect(reactivateMember).not.toHaveBeenCalled();
       expect(findReactivateButton(root)).toBeDefined();
+    });
+  });
+
+  describe('masquage mutuel Désactiver/Réactiver selon le statut (T-46, RG-MEM-022)', () => {
+    it('shows only "Désactiver", never "Réactiver", for an Administrator on an active member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Active })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findDeactivateButton(root)).toBeDefined();
+      expect(findReactivateButton(root)).toBeUndefined();
+    });
+
+    it('shows only "Réactiver", never "Désactiver", for an Administrator on an inactive member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findReactivateButton(root)).toBeDefined();
+      expect(findDeactivateButton(root)).toBeUndefined();
     });
   });
 
