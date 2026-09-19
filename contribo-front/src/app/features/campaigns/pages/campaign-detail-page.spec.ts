@@ -566,6 +566,31 @@ describe('CampaignDetailPage', () => {
       expect(findButtonByText(root, 'Clôturer la campagne')).toBeNull();
     });
 
+    it('applies the closed state returned after the confirmation dialog was closed', async () => {
+      const response$ = new Subject<Campaign>();
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign: () => response$.asObservable(),
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCloseCampaignDialog();
+      fixture.componentInstance.confirmCloseCampaign();
+      fixture.detectChanges();
+
+      // Fermeture (Annuler/Échap/Fermer) pendant que la requête est encore en attente.
+      fixture.componentInstance.cancelCloseCampaignDialog();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.closeCampaignDialogOpen()).toBe(false);
+
+      response$.next(buildCampaign({ status: 'CLOSED' }));
+      response$.complete();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+      expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
+    });
+
     it('shows a dedicated error message when the campaign is already closed server-side', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
         role: UserRole.Administrator,

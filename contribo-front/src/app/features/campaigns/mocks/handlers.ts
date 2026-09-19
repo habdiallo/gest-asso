@@ -177,6 +177,13 @@ function campaignNotEditable(): Response {
   );
 }
 
+function campaignAlreadyClosed(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.CampaignAlreadyClosed, message: 'Cette campagne est déjà clôturée.' },
+    { status: 409 },
+  );
+}
+
 function isValidCategoryAmountEntry(
   entry: unknown,
 ): entry is { incomeCategoryId: string; amount: number } {
@@ -379,6 +386,48 @@ export const campaignsHandlers = [
       demoCampaignDetails[campaignId] = updatedCampaign;
 
       return HttpResponse.json<Campaign>(updatedCampaign);
+    },
+  ),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/campaigns/{campaignId}/closure`
+   * (T-80, `closeCampaign`) : réservé à l'Administrateur et au Trésorier, refuse
+   * une campagne déjà clôturée, puis conserve le statut `CLOSED` pour les
+   * lectures suivantes du jeu de démonstration.
+   */
+  http.post(
+    '/api/v1/campaigns/:campaignId/closure',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer
+      ) {
+        return accessDenied();
+      }
+
+      const campaignId = typeof params['campaignId'] === 'string' ? params['campaignId'] : '';
+      const campaign = demoCampaignDetails[campaignId];
+      if (!campaign) {
+        return campaignNotFound();
+      }
+      if (campaign.status === CampaignStatus.Closed) {
+        return campaignAlreadyClosed();
+      }
+
+      const closedSummary: CampaignSummary = { ...campaign, status: CampaignStatus.Closed };
+      const closedCampaign: Campaign = { ...campaign, status: CampaignStatus.Closed };
+      demoCampaignDetails[campaignId] = closedCampaign;
+      const index = demoCampaigns.findIndex((item) => item.id === campaignId);
+      if (index !== -1) {
+        demoCampaigns[index] = closedSummary;
+      }
+
+      return HttpResponse.json<Campaign>(closedCampaign);
     },
   ),
 

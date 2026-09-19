@@ -274,6 +274,13 @@ export class CampaignDetailPage {
     this.closeCampaignErrorMessage.set(null);
   }
 
+  /**
+   * Confirme la clôture (US-COT-008) : l'état renvoyé par le serveur est
+   * appliqué même si le dialogue a été fermé (Échap, bouton Fermer/Annuler)
+   * avant la réponse, pour ne pas afficher une campagne close comme ouverte.
+   * Seul l'état visuel du dialogue (fermeture, erreur) reste rattaché au
+   * jeton de requête courant.
+   */
   confirmCloseCampaign(): void {
     const campaign = this.campaign();
     if (!campaign || this.closingCampaign()) {
@@ -289,10 +296,10 @@ export class CampaignDetailPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (closedCampaign) => {
+          this.campaign.set(closedCampaign);
           if (token !== this.closeCampaignRequestToken) {
             return;
           }
-          this.campaign.set(closedCampaign);
           this.closingCampaign.set(false);
           this.closeCampaignDialogOpen.set(false);
         },
