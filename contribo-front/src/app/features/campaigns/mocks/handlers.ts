@@ -1,14 +1,17 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, CurrencyCode, ErrorCode, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, UserRole } from '@api';
 import type {
   Campaign,
   CampaignCategoryAmountInput,
   CampaignPage,
   CampaignSummary,
   CreateCampaignRequest,
+  CreatePaymentRequest,
   Due,
   DuePage,
   ErrorResponse,
+  Payment,
+  PaymentCreationResponse,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -201,6 +204,63 @@ function accessDenied(): Response {
     { code: ErrorCode.AccessDenied, message: 'Accès réservé à l’Administrateur et au Trésorier.' },
     { status: 403 },
   );
+}
+
+function paymentAccessDenied(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.AccessDenied,
+      message: 'Accès réservé à l’Administrateur, au Trésorier et à l’Opérateur autorisé.',
+    },
+    { status: 403 },
+  );
+}
+
+function dueNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Cotisation introuvable.' },
+    { status: 404 },
+  );
+}
+
+function dueAlreadyPaid(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.DueAlreadyPaid, message: 'Cette cotisation est déjà entièrement réglée.' },
+    { status: 409 },
+  );
+}
+
+function paymentExceedsRemainingAmount(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.PaymentExceedsRemainingAmount,
+      message: 'Le montant dépasse le reste à payer.',
+    },
+    { status: 409 },
+  );
+}
+
+function isCreatePaymentRequest(value: unknown): value is CreatePaymentRequest {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const body = value as Record<string, unknown>;
+  return (
+    typeof body['amount'] === 'number' &&
+    body['amount'] >= 1 &&
+    typeof body['paymentDate'] === 'string' &&
+    typeof body['method'] === 'string'
+  );
+}
+
+function findDueById(dueId: string): { campaignId: string; due: Due } | undefined {
+  for (const [campaignId, dues] of Object.entries(demoCampaignDues)) {
+    const due = dues.find((item) => item.id === dueId);
+    if (due) {
+      return { campaignId, due };
+    }
+  }
+  return undefined;
 }
 
 function campaignNotEditable(): Response {
@@ -498,5 +558,81 @@ export const campaignsHandlers = [
         totalPages: Math.max(1, Math.ceil(dues.length / size)),
       },
     });
+  }),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/dues/{dueId}/payments`
+   * (T-71, `createPayment`) : réservé à l'Administrateur, au Trésorier et à
+   * l'Opérateur dont `operatorCanRecordPayments` est actif (RG-ROLE-007 à
+   * RG-ROLE-009), refuse un montant dépassant le reste à payer ou une cotisation
+   * déjà réglée, puis renvoie le règlement et la cotisation recalculée en
+   * mettant à jour le jeu de démonstration utilisé par les lectures suivantes.
+   */
+  http.post('/api/v1/dues/:dueId/payments', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+    const canRecordPayments =
+      account.user.role === UserRole.Administrator ||
+      account.user.role === UserRole.Treasurer ||
+      (account.user.role === UserRole.Operator && account.user.operatorCanRecordPayments);
+    if (!canRecordPayments) {
+      return paymentAccessDenied();
+    }
+
+    const dueId = typeof params['dueId'] === 'string' ? params['dueId'] : '';
+    const found = findDueById(dueId);
+    if (!found) {
+      return dueNotFound();
+    }
+    const { due } = found;
+    if (due.status === DueStatus.Paid) {
+      return dueAlreadyPaid();
+    }
+
+    const body = await request.json();
+    if (!isCreatePaymentRequest(body)) {
+      return HttpResponse.json<ErrorResponse>(
+        { code: ErrorCode.ValidationError, message: 'Règlement invalide.' },
+        { status: 400 },
+      );
+    }
+    if (body.amount > due.remainingAmount) {
+      return paymentExceedsRemainingAmount();
+    }
+
+    const paidAmount = due.paidAmount + body.amount;
+    const remainingAmount = due.dueAmount - paidAmount;
+    const updatedDue: Due = {
+      ...due,
+      paidAmount,
+      remainingAmount,
+      status: remainingAmount === 0 ? DueStatus.Paid : DueStatus.PartiallyPaid,
+      paymentCount: due.paymentCount + 1,
+    };
+    const dues = demoCampaignDues[found.campaignId] ?? [];
+    demoCampaignDues[found.campaignId] = dues.map((item) =>
+      item.id === due.id ? updatedDue : item,
+    );
+
+    const payment: Payment = {
+      id: crypto.randomUUID(),
+      dueId: due.id,
+      member: due.member,
+      campaign: due.campaign,
+      amount: body.amount,
+      paymentDate: body.paymentDate,
+      method: body.method,
+      recordedBy: { userId: account.user.userId, displayName: account.user.member.displayName },
+      recordedAt: new Date().toISOString(),
+      currency: due.currency,
+    };
+
+    return HttpResponse.json<PaymentCreationResponse>(
+      { payment, due: updatedDue },
+      { status: 201 },
+    );
   }),
 ];

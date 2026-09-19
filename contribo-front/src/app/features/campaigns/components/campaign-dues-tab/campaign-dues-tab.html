@@ -66,6 +66,13 @@
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.status' | transloco }}
               </th>
+              @if (canRecordPayments()) {
+                <th scope="col" class="px-4 py-3 font-medium">
+                  <span class="sr-only">
+                    {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                  </span>
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -93,6 +100,17 @@
                     >{{ statusLabels[due.status] | transloco }}</span
                   >
                 </td>
+                @if (canRecordPayments()) {
+                  <td class="whitespace-nowrap px-4 py-4 text-right">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-line px-3 py-2 text-xs text-text"
+                      (click)="openRecordPayment(due)"
+                    >
+                      {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                    </button>
+                  </td>
+                }
               </tr>
             }
           </tbody>
@@ -134,4 +152,22 @@
       </nav>
     }
   }
+
+  <app-form-dialog
+    [open]="recordPaymentDue() !== null"
+    [dialogTitle]="'campaigns.detail.cotisations.recordPayment.dialogTitle' | transloco"
+    (closed)="closeRecordPayment()"
+  >
+    @if (recordPaymentDue(); as due) {
+      @if (recordPaymentError(); as errorKey) {
+        <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
+      <app-record-payment-form
+        [due]="due"
+        [submitting]="recordPaymentSubmitting()"
+        (submitted)="handleRecordPayment($event)"
+        (cancelled)="closeRecordPayment()"
+      />
+    }
+  </app-form-dialog>
 </div>
