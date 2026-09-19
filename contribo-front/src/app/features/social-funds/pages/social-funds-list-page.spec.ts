@@ -501,8 +501,12 @@ describe('SocialFundsListPage', () => {
 
       // La page précédente (issue du filtre "tous types") est vidée et sa
       // pagination masquée pendant le chargement de la nouvelle page zéro
-      // filtrée : aucun ancien bouton "Suivant" ne reste cliquable.
-      expect(root.textContent).toContain('Aucune cagnotte pour le moment.');
+      // filtrée : aucun ancien bouton "Suivant" ne reste cliquable. Le
+      // message affiché est un état de chargement distinct de l'état vide
+      // (retour P3 de la PR #96), pour ne pas laisser croire que le filtre
+      // ne renvoie aucun résultat pendant l'attente.
+      expect(root.textContent).toContain('Chargement des cagnottes');
+      expect(root.textContent).not.toContain('Aucune cagnotte pour le moment.');
       expect(root.querySelector('nav[aria-label]')).toBeNull();
 
       pending.next(
@@ -515,6 +519,34 @@ describe('SocialFundsListPage', () => {
 
       expect(root.textContent).toContain('Cagnotte 1');
       expect(root.querySelector('[role="alert"]')).toBeNull();
+    });
+
+    // Retour P3 de la revue de la PR #96 : le message vide ne doit pas
+    // s'afficher pendant le chargement d'un filtre, sous peine de laisser
+    // croire à tort que le filtre ne renvoie aucun résultat.
+    it('shows a loading status, not the empty message, while a filter change is pending', async () => {
+      const pending = new Subject<SocialFundPage>();
+      const listSocialFunds = vi.fn((page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
+        eventType === undefined ? of(buildSocialFundPage()) : pending.asObservable(),
+      );
+      const fixture = await createFixture(listSocialFunds);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
+      select.value = 'DEATH';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Chargement des cagnottes');
+      expect(root.textContent).not.toContain('Aucune cagnotte pour le moment.');
+      expect(root.querySelector('[role="status"]')).not.toBeNull();
+
+      pending.next(buildSocialFundPage({ items: [] }));
+      fixture.detectChanges();
+
+      expect(root.textContent).not.toContain('Chargement des cagnottes');
+      expect(root.textContent).toContain('Aucune cagnotte pour le moment.');
     });
 
     it('treats a failed filtered load as an absent page: shows the error even on a single-page result and blocks any request from the previous controls', async () => {

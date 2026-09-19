@@ -214,6 +214,12 @@ export class SocialFundsListPage {
    * zéro est en cours de chargement, et évite d'afficher des cagnottes qui ne
    * correspondent plus au filtre courant. Si ce chargement échoue, la page reste `null`
    * (traité comme une absence de page) plutôt que de conserver l'ancienne liste.
+   *
+   * Retour P3 de la revue de la PR #96 : comme `page` devient `null` dès l'appel de
+   * cette méthode, `socialFunds()` devient `[]` pendant toute la durée du chargement
+   * filtré. Le template distingue ce cas (`pageActionPending()` vrai) de l'état vide
+   * réel en réutilisant le message `socialFunds.loading` avec `role="status"`, plutôt
+   * que d'afficher `socialFunds.empty` pendant l'attente.
    */
   onEventTypeFilterChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
