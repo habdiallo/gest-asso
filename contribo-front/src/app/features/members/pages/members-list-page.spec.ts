@@ -494,6 +494,15 @@ describe('MembersListPage', () => {
     }
   });
 
+  it('limits the search field to the 100 characters allowed by the SearchQuery contract (T-24)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()));
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('#members-search');
+
+    expect(input.maxLength).toBe(100);
+  });
+
   it('opens the create-member dialog from the button and closes it on cancel', async () => {
     const fixture = await createFixture(() => of(buildMemberPage()));
     fixture.detectChanges();

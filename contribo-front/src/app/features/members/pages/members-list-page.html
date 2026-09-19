@@ -51,6 +51,7 @@
     <input
       id="members-search"
       type="search"
+      maxlength="100"
       [value]="nameQuery()"
       (input)="onNameQueryInput($event)"
       [placeholder]="'members.searchPlaceholder' | transloco"
