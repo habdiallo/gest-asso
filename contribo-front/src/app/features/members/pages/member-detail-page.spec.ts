@@ -242,6 +242,93 @@ describe('MemberDetailPage', () => {
     expect(panel?.querySelector('app-member-contributions-tab')).not.toBeNull();
   });
 
+  describe('keyboard navigation between tabs (T-31)', () => {
+    function findActiveTabButton(root: HTMLElement): HTMLButtonElement {
+      return root.querySelector('[role="tab"][aria-selected="true"]') as HTMLButtonElement;
+    }
+
+    function dispatchArrowKey(target: HTMLElement, key: 'ArrowLeft' | 'ArrowRight'): void {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    }
+
+    it('moves focus and activation to the next tab on ArrowRight, without a page reload', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1, -1]);
+      expect(root.querySelector('#member-tabpanel-cotisations')).not.toBeNull();
+      expect(root.querySelector('#member-tabpanel-informations')).toBeNull();
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('moves focus and activation to the previous tab on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[2].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('wraps from the last tab to the first on ArrowRight', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[3].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[0]);
+    });
+
+    it('wraps from the first tab to the last on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[3].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[3]);
+    });
+
+    it('ignores other keys on the tablist', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findActiveTabButton(root).dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      );
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    });
+  });
+
   it('shows a generic error state when the API call fails', async () => {
     const fixture = await createFixture(() => throwError(() => new Error('network error')));
     fixture.detectChanges();
