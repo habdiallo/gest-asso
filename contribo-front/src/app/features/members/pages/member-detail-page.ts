@@ -1,3 +1,4 @@
+import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  viewChildren,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,8 +37,9 @@ export type MemberDetailTab = 'informations' | 'cotisations' | 'reglements' | 'c
 /**
  * Onglets "Situation des cotisations" (T-28), "Historique des règlements"
  * (T-29) et "Contributions aux cagnottes" (T-30) livrés par ces tickets. La
- * navigation clavier flèches gauche/droite entre onglets (T-31) reste un
- * ticket séparé.
+ * navigation clavier flèches gauche/droite entre onglets (T-31) est livrée
+ * ci-dessous, avec le même motif "roving tabindex" que la fiche campagne
+ * (T-64, `campaign-detail-page.ts`).
  */
 const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
   'informations',
@@ -69,8 +72,10 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
  * au plus ancien, les règlements du membre toutes campagnes confondues via
  * `MemberPaymentsTab` ; "Contributions aux cagnottes" (T-30) liste, du plus
  * récent au plus ancien, les contributions du membre via
- * `MemberContributionsTab`. Activation au clic ou par Entrée/Espace, sans
- * navigation clavier flèches gauche/droite (T-31, ticket séparé).
+ * `MemberContributionsTab`. Activation au clic, par Entrée/Espace ou par les
+ * flèches gauche/droite (T-31), qui déplacent le focus et l'onglet actif sans
+ * rechargement de page (motif ARIA `tab` "roving tabindex", avec retour au
+ * premier onglet après le dernier et inversement).
  *
  * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
  * /members/{memberId}/deactivation` (`MembresService.deactivateMember`) pour
@@ -161,6 +166,9 @@ export class MemberDetailPage {
   readonly tabs = MEMBER_DETAIL_TABS;
   readonly memberStatusLabel = memberStatusLabel;
 
+  /** Boutons d'onglets, dans l'ordre du DOM (T-31 : focus programmatique flèches gauche/droite). */
+  private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
+
   constructor() {
     this.route.paramMap
       .pipe(
@@ -205,6 +213,26 @@ export class MemberDetailPage {
 
   isActiveTab(tab: MemberDetailTab): boolean {
     return this.activeTab() === tab;
+  }
+
+  /**
+   * Navigation clavier flèches gauche/droite entre onglets (T-31) : déplace
+   * l'onglet actif et le focus sans rechargement de page, avec retour au
+   * premier onglet après le dernier et inversement (comportement "roving
+   * tabindex" du motif ARIA `tab`, cf. WAI-ARIA Authoring Practices).
+   */
+  onTabsKeydown(event: KeyboardEvent): void {
+    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (delta === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const currentIndex = this.tabs.indexOf(this.activeTab());
+    const nextIndex = (currentIndex + delta + this.tabs.length) % this.tabs.length;
+    const nextTab = this.tabs[nextIndex];
+    this.selectTab(nextTab);
+    this.tabButtons()[nextIndex]?.nativeElement.focus();
   }
 
   openEditDialog(): void {
