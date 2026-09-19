@@ -75,7 +75,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 6.4 [T-44] (P1) Action "Réactiver" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`
 - [ ] 6.5 [T-45] (P1) Boîte de confirmation avant réactivation.
 - [ ] 6.6 [T-46] (P1) Masquage mutuel des actions "Désactiver"/"Réactiver" selon le statut courant du membre. — RG-MEM-022
-- [ ] 6.7 [T-47] (P1) Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019
+- [x] 6.7 [T-47] (P1) Masquage des deux actions pour les rôles Trésorier, Opérateur et Membre. — RG-MEM-019
 
 ## 7. Catégories de revenu (`income-categories-ui`)
 

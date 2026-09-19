@@ -70,6 +70,12 @@ function findReactivateButton(root: HTMLElement): HTMLButtonElement | undefined 
   );
 }
 
+function findDeactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
+  return Array.from(root.querySelectorAll('button')).find(
+    (button) => button.textContent?.trim() === 'Désactiver',
+  );
+}
+
 const emptyDuePage: DuePage = {
   items: [],
   page: { number: 0, size: 20, totalElements: 0, totalPages: 1 },
@@ -671,24 +677,19 @@ describe('MemberDetailPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    );
-    expect(button).toBeTruthy();
+    expect(findDeactivateButton(root)).toBeTruthy();
   });
 
-  it('hides the deactivate action for a non-Administrator role', async () => {
-    const fixture = await createFixture(() => of(buildMemberDetails()), {
-      role: UserRole.Treasurer,
-    });
-    fixture.detectChanges();
+  it.each([UserRole.Treasurer, UserRole.Operator, UserRole.Member])(
+    'hides the deactivate action for role %s even on an active member',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), { role });
+      fixture.detectChanges();
 
-    const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    );
-    expect(button).toBeFalsy();
-  });
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findDeactivateButton(root)).toBeFalsy();
+    },
+  );
 
   it('hides the deactivate action for an already inactive member', async () => {
     const fixture = await createFixture(
