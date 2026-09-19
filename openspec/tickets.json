@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 115,
+  "nextTicketId": 116,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2200,6 +2200,25 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-filtre-evenement-cagnottes",
       "branchAfterInitialization": "front/fix-114-filtre-evenement-cagnottes"
+    },
+    {
+      "id": 115,
+      "title": "Archiver les changes OpenSpec dont toutes les taches sont cochees et synchroniser leurs specs delta vers openspec/specs/.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "archiver-changes-openspec-termines",
+      "change": "archiver-changes-openspec-termines",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-archiver-changes-openspec-termines",
+      "branchAfterInitialization": "docs/chore-115-archiver-changes-openspec-termines"
     }
   ]
 }
