@@ -2,12 +2,35 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import { CurrencyCode, ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
+import type { CurrentUser, ErrorResponse, MemberDetails } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
+import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberDetailPage } from './member-detail-page';
+
+function buildCurrentUser(role: UserRole, operatorCanRecordPayments = false): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments,
+    accountActive: true,
+  };
+}
 
 function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
   return {
@@ -36,6 +59,7 @@ function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetai
 async function createFixture(
   getMember: (memberId: string) => Observable<MemberDetails>,
   memberId = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+  user: CurrentUser = buildCurrentUser(UserRole.Administrator),
 ): Promise<ComponentFixture<MemberDetailPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -55,6 +79,11 @@ async function createFixture(
       },
     ],
   }).compileComponents();
+
+  // Rôle par défaut Administrateur (T-32) : les tests qui ne portent pas sur
+  // les droits d'enregistrement de paiement restent inchangés, la note
+  // "lecture seule" n'étant affichée que pour un Opérateur non autorisé.
+  TestBed.inject(SessionService).setUser(user);
 
   const fixture = TestBed.createComponent(MemberDetailPage);
   fixture.detectChanges();
@@ -169,5 +198,55 @@ describe('MemberDetailPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Membre B');
     expect(root.textContent).not.toContain('Membre A');
+  });
+
+  it('shows a read-only note and hides the edit action for an Operator not authorized to record payments (T-32, §2.3)', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      undefined,
+      buildCurrentUser(UserRole.Operator, false),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="status"]')?.textContent).toContain('Lecture seule');
+    const editButtons = Array.from(root.querySelectorAll('button')).filter((button) =>
+      button.textContent?.includes('Modifier le membre'),
+    );
+    expect(editButtons).toHaveLength(0);
+  });
+
+  it('hides the read-only note for an Operator authorized to record payments', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      undefined,
+      buildCurrentUser(UserRole.Operator, true),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).not.toContain('Lecture seule');
+  });
+
+  it('hides the read-only note for the Administrator', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      undefined,
+      buildCurrentUser(UserRole.Administrator),
+    );
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Lecture seule');
+  });
+
+  it('hides the read-only note for the Treasurer', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      undefined,
+      buildCurrentUser(UserRole.Treasurer),
+    );
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Lecture seule');
   });
 });

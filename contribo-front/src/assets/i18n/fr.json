@@ -295,6 +295,7 @@
   "memberDetail.incomeCategory": "Catégorie de revenu",
   "memberDetail.associationFunction": "Fonction associative",
   "memberDetail.status": "Statut",
+  "memberDetail.readOnlyPayments": "Lecture seule : vous n'êtes pas autorisé à enregistrer un règlement ou une contribution pour ce membre.",
   "members.edit.button": "Modifier le membre",
   "members.edit.dialogTitle": "Modifier le membre",
   "members.edit.error": "Impossible d'enregistrer les modifications. Votre saisie est conservée, vous pouvez réessayer.",

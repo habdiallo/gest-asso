@@ -26,11 +26,21 @@ import { memberStatusLabel } from '../members-status-labels';
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
+ * Lecture seule pour un Opérateur non autorisé aux paiements (T-32, §2.3) :
+ * `canRecordPayments` réutilise le flag `operatorCanRecordPayments` déjà
+ * exposé par `SessionService` (T-13) pour signaler qu'aucune action
+ * d'enregistrement de règlement ni de contribution n'est disponible pour cet
+ * utilisateur. Cette route est déjà réservée à Administrateur, Trésorier et
+ * Opérateur (garde `roleGuard` de `app.routes.ts`) ; l'Administrateur et le
+ * Trésorier restent toujours autorisés.
+ *
  * Limite connue : la situation des cotisations, l'historique des règlements
  * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
- * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
+ * tickets T-28, T-29 et T-30 (contenu des onglets), qui n'existent pas encore
+ * sur cet écran. Ces futurs onglets, ainsi que le formulaire d'enregistrement
+ * d'un règlement (T-71), devront masquer leurs propres actions en consultant
+ * `canRecordPayments` plutôt que de la revérifier différemment.
+ * La variante de modification Opérateur (T-39) reste à livrer.
  * La modification complète Administrateur/Trésorier est fournie par T-38.
  */
 @Component({
@@ -50,6 +60,7 @@ export class MemberDetailPage {
     const role = this.sessionService.user()?.role;
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
+  readonly canRecordPayments = computed(() => this.sessionService.canRecordPayments());
   readonly editOpen = signal(false);
   readonly saving = signal(false);
   readonly editError = signal(false);
