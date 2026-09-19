@@ -1,3 +1,4 @@
+import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -23,8 +25,10 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
+import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
@@ -39,12 +43,16 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * déjà l'accès aux mêmes rôles que la liste via `roleGuard`).
  *
  * L'onglet cotisations (T-61) charge la situation paginée des membres via
- * `openapi:listCampaignDues`. Le bilan (T-77) reste un emplacement réservé.
+ * `openapi:listCampaignDues`. Le bilan (T-77) affiche total attendu, total
+ * encaissé et reste à encaisser à partir de `campaign.financialSummary`,
+ * déjà inclus dans la réponse `openapi:getCampaign` : aucun appel réseau
+ * supplémentaire n'est effectué pour cet onglet.
  *
  * La sélection d'onglet utilise le motif ARIA `tablist`/`tab`/`tabpanel` avec
- * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres) afin de
- * ne pas bloquer la navigation clavier flèches gauche/droite du ticket T-64 :
- * cet écran fournit uniquement le changement d'onglet au clic/Entrée/Espace.
+ * un `tabindex` "roving" (0 pour l'onglet actif, -1 pour les autres, T-64) :
+ * les flèches gauche/droite déplacent le focus et activent l'onglet visé
+ * sans rechargement de page (état local `activeTab`, aucune navigation
+ * `Router`), en plus du changement au clic/Entrée/Espace déjà validé (T-60).
  *
  * Formulaire de configuration du barème (T-68, `openapi:updateCampaignCategoryAmounts`) :
  * un champ de saisie de montant par catégorie de revenu déjà portée par la
@@ -63,10 +71,26 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * tickets dédiés ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
  * en direct, mais aucun repère visuel supplémentaire n'est ajouté pour une
  * catégorie sans montant.
+ *
+ * Clôture de la campagne (T-80, US-COT-008, `openapi:closeCampaign`) : action
+ * réservée à l'Administrateur et au Trésorier, proposée uniquement tant que la
+ * campagne n'est pas déjà clôturée. Une boîte de confirmation explicite (le
+ * dialogue générique `FormDialog`, T-15) rappelle que l'opération est
+ * définitive avant l'appel à `POST /campaigns/{campaignId}/closure`. L'état
+ * retourné par l'appel remplace la campagne affichée. La désactivation des
+ * autres actions de modification sur une campagne clôturée (barème, membres
+ * concernés, nouveau règlement) est un ticket dédié (T-81), hors périmètre ici.
  */
 @Component({
   selector: 'app-campaign-detail-page',
-  imports: [TranslocoPipe, ReactiveFormsModule, AmountInput, CampaignDuesTab],
+  imports: [
+    TranslocoPipe,
+    ReactiveFormsModule,
+    AmountInput,
+    CampaignDuesTab,
+    CampaignBilanTab,
+    FormDialog,
+  ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -86,6 +110,9 @@ export class CampaignDetailPage {
   readonly formatGnfAmountDetailed = formatGnfAmountDetailed;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly tabs = CAMPAIGN_DETAIL_TABS;
+
+  /** Boutons d'onglets, dans l'ordre du DOM (T-64 : focus programmatique flèches gauche/droite). */
+  private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
 
@@ -110,6 +137,24 @@ export class CampaignDetailPage {
   /** Invalide toute réponse encore en vol si l'écran change de campagne ou d'état d'édition. */
   private baremeRequestToken = 0;
 
+  /** Administrateur/Trésorier seuls : Opérateur et Membre ne clôturent jamais une campagne. */
+  readonly canCloseCampaign = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator || role === UserRole.Treasurer;
+  });
+
+  /** Action proposée uniquement tant que la campagne n'est pas déjà clôturée. */
+  readonly canCloseCampaignNow = computed(
+    () => this.canCloseCampaign() && this.campaign()?.status !== CampaignStatus.Closed,
+  );
+
+  readonly closeCampaignDialogOpen = signal(false);
+  readonly closingCampaign = signal(false);
+  readonly closeCampaignErrorMessage = signal<TranslationKey | null>(null);
+
+  /** Invalide toute réponse encore en vol si l'écran change de campagne. */
+  private closeCampaignRequestToken = 0;
+
   constructor() {
     const campaignId = this.route.snapshot.paramMap.get('campaignId');
     if (campaignId) {
@@ -126,6 +171,26 @@ export class CampaignDetailPage {
 
   isActiveTab(tab: CampaignDetailTab): boolean {
     return this.activeTab() === tab;
+  }
+
+  /**
+   * Navigation clavier flèches gauche/droite entre onglets (T-64) : déplace
+   * l'onglet actif et le focus sans rechargement de page, avec retour au
+   * premier onglet après le dernier et inversement (comportement "roving
+   * tabindex" du motif ARIA `tab`, cf. WAI-ARIA Authoring Practices).
+   */
+  onTabsKeydown(event: KeyboardEvent): void {
+    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (delta === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const currentIndex = this.tabs.indexOf(this.activeTab());
+    const nextIndex = (currentIndex + delta + this.tabs.length) % this.tabs.length;
+    const nextTab = this.tabs[nextIndex];
+    this.selectTab(nextTab);
+    this.tabButtons()[nextIndex]?.nativeElement.focus();
   }
 
   startEditingBareme(): void {
@@ -227,6 +292,83 @@ export class CampaignDetailPage {
       }
     }
     return 'campaigns.detail.bareme.error';
+  }
+
+  openCloseCampaignDialog(): void {
+    if (!this.canCloseCampaignNow() || this.closeCampaignDialogOpen()) {
+      return;
+    }
+
+    this.closeCampaignErrorMessage.set(null);
+    this.closingCampaign.set(false);
+    this.closeCampaignDialogOpen.set(true);
+  }
+
+  cancelCloseCampaignDialog(): void {
+    this.closeCampaignRequestToken++;
+    this.closeCampaignDialogOpen.set(false);
+    this.closingCampaign.set(false);
+    this.closeCampaignErrorMessage.set(null);
+  }
+
+  /**
+   * Confirme la clôture (US-COT-008) : l'état renvoyé par le serveur est
+   * appliqué même si le dialogue a été fermé (Échap, bouton Fermer/Annuler)
+   * avant la réponse, pour ne pas afficher une campagne close comme ouverte.
+   * Seul l'état visuel du dialogue (fermeture, erreur) reste rattaché au
+   * jeton de requête courant.
+   */
+  confirmCloseCampaign(): void {
+    const campaign = this.campaign();
+    if (!campaign || this.closingCampaign()) {
+      return;
+    }
+
+    this.closingCampaign.set(true);
+    this.closeCampaignErrorMessage.set(null);
+    const token = ++this.closeCampaignRequestToken;
+    // Invalide toute mutation de barème en cours : sa réponse arrivant après
+    // la clôture ne doit pas réintroduire un état de campagne antérieur
+    // (souvent UPCOMING/OPEN) par-dessus la campagne désormais CLOSED.
+    this.baremeRequestToken++;
+
+    this.campaignsService
+      .closeCampaign(campaign.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (closedCampaign) => {
+          this.campaign.set(closedCampaign);
+          if (token !== this.closeCampaignRequestToken) {
+            return;
+          }
+          this.closingCampaign.set(false);
+          this.closeCampaignDialogOpen.set(false);
+        },
+        error: (error: unknown) => {
+          if (token !== this.closeCampaignRequestToken) {
+            return;
+          }
+          this.closingCampaign.set(false);
+          this.closeCampaignErrorMessage.set(this.resolveCloseCampaignErrorKey(error));
+        },
+      });
+  }
+
+  private resolveCloseCampaignErrorKey(error: unknown): TranslationKey {
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as ErrorResponse | undefined;
+      switch (body?.code) {
+        case ErrorCode.CampaignAlreadyClosed:
+          return 'campaigns.detail.close.errorAlreadyClosed';
+        case ErrorCode.ResourceNotFound:
+          return 'campaigns.detail.close.errorNotFound';
+        case ErrorCode.AccessDenied:
+          return 'campaigns.detail.close.errorAccessDenied';
+        default:
+          return 'campaigns.detail.close.error';
+      }
+    }
+    return 'campaigns.detail.close.error';
   }
 
   private loadCampaign(campaignId: string): void {

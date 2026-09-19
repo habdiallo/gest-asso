@@ -8,9 +8,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { MembresService } from '@api';
-import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
+import { MembresService, MemberStatus } from '@api';
+import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -20,20 +21,48 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. La recherche (T-24), le filtre statut (T-25) et le filtre
- * catégorie (T-26) ne sont pas exploités ici ; seule la pagination de base
- * (page suivante/précédente sur `page`/`size`) est fournie par ce ticket, afin
- * que l'ensemble du répertoire reste accessible au-delà des 20 premiers
- * membres. La colonne Statut affiche un badge distinguant visuellement les
- * membres actifs des membres inactifs (T-22, RG-MEM-007), en plus du libellé
- * textuel, pour ne pas reposer uniquement sur la couleur. Chaque ligne mène
- * à la fiche détaillée du membre (T-27, US-MEM-003).
+ * à US-MEM-002. La pagination de base (page suivante/précédente sur
+ * `page`/`size`) est fournie par ce ticket, afin que l'ensemble du répertoire
+ * reste accessible au-delà des 20 premiers membres. La colonne Statut affiche
+ * un badge distinguant visuellement les membres actifs des membres inactifs
+ * (T-22, RG-MEM-007), en plus du libellé textuel, pour ne pas reposer
+ * uniquement sur la couleur. Chaque ligne mène à la fiche détaillée du membre
+ * (T-27, US-MEM-003).
+ *
+ * Recherche par nom (T-24, paramètre contractuel `q` de `GET /members`) :
+ * filtre côté serveur les membres dont un champ nominatif correspond à la
+ * saisie. La saisie est amortie (`debounceTime`) pour ne déclencher une
+ * requête qu'une fois l'utilisateur arrêté de taper. La déduplication compare
+ * le terme amorti au dernier terme effectivement chargé (`lastRequestedQuery`,
+ * mis à jour par tout appel à `loadPage`), afin qu'un retour à un terme déjà
+ * amorti ne soit pas supprimé comme redondant si une autre requête a été
+ * déclenchée dans l'intervalle. Une nouvelle recherche revient à la première
+ * page. Une réponse en retard (nouvelle recherche lancée avant que la
+ * précédente ne résolve) ne doit pas écraser le résultat de la dernière
+ * recherche saisie (`requestSequence`).
+ *
+ * Filtre par statut (T-25, paramètre contractuel `status` de
+ * `GET /members`) : un menu Actif/Inactif/Tous restreint la liste, revient à
+ * la première page à chaque changement (`loadPage(0)`, même approche que
+ * `CampaignsListPage`, T-58) et se combine avec la pagination. Une réponse
+ * en retard, arrivée après un changement de filtre plus récent, est ignorée
+ * via `requestSequence` afin de ne pas écraser le résultat du filtre
+ * effectivement sélectionné en dernier.
  *
  * Vue restreinte de l'Opérateur (T-23, RG-MEM-008) : la colonne Catégorie de
  * revenu, qui porte le détail financier du membre (montants de cotisation
  * associés à la catégorie), est masquée pour le rôle Opérateur. Les autres
  * colonnes (identité, coordonnées, fonction, statut) restent affichées, car
  * elles sont nécessaires à ses opérations courantes.
+ *
+ * Filtre par catégorie de revenu (T-26) : `GET /members`
+ * (`besoins/openapi.yaml`, `listMembers`) n'expose aucun paramètre de requête
+ * pour filtrer par catégorie (seuls `page`, `size`, `q` et `status` existent),
+ * contrairement au filtre statut qui pourra s'appuyer sur `MemberStatusFilter`.
+ * Ce ticket n'invente donc pas de paramètre serveur : le filtre s'applique
+ * côté client sur les membres de la page actuellement chargée, via un
+ * sélecteur alimenté par les catégories réellement présentes dans cette page.
+ * Masqué pour l'Opérateur, comme la colonne Catégorie qu'il pilote (RG-MEM-008).
  *
  * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
  * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
@@ -49,6 +78,12 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * laisser le membre créé hors de la première page rechargée ; cette
  * confirmation reste donc le retour visible immédiat, indépendamment de sa
  * position dans le tableau.
+ *
+ * Cette confirmation précise également qu'un compte utilisateur a été créé
+ * automatiquement pour le membre (T-36, RG-MEM-004) : la création du membre
+ * entraîne toujours la création de son compte côté backend, sans champ
+ * dédié dans `MemberDetails` ; le message l'annonce donc systématiquement
+ * après une création réussie (clé `members.create.success`).
  */
 @Component({
   selector: 'app-members-list-page',
@@ -61,10 +96,21 @@ export class MembersListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+  private requestSequence = 0;
+
+  readonly nameQuery = signal('');
+  private readonly nameQueryInput = new Subject<string>();
+  private lastRequestedQuery = '';
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
+
+  readonly statusFilterOptions: readonly MemberStatus[] = [
+    MemberStatus.Active,
+    MemberStatus.Inactive,
+  ];
+  readonly statusFilter = signal<MemberStatus | ''>('');
 
   readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
@@ -94,7 +140,63 @@ export class MembersListPage {
   readonly memberStatusLabel = memberStatusLabel;
   readonly memberIsActive = memberIsActive;
 
+  /**
+   * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les
+   * catégories". Les options proposées et le filtrage appliqué se limitent
+   * aux membres de la page actuellement chargée, `listMembers` n'exposant
+   * aucun paramètre de filtre par catégorie. La sélection est conservée
+   * pendant la pagination : une catégorie absente de la nouvelle page
+   * affiche une liste filtrée vide plutôt que de réafficher toutes les
+   * catégories.
+   */
+  readonly selectedIncomeCategoryId = signal<string | null>(null);
+
+  readonly incomeCategoryOptions = computed(() => {
+    const items = this.memberPage()?.items ?? [];
+    const byId = new Map<string, string>();
+    for (const member of items) {
+      byId.set(member.incomeCategory.id, member.incomeCategory.label);
+    }
+    return [...byId.entries()]
+      .map(([id, label]) => ({ id, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+  });
+
+  readonly filteredItems = computed<MemberSummary[]>(() => {
+    const items = this.memberPage()?.items ?? [];
+    const categoryId = this.selectedIncomeCategoryId();
+    if (!categoryId) {
+      return items;
+    }
+    return items.filter((member) => member.incomeCategory.id === categoryId);
+  });
+
   constructor() {
+    this.nameQueryInput
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value === this.lastRequestedQuery) {
+          return;
+        }
+        this.loadPage(0);
+      });
+
+    this.loadPage(0);
+  }
+
+  onNameQueryInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.nameQuery.set(value);
+    this.nameQueryInput.next(value.trim());
+  }
+
+  onIncomeCategoryFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedIncomeCategoryId.set(value === '' ? null : value);
+  }
+
+  onStatusFilterChange(event: Event): void {
+    this.statusFilter.set((event.target as HTMLSelectElement).value as MemberStatus | '');
     this.loadPage(0);
   }
 
@@ -172,15 +274,33 @@ export class MembersListPage {
     this.loading.set(true);
     this.loadError.set(false);
 
+    // Une réponse en retard (nouvelle recherche ou filtre changé avant que la
+    // précédente requête ne résolve) ne doit pas écraser le résultat de la
+    // dernière recherche/filtre sélectionné.
+    const requestId = ++this.requestSequence;
+    const query = this.nameQuery().trim();
+    this.lastRequestedQuery = query;
+
     this.membersService
-      .listMembers(page)
+      .listMembers(page, undefined, query || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (memberPage) => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.memberPage.set(memberPage);
           this.loading.set(false);
+          // Le filtre catégorie (T-26) porte sur la page chargée, faute de
+          // paramètre de catégorie dans le contrat `listMembers`. La
+          // sélection reste conservée d'une page à l'autre : une catégorie
+          // absente de la nouvelle page ne montre aucun membre plutôt que
+          // d'afficher silencieusement toutes les catégories.
         },
         error: () => {
+          if (requestId !== this.requestSequence) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
         },

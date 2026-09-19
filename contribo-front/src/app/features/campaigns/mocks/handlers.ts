@@ -1,13 +1,17 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, CurrencyCode, ErrorCode, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, UserRole } from '@api';
 import type {
   Campaign,
+  CampaignCategoryAmountInput,
   CampaignPage,
   CampaignSummary,
   CreateCampaignRequest,
+  CreatePaymentRequest,
   Due,
   DuePage,
   ErrorResponse,
+  Payment,
+  PaymentCreationResponse,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -41,9 +45,8 @@ const demoCampaigns: CampaignSummary[] = [
 
 /**
  * Détail des campagnes de démonstration (T-60, `openapi:getCampaign`) :
- * description et barème (`categoryAmounts`). Le bilan financier
- * (`financialSummary`) est fourni pour rester fidèle au contrat, même si
- * l'onglet bilan de l'écran détail reste un emplacement réservé (T-77).
+ * description, barème (`categoryAmounts`) et bilan financier
+ * (`financialSummary`), affiché par l'onglet bilan de l'écran détail (T-77).
  */
 const demoCampaignDetails: Record<string, Campaign> = {
   '10700000-0000-4000-8000-000000000200': {
@@ -139,6 +142,42 @@ const demoCampaignDues: Record<string, Due[]> = {
       paymentCount: 1,
       currency: CurrencyCode.Gnf,
     },
+    {
+      id: '10700000-0000-4000-8000-000000000411',
+      member: { id: '10700000-0000-4000-8000-000000000501', displayName: 'Fatoumata Bah' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 0,
+      remainingAmount: 100_000,
+      status: 'DUE',
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000412',
+      member: { id: '10700000-0000-4000-8000-000000000502', displayName: 'Mamadou Bah' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+      dueAmount: 250_000,
+      paidAmount: 250_000,
+      remainingAmount: 0,
+      status: 'PAID',
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000413',
+      member: { id: '10700000-0000-4000-8000-000000000503', displayName: 'Aissatou Sow' },
+      campaign: demoCampaigns[0],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 0,
+      remainingAmount: 100_000,
+      status: 'OVERDUE',
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
   ],
 };
 
@@ -167,6 +206,63 @@ function accessDenied(): Response {
   );
 }
 
+function paymentAccessDenied(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.AccessDenied,
+      message: 'Accès réservé à l’Administrateur, au Trésorier et à l’Opérateur autorisé.',
+    },
+    { status: 403 },
+  );
+}
+
+function dueNotFound(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ResourceNotFound, message: 'Cotisation introuvable.' },
+    { status: 404 },
+  );
+}
+
+function dueAlreadyPaid(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.DueAlreadyPaid, message: 'Cette cotisation est déjà entièrement réglée.' },
+    { status: 409 },
+  );
+}
+
+function paymentExceedsRemainingAmount(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.PaymentExceedsRemainingAmount,
+      message: 'Le montant dépasse le reste à payer.',
+    },
+    { status: 409 },
+  );
+}
+
+function isCreatePaymentRequest(value: unknown): value is CreatePaymentRequest {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const body = value as Record<string, unknown>;
+  return (
+    typeof body['amount'] === 'number' &&
+    body['amount'] >= 1 &&
+    typeof body['paymentDate'] === 'string' &&
+    typeof body['method'] === 'string'
+  );
+}
+
+function findDueById(dueId: string): { campaignId: string; due: Due } | undefined {
+  for (const [campaignId, dues] of Object.entries(demoCampaignDues)) {
+    const due = dues.find((item) => item.id === dueId);
+    if (due) {
+      return { campaignId, due };
+    }
+  }
+  return undefined;
+}
+
 function campaignNotEditable(): Response {
   return HttpResponse.json<ErrorResponse>(
     {
@@ -177,9 +273,20 @@ function campaignNotEditable(): Response {
   );
 }
 
-function isValidCategoryAmountEntry(
-  entry: unknown,
-): entry is { incomeCategoryId: string; amount: number } {
+function campaignAlreadyClosed(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.CampaignAlreadyClosed, message: 'Cette campagne est déjà clôturée.' },
+    { status: 409 },
+  );
+}
+
+// Le JSON transporte un tableau ; uniqueItems est représenté par un Set dans le DTO généré.
+type UpdateCampaignCategoryAmountsJson = Omit<
+  UpdateCampaignCategoryAmountsRequest,
+  'categoryAmounts'
+> & { categoryAmounts: CampaignCategoryAmountInput[] };
+
+function isValidCategoryAmountEntry(entry: unknown): entry is CampaignCategoryAmountInput {
   if (typeof entry !== 'object' || entry === null) {
     return false;
   }
@@ -193,7 +300,7 @@ function isValidCategoryAmountEntry(
 
 function isUpdateCampaignCategoryAmountsRequest(
   value: unknown,
-): value is UpdateCampaignCategoryAmountsRequest {
+): value is UpdateCampaignCategoryAmountsJson {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
@@ -382,6 +489,48 @@ export const campaignsHandlers = [
     },
   ),
 
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/campaigns/{campaignId}/closure`
+   * (T-80, `closeCampaign`) : réservé à l'Administrateur et au Trésorier, refuse
+   * une campagne déjà clôturée, puis conserve le statut `CLOSED` pour les
+   * lectures suivantes du jeu de démonstration.
+   */
+  http.post(
+    '/api/v1/campaigns/:campaignId/closure',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer
+      ) {
+        return accessDenied();
+      }
+
+      const campaignId = typeof params['campaignId'] === 'string' ? params['campaignId'] : '';
+      const campaign = demoCampaignDetails[campaignId];
+      if (!campaign) {
+        return campaignNotFound();
+      }
+      if (campaign.status === CampaignStatus.Closed) {
+        return campaignAlreadyClosed();
+      }
+
+      const closedSummary: CampaignSummary = { ...campaign, status: CampaignStatus.Closed };
+      const closedCampaign: Campaign = { ...campaign, status: CampaignStatus.Closed };
+      demoCampaignDetails[campaignId] = closedCampaign;
+      const index = demoCampaigns.findIndex((item) => item.id === campaignId);
+      if (index !== -1) {
+        demoCampaigns[index] = closedSummary;
+      }
+
+      return HttpResponse.json<Campaign>(closedCampaign);
+    },
+  ),
+
   http.get('/api/v1/campaigns/:campaignId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
@@ -395,7 +544,10 @@ export const campaignsHandlers = [
     const url = new URL(request.url);
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
-    const dues = demoCampaignDues[campaignId] ?? [];
+    const statusFilter = url.searchParams.get('status');
+    const dues = (demoCampaignDues[campaignId] ?? []).filter(
+      (due) => !statusFilter || due.status === statusFilter,
+    );
     const items = dues.slice(page * size, page * size + size);
     return HttpResponse.json<DuePage>({
       items,
@@ -406,5 +558,81 @@ export const campaignsHandlers = [
         totalPages: Math.max(1, Math.ceil(dues.length / size)),
       },
     });
+  }),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/dues/{dueId}/payments`
+   * (T-71, `createPayment`) : réservé à l'Administrateur, au Trésorier et à
+   * l'Opérateur dont `operatorCanRecordPayments` est actif (RG-ROLE-007 à
+   * RG-ROLE-009), refuse un montant dépassant le reste à payer ou une cotisation
+   * déjà réglée, puis renvoie le règlement et la cotisation recalculée en
+   * mettant à jour le jeu de démonstration utilisé par les lectures suivantes.
+   */
+  http.post('/api/v1/dues/:dueId/payments', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+    const canRecordPayments =
+      account.user.role === UserRole.Administrator ||
+      account.user.role === UserRole.Treasurer ||
+      (account.user.role === UserRole.Operator && account.user.operatorCanRecordPayments);
+    if (!canRecordPayments) {
+      return paymentAccessDenied();
+    }
+
+    const dueId = typeof params['dueId'] === 'string' ? params['dueId'] : '';
+    const found = findDueById(dueId);
+    if (!found) {
+      return dueNotFound();
+    }
+    const { due } = found;
+    if (due.status === DueStatus.Paid) {
+      return dueAlreadyPaid();
+    }
+
+    const body = await request.json();
+    if (!isCreatePaymentRequest(body)) {
+      return HttpResponse.json<ErrorResponse>(
+        { code: ErrorCode.ValidationError, message: 'Règlement invalide.' },
+        { status: 400 },
+      );
+    }
+    if (body.amount > due.remainingAmount) {
+      return paymentExceedsRemainingAmount();
+    }
+
+    const paidAmount = due.paidAmount + body.amount;
+    const remainingAmount = due.dueAmount - paidAmount;
+    const updatedDue: Due = {
+      ...due,
+      paidAmount,
+      remainingAmount,
+      status: remainingAmount === 0 ? DueStatus.Paid : DueStatus.PartiallyPaid,
+      paymentCount: due.paymentCount + 1,
+    };
+    const dues = demoCampaignDues[found.campaignId] ?? [];
+    demoCampaignDues[found.campaignId] = dues.map((item) =>
+      item.id === due.id ? updatedDue : item,
+    );
+
+    const payment: Payment = {
+      id: crypto.randomUUID(),
+      dueId: due.id,
+      member: due.member,
+      campaign: due.campaign,
+      amount: body.amount,
+      paymentDate: body.paymentDate,
+      method: body.method,
+      recordedBy: { userId: account.user.userId, displayName: account.user.member.displayName },
+      recordedAt: new Date().toISOString(),
+      currency: due.currency,
+    };
+
+    return HttpResponse.json<PaymentCreationResponse>(
+      { payment, due: updatedDue },
+      { status: 201 },
+    );
   }),
 ];

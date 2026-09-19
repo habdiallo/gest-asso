@@ -1,4 +1,21 @@
 <div [attr.aria-busy]="loading()">
+  <div class="mb-4 flex flex-col gap-2 sm:max-w-xs">
+    <label for="campaign-dues-status-filter" class="text-sm font-medium text-text-2">
+      {{ 'campaigns.detail.cotisations.filter.label' | transloco }}
+    </label>
+    <select
+      id="campaign-dues-status-filter"
+      [value]="statusFilter()"
+      (change)="onStatusFilterChange($event)"
+      class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+    >
+      <option value="">{{ 'campaigns.detail.cotisations.filter.all' | transloco }}</option>
+      @for (status of statusOptions; track status) {
+        <option [value]="status">{{ statusLabels[status] | transloco }}</option>
+      }
+    </select>
+  </div>
+
   @if (loading()) {
     <p class="text-text-2" role="status">
       {{ 'campaigns.detail.cotisations.loading' | transloco }}
@@ -23,16 +40,20 @@
       <div class="overflow-x-auto rounded-xl border border-line bg-surface">
         <table class="w-full text-left text-sm">
           <caption class="sr-only">
-            {{ 'campaigns.detail.cotisations.caption' | transloco }}
+            {{
+              'campaigns.detail.cotisations.caption' | transloco
+            }}
           </caption>
           <thead>
             <tr class="border-b border-line text-xs uppercase tracking-wide text-text-2">
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.member' | transloco }}
               </th>
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
-              </th>
+              @if (showIncomeCategory()) {
+                <th scope="col" class="px-4 py-3 font-medium">
+                  {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
+                </th>
+              }
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.dueAmount' | transloco }}
               </th>
@@ -45,13 +66,22 @@
               <th scope="col" class="px-4 py-3 font-medium">
                 {{ 'campaigns.detail.cotisations.columns.status' | transloco }}
               </th>
+              @if (canRecordPayments()) {
+                <th scope="col" class="px-4 py-3 font-medium">
+                  <span class="sr-only">
+                    {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                  </span>
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
             @for (due of result.items; track due.id) {
               <tr class="border-b border-line text-text last:border-b-0">
                 <th scope="row" class="px-4 py-4 font-medium">{{ due.member.displayName }}</th>
-                <td class="px-4 py-4 text-text-2">{{ due.incomeCategorySnapshot.label }}</td>
+                @if (showIncomeCategory()) {
+                  <td class="px-4 py-4 text-text-2">{{ due.incomeCategorySnapshot.label }}</td>
+                }
                 <td class="whitespace-nowrap px-4 py-4 font-mono">
                   {{ formatAmount(due.dueAmount) }}
                 </td>
@@ -70,6 +100,17 @@
                     >{{ statusLabels[due.status] | transloco }}</span
                   >
                 </td>
+                @if (canRecordPayments()) {
+                  <td class="whitespace-nowrap px-4 py-4 text-right">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-line px-3 py-2 text-xs text-text"
+                      (click)="openRecordPayment(due)"
+                    >
+                      {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                    </button>
+                  </td>
+                }
               </tr>
             }
           </tbody>
@@ -96,7 +137,7 @@
         <p class="text-text-2" role="status">
           {{
             'campaigns.detail.cotisations.pagination.status'
-              | transloco : { current: result.page.number + 1, total: result.page.totalPages }
+              | transloco: { current: result.page.number + 1, total: result.page.totalPages }
           }}
         </p>
         <button
@@ -111,4 +152,22 @@
       </nav>
     }
   }
+
+  <app-form-dialog
+    [open]="recordPaymentDue() !== null"
+    [dialogTitle]="'campaigns.detail.cotisations.recordPayment.dialogTitle' | transloco"
+    (closed)="closeRecordPayment()"
+  >
+    @if (recordPaymentDue(); as due) {
+      @if (recordPaymentError(); as errorKey) {
+        <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
+      <app-record-payment-form
+        [due]="due"
+        [submitting]="recordPaymentSubmitting()"
+        (submitted)="handleRecordPayment($event)"
+        (cancelled)="closeRecordPayment()"
+      />
+    }
+  </app-form-dialog>
 </div>

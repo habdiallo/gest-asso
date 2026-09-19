@@ -1,0 +1,26 @@
+@if (financialSummary(); as summary) {
+  <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-lg border border-line p-4">
+      <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+        {{ 'campaigns.detail.bilan.expectedAmount' | transloco }}
+      </dt>
+      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.expectedAmount) }}</dd>
+    </div>
+    <div class="rounded-lg border border-line p-4">
+      <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+        {{ 'campaigns.detail.bilan.collectedAmount' | transloco }}
+      </dt>
+      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.collectedAmount) }}</dd>
+    </div>
+    <div class="rounded-lg border border-line p-4">
+      <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+        {{ 'campaigns.detail.bilan.remainingAmount' | transloco }}
+      </dt>
+      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.remainingAmount) }}</dd>
+    </div>
+  </dl>
+} @else {
+  <p class="text-text-2" role="status">
+    {{ 'campaigns.detail.bilan.unauthorized' | transloco }}
+  </p>
+}

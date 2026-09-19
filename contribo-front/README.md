@@ -16,6 +16,7 @@ npm run format:check
 npm test -- --watch=false
 npm run test:tooling
 npm run build
+npm run build:mock
 ```
 
 Le serveur écoute sur `http://localhost:4200`. Le build de production est dans
@@ -26,6 +27,10 @@ accessibilité et l'exclusion du code généré à travers ESLint, sans backend.
 Il vérifie également le routage des sous-chemins API après normalisation du proxy
 par le builder Angular installé.
 Aucun serveur SSR, outil E2E ni système de traduction multilingue n'est configuré.
+
+`npm run build:mock` compile aussi les handlers MSW exclus du build standard.
+Le contrôle GitHub Actions `Frontend compilation` valide et génère le client API,
+puis compile production et mock pour chaque PR vers `main`.
 
 ## Tester les comptes de démonstration
 

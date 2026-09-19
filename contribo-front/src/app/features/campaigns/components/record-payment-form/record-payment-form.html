@@ -1,0 +1,75 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid gap-4">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+          {{ 'campaigns.detail.cotisations.recordPayment.fields.member' | transloco }}
+        </span>
+        <p class="text-text">{{ due().member.displayName }}</p>
+      </div>
+      <div>
+        <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+          {{ 'campaigns.detail.cotisations.recordPayment.fields.campaign' | transloco }}
+        </span>
+        <p class="text-text">{{ due().campaign.name }}</p>
+      </div>
+    </div>
+
+    <app-amount-input
+      formControlName="amount"
+      [label]="'campaigns.detail.cotisations.recordPayment.fields.amount' | transloco"
+      [required]="true"
+    />
+
+    <div>
+      <label
+        for="record-payment-date"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      >
+        {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDate' | transloco }}
+      </label>
+      <input
+        id="record-payment-date"
+        type="date"
+        formControlName="paymentDate"
+        required
+        [attr.aria-invalid]="paymentDateInvalid() ? true : null"
+        [attr.aria-describedby]="paymentDateInvalid() ? 'record-payment-date-error' : null"
+        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+      />
+      @if (paymentDateInvalid()) {
+        <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">
+          {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDateRequired' | transloco }}
+        </p>
+      }
+    </div>
+
+    <app-payment-method-select
+      formControlName="method"
+      [label]="'campaigns.detail.cotisations.recordPayment.fields.method' | transloco"
+      [required]="true"
+    />
+  </div>
+
+  <div class="mt-6 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+    >
+      {{ 'campaigns.detail.cotisations.recordPayment.cancel' | transloco }}
+    </button>
+    <button
+      type="submit"
+      [disabled]="submitting()"
+      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+    >
+      {{
+        (submitting()
+          ? 'campaigns.detail.cotisations.recordPayment.submitting'
+          : 'campaigns.detail.cotisations.recordPayment.submit'
+        ) | transloco
+      }}
+    </button>
+  </div>
+</form>

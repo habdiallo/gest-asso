@@ -9,7 +9,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ErrorCode, MembresService, UserRole } from '@api';
+import { ErrorCode, MemberStatus, MembresService, UserRole } from '@api';
 import type {
   ErrorResponse,
   MemberDetails,
@@ -21,9 +21,28 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
+import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { MemberEditFormOperator } from '../components/member-edit-form-operator/member-edit-form-operator';
-import { memberStatusLabel } from '../members-status-labels';
+import { MemberPaymentsTab } from '../components/member-payments-tab/member-payments-tab';
+import { memberIsActive, memberStatusLabel } from '../members-status-labels';
+
+/** Identifiant d'un onglet de la fiche membre (US-MEM-003). */
+export type MemberDetailTab = 'informations' | 'cotisations' | 'reglements' | 'contributions';
+
+/**
+ * Onglets "Situation des cotisations" (T-28), "Historique des règlements"
+ * (T-29) et "Contributions aux cagnottes" (T-30) livrés par ces tickets. La
+ * navigation clavier flèches gauche/droite entre onglets (T-31) reste un
+ * ticket séparé.
+ */
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
+  'informations',
+  'cotisations',
+  'reglements',
+  'contributions',
+];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -33,20 +52,58 @@ import { memberStatusLabel } from '../members-status-labels';
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
- * Limite connue : la situation des cotisations, l'historique des règlements
- * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
- * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23)
- * reste à livrer.
- * La modification complète Administrateur/Trésorier est fournie par T-38 ;
- * la variante Opérateur limitée au téléphone, à la ville, au pays et au nom
- * d'usage (RG-MEM-017) est fournie par T-39, quel que soit l'attribut
+ * Lecture seule pour un Opérateur non autorisé aux paiements (T-32, §2.3) :
+ * `canRecordPayments` réutilise le flag `operatorCanRecordPayments` déjà
+ * exposé par `SessionService` (T-13) pour signaler qu'aucune action
+ * d'enregistrement de règlement ni de contribution n'est disponible pour cet
+ * utilisateur. Cette route est déjà réservée à Administrateur, Trésorier et
+ * Opérateur (garde `roleGuard` de `app.routes.ts`) ; l'Administrateur et le
+ * Trésorier restent toujours autorisés. Le formulaire d'enregistrement d'un
+ * règlement (T-71) devra masquer ses propres actions en consultant
+ * `canRecordPayments` plutôt que de la revérifier différemment.
+ *
+ * Onglets (US-MEM-003) : "Informations" reprend le bloc de base ;
+ * "Situation des cotisations" (T-28) charge `openapi:listMemberDues` via
+ * `MemberDuesTab` ; "Historique des règlements" (T-29) liste, du plus récent
+ * au plus ancien, les règlements du membre toutes campagnes confondues via
+ * `MemberPaymentsTab` ; "Contributions aux cagnottes" (T-30) liste, du plus
+ * récent au plus ancien, les contributions du membre via
+ * `MemberContributionsTab`. Activation au clic ou par Entrée/Espace, sans
+ * navigation clavier flèches gauche/droite (T-31, ticket séparé).
+ *
+ * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
+ * /members/{memberId}/deactivation` (`MembresService.deactivateMember`) pour
+ * un membre actif, réservée à l'Administrateur, et remplace le membre affiché
+ * par la réponse (statut Inactif), en conservant visibles les sections
+ * historiques déjà livrées (cotisations, règlements, contributions). La
+ * boîte de confirmation avant envoi (RG-MEM-016, T-42) reste à livrer sur un
+ * ticket distinct.
+ *
+ * Action "Réactiver" (T-44, US-MEM-006) : appelle `POST
+ * /members/{memberId}/reactivation` (`MembresService.reactivateMember`) pour
+ * un membre inactif, réservée à l'Administrateur, après confirmation
+ * explicite (RG-MEM-020 à RG-MEM-022). Le masquage mutuel avec l'action
+ * "Désactiver" selon le statut courant (T-46) et le masquage pour les rôles
+ * Trésorier/Opérateur/Membre (T-47) restent à livrer sur des tickets distincts.
+ * La restriction de la vue Opérateur (RG-MEM-008, T-23) est fournie par
+ * T-23. La modification complète Administrateur/Trésorier est fournie par
+ * T-38 ; la variante Opérateur limitée au téléphone, à la ville, au pays et
+ * au nom d'usage (RG-MEM-017) est fournie par T-39, quel que soit l'attribut
  * `operatorCanRecordPayments`. Le retrait du contrôle de statut du
  * formulaire général (RG-MEM-018) relève du ticket T-40, distinct.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberEditFormOperator],
+  imports: [
+    TranslocoPipe,
+    RouterLink,
+    FormDialog,
+    MemberEditForm,
+    MemberEditFormOperator,
+    MemberDuesTab,
+    MemberPaymentsTab,
+    MemberContributionsTab,
+  ],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -65,16 +122,41 @@ export class MemberDetailPage {
     () => this.sessionService.user()?.role === UserRole.Operator,
   );
   readonly canEdit = computed(() => this.canEditFull() || this.canEditRestricted());
+  readonly canRecordPayments = computed(() => this.sessionService.canRecordPayments());
   readonly editOpen = signal(false);
   readonly saving = signal(false);
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
+
+  private deactivateSession = 0;
+  readonly canDeactivate = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return (
+      role === UserRole.Administrator &&
+      memberIsActive(this.member()?.status ?? MemberStatus.Inactive)
+    );
+  });
+  readonly deactivating = signal(false);
+  readonly deactivateError = signal(false);
+  readonly deactivateSuccess = signal(false);
+
+  private reactivateSession = 0;
+  readonly canReactivate = computed(() => {
+    const role = this.sessionService.user()?.role;
+    return role === UserRole.Administrator && this.member()?.status === MemberStatus.Inactive;
+  });
+  readonly reactivateOpen = signal(false);
+  readonly reactivating = signal(false);
+  readonly reactivateError = signal(false);
+  readonly reactivateSuccess = signal(false);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly notFound = signal(false);
   readonly member = signal<MemberDetails | null>(null);
 
+  readonly activeTab = signal<MemberDetailTab>(MEMBER_DETAIL_TABS[0]);
+  readonly tabs = MEMBER_DETAIL_TABS;
   readonly memberStatusLabel = memberStatusLabel;
 
   constructor() {
@@ -85,10 +167,17 @@ export class MemberDetailPage {
         tap(() => {
           this.closeEditDialog();
           this.editSuccess.set(false);
+          ++this.deactivateSession;
+          this.deactivating.set(false);
+          this.deactivateError.set(false);
+          this.deactivateSuccess.set(false);
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(false);
           this.loading.set(true);
           this.loadError.set(false);
           this.notFound.set(false);
           this.member.set(null);
+          this.activeTab.set(MEMBER_DETAIL_TABS[0]);
         }),
         switchMap((memberId) =>
           this.membersService.getMember(memberId).pipe(
@@ -108,6 +197,14 @@ export class MemberDetailPage {
         this.member.set(member);
       });
   }
+  selectTab(tab: MemberDetailTab): void {
+    this.activeTab.set(tab);
+  }
+
+  isActiveTab(tab: MemberDetailTab): boolean {
+    return this.activeTab() === tab;
+  }
+
   openEditDialog(): void {
     if (!this.canEdit() || !this.member() || this.editOpen()) {
       return;
@@ -160,6 +257,86 @@ export class MemberDetailPage {
           }
           this.saving.set(false);
           this.editError.set(true);
+        },
+      });
+  }
+
+  deactivateMember(): void {
+    const member = this.member();
+    if (!this.canDeactivate() || !member || this.deactivating()) {
+      return;
+    }
+    const session = ++this.deactivateSession;
+    this.deactivating.set(true);
+    this.deactivateError.set(false);
+    this.deactivateSuccess.set(false);
+    this.membersService
+      .deactivateMember(member.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          if (session !== this.deactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(updated);
+          this.deactivating.set(false);
+          this.deactivateSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.deactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.deactivating.set(false);
+          this.deactivateError.set(true);
+        },
+      });
+  }
+
+  openReactivateDialog(): void {
+    if (!this.canReactivate() || this.reactivateOpen()) {
+      return;
+    }
+    ++this.reactivateSession;
+    this.reactivateError.set(false);
+    this.reactivateSuccess.set(false);
+    this.reactivateOpen.set(true);
+  }
+
+  closeReactivateDialog(): void {
+    ++this.reactivateSession;
+    this.reactivateOpen.set(false);
+    this.reactivating.set(false);
+  }
+
+  confirmReactivate(): void {
+    const member = this.member();
+    if (!this.canReactivate() || !member || !this.reactivateOpen() || this.reactivating()) {
+      return;
+    }
+    const session = this.reactivateSession;
+    this.reactivating.set(true);
+    this.reactivateError.set(false);
+    this.membersService
+      .reactivateMember(member.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (reactivated) => {
+          if (this.member()?.id !== member.id) {
+            return;
+          }
+          this.member.set(reactivated);
+          if (session !== this.reactivateSession) {
+            return;
+          }
+          this.closeReactivateDialog();
+          this.reactivateSuccess.set(true);
+        },
+        error: () => {
+          if (session !== this.reactivateSession || this.member()?.id !== member.id) {
+            return;
+          }
+          this.reactivating.set(false);
+          this.reactivateError.set(true);
         },
       });
   }
