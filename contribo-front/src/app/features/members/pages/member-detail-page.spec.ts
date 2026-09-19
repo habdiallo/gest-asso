@@ -3,11 +3,16 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import type { DuePage, ErrorResponse, MemberDetails } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberDetailPage } from './member-detail-page';
+
+const emptyDuePage: DuePage = {
+  items: [],
+  page: { number: 0, size: 20, totalElements: 0, totalPages: 1 },
+};
 
 function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
   return {
@@ -48,7 +53,13 @@ async function createFixture(
     ],
     providers: [
       provideRouter([]),
-      { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+      {
+        provide: MembresService,
+        useValue: {
+          getMember,
+          listMemberDues: () => of(emptyDuePage),
+        } as unknown as MembresService,
+      },
       {
         provide: ActivatedRoute,
         useValue: { paramMap: of(convertToParamMap({ memberId })) },
@@ -151,7 +162,13 @@ describe('MemberDetailPage', () => {
       ],
       providers: [
         provideRouter([]),
-        { provide: MembresService, useValue: { getMember } as unknown as MembresService },
+        {
+          provide: MembresService,
+          useValue: {
+            getMember,
+            listMemberDues: () => of(emptyDuePage),
+          } as unknown as MembresService,
+        },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap.asObservable() } },
       ],
     }).compileComponents();
@@ -169,5 +186,78 @@ describe('MemberDetailPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Membre B');
     expect(root.textContent).not.toContain('Membre A');
+  });
+
+  it('shows the situation des cotisations tab and loads the member dues (T-28)', async () => {
+    const duePage: DuePage = {
+      items: [
+        {
+          id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+          member: { id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', displayName: 'Amadou Diallo' },
+          campaign: {
+            id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            name: 'Solidarité septembre',
+            startDate: '2026-09-01',
+            endDate: '2026-09-30',
+            status: 'OPEN',
+          },
+          incomeCategorySnapshot: {
+            id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            label: 'Catégorie B',
+          },
+          dueAmount: 100_000,
+          paidAmount: 50_000,
+          remainingAmount: 50_000,
+          status: 'PARTIALLY_PAID',
+          paymentCount: 1,
+          currency: 'GNF',
+        },
+      ],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    const listMemberDues = vi.fn(() => of(duePage));
+    const getMember = () => of(buildMemberDetails());
+
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: MembresService,
+          useValue: { getMember, listMemberDues } as unknown as MembresService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(convertToParamMap({ memberId: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10' })),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const cotisationsTab = Array.from(root.querySelectorAll('[role="tab"]')).find((tab) =>
+      tab.textContent?.includes('Situation des cotisations'),
+    ) as HTMLButtonElement | undefined;
+    expect(cotisationsTab).toBeDefined();
+
+    cotisationsTab?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(listMemberDues).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', 0);
+    expect(root.textContent).toContain('Solidarité septembre');
+    expect(root.textContent).toContain('Partiellement payé');
   });
 });

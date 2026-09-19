@@ -1,7 +1,9 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CurrencyCode, ErrorCode, MemberStatus, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, MemberStatus, UserRole } from '@api';
 import type {
   CreateMemberRequest,
+  Due,
+  DuePage,
   ErrorResponse,
   MemberDetails,
   MemberPage,
@@ -95,6 +97,54 @@ const demoMemberDetails: Map<string, MemberDetails> = new Map(
     },
   ]),
 );
+
+/**
+ * Cotisations de démonstration pour `GET /api/v1/members/{memberId}/dues`
+ * (T-28). Duplique volontairement une campagne plausible plutôt que
+ * d'importer `features/campaigns/mocks/handlers.ts` : les mocks MSW restent
+ * autonomes par fonctionnalité (cf. commentaire équivalent sur
+ * `demoIncomeCategoryLabelsById` ci-dessus).
+ */
+const demoMemberDues: Record<string, Due[]> = {
+  '10700000-0000-4000-8000-000000000500': [
+    {
+      id: '10700000-0000-4000-8000-000000000420',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: {
+        id: '10700000-0000-4000-8000-000000000200',
+        name: 'Solidarité septembre',
+        startDate: '2026-09-01',
+        endDate: '2026-09-30',
+        status: CampaignStatus.Open,
+      },
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      dueAmount: 100_000,
+      paidAmount: 50_000,
+      remainingAmount: 50_000,
+      status: DueStatus.PartiallyPaid,
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000421',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: {
+        id: '10700000-0000-4000-8000-000000000201',
+        name: 'Rentrée solidaire',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        status: CampaignStatus.Closed,
+      },
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      dueAmount: 80_000,
+      paidAmount: 80_000,
+      remainingAmount: 0,
+      status: DueStatus.Paid,
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
 
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
@@ -216,12 +266,14 @@ export const membersHandlers = [
     const updated: MemberDetails = {
       ...existing,
       ...body,
-      preferredName: body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
+      preferredName:
+        body.preferredName === null ? undefined : (body.preferredName ?? existing.preferredName),
       displayName: `${body.firstName ?? existing.firstName} ${body.lastName ?? existing.lastName}`,
       incomeCategory: body.incomeCategoryId
         ? {
             id: body.incomeCategoryId,
-            label: demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
+            label:
+              demoIncomeCategoryLabelsById[body.incomeCategoryId] ?? existing.incomeCategory.label,
           }
         : existing.incomeCategory,
     };
@@ -247,5 +299,41 @@ export const membersHandlers = [
     }
 
     return HttpResponse.json<MemberDetails>(member);
+  }),
+
+  /**
+   * `GET /api/v1/members/{memberId}/dues` (T-28, `openapi:listMemberDues`) :
+   * situation des cotisations du membre, paginée, de la plus récente à la
+   * plus ancienne (contrat `DuePage`). Le contenu affiché n'est pas encore
+   * restreint pour l'Opérateur ici : `MemberDuesTab` masque déjà la colonne
+   * catégorie de revenu côté IHM (RG-MEM-008), sans qu'un filtrage serveur
+   * supplémentaire soit prévu par ce mock.
+   */
+  http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+    if (!demoMemberDetails.has(memberId)) {
+      return memberNotFound();
+    }
+
+    const url = new URL(request.url);
+    const size = Number(url.searchParams.get('size') ?? '20');
+    const page = Number(url.searchParams.get('page') ?? '0');
+    const dues = demoMemberDues[memberId] ?? [];
+    const items = dues.slice(page * size, page * size + size);
+    return HttpResponse.json<DuePage>({
+      items,
+      page: {
+        number: page,
+        size,
+        totalElements: dues.length,
+        totalPages: Math.max(1, Math.ceil(dues.length / size)),
+      },
+    });
   }),
 ];
