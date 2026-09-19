@@ -393,6 +393,8 @@
   "memberDetail.payments.columns.amount": "Montant",
   "memberDetail.payments.columns.date": "Date",
   "memberDetail.payments.columns.method": "Mode",
+  "memberDetail.payments.columns.recordedBy": "Enregistré par",
+  "memberDetail.payments.columns.recordedAt": "Horodatage",
   "memberDetail.payments.pagination.nav": "Pagination des règlements",
   "memberDetail.payments.pagination.previous": "Page précédente",
   "memberDetail.payments.pagination.next": "Page suivante",
