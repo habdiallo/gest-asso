@@ -46,8 +46,10 @@
     </dl>
     <p class="mt-2 text-xs text-text-2">
       {{
-        'campaigns.detail.bilan.memberStatus.total'
-          | transloco: { count: summary.dueCounts.total }
+        (summary.dueCounts.total === 1
+          ? 'campaigns.detail.bilan.memberStatus.totalSingular'
+          : 'campaigns.detail.bilan.memberStatus.total'
+        ) | transloco: { count: summary.dueCounts.total }
       }}
     </p>
   </div>

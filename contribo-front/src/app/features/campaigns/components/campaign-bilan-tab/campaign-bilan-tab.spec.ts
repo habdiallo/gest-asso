@@ -79,6 +79,16 @@ describe('CampaignBilanTab', () => {
     expect(root.textContent).toContain('Sur 86 membres concernés');
   });
 
+  it('accorde le total au singulier pour un seul membre concerne', async () => {
+    const fixture = await createFixture(
+      buildFinancialSummary({ dueCounts: { total: 1, paid: 1, partiallyPaid: 0, unpaid: 0 } }),
+    );
+    const root: HTMLElement = fixture.nativeElement;
+
+    expect(root.textContent).toContain('Sur 1 membre concerné');
+    expect(root.textContent).not.toContain('Sur 1 membres concerné');
+  });
+
   it('affiche un reste a encaisser nul sans le confondre avec une absence de donnee', async () => {
     const fixture = await createFixture(
       buildFinancialSummary({ collectedAmount: 12_000_000, remainingAmount: 0 }),

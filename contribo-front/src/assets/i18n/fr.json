@@ -261,6 +261,7 @@
   "campaigns.detail.bilan.memberStatus.partiallyPaid": "Partiel",
   "campaigns.detail.bilan.memberStatus.unpaid": "Non payé",
   "campaigns.detail.bilan.memberStatus.total": "Sur {{count}} membres concernés",
+  "campaigns.detail.bilan.memberStatus.totalSingular": "Sur {{count}} membre concerné",
   "campaigns.detail.cotisations.loading": "Chargement des cotisations...",
   "campaigns.detail.cotisations.error": "Impossible de charger les cotisations.",
   "campaigns.detail.cotisations.retry": "Réessayer",
