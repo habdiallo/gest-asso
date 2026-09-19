@@ -251,6 +251,7 @@
   "campaigns.detail.bareme.errorValidation": "Le barème saisi n'est pas valide. Vérifiez les montants et réessayez.",
   "campaigns.detail.bareme.errorNotFound": "Cette campagne n'existe plus.",
   "campaigns.detail.bareme.errorAccessDenied": "Vous n'êtes pas autorisé à modifier ce barème.",
+  "campaigns.detail.bareme.notConfigured": "Montant non configuré",
   "campaigns.detail.cotisations.placeholder": "Le détail des cotisations sera disponible prochainement.",
   "campaigns.detail.bilan.expectedAmount": "Total attendu",
   "campaigns.detail.bilan.collectedAmount": "Total encaissé",

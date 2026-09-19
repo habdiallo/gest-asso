@@ -128,7 +128,8 @@ async function createFixture(
           closeCampaign,
           listCampaignDues:
             options.listCampaignDues ??
-            (() => of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } })),
+            (() =>
+              of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } })),
         } as unknown as CampagnesService,
       },
       {
@@ -559,6 +560,34 @@ describe('CampaignDetailPage', () => {
       );
     });
 
+    it('blocks submission when an amount of 0 is typed (P2, PR #115: 0 must stay reserved for "not configured")', async () => {
+      const updateCampaignCategoryAmounts = vi.fn(() => of(buildCampaign({ status: 'UPCOMING' })));
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts,
+      });
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const input = root.querySelector('input[inputmode="numeric"]') as HTMLInputElement;
+      input.value = '0';
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+
+      const form = root.querySelector('form') as HTMLFormElement;
+      form.dispatchEvent(new Event('submit'));
+      fixture.detectChanges();
+
+      expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        "Le montant doit être d'au moins 1 GNF.",
+      );
+    });
+
     it('shows a dedicated error message when the campaign is no longer editable', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
         role: UserRole.Administrator,
@@ -612,6 +641,102 @@ describe('CampaignDetailPage', () => {
       expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
       expect(root.querySelector('form')).toBeNull();
       expect(findEditButton(root)).not.toBeNull();
+    });
+  });
+
+  describe("signalement d'une categorie sans montant configure (T-69)", () => {
+    function buildCategoryAmounts(): Campaign['categoryAmounts'] {
+      return [
+        {
+          incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+          amount: 0,
+          memberCount: 60,
+          expectedAmount: 0,
+          currency: CurrencyCode.Gnf,
+        },
+        {
+          incomeCategory: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+          amount: 250_000,
+          memberCount: 26,
+          expectedAmount: 6_500_000,
+          currency: CurrencyCode.Gnf,
+        },
+      ];
+    }
+
+    it('shows a dedicated badge next to a category whose amount is not configured', async () => {
+      const fixture = await createFixture(() =>
+        of(buildCampaign({ categoryAmounts: buildCategoryAmounts() })),
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      expect(rows).toHaveLength(2);
+      expect(rows[0].textContent).toContain('Montant non configuré');
+      expect(rows[1].textContent).not.toContain('Montant non configuré');
+    });
+
+    it('does not show the badge for a category with a configured amount', async () => {
+      const fixture = await createFixture(() =>
+        of(
+          buildCampaign({
+            categoryAmounts: [
+              {
+                incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+                amount: 100_000,
+                memberCount: 60,
+                expectedAmount: 6_000_000,
+                currency: CurrencyCode.Gnf,
+              },
+            ],
+          }),
+        ),
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).not.toContain('Montant non configuré');
+    });
+
+    it('also shows the badge while editing a category whose current amount is not configured', async () => {
+      const fixture = await createFixture(
+        () => of(buildCampaign({ status: 'UPCOMING', categoryAmounts: buildCategoryAmounts() })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      expect(rows).toHaveLength(2);
+      expect(rows[0].textContent).toContain('Montant non configuré');
+      expect(rows[1].textContent).not.toContain('Montant non configuré');
+    });
+
+    it('removes the badge in edit mode once a non-zero amount is typed', async () => {
+      const fixture = await createFixture(
+        () => of(buildCampaign({ status: 'UPCOMING', categoryAmounts: buildCategoryAmounts() })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const inputs = Array.from(
+        root.querySelectorAll('input[inputmode="numeric"]'),
+      ) as HTMLInputElement[];
+      const firstInput = inputs[0];
+      firstInput.value = formatGnfAmountInputDigits('150000');
+      firstInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      expect(rows[0].textContent).not.toContain('Montant non configuré');
     });
   });
 
