@@ -330,13 +330,10 @@ export class MemberDetailPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
-          if (this.member()?.id !== member.id) {
+          if (session !== this.deactivateSession || this.member()?.id !== member.id) {
             return;
           }
           this.member.set(updated);
-          if (session !== this.deactivateSession) {
-            return;
-          }
           this.closeDeactivateDialog();
           this.deactivateSuccess.set(true);
         },

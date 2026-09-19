@@ -813,6 +813,58 @@ describe('MemberDetailPage', () => {
       );
       expect(findConfirmButton(root)).toBeDefined();
     });
+
+    it('disables Annuler while the request is pending', async () => {
+      const response$ = new Subject<MemberDetails>();
+      const deactivateMember = vi.fn(() => response$.asObservable());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      expect(cancelButton?.disabled).toBe(true);
+    });
+
+    it('ignores a late response after the dialog is closed, keeping the member active', async () => {
+      const response$ = new Subject<MemberDetails>();
+      const deactivateMember = vi.fn(() => response$.asObservable());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      // Simule une fermeture concurrente (échap, clic hors dialogue) pendant
+      // que la requête est encore en vol, indépendamment du bouton "Annuler".
+      fixture.componentInstance.closeDeactivateDialog();
+      fixture.detectChanges();
+
+      response$.next(buildMemberDetails({ status: MemberStatus.Inactive }));
+      response$.complete();
+      fixture.detectChanges();
+
+      expect(root.textContent).not.toContain('Le membre a été désactivé.');
+      expect(findDeactivateButton(root)).toBeDefined();
+      expect(root.textContent).toContain('Actif');
+    });
   });
 
   it('shows the situation des cotisations tab and loads the member dues (T-28)', async () => {
