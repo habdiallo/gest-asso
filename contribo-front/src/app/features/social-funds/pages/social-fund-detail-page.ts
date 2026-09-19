@@ -9,11 +9,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@api';
-import type { Contribution, ContributionPage, SocialFund } from '@api';
+import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { canRecordPayments } from '@core/session/payment-authorization';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
@@ -33,15 +35,31 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * l'Administrateur et au Trésorier, visible uniquement tant que la cagnotte
  * est ouverte, avec confirmation explicite avant l'appel API (US-CAG-004).
  *
+ * Action "Enregistrer une contribution" (T-89, `openapi:createContribution`) :
+ * ouvre `ContributionCreateForm` (T-87) dans `FormDialog`, comme le fait
+ * `SocialFundCreateForm` sur `SocialFundsListPage` (T-84). L'action est
+ * masquée pour un Opérateur dont `operatorCanRecordPayments` (attribut
+ * `peut_enregistrer_paiements` du contrat, T-55) vaut `false` ; l'Administrateur
+ * et le Trésorier y accèdent sans condition supplémentaire, via
+ * `canRecordPayments` (`@core/session/payment-authorization`), déjà utilisée
+ * pour les règlements de cotisation (T-71). Ce contrôle IHM ne remplace pas
+ * l'autorisation serveur (403 possible malgré tout, voir `api-client.md`).
+ * Après enregistrement, la cagnotte et la première page de contributions sont
+ * rafraîchies avec la réponse `ContributionCreationResponse` et un rechargement
+ * de la liste, afin de refléter le nouveau total collecté et le nombre de
+ * contributeurs.
+ *
  * Limite connue de ce ticket : ni la barre de progression objectif/reste à
- * collecter (T-92), ni le formulaire d'enregistrement d'une contribution
- * (T-87 à T-90) ne sont implémentés ici. Le masquage de l'action
- * d'enregistrement de contribution sur une cagnotte clôturée (T-94) reste un
- * ticket dédié ; ce ticket n'affiche déjà aucune telle action sur cet écran.
+ * collecter (T-92), ni l'autorisation explicite de contributions multiples
+ * sans restriction (T-88, déjà non bloquée ici faute de contrôle contraire),
+ * ni l'affichage de l'auteur/horodatage de chaque contribution (T-90), ni le
+ * masquage de cette action sur une cagnotte clôturée (T-94, RG-CAG :
+ * `createContribution` répond alors `409 Conflict`, non traité spécifiquement
+ * ici) ne sont implémentés dans ce ticket.
  */
 @Component({
   selector: 'app-social-fund-detail-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog],
+  imports: [RouterLink, TranslocoPipe, FormDialog, ContributionCreateForm],
   templateUrl: './social-fund-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -71,6 +89,20 @@ export class SocialFundDetailPage {
   readonly closeDialogOpen = signal(false);
   readonly closingSocialFund = signal(false);
   readonly closeSocialFundError = signal(false);
+
+  /**
+   * Action "Enregistrer une contribution" (T-89) : Administrateur et
+   * Trésorier sans condition, Opérateur uniquement si
+   * `operatorCanRecordPayments` est `true`. Réutilise `canRecordPayments`,
+   * déjà utilisée pour les règlements de cotisation (T-71), afin de ne pas
+   * dupliquer cette règle d'autorisation par rôle.
+   */
+  readonly canRecordContribution = computed(() => canRecordPayments(this.sessionService.user()));
+
+  private recordDialogSession = 0;
+  readonly recordDialogOpen = signal(false);
+  readonly recordingContribution = signal(false);
+  readonly recordContributionError = signal(false);
 
   readonly contributionsLoading = signal(true);
   readonly contributionsLoadError = signal(false);
@@ -217,6 +249,70 @@ export class SocialFundDetailPage {
           }
           this.closingSocialFund.set(false);
           this.closeSocialFundError.set(true);
+        },
+      });
+  }
+
+  /** Ouvre le formulaire d'enregistrement d'une contribution (T-89), réservé par `canRecordContribution`. */
+  openRecordDialog(): void {
+    if (!this.canRecordContribution() || this.recordDialogOpen()) {
+      return;
+    }
+    ++this.recordDialogSession;
+    this.recordingContribution.set(false);
+    this.recordContributionError.set(false);
+    this.recordDialogOpen.set(true);
+  }
+
+  /** Ferme le formulaire, quelle que soit la cause (Échap, bouton Annuler, succès). */
+  closeRecordDialog(): void {
+    ++this.recordDialogSession;
+    this.recordingContribution.set(false);
+    this.recordDialogOpen.set(false);
+  }
+
+  /**
+   * Confirme l'enregistrement (T-89, `openapi:createContribution`) : appelle
+   * `POST /social-funds/{socialFundId}/contributions`, applique la cagnotte
+   * retournée (total collecté et nombre de contributeurs à jour) et recharge
+   * la première page de contributions. La requête est rattachée à une session
+   * de dialogue : si le formulaire a été fermé puis rouvert entre-temps, une
+   * réponse tardive ne referme plus l'état devenu obsolète.
+   */
+  handleRecordContribution(request: CreateContributionRequest): void {
+    const socialFund = this.socialFund();
+    if (
+      !this.canRecordContribution() ||
+      !socialFund ||
+      !this.recordDialogOpen() ||
+      this.recordingContribution()
+    ) {
+      return;
+    }
+    const session = this.recordDialogSession;
+    this.recordingContribution.set(true);
+    this.recordContributionError.set(false);
+
+    this.contributionsService
+      .createContribution(socialFund.id, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (this.socialFund()?.id === response.socialFund.id) {
+            this.socialFund.set(response.socialFund);
+          }
+          this.fetchContributionsPage(socialFund.id, 0, { isInitialLoad: false });
+          if (session !== this.recordDialogSession) {
+            return;
+          }
+          this.closeRecordDialog();
+        },
+        error: () => {
+          if (session !== this.recordDialogSession) {
+            return;
+          }
+          this.recordingContribution.set(false);
+          this.recordContributionError.set(true);
         },
       });
   }
