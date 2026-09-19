@@ -70,7 +70,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 6. Membres — activation (`member-management-ui`)
 
 - [x] 6.1 [T-41] (P1) Action "Désactiver" sur la fiche d'un membre actif, réservée à l'Administrateur. — US-MEM-005 ; openapi:`deactivateMember`
-- [ ] 6.2 [T-42] (P1) Boîte de confirmation avant désactivation, mentionnant l'exclusion des futures campagnes. — RG-MEM-016
+- [x] 6.2 [T-42] (P1) Boîte de confirmation avant désactivation, mentionnant l'exclusion des futures campagnes. — RG-MEM-016
 - [ ] 6.3 [T-43] (P1) Mise à jour du statut affiché après désactivation, en conservant l'historique visible (cotisations, règlements, contributions). — RG-MEM-012 à RG-MEM-015
 - [x] 6.4 [T-44] (P1) Action "Réactiver" sur la fiche d'un membre inactif, réservée à l'Administrateur. — US-MEM-006 ; openapi:`reactivateMember`
 - [ ] 6.5 [T-45] (P1) Boîte de confirmation avant réactivation.

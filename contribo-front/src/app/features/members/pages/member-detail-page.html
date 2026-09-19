@@ -36,14 +36,10 @@
       @if (canDeactivate()) {
         <button
           type="button"
-          (click)="deactivateMember()"
-          [disabled]="deactivating()"
-          class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
+          (click)="openDeactivateDialog()"
+          class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash"
         >
-          {{
-            (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.button')
-              | transloco
-          }}
+          {{ 'members.deactivate.button' | transloco }}
         </button>
       }
       @if (canReactivate()) {
@@ -107,6 +103,41 @@
             (cancelled)="closeEditDialog()"
           />
         }
+      }
+    </app-form-dialog>
+
+    <app-form-dialog
+      [open]="deactivateOpen() && canDeactivate()"
+      [dialogTitle]="'members.deactivate.dialogTitle' | transloco"
+      (closed)="closeDeactivateDialog()"
+    >
+      @if (deactivateOpen() && canDeactivate()) {
+        @if (deactivateError()) {
+          <p class="mb-4 text-sm text-error" role="alert">
+            {{ 'members.deactivate.error' | transloco }}
+          </p>
+        }
+        <p class="text-sm text-text">{{ 'members.deactivate.confirmMessage' | transloco }}</p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeDeactivateDialog()"
+            class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
+          >
+            {{ 'members.deactivate.cancel' | transloco }}
+          </button>
+          <button
+            type="button"
+            (click)="confirmDeactivate()"
+            [disabled]="deactivating()"
+            class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
+          >
+            {{
+              (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.confirm')
+                | transloco
+            }}
+          </button>
+        </div>
       }
     </app-form-dialog>
 
