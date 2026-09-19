@@ -15,9 +15,15 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
  * `CampaignSummary.financialSummary`) ; ce cas est distinct du chargement ou
  * de l'erreur réseau, déjà gérés par la page parente.
  *
- * Limite connue, hors périmètre de T-77 : la répartition des membres par
- * statut de paiement (T-78) et la notation condensée des montants (T-79) ne
- * sont pas affichées ici ; seule la valeur détaillée des trois totaux l'est.
+ * La répartition des membres par statut de paiement (T-78, US-COT-007) est
+ * lue depuis `financialSummary.dueCounts` (contrat `DueCountSummary`) : ce
+ * décompte est déjà agrégé côté serveur (paid/partiallyPaid/unpaid), ce
+ * composant n'effectue aucun recalcul local à partir d'une liste de
+ * cotisations.
+ *
+ * Limite connue, hors périmètre de T-77/T-78 : la notation condensée des
+ * montants (T-79) n'est pas encore appliquée ici ; seule la valeur détaillée
+ * des trois totaux l'est.
  */
 @Component({
   selector: 'app-campaign-bilan-tab',

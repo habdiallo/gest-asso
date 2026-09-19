@@ -52,4 +52,4 @@ branche `000` encore ouverte. Critères d'acceptation : plus aucune regex active
       sans embarquer d'autres changements.
 - [x] 5.2 [T-106] Pousser `infra/chore-106-fin-initialisation-000` et ouvrir une PR en brouillon
       vers `main`, en référençant T-106 et ce change OpenSpec.
-- [ ] 5.3 [T-106] Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur.
+- [x] 5.3 [T-106] Ne pas fusionner ni activer l'auto-merge sans demande explicite de l'utilisateur. PR #9 fusionnée sur `main` sur demande explicite du mainteneur.

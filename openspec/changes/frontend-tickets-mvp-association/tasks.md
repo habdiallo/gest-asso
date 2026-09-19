@@ -52,7 +52,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
 - [x] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.
 - [x] 4.10 [T-30] (P1) Fiche membre — onglet contributions aux cagnottes.
-- [ ] 4.11 [T-31] (P1) Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.
+- [x] 4.11 [T-31] (P1) Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.
 - [x] 4.12 [T-32] (P1) Fiche membre en lecture seule pour un Opérateur non autorisé aux paiements (masquage des actions d'enregistrement). — §2.3
 
 ## 5. Membres — création et modification (`member-management-ui`)
@@ -122,17 +122,17 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 11.1 [T-71] (P0) Formulaire d'enregistrement d'un règlement (Membre, Campagne, Montant, Date, Mode). — US-COT-005 ; openapi:`recordPayment`
 - [x] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
 - [x] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
-- [ ] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
+- [x] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
 - [ ] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
 - [ ] 11.6 [T-76] (P1) Masquage de l'action d'enregistrement sur une cotisation déjà soldée (statut Payé).
 
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)
 
 - [x] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
-- [ ] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
+- [x] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
 - [ ] 12.3 [T-79] (P2) Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.
 - [x] 12.4 [T-80] (P1) Action "Clôturer la campagne" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`
-- [ ] 12.5 [T-81] (P1) Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.
+- [x] 12.5 [T-81] (P1) Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.
 
 ## 13. Cagnottes — consultation et création (`cagnottes-ui`)
 

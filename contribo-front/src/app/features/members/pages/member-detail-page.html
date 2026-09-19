@@ -152,6 +152,7 @@
     >
       @for (tab of tabs; track tab) {
         <button
+          #tabButton
           type="button"
           [id]="'member-tab-' + tab"
           role="tab"
@@ -164,6 +165,7 @@
           [class.border-transparent]="!isActiveTab(tab)"
           [class.text-text-2]="!isActiveTab(tab)"
           (click)="selectTab(tab)"
+          (keydown)="onTabsKeydown($event)"
         >
           {{ 'memberDetail.tabs.' + tab | transloco }}
         </button>

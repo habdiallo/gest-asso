@@ -18,8 +18,14 @@
           <th scope="col" class="py-2 pr-4 font-medium">
             {{ 'memberDetail.payments.columns.date' | transloco }}
           </th>
-          <th scope="col" class="py-2 font-medium">
+          <th scope="col" class="py-2 pr-4 font-medium">
             {{ 'memberDetail.payments.columns.method' | transloco }}
+          </th>
+          <th scope="col" class="py-2 pr-4 font-medium">
+            {{ 'memberDetail.payments.columns.recordedBy' | transloco }}
+          </th>
+          <th scope="col" class="py-2 font-medium">
+            {{ 'memberDetail.payments.columns.recordedAt' | transloco }}
           </th>
         </tr>
       </thead>
@@ -29,7 +35,9 @@
             <td class="py-2 pr-4 text-text">{{ payment.campaign.name }}</td>
             <td class="py-2 pr-4 text-text">{{ formatAmount(payment.amount) }}</td>
             <td class="py-2 pr-4 text-text">{{ formatCalendarDate(payment.paymentDate) }}</td>
-            <td class="py-2 text-text">{{ paymentMethodLabel(payment.method) }}</td>
+            <td class="py-2 pr-4 text-text">{{ paymentMethodLabel(payment.method) }}</td>
+            <td class="py-2 pr-4 text-text">{{ payment.recordedBy.displayName }}</td>
+            <td class="py-2 text-text">{{ formatDateTime(payment.recordedAt) }}</td>
           </tr>
         }
       </tbody>

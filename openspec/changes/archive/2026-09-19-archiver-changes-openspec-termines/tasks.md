@@ -21,7 +21,7 @@ numerotation-tickets-branches, skills-agents-multi-outils) avec la CLI
 - [x] 2.1 [T-115] Committer avec le message `docs(docs): T-115 archiver les
       changes openspec termines` (ou équivalent conforme), en ajoutant
       uniquement les fichiers de ce ticket.
-- [ ] 2.2 [T-115] Pousser la branche
+- [x] 2.2 [T-115] Pousser la branche
       `docs/chore-115-archiver-changes-openspec-termines` et ouvrir une PR
       vers `main` avec le modèle du dépôt, seulement si la livraison est
-      explicitement demandée.
+      explicitement demandée. PR #103 fusionnée sur `main`.
