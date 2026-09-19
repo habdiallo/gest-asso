@@ -35,17 +35,20 @@
     >
       @for (tab of tabs; track tab) {
         <button
+          #tabButton
           type="button"
           [id]="'campaign-tab-' + tab"
           role="tab"
           [attr.aria-selected]="isActiveTab(tab) ? 'true' : 'false'"
           [attr.aria-controls]="'campaign-tabpanel-' + tab"
+          [tabIndex]="isActiveTab(tab) ? 0 : -1"
           class="border-b-2 px-4 py-2 text-sm font-medium"
           [class.border-gold-hover]="isActiveTab(tab)"
           [class.text-gold-hover]="isActiveTab(tab)"
           [class.border-transparent]="!isActiveTab(tab)"
           [class.text-text-2]="!isActiveTab(tab)"
           (click)="selectTab(tab)"
+          (keydown)="onTabsKeydown($event)"
         >
           {{ 'campaigns.detail.tabs.' + tab | transloco }}
         </button>
@@ -199,7 +202,7 @@
         tabindex="0"
         class="mt-6"
       >
-        <p class="text-text-2">{{ 'campaigns.detail.bilan.placeholder' | transloco }}</p>
+        <app-campaign-bilan-tab [financialSummary]="campaign.financialSummary" />
       </section>
     }
   }

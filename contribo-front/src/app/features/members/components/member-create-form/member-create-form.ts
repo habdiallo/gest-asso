@@ -25,8 +25,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
  * (RG-MEM-002, T-34) : la soumission est bloquée et un message d'erreur
  * explicite s'affiche tant qu'aucune catégorie n'est sélectionnée. Le statut
  * par défaut affiché (T-35), le message de confirmation de création de
- * compte (T-36) et le masquage de l'action pour l'Opérateur/le Membre (T-37)
- * ne sont pas traités ici.
+ * compte (T-36, `members-list-page.ts`) et le masquage de l'action pour
+ * l'Opérateur/le Membre (T-37) ne sont pas traités ici.
  */
 @Component({
   selector: 'app-member-create-form',

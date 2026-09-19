@@ -71,4 +71,19 @@ describe('MyDues', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Solidarité septembre');
   });
+
+  // Non-regression T-97 : aucun paiement en ligne n'est proposé sur "Mes cotisations",
+  // ce moyen étant absent du contrat API (voir openspec/changes/frontend-tickets-mvp-association).
+  it("ne propose aucune action de paiement en ligne", async () => {
+    const fixture = await createFixture();
+    const interactiveElements: HTMLElement[] = [
+      ...fixture.nativeElement.querySelectorAll('button, a, [role="button"]'),
+    ];
+
+    expect(interactiveElements.length).toBeGreaterThan(0);
+    for (const element of interactiveElements) {
+      expect(element.textContent ?? '').not.toMatch(/paiement|payer/i);
+      expect(element.getAttribute('href') ?? '').not.toMatch(/paiement|payment|pay/i);
+    }
+  });
 });

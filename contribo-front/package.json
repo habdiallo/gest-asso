@@ -8,6 +8,7 @@
     "start": "ng serve",
     "start:mock": "ng serve --configuration mock",
     "build": "ng build",
+    "build:mock": "ng build --configuration mock",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:tooling": "node --test scripts/tooling.test.cjs",
