@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -22,6 +23,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
@@ -108,6 +110,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
   imports: [
     TranslocoPipe,
     RouterLink,
+    ApiErrorRetry,
     FormDialog,
     LoadingSkeleton,
     MemberEditForm,
@@ -139,6 +142,9 @@ export class MemberDetailPage {
   readonly saving = signal(false);
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
+  /** Formulaire de modification affiché (T-102), selon le rôle : relu par `retryEdit`. */
+  private readonly editFormFull = viewChild<MemberEditForm>('editFormFull');
+  private readonly editFormOperator = viewChild<MemberEditFormOperator>('editFormOperator');
 
   private deactivateSession = 0;
   readonly canDeactivate = computed(() => {
@@ -296,6 +302,17 @@ export class MemberDetailPage {
           this.editError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : redéclenche la soumission du formulaire de
+   * modification affiché (générale ou restreinte Opérateur), qui reste
+   * affiché et éditable après l'échec, afin de renvoyer la saisie courante
+   * (et non un instantané figé lors du premier envoi).
+   */
+  retryEdit(): void {
+    this.editFormFull()?.submit();
+    this.editFormOperator()?.submit();
   }
 
   /**

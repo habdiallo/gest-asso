@@ -30,7 +30,11 @@
     </div>
 
     @if (errorMessage(); as errorKey) {
-      <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      <app-api-error-retry
+        [message]="errorKey | transloco"
+        [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+        (retry)="submit()"
+      />
     }
 
     <div class="mt-6 flex items-center justify-end gap-3">

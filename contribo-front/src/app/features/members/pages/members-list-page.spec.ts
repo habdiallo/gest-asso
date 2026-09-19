@@ -672,9 +672,7 @@ describe('MembersListPage', () => {
     });
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#members-status-filter',
-    );
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
     select.value = MemberStatus.Inactive;
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
@@ -696,9 +694,7 @@ describe('MembersListPage', () => {
     nextButton.click();
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#members-status-filter',
-    );
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
     select.value = MemberStatus.Active;
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
@@ -714,9 +710,7 @@ describe('MembersListPage', () => {
     );
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#members-status-filter',
-    );
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
     select.value = MemberStatus.Active;
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
@@ -1019,5 +1013,69 @@ describe('MembersListPage', () => {
     expect(fixture.nativeElement.querySelector('dialog [role="alert"]')?.textContent).toContain(
       "Impossible d'enregistrer ce membre",
     );
+  });
+
+  it('retries the same creation request and clears the error banner on success (T-102)', async () => {
+    const request: CreateMemberRequest = {
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    };
+    const createMember = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of(buildMemberDetails(request)));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.patchValue(request);
+    form.submit();
+    fixture.detectChanges();
+
+    const retryButton = Array.from(fixture.nativeElement.querySelectorAll('dialog button')).find(
+      (button) => (button as HTMLButtonElement).textContent?.trim() === 'Réessayer',
+    ) as HTMLButtonElement | undefined;
+    expect(retryButton).toBeTruthy();
+
+    retryButton?.click();
+    fixture.detectChanges();
+
+    expect(createMember).toHaveBeenCalledTimes(2);
+    expect(createMember).toHaveBeenNthCalledWith(2, request);
+    expect(fixture.nativeElement.querySelector('dialog [role="alert"]')).toBeNull();
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('sends the field corrected after a failed creation, not the stale request, on retry (T-102)', async () => {
+    const initialRequest: CreateMemberRequest = {
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    };
+    const createMember = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of(buildMemberDetails(initialRequest)));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.patchValue(initialRequest);
+    form.submit();
+    fixture.detectChanges();
+
+    form.form.patchValue({ firstName: 'Fatoumata' });
+    fixture.componentInstance.retryCreateMember();
+    fixture.detectChanges();
+
+    expect(createMember).toHaveBeenCalledTimes(2);
+    expect(createMember).toHaveBeenNthCalledWith(2, { ...initialRequest, firstName: 'Fatoumata' });
   });
 });

@@ -145,4 +145,45 @@ describe('CreateIncomeCategoryDialog', () => {
       'Une catégorie porte déjà ce libellé.',
     );
   });
+
+  it('retries the same submission and succeeds after a generic failure (T-102)', () => {
+    const fixture = TestBed.createComponent(CreateIncomeCategoryDialog);
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fillLabel(fixture, 'Catégorie C');
+
+    const createdEvents: unknown[] = [];
+    fixture.componentInstance.created.subscribe((category) => createdEvents.push(category));
+
+    submitForm(fixture);
+    httpMock
+      .expectOne('/api/v1/income-categories')
+      .flush(
+        { code: 'INTERNAL_ERROR', message: 'boom' },
+        { status: 500, statusText: 'Internal Server Error' },
+      );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+      'Impossible de créer la catégorie',
+    );
+    const retryButton = Array.from(root.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Réessayer',
+    ) as HTMLButtonElement | undefined;
+    expect(retryButton).toBeTruthy();
+
+    retryButton?.click();
+
+    const retryReq = httpMock.expectOne('/api/v1/income-categories');
+    expect(retryReq.request.body).toEqual({ label: 'Catégorie C' });
+    retryReq.flush({
+      id: 'cat-new',
+      label: 'Catégorie C',
+      memberCount: 0,
+      updatedAt: '2026-09-17T10:00:00Z',
+    });
+
+    expect(createdEvents).toHaveLength(1);
+  });
 });

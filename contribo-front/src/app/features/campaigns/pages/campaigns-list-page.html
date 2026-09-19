@@ -22,11 +22,14 @@
     >
       @if (createDialogOpen()) {
         @if (createError()) {
-          <p class="mb-4 text-sm text-error" role="alert">
-            {{ 'campaigns.create.error' | transloco }}
-          </p>
+          <app-api-error-retry
+            [message]="'campaigns.create.error' | transloco"
+            [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+            (retry)="retryCreateCampaign()"
+          />
         }
         <app-campaign-create-form
+          #createForm
           [submitting]="creating()"
           (submitted)="handleCreateCampaign($event)"
           (cancelled)="closeCreateDialog()"

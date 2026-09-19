@@ -528,6 +528,85 @@ describe('CampaignsListPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Impossible de créer la campagne');
   });
 
+  it('retries the same creation request and clears the error banner on success (T-102)', async () => {
+    const createCampaign = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of({ id: 'new-campaign' } as unknown as Campaign));
+    const fixture = await createFixture(() => of(buildCampaignPage()), { createCampaign });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const retryButton = Array.from(root.querySelectorAll('dialog button')).find(
+      (button) => button.textContent?.trim() === 'Réessayer',
+    ) as HTMLButtonElement | undefined;
+    expect(retryButton).toBeTruthy();
+
+    retryButton?.click();
+    fixture.detectChanges();
+
+    expect(createCampaign).toHaveBeenCalledTimes(2);
+    expect(createCampaign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ name: 'Solidarité octobre' }),
+    );
+    expect(root.querySelector('dialog [role="alert"]')).toBeNull();
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('sends the field corrected after a failed creation, not the stale request, on retry (T-102)', async () => {
+    const createCampaign = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of({ id: 'new-campaign' } as unknown as Campaign));
+    const fixture = await createFixture(() => of(buildCampaignPage()), { createCampaign });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
+    fixture.detectChanges();
+
+    createForm.form.patchValue({ name: 'Solidarité novembre' });
+    fixture.componentInstance.retryCreateCampaign();
+    fixture.detectChanges();
+
+    expect(createCampaign).toHaveBeenCalledTimes(2);
+    expect(createCampaign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ name: 'Solidarité novembre' }),
+    );
+  });
+
   describe('role-based access to creation (T-67)', () => {
     it.each([UserRole.Operator, UserRole.Member] as const)(
       'hides the "Créer une campagne" action for %s (US-COT-001)',

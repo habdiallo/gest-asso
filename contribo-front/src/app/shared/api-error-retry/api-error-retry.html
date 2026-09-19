@@ -1,0 +1,10 @@
+<div class="mb-4 flex flex-wrap items-center gap-3">
+  <p class="text-sm text-error" role="alert">{{ message() }}</p>
+  <button
+    type="button"
+    class="rounded-lg border border-error px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-error transition-colors hover:bg-error-wash"
+    (click)="retry.emit()"
+  >
+    {{ retryLabel() }}
+  </button>
+</div>

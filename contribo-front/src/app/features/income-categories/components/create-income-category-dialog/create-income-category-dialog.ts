@@ -5,6 +5,7 @@ import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 
 /**
@@ -19,7 +20,7 @@ import { FormDialog } from '@shared/form-dialog/form-dialog';
  */
 @Component({
   selector: 'app-create-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, FormDialog],
+  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorRetry, FormDialog],
   templateUrl: './create-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

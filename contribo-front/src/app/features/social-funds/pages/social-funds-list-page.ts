@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -12,6 +13,7 @@ import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -73,6 +75,7 @@ const PAGE_SIZE = 20;
   imports: [
     RouterLink,
     TranslocoPipe,
+    ApiErrorRetry,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
@@ -86,6 +89,8 @@ export class SocialFundsListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+  /** Formulaire de création affiché (T-102) : relu par `retryCreateSocialFund`. */
+  private readonly createForm = viewChild<SocialFundCreateForm>('createForm');
 
   /**
    * Masquage de l'action "Créer une cagnotte" pour l'Opérateur et le Membre
@@ -274,6 +279,15 @@ export class SocialFundsListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : redéclenche la soumission du formulaire de
+   * création, qui reste affiché et éditable après l'échec, afin de renvoyer
+   * la saisie courante (et non un instantané figé lors du premier envoi).
+   */
+  retryCreateSocialFund(): void {
+    this.createForm()?.submit();
   }
 
   private fetchPage(pageNumber: number, options: { isInitialLoad: boolean }): void {
