@@ -63,6 +63,22 @@ describe('CampaignBilanTab', () => {
     expect(root.textContent).not.toContain('Total attendu');
   });
 
+  it('affiche la repartition des membres par statut de paiement', async () => {
+    const fixture = await createFixture(
+      buildFinancialSummary({ dueCounts: { total: 86, paid: 38, partiallyPaid: 27, unpaid: 21 } }),
+    );
+    const root: HTMLElement = fixture.nativeElement;
+
+    expect(root.textContent).toContain('Répartition des membres par statut');
+    expect(root.textContent).toContain('Payé');
+    expect(root.textContent).toContain('38');
+    expect(root.textContent).toContain('Partiel');
+    expect(root.textContent).toContain('27');
+    expect(root.textContent).toContain('Non payé');
+    expect(root.textContent).toContain('21');
+    expect(root.textContent).toContain('Sur 86 membres concernés');
+  });
+
   it('affiche un reste a encaisser nul sans le confondre avec une absence de donnee', async () => {
     const fixture = await createFixture(
       buildFinancialSummary({ collectedAmount: 12_000_000, remainingAmount: 0 }),
