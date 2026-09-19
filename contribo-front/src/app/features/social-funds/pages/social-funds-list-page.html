@@ -30,9 +30,11 @@
     >
       @if (createDialogOpen()) {
         @if (createError()) {
-          <p class="mb-4 text-sm text-error" role="alert">
-            {{ 'socialFunds.create.error' | transloco }}
-          </p>
+          <app-api-error-retry
+            [message]="'socialFunds.create.error' | transloco"
+            [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+            (retry)="retryCreateSocialFund()"
+          />
         }
         <app-social-fund-create-form
           [submitting]="creating()"

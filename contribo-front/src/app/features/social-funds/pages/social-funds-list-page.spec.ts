@@ -478,15 +478,16 @@ describe('SocialFundsListPage', () => {
     // nouveau filtre.
     it('clears the previously displayed page and hides stale pagination while the filtered page zero is loading', async () => {
       const pending = new Subject<SocialFundPage>();
-      const listSocialFunds = vi.fn((page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
-        eventType === undefined
-          ? of(
-              buildSocialFundPage({
-                items: buildManyItems(20),
-                page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
-              }),
-            )
-          : pending.asObservable(),
+      const listSocialFunds = vi.fn(
+        (page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
+          eventType === undefined
+            ? of(
+                buildSocialFundPage({
+                  items: buildManyItems(20),
+                  page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+                }),
+              )
+            : pending.asObservable(),
       );
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
@@ -526,8 +527,9 @@ describe('SocialFundsListPage', () => {
     // croire à tort que le filtre ne renvoie aucun résultat.
     it('shows a loading status, not the empty message, while a filter change is pending', async () => {
       const pending = new Subject<SocialFundPage>();
-      const listSocialFunds = vi.fn((page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
-        eventType === undefined ? of(buildSocialFundPage()) : pending.asObservable(),
+      const listSocialFunds = vi.fn(
+        (page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
+          eventType === undefined ? of(buildSocialFundPage()) : pending.asObservable(),
       );
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
@@ -550,15 +552,16 @@ describe('SocialFundsListPage', () => {
     });
 
     it('treats a failed filtered load as an absent page: shows the error even on a single-page result and blocks any request from the previous controls', async () => {
-      const listSocialFunds = vi.fn((page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
-        eventType === undefined
-          ? of(
-              buildSocialFundPage({
-                items: buildManyItems(20),
-                page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
-              }),
-            )
-          : throwError(() => new Error('network error')),
+      const listSocialFunds = vi.fn(
+        (page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
+          eventType === undefined
+            ? of(
+                buildSocialFundPage({
+                  items: buildManyItems(20),
+                  page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+                }),
+              )
+            : throwError(() => new Error('network error')),
       );
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
@@ -662,6 +665,41 @@ describe('SocialFundsListPage', () => {
       expect(fixture.nativeElement.querySelector('dialog [role="alert"]')?.textContent).toContain(
         'Impossible de créer la cagnotte',
       );
+    });
+
+    it('retries the same creation request and clears the error banner on success (T-102)', async () => {
+      const request: CreateSocialFundRequest = {
+        title: 'Naissance chez les Bah',
+        eventType: SocialEventType.Birth,
+        beneficiary: 'Famille Bah',
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+      };
+      const createSocialFund = vi
+        .fn()
+        .mockReturnValueOnce(throwError(() => new Error('network error')))
+        .mockReturnValueOnce(of(buildSocialFund(request)));
+      const fixture = await createFixture(() => of(buildSocialFundPage()), { createSocialFund });
+      fixture.detectChanges();
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      fixture.componentInstance.handleCreateSocialFund(request);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const retryButton = Array.from(root.querySelectorAll('dialog button')).find(
+        (button) => button.textContent?.trim() === 'Réessayer',
+      ) as HTMLButtonElement | undefined;
+      expect(retryButton).toBeTruthy();
+
+      retryButton?.click();
+      fixture.detectChanges();
+
+      expect(createSocialFund).toHaveBeenCalledTimes(2);
+      expect(createSocialFund).toHaveBeenNthCalledWith(2, request);
+      expect(root.querySelector('dialog [role="alert"]')).toBeNull();
+      expect(fixture.componentInstance.createDialogOpen()).toBe(false);
     });
   });
 

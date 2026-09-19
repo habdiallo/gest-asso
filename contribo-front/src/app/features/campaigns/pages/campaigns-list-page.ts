@@ -12,6 +12,7 @@ import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -61,7 +62,15 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  */
 @Component({
   selector: 'app-campaigns-list-page',
-  imports: [RouterLink, TranslocoPipe, EmptyState, FormDialog, LoadingSkeleton, CampaignCreateForm],
+  imports: [
+    RouterLink,
+    TranslocoPipe,
+    ApiErrorRetry,
+    EmptyState,
+    FormDialog,
+    LoadingSkeleton,
+    CampaignCreateForm,
+  ],
   templateUrl: './campaigns-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,6 +79,8 @@ export class CampaignsListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+  /** Dernière requête de création envoyée (T-102) : rejouée par `retryCreateCampaign`. */
+  private lastCreateRequest: CreateCampaignRequest | null = null;
 
   private readonly requestedPage = signal(0);
   private requestSequence = 0;
@@ -186,6 +197,7 @@ export class CampaignsListPage {
     if (!this.createDialogOpen() || this.creating()) {
       return;
     }
+    this.lastCreateRequest = request;
     const session = this.createDialogSession;
     this.creating.set(true);
     this.createError.set(false);
@@ -209,6 +221,17 @@ export class CampaignsListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : rejoue la dernière création envoyée sans
+   * demander à l'utilisateur de ressaisir le formulaire, dont la saisie reste
+   * affichée et inchangée après l'échec.
+   */
+  retryCreateCampaign(): void {
+    if (this.lastCreateRequest) {
+      this.handleCreateCampaign(this.lastCreateRequest);
+    }
   }
 
   private loadPage(page: number): void {

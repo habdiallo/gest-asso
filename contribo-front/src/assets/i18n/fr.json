@@ -474,5 +474,6 @@
   "sharedDueStatus.due": "À payer",
   "sharedDueStatus.partiallyPaid": "Partiellement payé",
   "sharedDueStatus.paid": "Payé",
-  "sharedDueStatus.overdue": "En retard"
+  "sharedDueStatus.overdue": "En retard",
+  "sharedApiErrorRetry.retryLabel": "Réessayer"
 }

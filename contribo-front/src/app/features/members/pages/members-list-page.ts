@@ -13,6 +13,7 @@ import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } fr
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -89,7 +90,15 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  */
 @Component({
   selector: 'app-members-list-page',
-  imports: [TranslocoPipe, RouterLink, EmptyState, FormDialog, LoadingSkeleton, MemberCreateForm],
+  imports: [
+    TranslocoPipe,
+    RouterLink,
+    ApiErrorRetry,
+    EmptyState,
+    FormDialog,
+    LoadingSkeleton,
+    MemberCreateForm,
+  ],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -99,6 +108,8 @@ export class MembersListPage {
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
   private requestSequence = 0;
+  /** Dernière requête de création envoyée (T-102) : rejouée par `retryCreateMember`. */
+  private lastCreateRequest: CreateMemberRequest | null = null;
 
   readonly nameQuery = signal('');
   private readonly nameQueryInput = new Subject<string>();
@@ -243,6 +254,7 @@ export class MembersListPage {
     if (!this.createDialogOpen() || this.creating()) {
       return;
     }
+    this.lastCreateRequest = request;
     const session = this.createDialogSession;
     this.creating.set(true);
     this.createError.set(false);
@@ -270,6 +282,17 @@ export class MembersListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : rejoue la dernière création envoyée sans
+   * demander à l'utilisateur de ressaisir le formulaire, dont la saisie reste
+   * affichée et inchangée après l'échec.
+   */
+  retryCreateMember(): void {
+    if (this.lastCreateRequest) {
+      this.handleCreateMember(this.lastCreateRequest);
+    }
   }
 
   private loadPage(page: number): void {

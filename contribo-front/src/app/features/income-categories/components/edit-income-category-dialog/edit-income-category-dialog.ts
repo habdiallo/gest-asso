@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService, ErrorCode } from '@api';
@@ -6,6 +14,7 @@ import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 
 /** Rejette un libellé vide ou composé uniquement d'espaces (contrainte API). */
@@ -29,7 +38,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-edit-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, FormDialog],
+  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorRetry, FormDialog],
   templateUrl: './edit-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -620,6 +620,39 @@ describe('CampaignDetailPage', () => {
       expect(root.querySelector('form')).not.toBeNull();
     });
 
+    it('retries the same bareme submission and clears the error banner on success (T-102)', async () => {
+      const updatedCampaign = buildCampaign({ status: 'UPCOMING' });
+      const updateCampaignCategoryAmounts = vi
+        .fn()
+        .mockReturnValueOnce(throwError(() => new Error('network error')))
+        .mockReturnValueOnce(of(updatedCampaign));
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts,
+      });
+      fixture.detectChanges();
+
+      findEditButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const form = root.querySelector('form') as HTMLFormElement;
+      form.dispatchEvent(new Event('submit'));
+      fixture.detectChanges();
+
+      const retryButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Réessayer',
+      ) as HTMLButtonElement | undefined;
+      expect(retryButton).toBeTruthy();
+
+      retryButton?.click();
+      fixture.detectChanges();
+
+      expect(updateCampaignCategoryAmounts).toHaveBeenCalledTimes(2);
+      expect(root.querySelector('[role="alert"]')).toBeNull();
+      expect(findEditButton(root)).not.toBeNull();
+    });
+
     it('cancels editing without calling the API and restores the read-only table', async () => {
       const updateCampaignCategoryAmounts = vi.fn(() => of(buildCampaign({ status: 'UPCOMING' })));
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {

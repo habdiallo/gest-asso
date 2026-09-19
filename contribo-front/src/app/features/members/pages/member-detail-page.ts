@@ -22,6 +22,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
@@ -108,6 +109,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
   imports: [
     TranslocoPipe,
     RouterLink,
+    ApiErrorRetry,
     FormDialog,
     LoadingSkeleton,
     MemberEditForm,
@@ -139,6 +141,8 @@ export class MemberDetailPage {
   readonly saving = signal(false);
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
+  /** Dernière requête de modification envoyée (T-102) : rejouée par `retryEdit`. */
+  private lastEditRequest: ((member: MemberDetails) => Observable<MemberDetails>) | null = null;
 
   private deactivateSession = 0;
   readonly canDeactivate = computed(() => {
@@ -271,6 +275,7 @@ export class MemberDetailPage {
     if (!this.canEdit() || !member || !this.editOpen() || this.saving()) {
       return;
     }
+    this.lastEditRequest = buildRequest;
     const session = this.editSession;
     this.saving.set(true);
     this.editError.set(false);
@@ -296,6 +301,18 @@ export class MemberDetailPage {
           this.editError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : rejoue la dernière modification envoyée
+   * (générale ou restreinte Opérateur) sans demander à l'utilisateur de
+   * ressaisir le formulaire, dont la saisie reste affichée et inchangée
+   * après l'échec.
+   */
+  retryEdit(): void {
+    if (this.lastEditRequest) {
+      this.submitEdit(this.lastEditRequest);
+    }
   }
 
   /**

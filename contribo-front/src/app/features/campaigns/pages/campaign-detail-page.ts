@@ -25,6 +25,7 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { formatCalendarDate } from '../campaign-dates';
@@ -105,6 +106,7 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
     TranslocoPipe,
     ReactiveFormsModule,
     AmountInput,
+    ApiErrorRetry,
     CampaignDuesTab,
     CampaignBilanTab,
     FormDialog,

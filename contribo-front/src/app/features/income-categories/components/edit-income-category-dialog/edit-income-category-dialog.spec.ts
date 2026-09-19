@@ -78,8 +78,9 @@ describe('EditIncomeCategoryDialog', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const input: HTMLInputElement =
-      fixture.nativeElement.querySelector('#income-category-edit-label');
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#income-category-edit-label',
+    );
     expect(input.value).toBe('Standard');
   });
 
@@ -170,14 +171,12 @@ describe('EditIncomeCategoryDialog', () => {
     fixture.componentInstance.closed.subscribe(() => closedEvents.push(undefined));
 
     submitForm(fixture);
-    httpMock
-      .expectOne('/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10')
-      .flush({
-        id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
-        label: 'Catégorie renommée',
-        memberCount: 12,
-        updatedAt: '2026-09-17T10:00:00Z',
-      });
+    httpMock.expectOne('/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10').flush({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      label: 'Catégorie renommée',
+      memberCount: 12,
+      updatedAt: '2026-09-17T10:00:00Z',
+    });
 
     expect(updatedEvents).toHaveLength(1);
     expect(closedEvents).toHaveLength(1);
@@ -206,6 +205,50 @@ describe('EditIncomeCategoryDialog', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
       'Une catégorie porte déjà ce libellé.',
     );
+  });
+
+  it('retries the same submission and succeeds after a generic failure (T-102)', () => {
+    const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
+    fixture.componentRef.setInput('category', buildCategory());
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    fillLabel(fixture, 'Catégorie renommée');
+
+    const updatedEvents: unknown[] = [];
+    fixture.componentInstance.updated.subscribe((category) => updatedEvents.push(category));
+
+    submitForm(fixture);
+    httpMock
+      .expectOne('/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10')
+      .flush(
+        { code: 'INTERNAL_ERROR', message: 'boom' },
+        { status: 500, statusText: 'Internal Server Error' },
+      );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+      'Impossible de modifier la catégorie',
+    );
+    const retryButton = Array.from(root.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Réessayer',
+    ) as HTMLButtonElement | undefined;
+    expect(retryButton).toBeTruthy();
+
+    retryButton?.click();
+
+    const retryReq = httpMock.expectOne(
+      '/api/v1/income-categories/a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+    );
+    expect(retryReq.request.body).toEqual({ label: 'Catégorie renommée' });
+    retryReq.flush({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      label: 'Catégorie renommée',
+      memberCount: 12,
+      updatedAt: '2026-09-17T10:00:00Z',
+    });
+
+    expect(updatedEvents).toHaveLength(1);
   });
 
   it('ignores a stale PATCH response after the dialog reopened on another category', () => {

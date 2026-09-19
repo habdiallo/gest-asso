@@ -84,9 +84,11 @@
     >
       @if (editOpen() && canEdit()) {
         @if (editError()) {
-          <p class="mb-4 text-sm text-error" role="alert">
-            {{ 'members.edit.error' | transloco }}
-          </p>
+          <app-api-error-retry
+            [message]="'members.edit.error' | transloco"
+            [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+            (retry)="retryEdit()"
+          />
         }
         @if (canEditFull()) {
           <app-member-edit-form

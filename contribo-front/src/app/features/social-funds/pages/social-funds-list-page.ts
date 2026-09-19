@@ -12,6 +12,7 @@ import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -73,6 +74,7 @@ const PAGE_SIZE = 20;
   imports: [
     RouterLink,
     TranslocoPipe,
+    ApiErrorRetry,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
@@ -86,6 +88,8 @@ export class SocialFundsListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
+  /** Dernière requête de création envoyée (T-102) : rejouée par `retryCreateSocialFund`. */
+  private lastCreateRequest: CreateSocialFundRequest | null = null;
 
   /**
    * Masquage de l'action "Créer une cagnotte" pour l'Opérateur et le Membre
@@ -251,6 +255,7 @@ export class SocialFundsListPage {
     if (!this.createDialogOpen() || this.creating()) {
       return;
     }
+    this.lastCreateRequest = request;
     const session = this.createDialogSession;
     this.creating.set(true);
     this.createError.set(false);
@@ -274,6 +279,17 @@ export class SocialFundsListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  /**
+   * Nouvelle tentative (T-102) : rejoue la dernière création envoyée sans
+   * demander à l'utilisateur de ressaisir le formulaire, dont la saisie reste
+   * affichée et inchangée après l'échec.
+   */
+  retryCreateSocialFund(): void {
+    if (this.lastCreateRequest) {
+      this.handleCreateSocialFund(this.lastCreateRequest);
+    }
   }
 
   private fetchPage(pageNumber: number, options: { isInitialLoad: boolean }): void {

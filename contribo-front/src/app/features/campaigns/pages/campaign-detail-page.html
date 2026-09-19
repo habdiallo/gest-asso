@@ -184,7 +184,11 @@
             </div>
 
             @if (baremeErrorMessage(); as errorKey) {
-              <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+              <app-api-error-retry
+                [message]="errorKey | transloco"
+                [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+                (retry)="submitBareme()"
+              />
             }
 
             <div class="mt-4 flex items-center justify-end gap-3">
