@@ -47,7 +47,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 4.3 [T-23] (P1) Vue liste restreinte pour l'Opérateur (masquage du détail financier). — RG-MEM-008
 - [ ] 4.4 [T-24] (P2) Recherche par nom dans la liste des membres.
 - [x] 4.5 [T-25] (P2) Filtre par statut (Actif/Inactif) dans la liste des membres.
-- [ ] 4.6 [T-26] (P2) Filtre par catégorie de revenu dans la liste des membres.
+- [x] 4.6 [T-26] (P2) Filtre par catégorie de revenu dans la liste des membres.
 - [x] 4.7 [T-27] (P0) Écran fiche membre : bloc informations personnelles, catégorie, fonction, statut. — US-MEM-003 ; openapi:`getMember`
 - [x] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
 - [x] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.

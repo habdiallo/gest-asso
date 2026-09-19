@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MembresService, MemberStatus } from '@api';
-import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
+import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -20,7 +20,8 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. La recherche (T-24) et le filtre catégorie (T-26) ne sont pas
+ * à US-MEM-002. La recherche (T-24), le filtre statut (T-25) et le filtre
+ * catégorie (T-26) ne sont pas
  * exploités ici ; seule la pagination de base (page suivante/précédente sur
  * `page`/`size`) est fournie par ce ticket, afin que l'ensemble du répertoire
  * reste accessible au-delà des 20 premiers membres. La colonne Statut affiche
@@ -42,6 +43,15 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * associés à la catégorie), est masquée pour le rôle Opérateur. Les autres
  * colonnes (identité, coordonnées, fonction, statut) restent affichées, car
  * elles sont nécessaires à ses opérations courantes.
+ *
+ * Filtre par catégorie de revenu (T-26) : `GET /members`
+ * (`besoins/openapi.yaml`, `listMembers`) n'expose aucun paramètre de requête
+ * pour filtrer par catégorie (seuls `page`, `size`, `q` et `status` existent),
+ * contrairement au filtre statut qui pourra s'appuyer sur `MemberStatusFilter`.
+ * Ce ticket n'invente donc pas de paramètre serveur : le filtre s'applique
+ * côté client sur les membres de la page actuellement chargée, via un
+ * sélecteur alimenté par les catégories réellement présentes dans cette page.
+ * Masqué pour l'Opérateur, comme la colonne Catégorie qu'il pilote (RG-MEM-008).
  *
  * Ajoute également l'action "Ajouter un membre" (T-33, US-MEM-001) : ouvre le
  * formulaire de création dans `FormDialog` (T-15) et appelle `POST /members`
@@ -115,8 +125,44 @@ export class MembersListPage {
   readonly memberStatusLabel = memberStatusLabel;
   readonly memberIsActive = memberIsActive;
 
+  /**
+   * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les
+   * catégories". Les options proposées et le filtrage appliqué se limitent
+   * aux membres de la page actuellement chargée, `listMembers` n'exposant
+   * aucun paramètre de filtre par catégorie. La sélection est conservée
+   * pendant la pagination : une catégorie absente de la nouvelle page
+   * affiche une liste filtrée vide plutôt que de réafficher toutes les
+   * catégories.
+   */
+  readonly selectedIncomeCategoryId = signal<string | null>(null);
+
+  readonly incomeCategoryOptions = computed(() => {
+    const items = this.memberPage()?.items ?? [];
+    const byId = new Map<string, string>();
+    for (const member of items) {
+      byId.set(member.incomeCategory.id, member.incomeCategory.label);
+    }
+    return [...byId.entries()]
+      .map(([id, label]) => ({ id, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+  });
+
+  readonly filteredItems = computed<MemberSummary[]>(() => {
+    const items = this.memberPage()?.items ?? [];
+    const categoryId = this.selectedIncomeCategoryId();
+    if (!categoryId) {
+      return items;
+    }
+    return items.filter((member) => member.incomeCategory.id === categoryId);
+  });
+
   constructor() {
     this.loadPage(0);
+  }
+
+  onIncomeCategoryFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedIncomeCategoryId.set(value === '' ? null : value);
   }
 
   onStatusFilterChange(event: Event): void {
@@ -212,6 +258,11 @@ export class MembersListPage {
           }
           this.memberPage.set(memberPage);
           this.loading.set(false);
+          // Le filtre catégorie (T-26) porte sur la page chargée, faute de
+          // paramètre de catégorie dans le contrat `listMembers`. La
+          // sélection reste conservée d'une page à l'autre : une catégorie
+          // absente de la nouvelle page ne montre aucun membre plutôt que
+          // d'afficher silencieusement toutes les catégories.
         },
         error: () => {
           if (requestId !== this.requestSequence) {
