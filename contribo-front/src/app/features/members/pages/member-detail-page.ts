@@ -15,22 +15,27 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { MemberPaymentsTab } from '../components/member-payments-tab/member-payments-tab';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
 /** Identifiant d'un onglet de la fiche membre (US-MEM-003). */
-export type MemberDetailTab = 'informations' | 'cotisations' | 'reglements';
+export type MemberDetailTab = 'informations' | 'cotisations' | 'reglements' | 'contributions';
 
 /**
- * Onglets "Situation des cotisations" (T-28) et "Historique des règlements"
- * (T-29) livrés par ces tickets. L'onglet "Contributions aux cagnottes"
- * (T-30) reste un ticket dédié qui étendra ce tableau ; la navigation
- * clavier flèches gauche/droite entre onglets (T-31) reste elle aussi un
+ * Onglets "Situation des cotisations" (T-28), "Historique des règlements"
+ * (T-29) et "Contributions aux cagnottes" (T-30) livrés par ces tickets. La
+ * navigation clavier flèches gauche/droite entre onglets (T-31) reste un
  * ticket séparé.
  */
-const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisations', 'reglements'];
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
+  'informations',
+  'cotisations',
+  'reglements',
+  'contributions',
+];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -40,17 +45,13 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
- * Limite connue : les contributions aux cagnottes prévues par US-MEM-003
- * relèvent du ticket T-30 (contenu de l'onglet à ajouter). La restriction de
- * la vue Opérateur (RG-MEM-008, T-23) et la variante de modification
- * Opérateur (T-39) restent à livrer. La modification complète
- * Administrateur/Trésorier est fournie par T-38.
- *
  * Onglets (US-MEM-003) : "Informations" reprend le bloc de base ;
  * "Situation des cotisations" (T-28) charge `openapi:listMemberDues` via
  * `MemberDuesTab` ; "Historique des règlements" (T-29) liste, du plus récent
  * au plus ancien, les règlements du membre toutes campagnes confondues via
- * `MemberPaymentsTab`. Activation au clic ou par Entrée/Espace, sans
+ * `MemberPaymentsTab` ; "Contributions aux cagnottes" (T-30) liste, du plus
+ * récent au plus ancien, les contributions du membre via
+ * `MemberContributionsTab`. Activation au clic ou par Entrée/Espace, sans
  * navigation clavier flèches gauche/droite (T-31, ticket séparé).
  *
  * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
@@ -59,7 +60,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * par la réponse (statut Inactif), en conservant visibles les sections
  * historiques déjà livrées (cotisations, règlements, contributions). La
  * boîte de confirmation avant envoi (RG-MEM-016, T-42) reste à livrer sur un
- * ticket distinct. Les contributions restent le ticket T-30.
+ * ticket distinct.
  *
  * Action "Réactiver" (T-44, US-MEM-006) : appelle `POST
  * /members/{memberId}/reactivation` (`MembresService.reactivateMember`) pour
@@ -67,10 +68,21 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisat
  * explicite (RG-MEM-020 à RG-MEM-022). Le masquage mutuel avec l'action
  * "Désactiver" selon le statut courant (T-46) et le masquage pour les rôles
  * Trésorier/Opérateur/Membre (T-47) restent à livrer sur des tickets distincts.
+ * La restriction de la vue Opérateur (RG-MEM-008, T-23) et la variante de
+ * modification Opérateur (T-39) restent à livrer. La modification complète
+ * Administrateur/Trésorier est fournie par T-38.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberDuesTab, MemberPaymentsTab],
+  imports: [
+    TranslocoPipe,
+    RouterLink,
+    FormDialog,
+    MemberEditForm,
+    MemberDuesTab,
+    MemberPaymentsTab,
+    MemberContributionsTab,
+  ],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

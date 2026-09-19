@@ -6,9 +6,13 @@ import {
   ErrorCode,
   MemberStatus,
   PaymentMethod,
+  SocialEventType,
+  SocialFundStatus,
   UserRole,
 } from '@api';
 import type {
+  Contribution,
+  ContributionPage,
   CreateMemberRequest,
   Due,
   DuePage,
@@ -214,6 +218,51 @@ const demoMemberDues: Record<string, Due[]> = {
       remainingAmount: 0,
       status: DueStatus.Paid,
       paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
+
+/**
+ * Contributions aux cagnottes de démonstration pour l'onglet dédié de la
+ * fiche membre (T-30, `GET /api/v1/contributions?memberId=...`). Un seul
+ * membre en porte pour exercer l'affichage de la liste ; les autres
+ * exercent l'état vide (RG-CAG-004 à RG-CAG-007 : aucune limite de nombre ni
+ * de montant minimal, traçabilité de l'utilisateur et de l'horodatage de
+ * saisie, non affichées dans cet onglet centré sur le membre).
+ */
+const demoContributionsByMemberId: Readonly<Record<string, Contribution[]>> = {
+  [demoMembers[0].id]: [
+    {
+      id: '10700000-0000-4000-8000-000000000710',
+      member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      socialFund: {
+        id: '10700000-0000-4000-8000-000000000300',
+        title: 'Mariage de Fanta et Sekou',
+        eventType: SocialEventType.Wedding,
+        status: SocialFundStatus.Open,
+      },
+      amount: 150_000,
+      contributionDate: '2026-09-14',
+      method: PaymentMethod.MobileMoney,
+      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'M. Bah' },
+      recordedAt: '2026-09-14T09:05:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000711',
+      member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      socialFund: {
+        id: '10700000-0000-4000-8000-000000000301',
+        title: 'Naissance chez les Camara',
+        eventType: SocialEventType.Birth,
+        status: SocialFundStatus.Closed,
+      },
+      amount: 50_000,
+      contributionDate: '2026-06-02',
+      method: PaymentMethod.Cash,
+      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'M. Bah' },
+      recordedAt: '2026-06-02T08:30:00Z',
       currency: CurrencyCode.Gnf,
     },
   ],
@@ -543,6 +592,35 @@ export const membersHandlers = [
         totalElements: dues.length,
         totalPages: Math.max(1, Math.ceil(dues.length / size)),
       },
+    });
+  }),
+
+  /**
+   * Contributions aux cagnottes d'un membre pour l'onglet dédié de la fiche
+   * membre (T-30, `openapi:listContributions`), de la plus récente à la plus
+   * ancienne, comme le fait le serveur réel. `memberId` est requis par cet
+   * onglet ; les autres filtres du contrat (recherche, cagnotte) ne sont pas
+   * exercés ici.
+   */
+  http.get('/api/v1/contributions', async ({ request }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const url = new URL(request.url);
+    const memberId = url.searchParams.get('memberId') ?? '';
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const pageSize = Number(url.searchParams.get('size') ?? '20');
+    const contributions = demoContributionsByMemberId[memberId] ?? [];
+    const totalElements = contributions.length;
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
+    const items = contributions.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+
+    return HttpResponse.json<ContributionPage>({
+      items,
+      page: { number: pageNumber, size: pageSize, totalElements, totalPages },
     });
   }),
 ];

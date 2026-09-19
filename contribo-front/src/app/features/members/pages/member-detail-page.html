@@ -264,5 +264,17 @@
         <app-member-payments-tab [memberId]="member.id" />
       </section>
     }
+
+    @if (isActiveTab('contributions')) {
+      <section
+        id="member-tabpanel-contributions"
+        role="tabpanel"
+        aria-labelledby="member-tab-contributions"
+        tabindex="0"
+        class="mt-6"
+      >
+        <app-member-contributions-tab [memberId]="member.id" />
+      </section>
+    }
   }
 </main>

@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import {
+  ContributionsService,
   CurrencyCode,
   ErrorCode,
   MemberStatus,
@@ -74,6 +75,11 @@ const emptyDuePage: DuePage = {
   page: { number: 0, size: 20, totalElements: 0, totalPages: 1 },
 };
 
+const emptyContributionPage = {
+  items: [],
+  page: { number: 0, size: 20, totalElements: 0, totalPages: 0 },
+};
+
 function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
   return {
     id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -143,6 +149,12 @@ async function createFixture(
         } as unknown as RglementsService,
       },
       {
+        provide: ContributionsService,
+        useValue: {
+          listContributions: () => of(emptyContributionPage),
+        } as unknown as ContributionsService,
+      },
+      {
         provide: ActivatedRoute,
         useValue: { paramMap: of(convertToParamMap({ memberId })) },
       },
@@ -203,6 +215,27 @@ describe('MemberDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent?.match(/Non renseigné/g)?.length).toBe(5);
+  });
+
+  it('shows the contributions tab as an accessible tabpanel (T-30, US-MEM-003)', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tab = Array.from(root.querySelectorAll('[role="tab"]')).find((element) =>
+      element.textContent?.includes('Contributions aux cagnottes'),
+    ) as HTMLButtonElement | undefined;
+    expect(tab).toBeDefined();
+
+    tab?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(tab?.getAttribute('aria-selected')).toBe('true');
+    const panel = root.querySelector('[role="tabpanel"]');
+    expect(panel).not.toBeNull();
+    expect(panel?.querySelector('app-member-contributions-tab')).not.toBeNull();
   });
 
   it('shows a generic error state when the API call fails', async () => {
@@ -311,6 +344,12 @@ describe('MemberDetailPage', () => {
           useValue: {
             listPayments: () => of(buildPaymentPage()),
           } as unknown as RglementsService,
+        },
+        {
+          provide: ContributionsService,
+          useValue: {
+            listContributions: () => of(emptyContributionPage),
+          } as unknown as ContributionsService,
         },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap.asObservable() } },
       ],

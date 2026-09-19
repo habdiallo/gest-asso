@@ -1,5 +1,5 @@
 import { MemberStatus } from '@api';
-import type { MemberDetails, MemberPage } from '@api';
+import type { ContributionPage, MemberDetails, MemberPage } from '@api';
 import { demoAccounts } from '../../../../mocks/demo-accounts';
 import { buildMemberPageResponse, membersHandlers } from './handlers';
 
@@ -154,5 +154,53 @@ describe('POST /api/v1/members/{memberId}/reactivation (mocks MSW, T-44)', () =>
     );
 
     expect(response.status).toBe(403);
+  });
+});
+
+describe('GET /api/v1/contributions (mocks MSW, T-30)', () => {
+  const headers = {
+    Authorization: `Bearer ${demoAccounts[0].accessToken}`,
+    'Content-Type': 'application/json',
+  };
+
+  it('returns the contributions to social funds of a member with contributions', async () => {
+    const page = buildMemberPageResponse();
+    const memberId = page.items[0].id;
+
+    const response = await runRequest(
+      new Request(`http://localhost/api/v1/contributions?memberId=${memberId}`, { headers }),
+    );
+    const contributionPage = (await response.json()) as ContributionPage;
+
+    expect(response.status).toBe(200);
+    expect(contributionPage.items.length).toBeGreaterThan(0);
+    expect(contributionPage.items.every((item) => item.member.id === memberId)).toBe(true);
+  });
+
+  it('returns an empty page for a member without any contribution', async () => {
+    const page = buildMemberPageResponse();
+    const memberWithContribution = page.items[0].id;
+    const memberWithoutContribution = page.items.find((item) => item.id !== memberWithContribution);
+    expect(memberWithoutContribution).toBeDefined();
+
+    const response = await runRequest(
+      new Request(
+        `http://localhost/api/v1/contributions?memberId=${memberWithoutContribution?.id}`,
+        { headers },
+      ),
+    );
+    const contributionPage = (await response.json()) as ContributionPage;
+
+    expect(response.status).toBe(200);
+    expect(contributionPage.items).toEqual([]);
+    expect(contributionPage.page.totalElements).toBe(0);
+  });
+
+  it('requires authentication', async () => {
+    const response = await runRequest(
+      new Request('http://localhost/api/v1/contributions?memberId=unknown'),
+    );
+
+    expect(response.status).toBe(401);
   });
 });
