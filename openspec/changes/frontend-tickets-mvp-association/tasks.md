@@ -65,7 +65,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 5.5 [T-37] (P0) Masquage de l'action "Ajouter un membre" pour les rôles Opérateur et Membre. — RG-MEM-001
 - [x] 5.6 [T-38] (P0) Formulaire de modification d'un membre — tous champs pour Administrateur/Trésorier (y compris catégorie et fonction). — US-MEM-004
 - [ ] 5.7 [T-39] (P0) Formulaire de modification d'un membre — variante Opérateur limitée aux champs téléphone, ville, pays, nom d'usage. — RG-MEM-017
-- [ ] 5.8 [T-40] (P0) Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018
+- [x] 5.8 [T-40] (P0) Retrait de tout contrôle de changement de statut dans le formulaire général de modification. — RG-MEM-018
 
 ## 6. Membres — activation (`member-management-ui`)
 
