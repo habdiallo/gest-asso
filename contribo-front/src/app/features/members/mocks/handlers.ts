@@ -2,6 +2,7 @@ import { HttpResponse, delay, http } from 'msw';
 import {
   CampaignStatus,
   CurrencyCode,
+  DueStatus,
   ErrorCode,
   MemberStatus,
   PaymentMethod,
@@ -9,6 +10,8 @@ import {
 } from '@api';
 import type {
   CreateMemberRequest,
+  Due,
+  DuePage,
   ErrorResponse,
   MemberDetails,
   MemberPage,
@@ -168,6 +171,54 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
   ],
 };
 
+/**
+ * Cotisations de démonstration pour `GET /api/v1/members/{memberId}/dues`
+ * (T-28). Duplique volontairement une campagne plausible plutôt que
+ * d'importer `features/campaigns/mocks/handlers.ts` : les mocks MSW restent
+ * autonomes par fonctionnalité (cf. commentaire équivalent sur
+ * `demoIncomeCategoryLabelsById` ci-dessus).
+ */
+const demoMemberDues: Record<string, Due[]> = {
+  '10700000-0000-4000-8000-000000000500': [
+    {
+      id: '10700000-0000-4000-8000-000000000420',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: {
+        id: '10700000-0000-4000-8000-000000000200',
+        name: 'Solidarité septembre',
+        startDate: '2026-09-01',
+        endDate: '2026-09-30',
+        status: CampaignStatus.Open,
+      },
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      dueAmount: 100_000,
+      paidAmount: 50_000,
+      remainingAmount: 50_000,
+      status: DueStatus.PartiallyPaid,
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000421',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: {
+        id: '10700000-0000-4000-8000-000000000201',
+        name: 'Rentrée solidaire',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        status: CampaignStatus.Closed,
+      },
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      dueAmount: 80_000,
+      paidAmount: 80_000,
+      remainingAmount: 0,
+      status: DueStatus.Paid,
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
@@ -189,6 +240,13 @@ function accessDenied(): Response {
   );
 }
 
+function memberAlreadyInactive(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.MemberAlreadyInactive, message: 'Ce membre est déjà inactif.' },
+    { status: 409 },
+  );
+}
+
 /** Construit la réponse `/members` pour l'ensemble des membres de démonstration. */
 export function buildMemberPageResponse(): MemberPage {
   return {
@@ -203,10 +261,13 @@ export function buildMemberPageResponse(): MemberPage {
 }
 
 /**
- * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21) et
+ * Handlers MSW de démonstration pour `GET /api/v1/members` (T-21, filtre
+ * statut T-25 via le paramètre contractuel `status`) et
  * `GET /api/v1/members/{memberId}` (T-27). Seule l'authentification est
  * vérifiée ici ; la restriction du contenu affiché à l'Opérateur
- * (RG-MEM-008) relève du ticket T-23.
+ * (RG-MEM-008) relève du ticket T-23. Le résumé (`summary`) reste calculé
+ * sur l'ensemble des membres, indépendamment du filtre appliqué à `items`,
+ * conformément à `MemberPage` (`besoins/openapi.yaml`).
  */
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
@@ -216,7 +277,19 @@ export const membersHandlers = [
       return authenticationRequired();
     }
 
-    return HttpResponse.json<MemberPage>(buildMemberPageResponse());
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status') as MemberStatus | null;
+    const response = buildMemberPageResponse();
+    if (status) {
+      const items = response.items.filter((member) => member.status === status);
+      return HttpResponse.json<MemberPage>({
+        ...response,
+        items,
+        page: { ...response.page, totalElements: items.length },
+      });
+    }
+
+    return HttpResponse.json<MemberPage>(response);
   }),
 
   /**
@@ -307,6 +380,47 @@ export const membersHandlers = [
     }
     return HttpResponse.json<MemberDetails>(updated);
   }),
+  /**
+   * `POST /api/v1/members/{memberId}/deactivation` (T-41) : réservé à
+   * l'Administrateur (US-MEM-005). Refuse une seconde désactivation par un
+   * conflit métier, conserve les données historiques du membre (RG-MEM-012 à
+   * RG-MEM-015). La boîte de confirmation (T-42) et l'action symétrique
+   * "Réactiver" (T-44) relèvent d'autres tickets.
+   */
+  http.post(
+    '/api/v1/members/:memberId/deactivation',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (account.user.role !== UserRole.Administrator) {
+        return accessDenied();
+      }
+
+      const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+      const existing = demoMemberDetails.get(memberId);
+      if (!existing) {
+        return memberNotFound();
+      }
+      if (existing.status === MemberStatus.Inactive) {
+        return memberAlreadyInactive();
+      }
+
+      const updated: MemberDetails = {
+        ...existing,
+        status: MemberStatus.Inactive,
+        account: { ...existing.account, active: false },
+      };
+      demoMemberDetails.set(memberId, updated);
+      const index = demoMembers.findIndex((member) => member.id === memberId);
+      if (index >= 0) {
+        demoMembers[index] = { ...demoMembers[index], status: MemberStatus.Inactive };
+      }
+      return HttpResponse.json<MemberDetails>(updated);
+    },
+  ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
@@ -349,5 +463,41 @@ export const membersHandlers = [
       page: { number: pageNumber, size: pageSize, totalElements, totalPages },
     };
     return HttpResponse.json<PaymentPage>(page);
+  }),
+
+  /**
+   * `GET /api/v1/members/{memberId}/dues` (T-28, `openapi:listMemberDues`) :
+   * situation des cotisations du membre, paginée, de la plus récente à la
+   * plus ancienne (contrat `DuePage`). Le contenu affiché n'est pas encore
+   * restreint pour l'Opérateur ici : `MemberDuesTab` masque déjà la colonne
+   * catégorie de revenu côté IHM (RG-MEM-008), sans qu'un filtrage serveur
+   * supplémentaire soit prévu par ce mock.
+   */
+  http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const memberId = typeof params['memberId'] === 'string' ? params['memberId'] : '';
+    if (!demoMemberDetails.has(memberId)) {
+      return memberNotFound();
+    }
+
+    const url = new URL(request.url);
+    const size = Number(url.searchParams.get('size') ?? '20');
+    const page = Number(url.searchParams.get('page') ?? '0');
+    const dues = demoMemberDues[memberId] ?? [];
+    const items = dues.slice(page * size, page * size + size);
+    return HttpResponse.json<DuePage>({
+      items,
+      page: {
+        number: page,
+        size,
+        totalElements: dues.length,
+        totalPages: Math.max(1, Math.ceil(dues.length / size)),
+      },
+    });
   }),
 ];
