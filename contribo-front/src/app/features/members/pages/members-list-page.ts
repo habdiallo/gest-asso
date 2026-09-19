@@ -107,7 +107,10 @@ export class MembersListPage {
    * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les
    * catégories". Les options proposées et le filtrage appliqué se limitent
    * aux membres de la page actuellement chargée, `listMembers` n'exposant
-   * aucun paramètre de filtre par catégorie.
+   * aucun paramètre de filtre par catégorie. La sélection est conservée
+   * pendant la pagination : une catégorie absente de la nouvelle page
+   * affiche une liste filtrée vide plutôt que de réafficher toutes les
+   * catégories.
    */
   readonly selectedIncomeCategoryId = signal<string | null>(null);
 
@@ -221,10 +224,11 @@ export class MembersListPage {
         next: (memberPage) => {
           this.memberPage.set(memberPage);
           this.loading.set(false);
-          // Le filtre catégorie (T-26) porte sur la page chargée ; une
-          // nouvelle page réinitialise la sélection plutôt que de conserver
-          // un identifiant de catégorie potentiellement absent de la page.
-          this.selectedIncomeCategoryId.set(null);
+          // Le filtre catégorie (T-26) porte sur la page chargée, faute de
+          // paramètre de catégorie dans le contrat `listMembers`. La
+          // sélection reste conservée d'une page à l'autre : une catégorie
+          // absente de la nouvelle page ne montre aucun membre plutôt que
+          // d'afficher silencieusement toutes les catégories.
         },
         error: () => {
           this.loadError.set(true);
