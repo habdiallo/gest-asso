@@ -3,33 +3,37 @@
     <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
       {{ 'campaigns.list.title' | transloco }}
     </h1>
-    <button
-      type="button"
-      class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
-      (click)="openCreateDialog()"
-    >
-      {{ 'campaigns.create.button' | transloco }}
-    </button>
+    @if (canCreateCampaign()) {
+      <button
+        type="button"
+        class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+        (click)="openCreateDialog()"
+      >
+        {{ 'campaigns.create.button' | transloco }}
+      </button>
+    }
   </div>
 
-  <app-form-dialog
-    [open]="createDialogOpen()"
-    [dialogTitle]="'campaigns.create.dialogTitle' | transloco"
-    (closed)="closeCreateDialog()"
-  >
-    @if (createDialogOpen()) {
-      @if (createError()) {
-        <p class="mb-4 text-sm text-error" role="alert">
-          {{ 'campaigns.create.error' | transloco }}
-        </p>
+  @if (canCreateCampaign()) {
+    <app-form-dialog
+      [open]="createDialogOpen()"
+      [dialogTitle]="'campaigns.create.dialogTitle' | transloco"
+      (closed)="closeCreateDialog()"
+    >
+      @if (createDialogOpen()) {
+        @if (createError()) {
+          <p class="mb-4 text-sm text-error" role="alert">
+            {{ 'campaigns.create.error' | transloco }}
+          </p>
+        }
+        <app-campaign-create-form
+          [submitting]="creating()"
+          (submitted)="handleCreateCampaign($event)"
+          (cancelled)="closeCreateDialog()"
+        />
       }
-      <app-campaign-create-form
-        [submitting]="creating()"
-        (submitted)="handleCreateCampaign($event)"
-        (cancelled)="closeCreateDialog()"
-      />
-    }
-  </app-form-dialog>
+    </app-form-dialog>
+  }
 
   <div class="mt-6 flex flex-wrap gap-4">
     <div class="flex flex-col gap-2 sm:max-w-xs sm:grow">
