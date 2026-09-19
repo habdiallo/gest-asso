@@ -15,7 +15,7 @@ import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationRespons
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import fr from '../../../../../assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
@@ -226,6 +226,43 @@ describe('CampaignDuesTab', () => {
       fr['campaigns.detail.cotisations.recordPayment.errorExceedsRemaining'],
     );
     expect(fixture.componentInstance.recordPaymentDue()).not.toBeNull();
+  });
+
+  it('applies a payment success received after the dialog was closed and blocks a second write while it is pending', async () => {
+    const response$ = new Subject<PaymentCreationResponse>();
+    const createPayment = vi.fn(() => response$.asObservable());
+    const fixture = await createFixture(undefined, { createPayment, user: treasurer });
+
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+
+    // Fermeture (Annuler/Échap/Fermer) pendant que la requête est encore en attente.
+    fixture.componentInstance.closeRecordPayment();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
+
+    // Réouverture et nouvelle tentative sur la même cotisation : bloquée tant
+    // que la première écriture n'est pas résolue, aucun second appel API.
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+    expect(createPayment).toHaveBeenCalledTimes(1);
+
+    response$.next(buildPaymentResponse());
+    response$.complete();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.duePage()?.items[0].paidAmount).toBe(75_000);
+    expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
   });
 
   it('closes the dialog when cancelled', async () => {

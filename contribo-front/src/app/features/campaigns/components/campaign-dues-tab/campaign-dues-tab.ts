@@ -33,6 +33,7 @@ export class CampaignDuesTab implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private requestedPage = 0;
   private recordPaymentSession = 0;
+  private readonly duesWithPaymentInFlight = new Set<string>();
 
   readonly campaignId = input.required<string>();
   readonly loading = signal(true);
@@ -128,16 +129,20 @@ export class CampaignDuesTab implements OnInit {
    * Confirme l'enregistrement (US-COT-005) : appelle `POST /dues/{dueId}/payments`
    * (`RglementsService.createPayment`, openapi:`createPayment`), puis remplace la
    * cotisation affichée par l'état renvoyé (montant payé, reste à payer, statut
-   * recalculés côté serveur), sans recalcul local. La requête est rattachée à une
-   * session de dialogue : une réponse tardive après fermeture/réouverture ne
-   * referme plus un état devenu obsolète (même motif que `CampaignsListPage`, T-65).
+   * recalculés côté serveur), sans recalcul local. L'application de cet état est
+   * indépendante de la session de dialogue : fermer/rouvrir le formulaire (Échap,
+   * bouton Fermer/Annuler) avant la réponse ne doit ni perdre le paiement confirmé
+   * ni autoriser une seconde écriture sur la même cotisation tant que la première
+   * est en cours (`duesWithPaymentInFlight`). Seul l'état visuel du dialogue
+   * (soumission, erreur, fermeture) reste rattaché à la session courante.
    */
   handleRecordPayment(request: CreatePaymentRequest): void {
     const due = this.recordPaymentDue();
-    if (!due || this.recordPaymentSubmitting()) {
+    if (!due || this.recordPaymentSubmitting() || this.duesWithPaymentInFlight.has(due.id)) {
       return;
     }
     const session = this.recordPaymentSession;
+    this.duesWithPaymentInFlight.add(due.id);
     this.recordPaymentSubmitting.set(true);
     this.recordPaymentError.set(null);
 
@@ -146,13 +151,15 @@ export class CampaignDuesTab implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          this.duesWithPaymentInFlight.delete(due.id);
+          this.replaceDue(response.due);
           if (session !== this.recordPaymentSession) {
             return;
           }
-          this.replaceDue(response.due);
           this.closeRecordPayment();
         },
         error: (error: unknown) => {
+          this.duesWithPaymentInFlight.delete(due.id);
           if (session !== this.recordPaymentSession) {
             return;
           }
