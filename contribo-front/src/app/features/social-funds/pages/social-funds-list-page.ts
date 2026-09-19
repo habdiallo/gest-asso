@@ -19,25 +19,10 @@ import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
+import { progressBarWidth } from '../social-fund-progress';
 
 /** Taille de page utilisée pour `GET /social-funds` (RG de pagination par défaut). */
 const PAGE_SIZE = 20;
-
-/**
- * Largeur affichée de la barre de progression, bornée à 100 même si
- * `progressRate` dépasse cette valeur (objectif atteint et dépassé).
- *
- * L'objectif (`targetAmount`) est facultatif (T-85, US-CAG-001). Le template
- * masque entièrement la barre et le libellé "/ objectif" via
- * `@if (socialFund.targetAmount; as targetAmount)` dans
- * `social-funds-list-page.html`, sans appeler cette fonction, dès qu'une
- * cagnotte n'a pas d'objectif défini : seul le montant collecté reste
- * affiché dans ce cas (voir le test "hides the progress bar when no target
- * amount is defined").
- */
-function progressBarWidth(progressRate: number): number {
-  return Math.min(100, Math.max(0, progressRate));
-}
 
 /**
  * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@api`,
@@ -79,8 +64,8 @@ function progressBarWidth(progressRate: number): number {
  * `CreateSocialFundRequest` (T-84, `social-fund-create-form.ts`) et dans
  * `SocialFundSummary`. Une cagnotte sans objectif n'affiche ni barre de
  * progression ni comparatif "collecté / objectif", voir `progressBarWidth`
- * ci-dessus et le bloc `@if (socialFund.targetAmount; as targetAmount)` du
- * template.
+ * (`../social-fund-progress`, partagée avec l'écran suivi de cagnotte, T-92)
+ * et le bloc `@if (socialFund.targetAmount; as targetAmount)` du template.
  */
 @Component({
   selector: 'app-social-funds-list-page',

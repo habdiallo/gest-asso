@@ -323,6 +323,77 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain(`${hours}:${minutes}`);
   });
 
+  describe('progression objectif / reste à collecter (T-92, US-CAG-003)', () => {
+    function progressBar(root: HTMLElement): HTMLElement | null {
+      return root.querySelector('[data-testid="social-fund-detail-progress-bar"]');
+    }
+
+    it('shows the objective, the progress bar and the remaining amount when a target is defined', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: 7000000,
+              collectedAmount: 4750000,
+              remainingToTargetAmount: 2250000,
+              progressRate: 67.9,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain(`Objectif : ${formatGnfAmountDetailed(7000000)}`);
+      expect(root.textContent).toContain(
+        `Reste à collecter : ${formatGnfAmountDetailed(2250000)}`,
+      );
+      const bar = progressBar(root);
+      expect(bar).not.toBeNull();
+      expect(bar?.style.width).toBe('67.9%');
+    });
+
+    it('hides the objective, the progress bar and the remaining amount when no target is defined', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: undefined,
+              remainingToTargetAmount: undefined,
+              progressRate: undefined,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).not.toContain('Objectif :');
+      expect(root.textContent).not.toContain('Reste à collecter :');
+      expect(progressBar(root)).toBeNull();
+    });
+
+    it('bounds the progress bar width to 100 when the target is exceeded', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: 1000000,
+              collectedAmount: 1500000,
+              remainingToTargetAmount: 0,
+              progressRate: 150,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain(`Reste à collecter : ${formatGnfAmountDetailed(0)}`);
+      expect(progressBar(root)?.style.width).toBe('100%');
+    });
+  });
+
   describe('contributions pagination', () => {
     function buildManyContributions(count: number): Contribution[] {
       return Array.from({ length: count }, (_, index) =>
