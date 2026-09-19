@@ -1,22 +1,40 @@
 @if (financialSummary(); as summary) {
+  @let expectedAmount = formatAmount(summary.expectedAmount);
+  @let collectedAmount = formatAmount(summary.collectedAmount);
+  @let remainingAmount = formatAmount(summary.remainingAmount);
   <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
     <div class="rounded-lg border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.expectedAmount' | transloco }}
       </dt>
-      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.expectedAmount) }}</dd>
+      <dd class="mt-1 text-xl text-text">
+        <span [title]="expectedAmount.fullText">
+          <span aria-hidden="true">{{ expectedAmount.text }}</span>
+          <span class="sr-only">{{ expectedAmount.fullText }}</span>
+        </span>
+      </dd>
     </div>
     <div class="rounded-lg border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.collectedAmount' | transloco }}
       </dt>
-      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.collectedAmount) }}</dd>
+      <dd class="mt-1 text-xl text-text">
+        <span [title]="collectedAmount.fullText">
+          <span aria-hidden="true">{{ collectedAmount.text }}</span>
+          <span class="sr-only">{{ collectedAmount.fullText }}</span>
+        </span>
+      </dd>
     </div>
     <div class="rounded-lg border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.remainingAmount' | transloco }}
       </dt>
-      <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.remainingAmount) }}</dd>
+      <dd class="mt-1 text-xl text-text">
+        <span [title]="remainingAmount.fullText">
+          <span aria-hidden="true">{{ remainingAmount.text }}</span>
+          <span class="sr-only">{{ remainingAmount.fullText }}</span>
+        </span>
+      </dd>
     </div>
   </dl>
 
