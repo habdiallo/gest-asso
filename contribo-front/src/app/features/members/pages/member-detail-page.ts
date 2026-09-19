@@ -82,8 +82,10 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
  * un membre actif, réservée à l'Administrateur, et remplace le membre affiché
  * par la réponse (statut Inactif), en conservant visibles les sections
  * historiques déjà livrées (cotisations, règlements, contributions). La
- * boîte de confirmation avant envoi (RG-MEM-016, T-42) reste à livrer sur un
- * ticket distinct.
+ * boîte de confirmation avant envoi (RG-MEM-016, T-42), qui mentionne
+ * explicitement l'exclusion des futures campagnes, est fournie par ce même
+ * ticket via le composant partagé `app-form-dialog` (même motif que la
+ * confirmation de réactivation ci-dessous).
  *
  * Action "Réactiver" (T-44, US-MEM-006) : appelle `POST
  * /members/{memberId}/reactivation` (`MembresService.reactivateMember`) pour
@@ -146,6 +148,7 @@ export class MemberDetailPage {
       memberIsActive(this.member()?.status ?? MemberStatus.Inactive)
     );
   });
+  readonly deactivateOpen = signal(false);
   readonly deactivating = signal(false);
   readonly deactivateError = signal(false);
   readonly deactivateSuccess = signal(false);
@@ -181,6 +184,7 @@ export class MemberDetailPage {
           this.closeEditDialog();
           this.editSuccess.set(false);
           ++this.deactivateSession;
+          this.deactivateOpen.set(false);
           this.deactivating.set(false);
           this.deactivateError.set(false);
           this.deactivateSuccess.set(false);
@@ -294,15 +298,36 @@ export class MemberDetailPage {
       });
   }
 
-  deactivateMember(): void {
-    const member = this.member();
-    if (!this.canDeactivate() || !member || this.deactivating()) {
+  /**
+   * Ouvre la boîte de confirmation avant désactivation (RG-MEM-016, T-42) :
+   * l'appel `POST /members/{memberId}/deactivation` n'est déclenché qu'après
+   * confirmation explicite dans `confirmDeactivate`, jamais depuis le bouton
+   * "Désactiver" lui-même.
+   */
+  openDeactivateDialog(): void {
+    if (!this.canDeactivate() || !this.member() || this.deactivateOpen()) {
       return;
     }
-    const session = ++this.deactivateSession;
-    this.deactivating.set(true);
+    ++this.deactivateSession;
     this.deactivateError.set(false);
     this.deactivateSuccess.set(false);
+    this.deactivateOpen.set(true);
+  }
+
+  closeDeactivateDialog(): void {
+    ++this.deactivateSession;
+    this.deactivateOpen.set(false);
+    this.deactivating.set(false);
+  }
+
+  confirmDeactivate(): void {
+    const member = this.member();
+    if (!this.canDeactivate() || !member || !this.deactivateOpen() || this.deactivating()) {
+      return;
+    }
+    const session = this.deactivateSession;
+    this.deactivating.set(true);
+    this.deactivateError.set(false);
     this.membersService
       .deactivateMember(member.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -312,7 +337,7 @@ export class MemberDetailPage {
             return;
           }
           this.member.set(updated);
-          this.deactivating.set(false);
+          this.closeDeactivateDialog();
           this.deactivateSuccess.set(true);
         },
         error: () => {

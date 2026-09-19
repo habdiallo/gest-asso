@@ -762,68 +762,167 @@ describe('MemberDetailPage', () => {
     expect(button).toBeFalsy();
   });
 
-  it('deactivates an active member and shows the updated status on success', async () => {
-    const deactivateMember = vi.fn(() =>
-      of(
-        buildMemberDetails({
-          status: MemberStatus.Inactive,
-          account: {
-            id: 'account-1',
-            role: 'MEMBER',
-            operatorCanRecordPayments: false,
-            active: false,
-          },
-        }),
-      ),
-    );
-    const fixture = await createFixture(() => of(buildMemberDetails()), {
-      role: UserRole.Administrator,
-      deactivateMember,
-    });
-    fixture.detectChanges();
-
-    const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    ) as HTMLButtonElement;
-    button.click();
-    fixture.detectChanges();
-
-    expect(deactivateMember).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10');
-    expect(root.querySelector('[role="status"]')?.textContent).toContain(
-      'Le membre a été désactivé.',
-    );
-    expect(root.textContent).toContain('Inactif');
-    expect(
-      Array.from(root.querySelectorAll('button')).find(
+  describe('deactivation confirmation (T-42, RG-MEM-016)', () => {
+    function findDeactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
+      return Array.from(root.querySelectorAll('button')).find(
         (element) => element.textContent?.trim() === 'Désactiver',
-      ),
-    ).toBeFalsy();
-  });
+      );
+    }
 
-  it('shows an error message and keeps the action available when deactivation fails', async () => {
-    const deactivateMember = vi.fn(() => throwError(() => new Error('network error')));
-    const fixture = await createFixture(() => of(buildMemberDetails()), {
-      role: UserRole.Administrator,
-      deactivateMember,
+    function findConfirmButton(root: HTMLElement): HTMLButtonElement | undefined {
+      return Array.from(root.querySelectorAll('button')).find((element) =>
+        element.textContent?.includes('Confirmer la désactivation'),
+      );
+    }
+
+    it('opens a confirmation dialog mentioning the exclusion from future campaigns, without calling the API yet', async () => {
+      const deactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Inactive })));
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('exclu des campagnes créées après sa désactivation');
+      expect(findConfirmButton(root)).toBeDefined();
+      expect(deactivateMember).not.toHaveBeenCalled();
     });
-    fixture.detectChanges();
 
-    const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    ) as HTMLButtonElement;
-    button.click();
-    fixture.detectChanges();
+    it('cancels the dialog without calling the API', async () => {
+      const deactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Inactive })));
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
 
-    expect(root.querySelector('[role="alert"]')?.textContent).toContain(
-      'Impossible de désactiver ce membre',
-    );
-    expect(
-      Array.from(root.querySelectorAll('button')).find(
-        (element) => element.textContent?.trim() === 'Désactiver',
-      ),
-    ).toBeTruthy();
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(deactivateMember).not.toHaveBeenCalled();
+      expect(findDeactivateButton(root)).toBeDefined();
+      expect(findConfirmButton(root)).toBeUndefined();
+    });
+
+    it('deactivates an active member and shows the updated status after confirmation', async () => {
+      const deactivateMember = vi.fn(() =>
+        of(
+          buildMemberDetails({
+            status: MemberStatus.Inactive,
+            account: {
+              id: 'account-1',
+              role: 'MEMBER',
+              operatorCanRecordPayments: false,
+              active: false,
+            },
+          }),
+        ),
+      );
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      expect(deactivateMember).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10');
+      expect(root.querySelector('[role="status"]')?.textContent).toContain(
+        'Le membre a été désactivé.',
+      );
+      expect(root.textContent).toContain('Inactif');
+      expect(findDeactivateButton(root)).toBeFalsy();
+    });
+
+    it('shows an error and keeps the dialog open when deactivation fails', async () => {
+      const deactivateMember = vi.fn(() => throwError(() => new Error('network error')));
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      expect(deactivateMember).toHaveBeenCalled();
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        'Impossible de désactiver ce membre',
+      );
+      expect(findConfirmButton(root)).toBeDefined();
+    });
+
+    it('disables Annuler while the request is pending', async () => {
+      const response$ = new Subject<MemberDetails>();
+      const deactivateMember = vi.fn(() => response$.asObservable());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      const cancelButton = Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      );
+      expect(cancelButton?.disabled).toBe(true);
+    });
+
+    it('ignores a late response after the dialog is closed, keeping the member active', async () => {
+      const response$ = new Subject<MemberDetails>();
+      const deactivateMember = vi.fn(() => response$.asObservable());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        role: UserRole.Administrator,
+        deactivateMember,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findDeactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      findConfirmButton(root)?.click();
+      fixture.detectChanges();
+
+      // Simule une fermeture concurrente (échap, clic hors dialogue) pendant
+      // que la requête est encore en vol, indépendamment du bouton "Annuler".
+      fixture.componentInstance.closeDeactivateDialog();
+      fixture.detectChanges();
+
+      response$.next(buildMemberDetails({ status: MemberStatus.Inactive }));
+      response$.complete();
+      fixture.detectChanges();
+
+      expect(root.textContent).not.toContain('Le membre a été désactivé.');
+      expect(findDeactivateButton(root)).toBeDefined();
+      expect(root.textContent).toContain('Actif');
+    });
   });
 
   it(
@@ -966,11 +1065,18 @@ describe('MemberDetailPage', () => {
       const root: HTMLElement = fixture.nativeElement;
 
       // Désactivation : le statut affiché passe à Inactif sur la même
-      // instance de page, sans navigation ni rechargement complet.
+      // instance de page, sans navigation ni rechargement complet. La
+      // désactivation nécessite désormais une confirmation explicite (T-42).
       const deactivateButton = Array.from(root.querySelectorAll('button')).find(
         (element) => element.textContent?.trim() === 'Désactiver',
       ) as HTMLButtonElement;
       deactivateButton.click();
+      fixture.detectChanges();
+
+      const confirmButton = Array.from(root.querySelectorAll('button')).find((element) =>
+        element.textContent?.includes('Confirmer la désactivation'),
+      ) as HTMLButtonElement;
+      confirmButton.click();
       fixture.detectChanges();
 
       expect(deactivateMember).toHaveBeenCalledWith(memberId);
