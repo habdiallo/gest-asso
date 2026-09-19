@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 114,
+  "nextTicketId": 115,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2175,6 +2175,31 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-demarrage-mock",
       "branchAfterInitialization": "front/fix-113-demarrage-mock"
+    },
+    {
+      "id": 114,
+      "title": "Corriger l'etat et la pagination apres echec du filtre par evenement des cagnottes (retours P2 de la PR #43, T-83).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "filtre-evenement-cagnottes",
+      "change": "corriger-filtre-evenement-cagnottes",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2"
+      ],
+      "dependencies": [
+        83
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-filtre-evenement-cagnottes",
+      "branchAfterInitialization": "front/fix-114-filtre-evenement-cagnottes"
     }
   ]
 }
