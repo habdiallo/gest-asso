@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 116,
+  "nextTicketId": 117,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2219,6 +2219,28 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "docs/chore-000-archiver-changes-openspec-termines",
       "branchAfterInitialization": "docs/chore-115-archiver-changes-openspec-termines"
+    },
+    {
+      "id": 116,
+      "title": "Cloturer le lot d'archivage OpenSpec : cocher les dernieres taches deja fusionnees et archiver ces changes ainsi que le change d'archivage precedent (T-115).",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "cloturer-archivage-changes-openspec",
+      "change": "cloturer-archivage-changes-openspec",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [
+        115
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-cloturer-archivage-changes-openspec",
+      "branchAfterInitialization": "docs/chore-116-cloturer-archivage-changes-openspec"
     }
   ]
 }
