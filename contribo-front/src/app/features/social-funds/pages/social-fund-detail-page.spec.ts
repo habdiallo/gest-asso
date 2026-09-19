@@ -843,4 +843,60 @@ describe('SocialFundDetailPage', () => {
       },
     );
   });
+
+  describe('masquage de l\'enregistrement de contribution sur cagnotte cloturee (T-94)', () => {
+    function recordButton(root: HTMLElement): HTMLButtonElement | null {
+      return (
+        Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((button) =>
+          button.textContent?.includes('Enregistrer une contribution'),
+        ) ?? null
+      );
+    }
+
+    it.each([
+      { label: 'Administrateur', role: UserRole.Administrator, operatorCanRecordPayments: false },
+      { label: 'Tresorier', role: UserRole.Treasurer, operatorCanRecordPayments: false },
+      { label: 'Operateur autorise', role: UserRole.Operator, operatorCanRecordPayments: true },
+    ])(
+      'hides the record action and dialog for a $label on a closed social fund',
+      async ({ role, operatorCanRecordPayments }) => {
+        const fixture = await createFixture({
+          getSocialFund: () => of(buildSocialFund({ status: 'CLOSED' })),
+          listSocialFundContributions: () => of(buildContributionPage()),
+          role,
+          operatorCanRecordPayments,
+        });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        expect(recordButton(root)).toBeNull();
+        const dialogTitles = Array.from(root.querySelectorAll('dialog')).map((dialog) =>
+          dialog.textContent?.trim(),
+        );
+        expect(
+          dialogTitles.some((text) => text?.includes('Enregistrer une contribution')),
+        ).toBe(false);
+      },
+    );
+
+    it.each([
+      { label: 'Administrateur', role: UserRole.Administrator, operatorCanRecordPayments: false },
+      { label: 'Tresorier', role: UserRole.Treasurer, operatorCanRecordPayments: false },
+      { label: 'Operateur autorise', role: UserRole.Operator, operatorCanRecordPayments: true },
+    ])(
+      'still shows the record action for a $label on an open social fund',
+      async ({ role, operatorCanRecordPayments }) => {
+        const fixture = await createFixture({
+          getSocialFund: () => of(buildSocialFund({ status: 'OPEN' })),
+          listSocialFundContributions: () => of(buildContributionPage()),
+          role,
+          operatorCanRecordPayments,
+        });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        expect(recordButton(root)).not.toBeNull();
+      },
+    );
+  });
 });

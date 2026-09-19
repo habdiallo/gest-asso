@@ -43,8 +43,10 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * `peut_enregistrer_paiements` du contrat, T-55) vaut `false` ; l'Administrateur
  * et le Trésorier y accèdent sans condition supplémentaire, via
  * `canRecordPayments` (`@core/session/payment-authorization`), déjà utilisée
- * pour les règlements de cotisation (T-71). Ce contrôle IHM ne remplace pas
- * l'autorisation serveur (403 possible malgré tout, voir `api-client.md`).
+ * pour les règlements de cotisation (T-71). L'action est également masquée
+ * sur une cagnotte clôturée (T-94), quel que soit le rôle par ailleurs
+ * autorisé. Ce contrôle IHM ne remplace pas l'autorisation serveur (403 ou
+ * 409 possible malgré tout, voir `api-client.md`).
  * Après enregistrement, la cagnotte et la première page de contributions sont
  * rafraîchies avec la réponse `ContributionCreationResponse` et un rechargement
  * de la liste, afin de refléter le nouveau total collecté et le nombre de
@@ -58,9 +60,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  *
  * Limite connue de ce ticket : ni la barre de progression objectif/reste à
  * collecter (T-92), ni l'affichage de l'auteur/horodatage de chaque
- * contribution (T-90), ni le masquage de cette action sur une cagnotte
- * clôturée (T-94, RG-CAG : `createContribution` répond alors `409 Conflict`,
- * non traité spécifiquement ici) ne sont implémentés dans ce ticket.
+ * contribution (T-90) ne sont implémentés dans ce ticket.
  */
 @Component({
   selector: 'app-social-fund-detail-page',
@@ -100,9 +100,14 @@ export class SocialFundDetailPage {
    * Trésorier sans condition, Opérateur uniquement si
    * `operatorCanRecordPayments` est `true`. Réutilise `canRecordPayments`,
    * déjà utilisée pour les règlements de cotisation (T-71), afin de ne pas
-   * dupliquer cette règle d'autorisation par rôle.
+   * dupliquer cette règle d'autorisation par rôle. Masquée également sur une
+   * cagnotte clôturée (T-94), quel que soit le rôle par ailleurs autorisé.
    */
-  readonly canRecordContribution = computed(() => canRecordPayments(this.sessionService.user()));
+  readonly canRecordContribution = computed(
+    () =>
+      canRecordPayments(this.sessionService.user()) &&
+      this.socialFund()?.status !== SocialFundStatus.Closed,
+  );
 
   private recordDialogSession = 0;
   readonly recordDialogOpen = signal(false);
