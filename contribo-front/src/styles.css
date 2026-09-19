@@ -109,10 +109,19 @@
   --radius-modal: 20px;
 }
 
+/* Aligne sur design/styles.css (.app-shell overflow-x: hidden) : un tableau ou une
+   barre de navigation plus large que le viewport ne doit faire défiler que son propre
+   conteneur, jamais la page entière. `html` porte la règle car c'est l'élément de
+   défilement du document dans ce mode de rendu, pas seulement `body`. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 /* --gold-hover plutôt que --gold : en thème clair, --gold (#b38f4d sur #faf8f5) ne fournit
