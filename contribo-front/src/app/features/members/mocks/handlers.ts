@@ -203,7 +203,11 @@ export const membersHandlers = [
     if (!account) {
       return authenticationRequired();
     }
-    if (account.user.role !== UserRole.Administrator && account.user.role !== UserRole.Treasurer) {
+    if (
+      account.user.role !== UserRole.Administrator &&
+      account.user.role !== UserRole.Treasurer &&
+      account.user.role !== UserRole.Operator
+    ) {
       return accessDenied();
     }
 

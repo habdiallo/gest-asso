@@ -16,6 +16,7 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
+import { MemberEditFormOperator } from '../components/member-edit-form-operator/member-edit-form-operator';
 import { memberStatusLabel } from '../members-status-labels';
 
 /**
@@ -29,13 +30,17 @@ import { memberStatusLabel } from '../members-status-labels';
  * Limite connue : la situation des cotisations, l'historique des règlements
  * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
  * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
- * La modification complète Administrateur/Trésorier est fournie par T-38.
+ * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23)
+ * reste à livrer.
+ * La modification complète Administrateur/Trésorier est fournie par T-38 ;
+ * la variante Opérateur limitée au téléphone, à la ville, au pays et au nom
+ * d'usage (RG-MEM-017) est fournie par T-39, quel que soit l'attribut
+ * `operatorCanRecordPayments`. Le retrait du contrôle de statut du
+ * formulaire général (RG-MEM-018) relève du ticket T-40, distinct.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberEditFormOperator],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,10 +51,14 @@ export class MemberDetailPage {
 
   private readonly sessionService = inject(SessionService);
   private editSession = 0;
-  readonly canEdit = computed(() => {
+  readonly canEditFull = computed(() => {
     const role = this.sessionService.user()?.role;
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
+  readonly canEditRestricted = computed(
+    () => this.sessionService.user()?.role === UserRole.Operator,
+  );
+  readonly canEdit = computed(() => this.canEditFull() || this.canEditRestricted());
   readonly editOpen = signal(false);
   readonly saving = signal(false);
   readonly editError = signal(false);

@@ -287,6 +287,7 @@
   "members.edit.submit": "Enregistrer les modifications",
   "members.edit.submitting": "Enregistrement en cours...",
   "members.edit.categoryNote": "La modification de catégorie ne change pas les cotisations déjà établies.",
+  "members.edit.operatorNote": "En tant qu'Opérateur, vous pouvez modifier uniquement le téléphone, la ville, le pays et le nom d'usage. La catégorie de revenu, la fonction, le rôle applicatif et le statut sont réservés à l'Administrateur et au Trésorier.",
   "members.edit.fields.valueInvalid": "Saisissez une valeur valide (100 caractères maximum). Un champ renseigné ne peut pas être vidé, sauf le nom d'usage.",
   "rolesUsers.title": "Utilisateurs et rôles",
   "rolesUsers.subtitle": "Consultez le rôle applicatif associé à chaque compte utilisateur.",

@@ -44,12 +44,21 @@
             {{ 'members.edit.error' | transloco }}
           </p>
         }
-        <app-member-edit-form
-          [member]="member"
-          [submitting]="saving()"
-          (submitted)="updateMember($event)"
-          (cancelled)="closeEditDialog()"
-        />
+        @if (canEditFull()) {
+          <app-member-edit-form
+            [member]="member"
+            [submitting]="saving()"
+            (submitted)="updateMember($event)"
+            (cancelled)="closeEditDialog()"
+          />
+        } @else if (canEditRestricted()) {
+          <app-member-edit-form-operator
+            [member]="member"
+            [submitting]="saving()"
+            (submitted)="updateMember($event)"
+            (cancelled)="closeEditDialog()"
+          />
+        }
       }
     </app-form-dialog>
 

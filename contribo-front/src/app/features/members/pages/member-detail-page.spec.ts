@@ -2,12 +2,31 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { ErrorCode, MembresService } from '@api';
-import type { ErrorResponse, MemberDetails } from '@api';
+import { ErrorCode, MembresService, UserRole } from '@api';
+import type { CurrentUser, ErrorResponse, MemberDetails } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
+import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberDetailPage } from './member-detail-page';
+
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
 
 function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetails {
   return {
@@ -33,9 +52,32 @@ function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetai
   };
 }
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d99',
+    association: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d98',
+      name: 'Association Test',
+      currency: 'GNF',
+    },
+    member: {
+      id: 'a1c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d97',
+      firstName: 'Utilisateur',
+      lastName: 'Test',
+      displayName: 'Utilisateur Test',
+      incomeCategory: { id: 'b1c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d96', label: 'Standard' },
+      status: 'ACTIVE',
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   getMember: (memberId: string) => Observable<MemberDetails>,
   memberId = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+  currentUser?: CurrentUser,
 ): Promise<ComponentFixture<MemberDetailPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -55,6 +97,13 @@ async function createFixture(
       },
     ],
   }).compileComponents();
+
+  const sessionService = TestBed.inject(SessionService);
+  if (currentUser) {
+    sessionService.setUser(currentUser);
+  } else {
+    sessionService.clear();
+  }
 
   const fixture = TestBed.createComponent(MemberDetailPage);
   fixture.detectChanges();
@@ -169,5 +218,58 @@ describe('MemberDetailPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Membre B');
     expect(root.textContent).not.toContain('Membre A');
+  });
+
+  it('opens the restricted operator edit form for an Operator (RG-MEM-017)', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      buildCurrentUser(UserRole.Operator),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const editButton = root.querySelector<HTMLButtonElement>('button');
+    expect(editButton?.textContent).toContain('Modifier le membre');
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('#member-edit-operator-phone')).not.toBeNull();
+    expect(root.querySelector('#member-edit-last-name')).toBeNull();
+    expect(root.querySelector('#member-edit-income-category')).toBeNull();
+  });
+
+  it('opens the full edit form for an Administrator', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      buildCurrentUser(UserRole.Administrator),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const editButton = root.querySelector<HTMLButtonElement>('button');
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('#member-edit-last-name')).not.toBeNull();
+    expect(root.querySelector('#member-edit-income-category')).not.toBeNull();
+  });
+
+  it('does not offer any edit action for a Member', async () => {
+    const fixture = await createFixture(
+      () => of(buildMemberDetails()),
+      'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
+      buildCurrentUser(UserRole.Member),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    // Le titre du dialogue affiche le même libellé que le bouton ("Modifier le
+    // membre") ; on vérifie donc l'absence d'un <button> déclencheur, pas du texte.
+    const editButtons = Array.from(root.querySelectorAll('button')).filter((button) =>
+      button.textContent?.includes('Modifier le membre'),
+    );
+    expect(editButtons).toHaveLength(0);
   });
 });
