@@ -347,6 +347,162 @@ describe('MembersListPage', () => {
     },
   );
 
+  it('filters the member list by income category (T-26)', async () => {
+    const memberA = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+      lastName: 'Conde',
+      incomeCategory: { id: 'cat-a', label: 'Catégorie A' },
+    });
+    const memberB = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      lastName: 'Toure',
+      incomeCategory: { id: 'cat-b', label: 'Catégorie B' },
+    });
+    const fixture = await createFixture(() => of(buildMemberPage({ items: [memberA, memberB] })));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
+    expect(select).toBeTruthy();
+    const optionLabels = Array.from(select.querySelectorAll('option')).map((option) =>
+      option.textContent?.trim(),
+    );
+    expect(optionLabels).toEqual(['Toutes les catégories', 'Catégorie A', 'Catégorie B']);
+
+    select.value = 'cat-b';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Toure');
+    expect(root.textContent).not.toContain('Conde');
+
+    select.value = '';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Toure');
+    expect(root.textContent).toContain('Conde');
+  });
+
+  it('shows a dedicated message when no member matches the selected category', async () => {
+    const memberA = buildMember({ incomeCategory: { id: 'cat-a', label: 'Catégorie A' } });
+    const fixture = await createFixture(() => of(buildMemberPage({ items: [memberA] })));
+    fixture.detectChanges();
+
+    // Un identifiant absent de la page (par exemple parce que le membre
+    // portant cette catégorie a disparu de la page rechargée) doit afficher
+    // le message dédié plutôt qu'une liste vide silencieuse.
+    fixture.componentInstance.selectedIncomeCategoryId.set('unknown-category');
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Aucun membre ne correspond à cette catégorie de revenu.');
+    expect(root.querySelector('table')).toBeNull();
+  });
+
+  it('hides the income category filter for an Opérateur (RG-MEM-008)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#member-income-category-filter')).toBeNull();
+  });
+
+  it('keeps the category filter selected when the page changes (P2, PR #83)', async () => {
+    const memberA = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d40',
+      incomeCategory: { id: 'cat-a', label: 'Catégorie A' },
+    });
+    const secondPageMemberA = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d41',
+      lastName: 'SecondPageA',
+      incomeCategory: { id: 'cat-a', label: 'Catégorie A' },
+    });
+    const secondPageMemberC = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d42',
+      lastName: 'SecondPageC',
+      incomeCategory: { id: 'cat-c', label: 'Catégorie C' },
+    });
+    const listMembers = vi.fn((page?: number) =>
+      page === 1
+        ? of(
+            buildMemberPage({
+              items: [secondPageMemberA, secondPageMemberC],
+              page: { number: 1, size: 20, totalElements: 22, totalPages: 2 },
+            }),
+          )
+        : of(
+            buildMemberPage({
+              items: [memberA],
+              page: { number: 0, size: 20, totalElements: 22, totalPages: 2 },
+            }),
+          ),
+    );
+    const fixture = await createFixture(listMembers);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
+    select.value = 'cat-a';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.selectedIncomeCategoryId()).toBe('cat-a');
+
+    const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedIncomeCategoryId()).toBe('cat-a');
+    const selectAfter = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
+    expect(selectAfter.value).toBe('cat-a');
+    const rows = Array.from(root.querySelectorAll('tbody tr'));
+    expect(rows).toHaveLength(1);
+    expect(root.textContent).toContain('SecondPageA');
+    expect(root.textContent).not.toContain('SecondPageC');
+  });
+
+  it('shows no member when the selected category is absent from the new page (P2, PR #83)', async () => {
+    const memberA = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d43',
+      incomeCategory: { id: 'cat-a', label: 'Catégorie A' },
+    });
+    const secondPageMemberC = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d44',
+      lastName: 'SecondPageC',
+      incomeCategory: { id: 'cat-c', label: 'Catégorie C' },
+    });
+    const listMembers = vi.fn((page?: number) =>
+      page === 1
+        ? of(
+            buildMemberPage({
+              items: [secondPageMemberC],
+              page: { number: 1, size: 20, totalElements: 21, totalPages: 2 },
+            }),
+          )
+        : of(
+            buildMemberPage({
+              items: [memberA],
+              page: { number: 0, size: 20, totalElements: 21, totalPages: 2 },
+            }),
+          ),
+    );
+    const fixture = await createFixture(listMembers);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
+    select.value = 'cat-a';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
+    nextButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedIncomeCategoryId()).toBe('cat-a');
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(0);
+    expect(root.textContent).not.toContain('SecondPageC');
+  });
+
   it('disables the previous page control on the first page and enables the next one', async () => {
     const fixture = await createFixture(() =>
       of(buildMemberPage({ page: { number: 0, size: 20, totalElements: 21, totalPages: 2 } })),
