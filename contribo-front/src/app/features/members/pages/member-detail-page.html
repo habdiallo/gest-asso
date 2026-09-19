@@ -52,6 +52,11 @@
         </button>
       }
     </div>
+    @if (!canRecordPayments()) {
+      <p class="mt-4 text-xs uppercase tracking-[0.08em] text-text-2" role="status">
+        {{ 'memberDetail.readOnlyPayments' | transloco }}
+      </p>
+    }
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
         {{ 'members.edit.success' | transloco }}

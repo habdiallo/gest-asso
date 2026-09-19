@@ -45,6 +45,16 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
+ * Lecture seule pour un Opérateur non autorisé aux paiements (T-32, §2.3) :
+ * `canRecordPayments` réutilise le flag `operatorCanRecordPayments` déjà
+ * exposé par `SessionService` (T-13) pour signaler qu'aucune action
+ * d'enregistrement de règlement ni de contribution n'est disponible pour cet
+ * utilisateur. Cette route est déjà réservée à Administrateur, Trésorier et
+ * Opérateur (garde `roleGuard` de `app.routes.ts`) ; l'Administrateur et le
+ * Trésorier restent toujours autorisés. Le formulaire d'enregistrement d'un
+ * règlement (T-71) devra masquer ses propres actions en consultant
+ * `canRecordPayments` plutôt que de la revérifier différemment.
+ *
  * Onglets (US-MEM-003) : "Informations" reprend le bloc de base ;
  * "Situation des cotisations" (T-28) charge `openapi:listMemberDues` via
  * `MemberDuesTab` ; "Historique des règlements" (T-29) liste, du plus récent
@@ -97,6 +107,7 @@ export class MemberDetailPage {
     const role = this.sessionService.user()?.role;
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
+  readonly canRecordPayments = computed(() => this.sessionService.canRecordPayments());
   readonly editOpen = signal(false);
   readonly saving = signal(false);
   readonly editError = signal(false);

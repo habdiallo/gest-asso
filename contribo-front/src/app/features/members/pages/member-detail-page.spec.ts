@@ -36,7 +36,7 @@ if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
   };
 }
 
-function buildCurrentUser(role: UserRole): CurrentUser {
+function buildCurrentUser(role: UserRole, operatorCanRecordPayments = false): CurrentUser {
   return {
     userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
     association: {
@@ -53,7 +53,7 @@ function buildCurrentUser(role: UserRole): CurrentUser {
       status: MemberStatus.Active,
     },
     role,
-    operatorCanRecordPayments: false,
+    operatorCanRecordPayments,
     accountActive: true,
   };
 }
@@ -119,6 +119,7 @@ async function createFixture(
     reactivateMember?: (memberId: string) => Observable<MemberDetails>;
     deactivateMember?: (memberId: string) => Observable<MemberDetails>;
     role?: UserRole;
+    user?: CurrentUser;
   } = {},
 ): Promise<ComponentFixture<MemberDetailPage>> {
   const memberId = options.memberId ?? 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10';
@@ -161,9 +162,12 @@ async function createFixture(
     ],
   }).compileComponents();
 
-  if (options.role) {
-    TestBed.inject(SessionService).setUser(buildCurrentUser(options.role));
-  }
+  // Rôle par défaut Administrateur (T-32) : les tests qui ne portent pas sur
+  // les droits d'enregistrement de paiement restent inchangés, la note
+  // "lecture seule" n'étant affichée que pour un Opérateur non autorisé.
+  TestBed.inject(SessionService).setUser(
+    options.user ?? buildCurrentUser(options.role ?? UserRole.Administrator),
+  );
 
   const fixture = TestBed.createComponent(MemberDetailPage);
   fixture.detectChanges();
@@ -653,5 +657,47 @@ describe('MemberDetailPage', () => {
     expect(listMemberDues).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', 0);
     expect(root.textContent).toContain('Solidarité septembre');
     expect(root.textContent).toContain('Partiellement payé');
+  });
+
+  it('shows a read-only note and hides the edit action for an Operator not authorized to record payments (T-32, §2.3)', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Operator, false),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="status"]')?.textContent).toContain('Lecture seule');
+    const editButtons = Array.from(root.querySelectorAll('button')).filter((button) =>
+      button.textContent?.includes('Modifier le membre'),
+    );
+    expect(editButtons).toHaveLength(0);
+  });
+
+  it('hides the read-only note for an Operator authorized to record payments', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Operator, true),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).not.toContain('Lecture seule');
+  });
+
+  it('hides the read-only note for the Administrator', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Administrator),
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Lecture seule');
+  });
+
+  it('hides the read-only note for the Treasurer', async () => {
+    const fixture = await createFixture(() => of(buildMemberDetails()), {
+      user: buildCurrentUser(UserRole.Treasurer),
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Lecture seule');
   });
 });

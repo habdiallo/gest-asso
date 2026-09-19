@@ -297,6 +297,7 @@
   "memberDetail.incomeCategory": "Catégorie de revenu",
   "memberDetail.associationFunction": "Fonction associative",
   "memberDetail.status": "Statut",
+  "memberDetail.readOnlyPayments": "Lecture seule : vous n'êtes pas autorisé à enregistrer un règlement ou une contribution pour ce membre.",
   "memberDetail.tablist": "Sections de la fiche membre",
   "memberDetail.tabs.informations": "Informations",
   "memberDetail.tabs.cotisations": "Situation des cotisations",
