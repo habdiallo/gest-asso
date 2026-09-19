@@ -29,6 +29,7 @@
           />
         }
         <app-member-create-form
+          #createForm
           [submitting]="creating()"
           (submitted)="handleCreateMember($event)"
           (cancelled)="closeCreateDialog()"

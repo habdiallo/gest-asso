@@ -9,13 +9,7 @@ import {
   MemberStatus,
   UserRole,
 } from '@api';
-import type {
-  Campaign,
-  CampaignPage,
-  CreateCampaignRequest,
-  CurrentUser,
-  IncomeCategory,
-} from '@api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
@@ -535,13 +529,6 @@ describe('CampaignsListPage', () => {
   });
 
   it('retries the same creation request and clears the error banner on success (T-102)', async () => {
-    const request: CreateCampaignRequest = {
-      name: 'Solidarité octobre',
-      startDate: '2026-10-01',
-      endDate: '2026-10-31',
-      memberSelection: 'ALL_ACTIVE_MEMBERS',
-      categoryAmounts: new Set([{ incomeCategoryId: demoIncomeCategories[0].id, amount: 0 }]),
-    };
     const createCampaign = vi
       .fn()
       .mockReturnValueOnce(throwError(() => new Error('network error')))
@@ -551,7 +538,19 @@ describe('CampaignsListPage', () => {
 
     fixture.componentInstance.openCreateDialog();
     fixture.detectChanges();
-    fixture.componentInstance.handleCreateCampaign(request);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
@@ -564,9 +563,48 @@ describe('CampaignsListPage', () => {
     fixture.detectChanges();
 
     expect(createCampaign).toHaveBeenCalledTimes(2);
-    expect(createCampaign).toHaveBeenNthCalledWith(2, request);
+    expect(createCampaign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ name: 'Solidarité octobre' }),
+    );
     expect(root.querySelector('dialog [role="alert"]')).toBeNull();
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('sends the field corrected after a failed creation, not the stale request, on retry (T-102)', async () => {
+    const createCampaign = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of({ id: 'new-campaign' } as unknown as Campaign));
+    const fixture = await createFixture(() => of(buildCampaignPage()), { createCampaign });
+    fixture.detectChanges();
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createForm = fixture.debugElement.query(
+      (node) => node.componentInstance instanceof CampaignCreateForm,
+    ).componentInstance as CampaignCreateForm;
+    createForm.form.setValue({
+      name: 'Solidarité octobre',
+      description: '',
+      startDate: '2026-10-01',
+      endDate: '2026-10-31',
+    });
+    createForm.submit();
+    fixture.detectChanges();
+
+    createForm.form.patchValue({ name: 'Solidarité novembre' });
+    fixture.componentInstance.retryCreateCampaign();
+    fixture.detectChanges();
+
+    expect(createCampaign).toHaveBeenCalledTimes(2);
+    expect(createCampaign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ name: 'Solidarité novembre' }),
+    );
   });
 
   describe('role-based access to creation (T-67)', () => {

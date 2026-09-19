@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -88,8 +89,8 @@ export class SocialFundsListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
-  /** Dernière requête de création envoyée (T-102) : rejouée par `retryCreateSocialFund`. */
-  private lastCreateRequest: CreateSocialFundRequest | null = null;
+  /** Formulaire de création affiché (T-102) : relu par `retryCreateSocialFund`. */
+  private readonly createForm = viewChild<SocialFundCreateForm>('createForm');
 
   /**
    * Masquage de l'action "Créer une cagnotte" pour l'Opérateur et le Membre
@@ -255,7 +256,6 @@ export class SocialFundsListPage {
     if (!this.createDialogOpen() || this.creating()) {
       return;
     }
-    this.lastCreateRequest = request;
     const session = this.createDialogSession;
     this.creating.set(true);
     this.createError.set(false);
@@ -282,14 +282,12 @@ export class SocialFundsListPage {
   }
 
   /**
-   * Nouvelle tentative (T-102) : rejoue la dernière création envoyée sans
-   * demander à l'utilisateur de ressaisir le formulaire, dont la saisie reste
-   * affichée et inchangée après l'échec.
+   * Nouvelle tentative (T-102) : redéclenche la soumission du formulaire de
+   * création, qui reste affiché et éditable après l'échec, afin de renvoyer
+   * la saisie courante (et non un instantané figé lors du premier envoi).
    */
   retryCreateSocialFund(): void {
-    if (this.lastCreateRequest) {
-      this.handleCreateSocialFund(this.lastCreateRequest);
-    }
+    this.createForm()?.submit();
   }
 
   private fetchPage(pageNumber: number, options: { isInitialLoad: boolean }): void {

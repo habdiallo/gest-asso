@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -141,8 +142,9 @@ export class MemberDetailPage {
   readonly saving = signal(false);
   readonly editError = signal(false);
   readonly editSuccess = signal(false);
-  /** Dernière requête de modification envoyée (T-102) : rejouée par `retryEdit`. */
-  private lastEditRequest: ((member: MemberDetails) => Observable<MemberDetails>) | null = null;
+  /** Formulaire de modification affiché (T-102), selon le rôle : relu par `retryEdit`. */
+  private readonly editFormFull = viewChild<MemberEditForm>('editFormFull');
+  private readonly editFormOperator = viewChild<MemberEditFormOperator>('editFormOperator');
 
   private deactivateSession = 0;
   readonly canDeactivate = computed(() => {
@@ -275,7 +277,6 @@ export class MemberDetailPage {
     if (!this.canEdit() || !member || !this.editOpen() || this.saving()) {
       return;
     }
-    this.lastEditRequest = buildRequest;
     const session = this.editSession;
     this.saving.set(true);
     this.editError.set(false);
@@ -304,15 +305,14 @@ export class MemberDetailPage {
   }
 
   /**
-   * Nouvelle tentative (T-102) : rejoue la dernière modification envoyée
-   * (générale ou restreinte Opérateur) sans demander à l'utilisateur de
-   * ressaisir le formulaire, dont la saisie reste affichée et inchangée
-   * après l'échec.
+   * Nouvelle tentative (T-102) : redéclenche la soumission du formulaire de
+   * modification affiché (générale ou restreinte Opérateur), qui reste
+   * affiché et éditable après l'échec, afin de renvoyer la saisie courante
+   * (et non un instantané figé lors du premier envoi).
    */
   retryEdit(): void {
-    if (this.lastEditRequest) {
-      this.submitEdit(this.lastEditRequest);
-    }
+    this.editFormFull()?.submit();
+    this.editFormOperator()?.submit();
   }
 
   /**

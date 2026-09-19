@@ -29,6 +29,7 @@
           />
         }
         <app-campaign-create-form
+          #createForm
           [submitting]="creating()"
           (submitted)="handleCreateCampaign($event)"
           (cancelled)="closeCreateDialog()"

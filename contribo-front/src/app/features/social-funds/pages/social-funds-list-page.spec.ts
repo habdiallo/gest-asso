@@ -684,7 +684,10 @@ describe('SocialFundsListPage', () => {
       fixture.componentInstance.openCreateDialog();
       fixture.detectChanges();
 
-      fixture.componentInstance.handleCreateSocialFund(request);
+      const form = fixture.debugElement.query(By.directive(SocialFundCreateForm))
+        .componentInstance as SocialFundCreateForm;
+      form.form.setValue({ ...request, description: '', targetAmount: null });
+      form.submit();
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
@@ -700,6 +703,40 @@ describe('SocialFundsListPage', () => {
       expect(createSocialFund).toHaveBeenNthCalledWith(2, request);
       expect(root.querySelector('dialog [role="alert"]')).toBeNull();
       expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    });
+
+    it('sends the field corrected after a failed creation, not the stale request, on retry (T-102)', async () => {
+      const request: CreateSocialFundRequest = {
+        title: 'Naissance chez les Bah',
+        eventType: SocialEventType.Birth,
+        beneficiary: 'Famille Bah',
+        startDate: '2026-10-01',
+        endDate: '2026-10-31',
+      };
+      const createSocialFund = vi
+        .fn()
+        .mockReturnValueOnce(throwError(() => new Error('network error')))
+        .mockReturnValueOnce(of(buildSocialFund(request)));
+      const fixture = await createFixture(() => of(buildSocialFundPage()), { createSocialFund });
+      fixture.detectChanges();
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      const form = fixture.debugElement.query(By.directive(SocialFundCreateForm))
+        .componentInstance as SocialFundCreateForm;
+      form.form.setValue({ ...request, description: '', targetAmount: null });
+      form.submit();
+      fixture.detectChanges();
+
+      form.form.patchValue({ beneficiary: 'Famille Diallo' });
+      fixture.componentInstance.retryCreateSocialFund();
+      fixture.detectChanges();
+
+      expect(createSocialFund).toHaveBeenCalledTimes(2);
+      expect(createSocialFund).toHaveBeenNthCalledWith(2, {
+        ...request,
+        beneficiary: 'Famille Diallo',
+      });
     });
   });
 

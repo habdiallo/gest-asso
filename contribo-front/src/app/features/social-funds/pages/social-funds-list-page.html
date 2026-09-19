@@ -37,6 +37,7 @@
           />
         }
         <app-social-fund-create-form
+          #createForm
           [submitting]="creating()"
           (submitted)="handleCreateSocialFund($event)"
           (cancelled)="closeCreateDialog()"

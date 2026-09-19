@@ -1030,7 +1030,10 @@ describe('MembersListPage', () => {
     fixture.componentInstance.openCreateDialog();
     fixture.detectChanges();
 
-    fixture.componentInstance.handleCreateMember(request);
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.patchValue(request);
+    form.submit();
     fixture.detectChanges();
 
     const retryButton = Array.from(fixture.nativeElement.querySelectorAll('dialog button')).find(
@@ -1045,5 +1048,34 @@ describe('MembersListPage', () => {
     expect(createMember).toHaveBeenNthCalledWith(2, request);
     expect(fixture.nativeElement.querySelector('dialog [role="alert"]')).toBeNull();
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+  });
+
+  it('sends the field corrected after a failed creation, not the stale request, on retry (T-102)', async () => {
+    const initialRequest: CreateMemberRequest = {
+      lastName: 'Barry',
+      firstName: 'Mariama',
+      incomeCategoryId: demoIncomeCategory.id,
+    };
+    const createMember = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of(buildMemberDetails(initialRequest)));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    fixture.detectChanges();
+    fixture.componentInstance.openCreateDialog();
+    fixture.detectChanges();
+
+    const form = fixture.debugElement.query(By.directive(MemberCreateForm))
+      .componentInstance as MemberCreateForm;
+    form.form.patchValue(initialRequest);
+    form.submit();
+    fixture.detectChanges();
+
+    form.form.patchValue({ firstName: 'Fatoumata' });
+    fixture.componentInstance.retryCreateMember();
+    fixture.detectChanges();
+
+    expect(createMember).toHaveBeenCalledTimes(2);
+    expect(createMember).toHaveBeenNthCalledWith(2, { ...initialRequest, firstName: 'Fatoumata' });
   });
 });

@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import {
   ContributionsService,
@@ -26,6 +27,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
+import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { MemberDetailPage } from './member-detail-page';
 
 /*
@@ -580,7 +582,10 @@ describe('MemberDetailPage', () => {
     root.querySelector<HTMLButtonElement>('button')?.click();
     fixture.detectChanges();
 
-    fixture.componentInstance.updateMember({ city: 'Kindia' });
+    const editForm = fixture.debugElement.query(By.directive(MemberEditForm))
+      .componentInstance as MemberEditForm;
+    editForm.form.patchValue({ city: 'Kindia' });
+    editForm.submit();
     fixture.detectChanges();
 
     expect(root.querySelector('dialog [role="alert"]')).not.toBeNull();
@@ -597,6 +602,58 @@ describe('MemberDetailPage', () => {
     expect(updateMember).toHaveBeenNthCalledWith(2, member.id, { city: 'Kindia' });
     expect(root.querySelector('dialog [role="alert"]')).toBeNull();
     expect(fixture.componentInstance.editOpen()).toBe(false);
+  });
+
+  it('sends the field corrected after a failed edit, not the stale request, on retry (T-102)', async () => {
+    const member = buildMemberDetails();
+    const updateMember = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('network error')))
+      .mockReturnValueOnce(of({ ...member, city: 'Mamou' }));
+
+    await TestBed.configureTestingModule({
+      imports: [
+        MemberDetailPage,
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: MembresService,
+          useValue: { getMember: () => of(member), updateMember } as unknown as MembresService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ memberId: member.id })) },
+        },
+      ],
+    }).compileComponents();
+
+    TestBed.inject(SessionService).setUser(buildCurrentUser(UserRole.Administrator));
+
+    const fixture = TestBed.createComponent(MemberDetailPage);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('button')?.click();
+    fixture.detectChanges();
+
+    const editForm = fixture.debugElement.query(By.directive(MemberEditForm))
+      .componentInstance as MemberEditForm;
+    editForm.form.patchValue({ city: 'Kindia' });
+    editForm.submit();
+    fixture.detectChanges();
+
+    editForm.form.patchValue({ city: 'Mamou' });
+    fixture.componentInstance.retryEdit();
+    fixture.detectChanges();
+
+    expect(updateMember).toHaveBeenCalledTimes(2);
+    expect(updateMember).toHaveBeenNthCalledWith(2, member.id, { city: 'Mamou' });
   });
 
   it('opens the full edit form for an Administrator', async () => {

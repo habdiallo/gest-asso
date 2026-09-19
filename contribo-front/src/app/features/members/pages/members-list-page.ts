@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -108,8 +109,8 @@ export class MembersListPage {
   private readonly sessionService = inject(SessionService);
   private createDialogSession = 0;
   private requestSequence = 0;
-  /** Dernière requête de création envoyée (T-102) : rejouée par `retryCreateMember`. */
-  private lastCreateRequest: CreateMemberRequest | null = null;
+  /** Formulaire de création affiché (T-102) : relu par `retryCreateMember`. */
+  private readonly createForm = viewChild<MemberCreateForm>('createForm');
 
   readonly nameQuery = signal('');
   private readonly nameQueryInput = new Subject<string>();
@@ -254,7 +255,6 @@ export class MembersListPage {
     if (!this.createDialogOpen() || this.creating()) {
       return;
     }
-    this.lastCreateRequest = request;
     const session = this.createDialogSession;
     this.creating.set(true);
     this.createError.set(false);
@@ -285,14 +285,12 @@ export class MembersListPage {
   }
 
   /**
-   * Nouvelle tentative (T-102) : rejoue la dernière création envoyée sans
-   * demander à l'utilisateur de ressaisir le formulaire, dont la saisie reste
-   * affichée et inchangée après l'échec.
+   * Nouvelle tentative (T-102) : redéclenche la soumission du formulaire de
+   * création, qui reste affiché et éditable après l'échec, afin de renvoyer
+   * la saisie courante (et non un instantané figé lors du premier envoi).
    */
   retryCreateMember(): void {
-    if (this.lastCreateRequest) {
-      this.handleCreateMember(this.lastCreateRequest);
-    }
+    this.createForm()?.submit();
   }
 
   private loadPage(page: number): void {
