@@ -4,12 +4,13 @@ import { EspacePersonnelService } from '@api';
 import type { ContributionPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { formatCalendarDate } from '../member-space-dates';
 
 /** Contributions personnelles aux cagnottes, issues exclusivement de GET /me/contributions (T-98). */
 @Component({
   selector: 'app-my-contributions',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, EmptyState],
   templateUrl: './my-contributions.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

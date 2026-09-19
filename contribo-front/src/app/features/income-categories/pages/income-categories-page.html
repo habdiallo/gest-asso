@@ -30,7 +30,7 @@
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'incomeCategories.error' | transloco }}</p>
   } @else if (categories().length === 0) {
-    <p class="mt-6 text-text-2">{{ 'incomeCategories.empty' | transloco }}</p>
+    <app-empty-state class="mt-6 block" [message]="'incomeCategories.empty' | transloco" />
   } @else {
     <div class="mt-6 overflow-x-auto rounded-card border border-line">
       <table class="w-full text-left">

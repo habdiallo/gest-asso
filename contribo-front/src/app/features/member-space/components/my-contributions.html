@@ -20,9 +20,7 @@
 
 @if (result(); as result) {
   @if (result.items.length === 0) {
-    <p class="rounded-card border border-line bg-surface p-5 text-text-2">
-      {{ 'memberSpace.contributions.empty' | transloco }}
-    </p>
+    <app-empty-state [message]="'memberSpace.contributions.empty' | transloco" />
   } @else {
     <div class="space-y-4" [attr.aria-busy]="loading()">
       @for (contribution of result.items; track contribution.id) {

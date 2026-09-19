@@ -41,7 +41,7 @@
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'rolesUsers.error' | transloco }}</p>
   } @else if (users().length === 0) {
-    <p class="mt-6 text-text-2">{{ 'rolesUsers.empty' | transloco }}</p>
+    <app-empty-state class="mt-6 block" [message]="'rolesUsers.empty' | transloco" />
   } @else {
     <!--
       Le tableau et la pagination restent montés pendant un rechargement

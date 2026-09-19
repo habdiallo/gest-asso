@@ -12,6 +12,7 @@ import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { Subject, debounceTime } from 'rxjs';
@@ -60,7 +61,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  */
 @Component({
   selector: 'app-campaigns-list-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton, CampaignCreateForm],
+  imports: [RouterLink, TranslocoPipe, EmptyState, FormDialog, LoadingSkeleton, CampaignCreateForm],
   templateUrl: './campaigns-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

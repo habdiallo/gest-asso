@@ -94,7 +94,7 @@
     </p>
 
     @if (page.items.length === 0) {
-      <p class="mt-6 text-text-2">{{ 'members.empty' | transloco }}</p>
+      <app-empty-state class="mt-6 block" [message]="'members.empty' | transloco" />
     } @else {
       @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
         <div class="mt-6 flex flex-wrap items-center gap-2">
@@ -116,7 +116,7 @@
       }
 
       @if (filteredItems().length === 0) {
-        <p class="mt-6 text-text-2" role="status">{{ 'members.filters.empty' | transloco }}</p>
+        <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {
         <div
           class="mt-6 overflow-x-auto rounded-card border border-line"

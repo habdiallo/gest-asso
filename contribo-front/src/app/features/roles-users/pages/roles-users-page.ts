@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserRole, UtilisateursEtRlesService } from '@api';
 import type { UserAccount, UserAccountPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { Subject, catchError, of, switchMap } from 'rxjs';
 import { operatorAuthorizationLabel, userRoleLabel } from '../roles-users-labels';
@@ -55,7 +56,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 @Component({
   selector: 'app-roles-users-page',
-  imports: [TranslocoPipe, FormDialog],
+  imports: [TranslocoPipe, EmptyState, FormDialog],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
