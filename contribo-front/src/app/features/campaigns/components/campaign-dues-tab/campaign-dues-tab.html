@@ -100,13 +100,15 @@
                 </td>
                 @if (canRecordPaymentsNow()) {
                   <td class="whitespace-nowrap px-4 py-4 text-right">
-                    <button
-                      type="button"
-                      class="rounded-lg border border-line px-3 py-2 text-xs text-text"
-                      (click)="openRecordPayment(due)"
-                    >
-                      {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
-                    </button>
+                    @if (due.status !== paidStatus) {
+                      <button
+                        type="button"
+                        class="rounded-lg border border-line px-3 py-2 text-xs text-text"
+                        (click)="openRecordPayment(due)"
+                      >
+                        {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                      </button>
+                    }
                   </td>
                 }
               </tr>
