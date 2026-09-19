@@ -52,7 +52,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 4.8 [T-28] (P1) Fiche membre — onglet situation des cotisations.
 - [x] 4.9 [T-29] (P1) Fiche membre — onglet historique des règlements.
 - [x] 4.10 [T-30] (P1) Fiche membre — onglet contributions aux cagnottes.
-- [ ] 4.11 [T-31] (P1) Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.
+- [x] 4.11 [T-31] (P1) Navigation clavier entre les onglets de la fiche membre (flèches gauche/droite), sans rechargement de page.
 - [x] 4.12 [T-32] (P1) Fiche membre en lecture seule pour un Opérateur non autorisé aux paiements (masquage des actions d'enregistrement). — §2.3
 
 ## 5. Membres — création et modification (`member-management-ui`)
