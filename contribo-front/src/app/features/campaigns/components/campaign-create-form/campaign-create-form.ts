@@ -17,7 +17,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 /**
  * Valide que la date de fin n'est pas antérieure à la date de début
- * (RG-COT-005, contrat `CreateCampaignRequest.endDate` : "Doit être
+ * (T-66, RG-COT-005, contrat `CreateCampaignRequest.endDate` : "Doit être
  * postérieure ou égale à startDate."). Les deux valeurs sont des dates
  * `format: date` (chaînes `yyyy-MM-dd`), comparables lexicographiquement
  * sans conversion (même validateur que `SocialFundCreateForm`, T-84).
