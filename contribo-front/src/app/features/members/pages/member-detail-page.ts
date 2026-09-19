@@ -15,8 +15,14 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
+
+/** Identifiant d'un onglet de la fiche membre (T-28, US-MEM-003). */
+export type MemberDetailTab = 'informations' | 'cotisations';
+
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['informations', 'cotisations'];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -33,6 +39,10 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * la variante de modification Opérateur (T-39) restent à livrer.
  * La modification complète Administrateur/Trésorier est fournie par T-38.
  *
+ * Onglets (US-MEM-003) : "Informations" reprend le bloc de base ;
+ * "Situation des cotisations" (T-28) charge `openapi:listMemberDues` via
+ * `MemberDuesTab`, avec activation au clic ou par Entrée/Espace.
+ *
  * Action "Désactiver" (T-41, US-MEM-005) : appelle `POST
  * /members/{memberId}/deactivation` (`MembresService.deactivateMember`) pour
  * un membre actif, réservée à l'Administrateur, et remplace le membre affiché
@@ -42,10 +52,13 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * avec l'action "Réactiver" selon le statut courant (RG-MEM-022, T-46) et le
  * masquage pour les rôles Trésorier/Opérateur/Membre (T-47) restent à livrer
  * sur des tickets distincts.
+ * La navigation clavier flèches gauche/droite entre onglets (T-31) reste un
+ * ticket dédié, non livré ici. Les règlements et contributions restent les
+ * tickets T-29 et T-30.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberDuesTab],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -83,6 +96,8 @@ export class MemberDetailPage {
   readonly member = signal<MemberDetails | null>(null);
 
   readonly memberStatusLabel = memberStatusLabel;
+  readonly tabs = MEMBER_DETAIL_TABS;
+  readonly activeTab = signal<MemberDetailTab>(MEMBER_DETAIL_TABS[0]);
 
   constructor() {
     this.route.paramMap
@@ -100,6 +115,7 @@ export class MemberDetailPage {
           this.loadError.set(false);
           this.notFound.set(false);
           this.member.set(null);
+          this.activeTab.set(MEMBER_DETAIL_TABS[0]);
         }),
         switchMap((memberId) =>
           this.membersService.getMember(memberId).pipe(
@@ -119,6 +135,14 @@ export class MemberDetailPage {
         this.member.set(member);
       });
   }
+  selectTab(tab: MemberDetailTab): void {
+    this.activeTab.set(tab);
+  }
+
+  isActiveTab(tab: MemberDetailTab): boolean {
+    return this.activeTab() === tab;
+  }
+
   openEditDialog(): void {
     if (!this.canEdit() || !this.member() || this.editOpen()) {
       return;
