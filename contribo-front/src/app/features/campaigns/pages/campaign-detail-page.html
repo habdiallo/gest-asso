@@ -28,6 +28,56 @@
       <p class="mt-3 text-sm text-text">{{ campaign.description }}</p>
     }
 
+    @if (canCloseCampaignNow()) {
+      <div class="mt-4 flex justify-end">
+        <button
+          type="button"
+          (click)="openCloseCampaignDialog()"
+          class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
+        >
+          {{ 'campaigns.detail.close.action' | transloco }}
+        </button>
+      </div>
+
+      <app-form-dialog
+        [open]="closeCampaignDialogOpen()"
+        [dialogTitle]="'campaigns.detail.close.dialogTitle' | transloco"
+        (closed)="cancelCloseCampaignDialog()"
+      >
+        @if (closeCampaignDialogOpen()) {
+          <p class="text-sm text-text">{{ 'campaigns.detail.close.confirmMessage' | transloco }}</p>
+
+          @if (closeCampaignErrorMessage(); as errorKey) {
+            <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+          }
+
+          <div class="mt-6 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              [disabled]="closingCampaign()"
+              (click)="cancelCloseCampaignDialog()"
+              class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
+            >
+              {{ 'campaigns.detail.close.cancel' | transloco }}
+            </button>
+            <button
+              type="button"
+              [disabled]="closingCampaign()"
+              (click)="confirmCloseCampaign()"
+              class="inline-flex h-11 items-center rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+            >
+              {{
+                (closingCampaign()
+                  ? 'campaigns.detail.close.confirming'
+                  : 'campaigns.detail.close.confirm'
+                ) | transloco
+              }}
+            </button>
+          </div>
+        }
+      </app-form-dialog>
+    }
+
     <div
       class="mt-6 flex gap-2 border-b border-line"
       role="tablist"
