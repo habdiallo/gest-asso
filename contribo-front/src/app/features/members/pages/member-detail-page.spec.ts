@@ -556,7 +556,7 @@ describe('MemberDetailPage', () => {
     expect(editButtons).toHaveLength(0);
   });
 
-  describe('reactivation (T-44, US-MEM-006)', () => {
+  describe('reactivation (T-44, T-45, US-MEM-006)', () => {
     it('shows the "Réactiver" action for an Administrator on an inactive member', async () => {
       const fixture = await createFixture(
         () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
@@ -592,6 +592,27 @@ describe('MemberDetailPage', () => {
         expect(findReactivateButton(root)).toBeUndefined();
       },
     );
+
+    it('opens a confirmation dialog without calling reactivateMember before confirmation (T-45)', async () => {
+      const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator, reactivateMember },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findReactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const dialog = root.querySelector('dialog[open]');
+      expect(dialog).not.toBeNull();
+      expect(dialog?.textContent).toContain('Réactiver le membre');
+      expect(dialog?.textContent).toContain(
+        "Le membre redeviendra actif. Son historique de cotisations, règlements et contributions n'est pas modifié",
+      );
+      expect(reactivateMember).not.toHaveBeenCalled();
+    });
 
     it('calls reactivateMember and updates the displayed status after confirmation', async () => {
       const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));

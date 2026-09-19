@@ -87,8 +87,9 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
  *
  * Action "Réactiver" (T-44, US-MEM-006) : appelle `POST
  * /members/{memberId}/reactivation` (`MembresService.reactivateMember`) pour
- * un membre inactif, réservée à l'Administrateur, après confirmation
- * explicite (RG-MEM-020 à RG-MEM-022). Le masquage mutuel avec l'action
+ * un membre inactif, réservée à l'Administrateur, après une boîte de
+ * confirmation explicite (T-45, RG-MEM-020 à RG-MEM-022), sur le même motif
+ * `app-form-dialog` que le formulaire de modification. Le masquage mutuel avec l'action
  * "Désactiver" selon le statut courant (T-46) et le masquage pour les rôles
  * Trésorier/Opérateur/Membre (T-47) restent à livrer sur des tickets distincts.
  * La restriction de la vue Opérateur (RG-MEM-008, T-23) est fournie par
