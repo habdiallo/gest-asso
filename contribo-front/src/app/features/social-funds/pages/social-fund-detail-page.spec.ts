@@ -783,6 +783,65 @@ describe('SocialFundDetailPage', () => {
       expect(recordDialog(root)?.open).toBe(false);
       expect(createContribution).not.toHaveBeenCalled();
     });
+
+    it(
+      "accepts a supplementary contribution from a member who already contributed to " +
+        'the same social fund, without any count or minimum-amount restriction (T-88, RG-CAG-005)',
+      async () => {
+        const memberId = '10700000-0000-4000-8000-000000000200';
+        const existingContribution = buildContribution({ member: { id: memberId, displayName: 'Aïcha Bah' } });
+        const updatedSocialFund = buildSocialFund({ collectedAmount: 4750001, contributorCount: 43 });
+        const createContribution = vi.fn((socialFundId: string) =>
+          of({
+            contribution: buildContribution({
+              socialFund: { ...buildSocialFund(), id: socialFundId },
+              member: { id: memberId, displayName: 'Aïcha Bah' },
+              amount: 1,
+            }),
+            socialFund: updatedSocialFund,
+          }),
+        );
+        const listSocialFundContributions = vi.fn(() =>
+          of(buildContributionPage({ items: [existingContribution] })),
+        );
+        const fixture = await createFixture({
+          getSocialFund: () => of(buildSocialFund()),
+          listSocialFundContributions,
+          createContribution,
+          role: UserRole.Administrator,
+        });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        recordButton(root)?.click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        // Le membre a déjà une contribution enregistrée (visible dans la liste
+        // chargée ci-dessus) et cette deuxième contribution porte un montant
+        // volontairement minime (1 GNF), pour couvrir à la fois l'absence de
+        // limite de nombre et l'absence de montant minimal entre deux
+        // contributions d'un même membre.
+        fixture.componentInstance.handleRecordContribution({
+          memberId,
+          amount: 1,
+          contributionDate: '2026-09-15',
+          method: PaymentMethod.Cash,
+        });
+        fixture.detectChanges();
+
+        expect(createContribution).toHaveBeenCalledWith(SOCIAL_FUND_ID, {
+          memberId,
+          amount: 1,
+          contributionDate: '2026-09-15',
+          method: PaymentMethod.Cash,
+        });
+        expect(recordDialog(root)?.open).toBe(false);
+        expect(root.querySelector('[role="alert"]')).toBeNull();
+        expect(root.textContent).not.toContain("Impossible d'enregistrer la contribution");
+      },
+    );
   });
 
   describe('masquage de l\'enregistrement de contribution sur cagnotte cloturee (T-94)', () => {

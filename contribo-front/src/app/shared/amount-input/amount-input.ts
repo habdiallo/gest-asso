@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { ControlValueAccessor, ValidatorFn } from '@angular/forms';
+import type { AbstractControl, ControlValueAccessor, ValidatorFn } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
 import { filter, map } from 'rxjs';
 import {
@@ -76,8 +76,18 @@ export class AmountInput implements ControlValueAccessor, OnInit {
     () => this.touched() && !this.invalidAmount() && this.minErrorValue() !== null,
   );
 
+  /** Erreur `max` portée par le contrôle parent (ex. `Validators.max(remainingAmount)`, RG-PAY-007). */
+  private readonly maxErrorValue = signal<number | null>(null);
+  readonly showMaxError = computed(
+    () => this.touched() && !this.invalidAmount() && this.maxErrorValue() !== null,
+  );
+
   readonly showError = computed(
-    () => this.showRequiredError() || this.showInvalidAmountError() || this.showMinError(),
+    () =>
+      this.showRequiredError() ||
+      this.showInvalidAmountError() ||
+      this.showMinError() ||
+      this.showMaxError(),
   );
 
   readonly errorMessage = computed(() => {
@@ -87,6 +97,10 @@ export class AmountInput implements ControlValueAccessor, OnInit {
     const min = this.minErrorValue();
     if (this.showMinError() && min !== null) {
       return `Le montant doit être d'au moins ${min} GNF.`;
+    }
+    const max = this.maxErrorValue();
+    if (this.showMaxError() && max !== null) {
+      return `Le montant ne peut pas dépasser ${max} GNF.`;
     }
     return 'Le montant est obligatoire.';
   });
@@ -128,10 +142,16 @@ export class AmountInput implements ControlValueAccessor, OnInit {
       )
       .subscribe((touchedValue) => this.touchedFromControl.set(touchedValue));
 
+    this.syncExternalErrors(control);
+    control.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncExternalErrors(control));
+  }
+
+  /** Reflète les erreurs `min`/`max` du contrôle parent, inatteignables localement. */
+  private syncExternalErrors(control: AbstractControl): void {
     this.minErrorValue.set((control.errors?.['min'] as { min: number } | undefined)?.min ?? null);
-    control.statusChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.minErrorValue.set((control.errors?.['min'] as { min: number } | undefined)?.min ?? null);
-    });
+    this.maxErrorValue.set((control.errors?.['max'] as { max: number } | undefined)?.max ?? null);
   }
 
   writeValue(value: number | null): void {

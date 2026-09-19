@@ -120,7 +120,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 11. Campagnes — règlements (`campaigns-ui`)
 
 - [x] 11.1 [T-71] (P0) Formulaire d'enregistrement d'un règlement (Membre, Campagne, Montant, Date, Mode). — US-COT-005 ; openapi:`recordPayment`
-- [ ] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
+- [x] 11.2 [T-72] (P0) Blocage côté formulaire d'un montant de règlement supérieur au reste à payer, avec message explicite. — RG-PAY-007
 - [x] 11.3 [T-73] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non. — §2.3
 - [ ] 11.4 [T-74] (P1) Affichage de l'auteur et de l'horodatage de chaque règlement dans l'historique. — RG-PAY-008
 - [ ] 11.5 [T-75] (P1) Recalcul et rafraîchissement du reste à payer et du statut après chaque règlement enregistré. — RG-PAY-004 à RG-PAY-006
@@ -147,7 +147,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 14. Cagnottes — contributions et suivi (`cagnottes-ui`)
 
 - [x] 14.1 [T-87] (P1) Formulaire d'enregistrement d'une contribution (Membre, Cagnotte, Montant, Date, Mode). — US-CAG-002 ; openapi:`recordContribution`
-- [ ] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
+- [x] 14.2 [T-88] (P1) Autorisation de contributions multiples sans restriction de nombre ni de montant minimal pour un même membre. — RG-CAG-005
 - [x] 14.3 [T-89] (P0) Masquage de l'action d'enregistrement pour un Opérateur dont `peut_enregistrer_paiements` = non.
 - [ ] 14.4 [T-90] (P1) Affichage de l'auteur et de l'horodatage de chaque contribution. — RG-CAG-007
 - [x] 14.5 [T-91] (P1) Onglet suivi de cagnotte : total collecté, nombre de contributeurs, liste des contributions. — US-CAG-003 ; openapi:`getCagnotteSummary`

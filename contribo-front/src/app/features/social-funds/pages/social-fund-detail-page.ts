@@ -52,11 +52,15 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * de la liste, afin de refléter le nouveau total collecté et le nombre de
  * contributeurs.
  *
+ * Contributions multiples d'un même membre (T-88, RG-CAG-005) : aucune
+ * restriction de nombre ni de montant minimal n'est appliquée entre deux
+ * contributions d'un même membre à la même cagnotte, ce que vérifie le test
+ * "accepts a supplementary contribution from a member who already
+ * contributed..." de `social-fund-detail-page.spec.ts`.
+ *
  * Limite connue de ce ticket : ni la barre de progression objectif/reste à
- * collecter (T-92), ni l'autorisation explicite de contributions multiples
- * sans restriction (T-88, déjà non bloquée ici faute de contrôle contraire),
- * ni l'affichage de l'auteur/horodatage de chaque contribution (T-90) ne
- * sont implémentés dans ce ticket.
+ * collecter (T-92), ni l'affichage de l'auteur/horodatage de chaque
+ * contribution (T-90) ne sont implémentés dans ce ticket.
  */
 @Component({
   selector: 'app-social-fund-detail-page',
