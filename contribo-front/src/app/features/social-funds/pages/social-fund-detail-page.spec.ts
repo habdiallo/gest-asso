@@ -5,12 +5,20 @@ import {
   CagnottesService,
   ContributionsService,
   CurrencyCode,
+  MembresService,
   MemberStatus,
   PaymentMethod,
   SocialEventType,
   UserRole,
 } from '@api';
-import type { Contribution, ContributionPage, CurrentUser, SocialFund } from '@api';
+import type {
+  Contribution,
+  ContributionCreationResponse,
+  ContributionPage,
+  CurrentUser,
+  MemberPage,
+  SocialFund,
+} from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
@@ -90,7 +98,7 @@ function buildContributionPage(overrides: Partial<ContributionPage> = {}): Contr
   };
 }
 
-function buildCurrentUser(role: UserRole): CurrentUser {
+function buildCurrentUser(role: UserRole, operatorCanRecordPayments = false): CurrentUser {
   return {
     userId: '10700000-0000-4000-8000-000000000900',
     association: {
@@ -107,10 +115,25 @@ function buildCurrentUser(role: UserRole): CurrentUser {
       status: MemberStatus.Active,
     },
     role,
-    operatorCanRecordPayments: false,
+    operatorCanRecordPayments,
     accountActive: true,
   };
 }
+
+const memberPage: MemberPage = {
+  items: [
+    {
+      id: '10700000-0000-4000-8000-000000000200',
+      firstName: 'Aïcha',
+      lastName: 'Bah',
+      displayName: 'Aïcha Bah',
+      incomeCategory: { id: '10700000-0000-4000-8000-000000000903', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+  ],
+  summary: { total: 1, active: 1, inactive: 0 },
+  page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+};
 
 async function createFixture(options: {
   getSocialFund: (socialFundId: string) => Observable<SocialFund>;
@@ -120,13 +143,24 @@ async function createFixture(options: {
     size?: number,
   ) => Observable<ContributionPage>;
   closeSocialFund?: (socialFundId: string) => Observable<SocialFund>;
+  createContribution?: (
+    socialFundId: string,
+    request: unknown,
+  ) => Observable<ContributionCreationResponse>;
+  listMembers?: (page?: number, size?: number, q?: string) => Observable<MemberPage>;
   socialFundId?: string;
   role?: UserRole;
+  operatorCanRecordPayments?: boolean;
 }): Promise<ComponentFixture<SocialFundDetailPage>> {
   const socialFundId = options.socialFundId ?? SOCIAL_FUND_ID;
   const closeSocialFund =
     options.closeSocialFund ??
     ((): Observable<SocialFund> => of(buildSocialFund({ status: 'CLOSED' })));
+  const createContribution =
+    options.createContribution ??
+    ((): Observable<ContributionCreationResponse> =>
+      of({ contribution: buildContribution(), socialFund: buildSocialFund() }));
+  const listMembers = options.listMembers ?? ((): Observable<MemberPage> => of(memberPage));
   await TestBed.configureTestingModule({
     imports: [
       SocialFundDetailPage,
@@ -149,7 +183,12 @@ async function createFixture(options: {
         provide: ContributionsService,
         useValue: {
           listSocialFundContributions: options.listSocialFundContributions,
+          createContribution,
         } as unknown as ContributionsService,
+      },
+      {
+        provide: MembresService,
+        useValue: { listMembers } as unknown as MembresService,
       },
       {
         provide: ActivatedRoute,
@@ -159,7 +198,9 @@ async function createFixture(options: {
   }).compileComponents();
 
   const sessionService = TestBed.inject(SessionService);
-  sessionService.setUser(buildCurrentUser(options.role ?? UserRole.Administrator));
+  sessionService.setUser(
+    buildCurrentUser(options.role ?? UserRole.Administrator, options.operatorCanRecordPayments),
+  );
 
   const fixture = TestBed.createComponent(SocialFundDetailPage);
   fixture.detectChanges();
@@ -535,6 +576,212 @@ describe('SocialFundDetailPage', () => {
 
       expect(root.querySelector('dialog')?.open).toBe(false);
       expect(root.textContent).toContain('Clôturée');
+    });
+  });
+
+  describe("droits d'enregistrement d'une contribution (T-89)", () => {
+    function recordButton(root: HTMLElement): HTMLButtonElement | null {
+      return (
+        Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((button) =>
+          button.textContent?.includes('Enregistrer une contribution'),
+        ) ?? null
+      );
+    }
+
+    /**
+     * Le dialogue d'enregistrement d'une contribution est toujours rendu
+     * après celui de clôture dans le template (`social-fund-detail-page.html`) :
+     * pour un Administrateur/Trésorier, deux `<dialog>` existent dans le DOM
+     * (form-dialog les rend inconditionnellement), le dialogue de contribution
+     * est donc le dernier.
+     */
+    function recordDialog(root: HTMLElement): HTMLDialogElement | null {
+      const dialogs = Array.from(root.querySelectorAll<HTMLDialogElement>('dialog'));
+      return dialogs[dialogs.length - 1] ?? null;
+    }
+
+    function dialogButtonByText(root: HTMLElement, text: string): HTMLButtonElement | undefined {
+      const dialog = recordDialog(root);
+      return Array.from(
+        dialog?.querySelectorAll<HTMLButtonElement>('.overflow-y-auto button') ?? [],
+      ).find((button) => button.textContent?.trim() === text);
+    }
+
+    it('shows the record action for an Administrateur', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      expect(recordButton(fixture.nativeElement)).not.toBeNull();
+    });
+
+    it('shows the record action for a Trésorier', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Treasurer,
+      });
+      fixture.detectChanges();
+
+      expect(recordButton(fixture.nativeElement)).not.toBeNull();
+    });
+
+    it('hides the record action for an Opérateur without operatorCanRecordPayments', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Operator,
+        operatorCanRecordPayments: false,
+      });
+      fixture.detectChanges();
+
+      expect(recordButton(fixture.nativeElement)).toBeNull();
+    });
+
+    it('shows the record action for an Opérateur with operatorCanRecordPayments', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Operator,
+        operatorCanRecordPayments: true,
+      });
+      fixture.detectChanges();
+
+      expect(recordButton(fixture.nativeElement)).not.toBeNull();
+    });
+
+    it('hides the record action for a Membre', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        role: UserRole.Member,
+      });
+      fixture.detectChanges();
+
+      expect(recordButton(fixture.nativeElement)).toBeNull();
+    });
+
+    it('opens the contribution form without calling the API', async () => {
+      const createContribution = vi.fn(() =>
+        of({ contribution: buildContribution(), socialFund: buildSocialFund() }),
+      );
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        createContribution,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      recordButton(root)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(recordDialog(root)?.open).toBe(true);
+      expect(createContribution).not.toHaveBeenCalled();
+    });
+
+    it('records a contribution, updates the collected amount and refreshes the contributions list', async () => {
+      const updatedSocialFund = buildSocialFund({ collectedAmount: 5000000, contributorCount: 44 });
+      const createContribution = vi.fn((socialFundId: string) =>
+        of({
+          contribution: buildContribution({ socialFund: { ...buildSocialFund(), id: socialFundId } }),
+          socialFund: updatedSocialFund,
+        }),
+      );
+      const listSocialFundContributions = vi.fn(() => of(buildContributionPage()));
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions,
+        createContribution,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      recordButton(root)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      fixture.componentInstance.handleRecordContribution({
+        memberId: '10700000-0000-4000-8000-000000000200',
+        amount: 250000,
+        contributionDate: '2026-09-14',
+        method: PaymentMethod.MobileMoney,
+      });
+      fixture.detectChanges();
+
+      expect(createContribution).toHaveBeenCalledWith(SOCIAL_FUND_ID, {
+        memberId: '10700000-0000-4000-8000-000000000200',
+        amount: 250000,
+        contributionDate: '2026-09-14',
+        method: PaymentMethod.MobileMoney,
+      });
+      expect(recordDialog(root)?.open).toBe(false);
+      expect(root.textContent).toContain(formatGnfAmountDetailed(5000000));
+      expect(listSocialFundContributions).toHaveBeenCalledWith(SOCIAL_FUND_ID, 0, 20);
+    });
+
+    it('shows an error and keeps the dialog open when the record request fails', async () => {
+      const createContribution = vi.fn(() => throwError(() => new Error('network error')));
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        createContribution,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      recordButton(root)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      fixture.componentInstance.handleRecordContribution({
+        memberId: '10700000-0000-4000-8000-000000000200',
+        amount: 250000,
+        contributionDate: '2026-09-14',
+        method: PaymentMethod.MobileMoney,
+      });
+      fixture.detectChanges();
+
+      expect(recordDialog(root)?.open).toBe(true);
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        "Impossible d'enregistrer la contribution",
+      );
+    });
+
+    it('closes the dialog without calling the API when cancelling', async () => {
+      const createContribution = vi.fn(() =>
+        of({ contribution: buildContribution(), socialFund: buildSocialFund() }),
+      );
+      const fixture = await createFixture({
+        getSocialFund: () => of(buildSocialFund()),
+        listSocialFundContributions: () => of(buildContributionPage()),
+        createContribution,
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      recordButton(root)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const cancelButton = dialogButtonByText(root, 'Annuler');
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(recordDialog(root)?.open).toBe(false);
+      expect(createContribution).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,9 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CampagnesService, CampaignStatus, CatgoriesDeRevenuService } from '@api';
-import type { Campaign, CampaignPage, IncomeCategory } from '@api';
+import {
+  CampagnesService,
+  CampaignStatus,
+  CatgoriesDeRevenuService,
+  CurrencyCode,
+  MemberStatus,
+  UserRole,
+} from '@api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
@@ -54,6 +62,28 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
   };
 }
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   listCampaigns: (
     page: number,
@@ -64,6 +94,7 @@ async function createFixture(
   options: {
     createCampaign?: (request: unknown) => Observable<Campaign>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
+    role?: UserRole;
   } = {},
 ): Promise<ComponentFixture<CampaignsListPage>> {
   const createCampaign =
@@ -91,6 +122,12 @@ async function createFixture(
       },
     ],
   }).compileComponents();
+
+  // Rôle par défaut Administrateur (T-67) : les tests qui ne portent pas sur
+  // les droits par rôle restent inchangés, l'action "Créer une campagne"
+  // étant visible pour l'Administrateur comme pour le Trésorier.
+  const sessionService = TestBed.inject(SessionService);
+  sessionService.setUser(buildCurrentUser(options.role ?? UserRole.Administrator));
 
   const fixture = TestBed.createComponent(CampaignsListPage);
   fixture.detectChanges();
@@ -489,6 +526,49 @@ describe('CampaignsListPage', () => {
     expect(fixture.componentInstance.createDialogOpen()).toBe(true);
     expect(fixture.componentInstance.createError()).toBe(true);
     expect(fixture.nativeElement.textContent).toContain('Impossible de créer la campagne');
+  });
+
+  describe('role-based access to creation (T-67)', () => {
+    it.each([UserRole.Operator, UserRole.Member] as const)(
+      'hides the "Créer une campagne" action for %s (US-COT-001)',
+      async (role) => {
+        const fixture = await createFixture(() => of(buildCampaignPage()), { role });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+          (button as HTMLButtonElement).textContent?.includes('Créer une campagne'),
+        );
+        expect(openButton).toBeUndefined();
+        expect(root.querySelector('dialog')).toBeNull();
+      },
+    );
+
+    it.each([UserRole.Administrator, UserRole.Treasurer] as const)(
+      'keeps the "Créer une campagne" action visible for %s',
+      async (role) => {
+        const fixture = await createFixture(() => of(buildCampaignPage()), { role });
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const openButton = Array.from(root.querySelectorAll('button')).find((button) =>
+          (button as HTMLButtonElement).textContent?.includes('Créer une campagne'),
+        );
+        expect(openButton).toBeTruthy();
+      },
+    );
+
+    it('does not open the create dialog when the role is not authorized (US-COT-001)', async () => {
+      const fixture = await createFixture(() => of(buildCampaignPage()), {
+        role: UserRole.Operator,
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCreateDialog();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.createDialogOpen()).toBe(false);
+    });
   });
 });
 
