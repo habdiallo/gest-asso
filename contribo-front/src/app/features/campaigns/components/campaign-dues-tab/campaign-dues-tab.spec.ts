@@ -273,6 +273,40 @@ describe('CampaignDuesTab', () => {
     ).toBe(true);
   });
 
+  it('hides the record payment action for an already settled due (status Payé, T-76)', async () => {
+    const paidResult: DuePage = {
+      items: [
+        { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+      ],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    const fixture = await createFixture(() => of(paidResult), { user: treasurer });
+
+    const actionButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtons.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(false);
+  });
+
+  it('ignores an attempt to open the record payment dialog on an already settled due (T-76)', async () => {
+    const paidResult: DuePage = {
+      items: [
+        { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+      ],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    const fixture = await createFixture(() => of(paidResult), { user: treasurer });
+
+    fixture.componentInstance.openRecordPayment(paidResult.items[0]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
+  });
+
   it('ignores an attempt to open the record payment dialog on a closed campaign (T-81)', async () => {
     const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
 
@@ -282,7 +316,7 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
   });
 
-  it("hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)", async () => {
+  it('hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)', async () => {
     const fixture = await createFixture(undefined, {
       user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: false },
     });
@@ -452,6 +486,16 @@ describe('CampaignDuesTab', () => {
     const statusBadge = root.querySelector('tbody td span');
     expect(statusBadge?.textContent?.trim()).toBe('Payé');
     expect(statusBadge?.classList.contains('text-success')).toBe(true);
+
+    // L'action d'enregistrement disparait immediatement, sans rechargement de page (T-76).
+    const actionButtonsAfterSettlement = Array.from(
+      root.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtonsAfterSettlement.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(false);
   });
 
   it('closes the dialog when cancelled', async () => {
