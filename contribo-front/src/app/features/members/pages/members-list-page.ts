@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { MembresService } from '@api';
+import { MembresService, MemberStatus } from '@api';
 import type { CreateMemberRequest, MemberDetails, MemberPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
@@ -21,14 +21,14 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. Le filtre statut (T-25) et le filtre catégorie (T-26) ne sont
- * pas exploités ici ; seule la pagination de base (page suivante/précédente
- * sur `page`/`size`) est fournie par ce ticket, afin que l'ensemble du
- * répertoire reste accessible au-delà des 20 premiers membres. La colonne
- * Statut affiche un badge distinguant visuellement les membres actifs des
- * membres inactifs (T-22, RG-MEM-007), en plus du libellé textuel, pour ne
- * pas reposer uniquement sur la couleur. Chaque ligne mène à la fiche
- * détaillée du membre (T-27, US-MEM-003).
+ * à US-MEM-002. Le filtre catégorie (T-26) n'est pas exploité ici ; seule la
+ * pagination de base (page suivante/précédente sur `page`/`size`) est
+ * fournie par ce ticket, afin que l'ensemble du répertoire reste accessible
+ * au-delà des 20 premiers membres. La colonne Statut affiche un badge
+ * distinguant visuellement les membres actifs des membres inactifs (T-22,
+ * RG-MEM-007), en plus du libellé textuel, pour ne pas reposer uniquement
+ * sur la couleur. Chaque ligne mène à la fiche détaillée du membre (T-27,
+ * US-MEM-003).
  *
  * Recherche par nom (T-24, paramètre contractuel `q` de `GET /members`) :
  * filtre côté serveur les membres dont un champ nominatif correspond à la
@@ -41,6 +41,14 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * page. Une réponse en retard (nouvelle recherche lancée avant que la
  * précédente ne résolve) ne doit pas écraser le résultat de la dernière
  * recherche saisie (`requestSequence`).
+ *
+ * Filtre par statut (T-25, paramètre contractuel `status` de
+ * `GET /members`) : un menu Actif/Inactif/Tous restreint la liste, revient à
+ * la première page à chaque changement (`loadPage(0)`, même approche que
+ * `CampaignsListPage`, T-58) et se combine avec la pagination. Une réponse
+ * en retard, arrivée après un changement de filtre plus récent, est ignorée
+ * via `requestSequence` afin de ne pas écraser le résultat du filtre
+ * effectivement sélectionné en dernier.
  *
  * Vue restreinte de l'Opérateur (T-23, RG-MEM-008) : la colonne Catégorie de
  * revenu, qui porte le détail financier du membre (montants de cotisation
@@ -62,6 +70,12 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * laisser le membre créé hors de la première page rechargée ; cette
  * confirmation reste donc le retour visible immédiat, indépendamment de sa
  * position dans le tableau.
+ *
+ * Cette confirmation précise également qu'un compte utilisateur a été créé
+ * automatiquement pour le membre (T-36, RG-MEM-004) : la création du membre
+ * entraîne toujours la création de son compte côté backend, sans champ
+ * dédié dans `MemberDetails` ; le message l'annonce donc systématiquement
+ * après une création réussie (clé `members.create.success`).
  */
 @Component({
   selector: 'app-members-list-page',
@@ -83,6 +97,12 @@ export class MembersListPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
+
+  readonly statusFilterOptions: readonly MemberStatus[] = [
+    MemberStatus.Active,
+    MemberStatus.Inactive,
+  ];
+  readonly statusFilter = signal<MemberStatus | ''>('');
 
   readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
@@ -129,6 +149,11 @@ export class MembersListPage {
     const value = (event.target as HTMLInputElement).value;
     this.nameQuery.set(value);
     this.nameQueryInput.next(value.trim());
+  }
+
+  onStatusFilterChange(event: Event): void {
+    this.statusFilter.set((event.target as HTMLSelectElement).value as MemberStatus | '');
+    this.loadPage(0);
   }
 
   goToPreviousPage(): void {
@@ -205,15 +230,15 @@ export class MembersListPage {
     this.loading.set(true);
     this.loadError.set(false);
 
-    // Une réponse en retard (nouvelle recherche lancée avant que la
-    // précédente ne résolve) ne doit pas écraser le résultat de la dernière
-    // recherche saisie.
+    // Une réponse en retard (nouvelle recherche ou filtre changé avant que la
+    // précédente requête ne résolve) ne doit pas écraser le résultat de la
+    // dernière recherche/filtre sélectionné.
     const requestId = ++this.requestSequence;
     const query = this.nameQuery().trim();
     this.lastRequestedQuery = query;
 
     this.membersService
-      .listMembers(page, undefined, query || undefined)
+      .listMembers(page, undefined, query || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (memberPage) => {
