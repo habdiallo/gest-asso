@@ -115,7 +115,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
 - [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
 - [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
-- [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
+- [x] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
 
 ## 11. Campagnes — règlements (`campaigns-ui`)
 
