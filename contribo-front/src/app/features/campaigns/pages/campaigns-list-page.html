@@ -65,12 +65,20 @@
   </div>
 
   @if (loading() && !campaignPage()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'campaigns.list.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="list"
+      [rows]="5"
+      [label]="'campaigns.list.loading' | transloco"
+    />
   } @else if (loadError() && !campaignPage()) {
     <p class="mt-6 text-error" role="alert">{{ 'campaigns.list.error' | transloco }}</p>
   } @else if (campaignPage(); as campaignPage) {
     @if (loading()) {
-      <p class="mt-6 text-text-2" role="status">{{ 'campaigns.list.loading' | transloco }}</p>
+      <app-loading-skeleton
+        variant="list"
+        [rows]="5"
+        [label]="'campaigns.list.loading' | transloco"
+      />
     } @else if (loadError()) {
       <p class="mt-6 text-error" role="alert">{{ 'campaigns.list.error' | transloco }}</p>
     }

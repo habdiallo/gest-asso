@@ -14,6 +14,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
@@ -41,7 +42,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-social-fund-detail-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog],
+  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton],
   templateUrl: './social-fund-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
