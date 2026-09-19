@@ -4,7 +4,11 @@
   </a>
 
   @if (loading() && !socialFund()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.detail.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="detail"
+      [rows]="4"
+      [label]="'socialFunds.detail.loading' | transloco"
+    />
   } @else if (loadError() && !socialFund()) {
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.detail.error' | transloco }}</p>
   } @else if (socialFund(); as socialFund) {

@@ -1,6 +1,10 @@
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
   @if (loading() && !campaign()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'campaigns.detail.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="detail"
+      [rows]="4"
+      [label]="'campaigns.detail.loading' | transloco"
+    />
   } @else if (loadError() && !campaign()) {
     <p class="mt-6 text-error" role="alert">{{ 'campaigns.detail.error' | transloco }}</p>
   } @else if (campaign(); as campaign) {

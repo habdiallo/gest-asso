@@ -21,6 +21,7 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
@@ -98,6 +99,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
     TranslocoPipe,
     RouterLink,
     FormDialog,
+    LoadingSkeleton,
     MemberEditForm,
     MemberEditFormOperator,
     MemberDuesTab,

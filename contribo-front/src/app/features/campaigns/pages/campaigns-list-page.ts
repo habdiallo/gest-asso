@@ -13,6 +13,7 @@ import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { Subject, debounceTime } from 'rxjs';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { formatCalendarDate } from '../campaign-dates';
@@ -59,7 +60,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  */
 @Component({
   selector: 'app-campaigns-list-page',
-  imports: [RouterLink, TranslocoPipe, FormDialog, CampaignCreateForm],
+  imports: [RouterLink, TranslocoPipe, FormDialog, LoadingSkeleton, CampaignCreateForm],
   templateUrl: './campaigns-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
