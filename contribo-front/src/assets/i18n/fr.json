@@ -88,6 +88,8 @@
   "socialFunds.detail.columns.amount": "Montant",
   "socialFunds.detail.columns.date": "Date",
   "socialFunds.detail.columns.method": "Mode de règlement",
+  "socialFunds.detail.columns.recordedBy": "Enregistré par",
+  "socialFunds.detail.columns.recordedAt": "Horodatage",
   "socialFunds.detail.pagination.nav": "Pagination des contributions",
   "socialFunds.detail.pagination.previous": "Page précédente",
   "socialFunds.detail.pagination.next": "Page suivante",

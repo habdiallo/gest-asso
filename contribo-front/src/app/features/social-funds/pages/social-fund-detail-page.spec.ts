@@ -301,6 +301,28 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain('Mobile Money');
   });
 
+  it('renders the author and the recording timestamp of each contribution (T-90, RG-CAG-007)', async () => {
+    const fixture = await createFixture({
+      getSocialFund: () => of(buildSocialFund()),
+      listSocialFundContributions: () => of(buildContributionPage()),
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    // Fixture `buildContribution()` : `recordedBy.displayName` = 'Mamadou Sy',
+    // `recordedAt` = '2026-09-14T09:05:00Z'. L'attendu est calculé avec le même
+    // fuseau local que `formatSocialFundDateTime` (T-90), sans reproduire son
+    // formatage, pour rester correct quel que soit le fuseau d'exécution.
+    expect(root.textContent).toContain('Mamadou Sy');
+    const recordedAt = new Date('2026-09-14T09:05:00Z');
+    const day = recordedAt.getDate().toString().padStart(2, '0');
+    const month = (recordedAt.getMonth() + 1).toString().padStart(2, '0');
+    const hours = recordedAt.getHours().toString().padStart(2, '0');
+    const minutes = recordedAt.getMinutes().toString().padStart(2, '0');
+    expect(root.textContent).toContain(`${day}/${month}/${recordedAt.getFullYear()}`);
+    expect(root.textContent).toContain(`${hours}:${minutes}`);
+  });
+
   describe('contributions pagination', () => {
     function buildManyContributions(count: number): Contribution[] {
       return Array.from({ length: count }, (_, index) =>
