@@ -158,6 +158,26 @@ describe('CampaignCreateForm', () => {
     ).toContain('postérieure ou égale');
   });
 
+  it('allows submission when the end date equals the start date (RG-COT-005)', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.form.setValue({
+      ...validValue,
+      startDate: '2026-10-15',
+      endDate: '2026-10-15',
+    });
+    fixture.componentInstance.form.controls.startDate.markAsTouched();
+    fixture.componentInstance.form.controls.endDate.markAsTouched();
+
+    const submitted = vi.fn();
+    fixture.componentInstance.submitted.subscribe(submitted);
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(submitted).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.dateRangeInvalid()).toBe(false);
+  });
+
   it('shows a validation error when the description exceeds 1000 characters', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();
