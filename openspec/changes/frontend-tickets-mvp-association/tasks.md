@@ -129,7 +129,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 ## 12. Campagnes — bilan et clôture (`campaigns-ui`)
 
 - [x] 12.1 [T-77] (P1) Onglet bilan de campagne : total attendu, total encaissé, reste à encaisser. — US-COT-007 ; openapi:`getCampaignSummary`
-- [ ] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
+- [x] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
 - [ ] 12.3 [T-79] (P2) Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.
 - [x] 12.4 [T-80] (P1) Action "Clôturer la campagne" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`
 - [x] 12.5 [T-81] (P1) Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.

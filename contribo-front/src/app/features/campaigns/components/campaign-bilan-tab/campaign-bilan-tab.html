@@ -19,6 +19,40 @@
       <dd class="mt-1 text-xl text-text">{{ formatAmount(summary.remainingAmount) }}</dd>
     </div>
   </dl>
+
+  <div class="mt-6">
+    <h3 class="text-sm font-medium text-text">
+      {{ 'campaigns.detail.bilan.memberStatus.title' | transloco }}
+    </h3>
+    <dl class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="rounded-lg border border-line p-4">
+        <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+          {{ 'campaigns.detail.bilan.memberStatus.paid' | transloco }}
+        </dt>
+        <dd class="mt-1 text-xl text-text">{{ summary.dueCounts.paid }}</dd>
+      </div>
+      <div class="rounded-lg border border-line p-4">
+        <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+          {{ 'campaigns.detail.bilan.memberStatus.partiallyPaid' | transloco }}
+        </dt>
+        <dd class="mt-1 text-xl text-text">{{ summary.dueCounts.partiallyPaid }}</dd>
+      </div>
+      <div class="rounded-lg border border-line p-4">
+        <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
+          {{ 'campaigns.detail.bilan.memberStatus.unpaid' | transloco }}
+        </dt>
+        <dd class="mt-1 text-xl text-text">{{ summary.dueCounts.unpaid }}</dd>
+      </div>
+    </dl>
+    <p class="mt-2 text-xs text-text-2">
+      {{
+        (summary.dueCounts.total === 1
+          ? 'campaigns.detail.bilan.memberStatus.totalSingular'
+          : 'campaigns.detail.bilan.memberStatus.total'
+        ) | transloco: { count: summary.dueCounts.total }
+      }}
+    </p>
+  </div>
 } @else {
   <p class="text-text-2" role="status">
     {{ 'campaigns.detail.bilan.unauthorized' | transloco }}
