@@ -19,18 +19,43 @@
       </span>
     </div>
 
-    @if (canEdit()) {
-      <button
-        type="button"
-        (click)="openEditDialog()"
-        class="mt-4 rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
-      >
-        {{ 'members.edit.button' | transloco }}
-      </button>
-    }
+    <div class="mt-4 flex flex-wrap gap-3">
+      @if (canEdit()) {
+        <button
+          type="button"
+          (click)="openEditDialog()"
+          class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+        >
+          {{ 'members.edit.button' | transloco }}
+        </button>
+      }
+      @if (canDeactivate()) {
+        <button
+          type="button"
+          (click)="deactivateMember()"
+          [disabled]="deactivating()"
+          class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
+        >
+          {{
+            (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.button')
+              | transloco
+          }}
+        </button>
+      }
+    </div>
     @if (editSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
         {{ 'members.edit.success' | transloco }}
+      </p>
+    }
+    @if (deactivateSuccess()) {
+      <p class="mt-4 text-sm text-success" role="status">
+        {{ 'members.deactivate.success' | transloco }}
+      </p>
+    }
+    @if (deactivateError()) {
+      <p class="mt-4 text-sm text-error" role="alert">
+        {{ 'members.deactivate.error' | transloco }}
       </p>
     }
     <app-form-dialog
