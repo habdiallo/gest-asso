@@ -17,7 +17,7 @@ import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
-import { formatSocialFundCalendarDate } from '../social-fund-dates';
+import { formatSocialFundCalendarDate, formatSocialFundDateTime } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
 
@@ -58,9 +58,14 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * "accepts a supplementary contribution from a member who already
  * contributed..." de `social-fund-detail-page.spec.ts`.
  *
- * Limite connue de ce ticket : ni la barre de progression objectif/reste à
- * collecter (T-92), ni l'affichage de l'auteur/horodatage de chaque
- * contribution (T-90) ne sont implémentés dans ce ticket.
+ * Limite connue de ce ticket : la barre de progression objectif/reste à
+ * collecter (T-92) n'est pas implémentée dans ce ticket.
+ *
+ * Traçabilité de chaque contribution (T-90, RG-CAG-007) : le tableau affiche
+ * l'utilisateur qui a enregistré la contribution (`recordedBy.displayName`)
+ * et l'horodatage de la saisie (`recordedAt`), formaté par
+ * `formatSocialFundDateTime` (`../social-fund-dates.ts`) dans le fuseau local
+ * du navigateur (voir le commentaire de ce formateur pour le choix documenté).
  */
 @Component({
   selector: 'app-social-fund-detail-page',
@@ -147,6 +152,7 @@ export class SocialFundDetailPage {
 
   readonly formatCollectedAmount = formatGnfAmountDetailed;
   readonly formatCalendarDate = formatSocialFundCalendarDate;
+  readonly formatDateTime = formatSocialFundDateTime;
   readonly socialFundStatusLabel = socialFundStatusLabel;
   readonly socialEventTypeLabel = socialEventTypeLabel;
   readonly contributionMethodLabel = contributionMethodLabel;

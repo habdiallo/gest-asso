@@ -187,8 +187,14 @@
                 <th scope="col" class="py-2 pr-4 font-medium">
                   {{ 'socialFunds.detail.columns.date' | transloco }}
                 </th>
-                <th scope="col" class="py-2 font-medium">
+                <th scope="col" class="py-2 pr-4 font-medium">
                   {{ 'socialFunds.detail.columns.method' | transloco }}
+                </th>
+                <th scope="col" class="py-2 pr-4 font-medium">
+                  {{ 'socialFunds.detail.columns.recordedBy' | transloco }}
+                </th>
+                <th scope="col" class="py-2 font-medium">
+                  {{ 'socialFunds.detail.columns.recordedAt' | transloco }}
                 </th>
               </tr>
             </thead>
@@ -202,7 +208,11 @@
                   <td class="py-2 pr-4 text-text">
                     {{ formatCalendarDate(contribution.contributionDate) }}
                   </td>
-                  <td class="py-2 text-text">{{ contributionMethodLabel(contribution.method) }}</td>
+                  <td class="py-2 pr-4 text-text">
+                    {{ contributionMethodLabel(contribution.method) }}
+                  </td>
+                  <td class="py-2 pr-4 text-text">{{ contribution.recordedBy.displayName }}</td>
+                  <td class="py-2 text-text">{{ formatDateTime(contribution.recordedAt) }}</td>
                 </tr>
               }
             </tbody>
