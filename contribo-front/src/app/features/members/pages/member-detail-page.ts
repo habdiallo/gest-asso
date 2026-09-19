@@ -15,8 +15,14 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { memberStatusLabel } from '../members-status-labels';
+
+/** Onglets de la fiche membre. Seul `contributions` est livré par T-30. */
+export type MemberDetailTab = 'contributions';
+
+const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = ['contributions'];
 
 /**
  * Écran fiche membre (T-27) : appelle `GET /members/{memberId}` (`@api`,
@@ -26,16 +32,23 @@ import { memberStatusLabel } from '../members-status-labels';
  * du membre provient du paramètre de route `memberId`, atteint depuis une
  * ligne de la liste des membres (T-21).
  *
- * Limite connue : la situation des cotisations, l'historique des règlements
- * et les contributions aux cagnottes prévus par US-MEM-003 relèvent des
- * tickets T-28, T-29 et T-30 (contenu des onglets) ; cet écran n'affiche que
- * le bloc de base. La restriction de la vue Opérateur (RG-MEM-008, T-23) et
- * la variante de modification Opérateur (T-39) restent à livrer.
- * La modification complète Administrateur/Trésorier est fournie par T-38.
+ * L'onglet "Contributions aux cagnottes" (T-30, tâche 4.10) utilise le motif
+ * ARIA `tablist`/`tab`/`tabpanel`, comme les onglets de la fiche campagne
+ * (`campaign-detail-page.ts`, T-64). Seul cet onglet est livré ici : la
+ * navigation clavier entre onglets (roving tabindex, T-31) n'a de sens
+ * qu'avec plusieurs onglets simultanés et reste hors périmètre tant que les
+ * onglets cotisations (T-28) et règlements (T-29) ne sont pas livrés.
+ *
+ * Limite connue : la situation des cotisations et l'historique des
+ * règlements prévus par US-MEM-003 relèvent des tickets T-28 et T-29
+ * (contenu des onglets), livrés séparément. La restriction de la vue
+ * Opérateur (RG-MEM-008, T-23) et la variante de modification Opérateur
+ * (T-39) restent à livrer. La modification complète Administrateur/Trésorier
+ * est fournie par T-38.
  */
 @Component({
   selector: 'app-member-detail-page',
-  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm],
+  imports: [TranslocoPipe, RouterLink, FormDialog, MemberEditForm, MemberContributionsTab],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,6 +74,9 @@ export class MemberDetailPage {
   readonly member = signal<MemberDetails | null>(null);
 
   readonly memberStatusLabel = memberStatusLabel;
+
+  readonly tabs = MEMBER_DETAIL_TABS;
+  readonly activeTab = signal<MemberDetailTab>(MEMBER_DETAIL_TABS[0]);
 
   constructor() {
     this.route.paramMap
@@ -93,6 +109,14 @@ export class MemberDetailPage {
         this.member.set(member);
       });
   }
+  selectTab(tab: MemberDetailTab): void {
+    this.activeTab.set(tab);
+  }
+
+  isActiveTab(tab: MemberDetailTab): boolean {
+    return this.activeTab() === tab;
+  }
+
   openEditDialog(): void {
     if (!this.canEdit() || !this.member() || this.editOpen()) {
       return;
