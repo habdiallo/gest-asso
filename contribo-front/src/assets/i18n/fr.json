@@ -79,6 +79,8 @@
   "socialFunds.detail.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",
   "socialFunds.detail.summaryTitle": "Suivi de la cagnotte",
   "socialFunds.detail.collectedAmount": "Total collecté",
+  "socialFunds.detail.targetAmount": "Objectif : {{amount}}",
+  "socialFunds.detail.remainingAmount": "Reste à collecter : {{amount}}",
   "socialFunds.detail.contributorCount": "{{count}} contributeur(s)",
   "socialFunds.detail.contributionsTitle": "Contributions",
   "socialFunds.detail.contributionsLoading": "Chargement des contributions…",

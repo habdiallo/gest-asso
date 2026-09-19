@@ -141,6 +141,29 @@
           <p class="mt-1 font-display text-2xl text-text">
             {{ formatCollectedAmount(socialFund.collectedAmount) }}
           </p>
+
+          @if (socialFund.targetAmount; as targetAmount) {
+            <p class="mt-1 text-sm text-text-2">
+              {{
+                'socialFunds.detail.targetAmount'
+                  | transloco: { amount: formatCollectedAmount(targetAmount) }
+              }}
+            </p>
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
+              <span
+                data-testid="social-fund-detail-progress-bar"
+                class="block h-full rounded-full bg-gold"
+                [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
+              ></span>
+            </div>
+            <p class="mt-2 text-sm text-text-2">
+              {{
+                'socialFunds.detail.remainingAmount'
+                  | transloco
+                    : { amount: formatCollectedAmount(socialFund.remainingToTargetAmount ?? 0) }
+              }}
+            </p>
+          }
         </div>
 
         <div class="rounded-card border border-line bg-surface-glass p-5">
