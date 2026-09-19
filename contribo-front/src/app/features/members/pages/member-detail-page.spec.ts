@@ -8,10 +8,20 @@ import {
   ErrorCode,
   MemberStatus,
   MembresService,
+  PaymentMethod,
   RglementsService,
+  SocialEventType,
+  SocialFundStatus,
   UserRole,
 } from '@api';
-import type { CurrentUser, DuePage, ErrorResponse, MemberDetails, PaymentPage } from '@api';
+import type {
+  ContributionPage,
+  CurrentUser,
+  DuePage,
+  ErrorResponse,
+  MemberDetails,
+  PaymentPage,
+} from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
@@ -67,6 +77,12 @@ function buildCurrentUser(role: UserRole, operatorCanRecordPayments = false): Cu
 function findReactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
   return Array.from(root.querySelectorAll('button')).find(
     (button) => button.textContent?.trim() === 'Réactiver',
+  );
+}
+
+function findDeactivateButton(root: HTMLElement): HTMLButtonElement | undefined {
+  return Array.from(root.querySelectorAll('button')).find(
+    (button) => button.textContent?.trim() === 'Désactiver',
   );
 }
 
@@ -556,7 +572,7 @@ describe('MemberDetailPage', () => {
     expect(editButtons).toHaveLength(0);
   });
 
-  describe('reactivation (T-44, US-MEM-006)', () => {
+  describe('reactivation (T-44, T-45, US-MEM-006)', () => {
     it('shows the "Réactiver" action for an Administrator on an inactive member', async () => {
       const fixture = await createFixture(
         () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
@@ -592,6 +608,27 @@ describe('MemberDetailPage', () => {
         expect(findReactivateButton(root)).toBeUndefined();
       },
     );
+
+    it('opens a confirmation dialog without calling reactivateMember before confirmation (T-45)', async () => {
+      const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator, reactivateMember },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findReactivateButton(root)?.click();
+      fixture.detectChanges();
+
+      const dialog = root.querySelector('dialog[open]');
+      expect(dialog).not.toBeNull();
+      expect(dialog?.textContent).toContain('Réactiver le membre');
+      expect(dialog?.textContent).toContain(
+        "Le membre redeviendra actif. Son historique de cotisations, règlements et contributions n'est pas modifié",
+      );
+      expect(reactivateMember).not.toHaveBeenCalled();
+    });
 
     it('calls reactivateMember and updates the displayed status after confirmation', async () => {
       const reactivateMember = vi.fn(() => of(buildMemberDetails({ status: MemberStatus.Active })));
@@ -664,6 +701,32 @@ describe('MemberDetailPage', () => {
     });
   });
 
+  describe('masquage mutuel Désactiver/Réactiver selon le statut (T-46, RG-MEM-022)', () => {
+    it('shows only "Désactiver", never "Réactiver", for an Administrator on an active member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Active })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findDeactivateButton(root)).toBeDefined();
+      expect(findReactivateButton(root)).toBeUndefined();
+    });
+
+    it('shows only "Réactiver", never "Désactiver", for an Administrator on an inactive member', async () => {
+      const fixture = await createFixture(
+        () => of(buildMemberDetails({ status: MemberStatus.Inactive })),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findReactivateButton(root)).toBeDefined();
+      expect(findDeactivateButton(root)).toBeUndefined();
+    });
+  });
+
   it('shows the deactivate action to an Administrator for an active member', async () => {
     const fixture = await createFixture(() => of(buildMemberDetails()), {
       role: UserRole.Administrator,
@@ -671,24 +734,19 @@ describe('MemberDetailPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    );
-    expect(button).toBeTruthy();
+    expect(findDeactivateButton(root)).toBeTruthy();
   });
 
-  it('hides the deactivate action for a non-Administrator role', async () => {
-    const fixture = await createFixture(() => of(buildMemberDetails()), {
-      role: UserRole.Treasurer,
-    });
-    fixture.detectChanges();
+  it.each([UserRole.Treasurer, UserRole.Operator, UserRole.Member])(
+    'hides the deactivate action for role %s even on an active member',
+    async (role) => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), { role });
+      fixture.detectChanges();
 
-    const root: HTMLElement = fixture.nativeElement;
-    const button = Array.from(root.querySelectorAll('button')).find(
-      (element) => element.textContent?.trim() === 'Désactiver',
-    );
-    expect(button).toBeFalsy();
-  });
+      const root: HTMLElement = fixture.nativeElement;
+      expect(findDeactivateButton(root)).toBeFalsy();
+    },
+  );
 
   it('hides the deactivate action for an already inactive member', async () => {
     const fixture = await createFixture(
@@ -767,6 +825,190 @@ describe('MemberDetailPage', () => {
       ),
     ).toBeTruthy();
   });
+
+  it(
+    'keeps the historical dues, payments and contributions tabs visible and populated ' +
+      'after a deactivation, without a page reload (T-43, RG-MEM-012 à RG-MEM-015)',
+    async () => {
+      const memberId = 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10';
+      const duePage: DuePage = {
+        items: [
+          {
+            id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            member: { id: memberId, displayName: 'Amadou Diallo' },
+            campaign: {
+              id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              name: 'Solidarité septembre',
+              startDate: '2026-09-01',
+              endDate: '2026-09-30',
+              status: 'OPEN',
+            },
+            incomeCategorySnapshot: {
+              id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              label: 'Catégorie B',
+            },
+            dueAmount: 100_000,
+            paidAmount: 50_000,
+            remainingAmount: 50_000,
+            status: 'PARTIALLY_PAID',
+            paymentCount: 1,
+            currency: 'GNF',
+          },
+        ],
+        page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+      };
+      const paymentPage: PaymentPage = {
+        items: [
+          {
+            id: '10700000-0000-4000-8000-000000000700',
+            dueId: '10700000-0000-4000-8000-000000000800',
+            member: { id: memberId, displayName: 'Amadou Diallo' },
+            campaign: {
+              id: '10700000-0000-4000-8000-000000000200',
+              name: 'Solidarité septembre',
+              startDate: '2026-09-01',
+              endDate: '2026-09-30',
+              status: 'OPEN',
+            },
+            amount: 50_000,
+            paymentDate: '2026-09-12',
+            method: PaymentMethod.MobileMoney,
+            recordedBy: {
+              userId: '10700000-0000-4000-8000-000000000900',
+              displayName: 'Mamadou Sy',
+            },
+            recordedAt: '2026-09-12T14:32:00Z',
+            currency: 'GNF',
+          },
+        ],
+        page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+      };
+      const contributionPage: ContributionPage = {
+        items: [
+          {
+            id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            member: { id: memberId, displayName: 'Amadou Diallo' },
+            socialFund: {
+              id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              title: 'Mariage de Fanta et Sekou',
+              eventType: SocialEventType.Wedding,
+              status: SocialFundStatus.Open,
+            },
+            amount: 150_000,
+            contributionDate: '2026-09-14',
+            method: PaymentMethod.MobileMoney,
+            recordedBy: {
+              userId: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              displayName: 'M. Bah',
+            },
+            recordedAt: '2026-09-14T09:05:00Z',
+            currency: 'GNF',
+          },
+        ],
+        page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+      };
+
+      const listMemberDues = vi.fn(() => of(duePage));
+      const listPayments = vi.fn(() => of(paymentPage));
+      const listContributions = vi.fn(() => of(contributionPage));
+      const deactivateMember = vi.fn(() =>
+        of(
+          buildMemberDetails({
+            status: MemberStatus.Inactive,
+            account: {
+              id: 'account-1',
+              role: 'MEMBER',
+              operatorCanRecordPayments: false,
+              active: false,
+            },
+          }),
+        ),
+      );
+
+      await TestBed.configureTestingModule({
+        imports: [
+          MemberDetailPage,
+          TranslocoTestingModule.forRoot({
+            langs: { fr },
+            translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+            preloadLangs: true,
+          }),
+        ],
+        providers: [
+          provideRouter([]),
+          {
+            provide: MembresService,
+            useValue: {
+              getMember: () => of(buildMemberDetails()),
+              deactivateMember,
+              listMemberDues,
+            } as unknown as MembresService,
+          },
+          {
+            provide: RglementsService,
+            useValue: { listPayments } as unknown as RglementsService,
+          },
+          {
+            provide: ContributionsService,
+            useValue: { listContributions } as unknown as ContributionsService,
+          },
+          {
+            provide: ActivatedRoute,
+            useValue: { paramMap: of(convertToParamMap({ memberId })) },
+          },
+        ],
+      }).compileComponents();
+      TestBed.inject(SessionService).setUser(buildCurrentUser(UserRole.Administrator));
+
+      const fixture = TestBed.createComponent(MemberDetailPage);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+
+      // Désactivation : le statut affiché passe à Inactif sur la même
+      // instance de page, sans navigation ni rechargement complet.
+      const deactivateButton = Array.from(root.querySelectorAll('button')).find(
+        (element) => element.textContent?.trim() === 'Désactiver',
+      ) as HTMLButtonElement;
+      deactivateButton.click();
+      fixture.detectChanges();
+
+      expect(deactivateMember).toHaveBeenCalledWith(memberId);
+      expect(root.textContent).toContain('Inactif');
+
+      // Les onglets historiques restent atteignables et affichent toujours
+      // les données du membre après la désactivation (RG-MEM-012 à
+      // RG-MEM-015) : aucune section ne disparaît ni ne se vide.
+      const findTab = (label: string): HTMLButtonElement =>
+        Array.from(root.querySelectorAll('[role="tab"]')).find((tab) =>
+          tab.textContent?.includes(label),
+        ) as HTMLButtonElement;
+
+      findTab('Situation des cotisations').click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(root.textContent).toContain('Solidarité septembre');
+      expect(root.textContent).toContain('Partiellement payé');
+
+      findTab('Règlements').click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(root.textContent).toContain('Mamadou Sy');
+
+      findTab('Contributions aux cagnottes').click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(root.textContent).toContain('Mariage de Fanta et Sekou');
+
+      // Le retour à l'onglet Informations confirme aussi le statut Inactif.
+      findTab('Informations').click();
+      fixture.detectChanges();
+      expect(root.textContent).toContain('Inactif');
+    },
+  );
 
   it('shows the situation des cotisations tab and loads the member dues (T-28)', async () => {
     const duePage: DuePage = {

@@ -73,9 +73,13 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * tableau du barème, en lecture comme en édition, avec un libellé explicite
  * en plus de la couleur (`categoryAmountUnconfigured`).
  *
- * Limite connue : le formatage GNF en direct pendant la frappe (T-70) reste un
- * ticket dédié ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
- * en direct.
+ * Formatage GNF en direct du champ de montant (T-70) : ce formulaire réutilise
+ * `AmountInput` (T-19, `@shared/amount-input`), qui reformate déjà la saisie
+ * avec les séparateurs de milliers et le suffixe GNF pendant la frappe, tout
+ * en conservant un entier valide côté formulaire pour l'envoi (RG-FMT-001/002).
+ * Aucun composant dédié n'est ajouté ici, la couverture spécifique au barème
+ * est apportée par les tests de ce fichier (formatage à la saisie et valeur
+ * soumise) en complément des tests génériques de `AmountInput`.
  *
  * Clôture de la campagne (T-80, US-COT-008, `openapi:closeCampaign`) : action
  * réservée à l'Administrateur et au Trésorier, proposée uniquement tant que la

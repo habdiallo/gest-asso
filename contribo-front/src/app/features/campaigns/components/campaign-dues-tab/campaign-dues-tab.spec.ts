@@ -17,6 +17,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import fr from '../../../../../assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
@@ -272,6 +273,40 @@ describe('CampaignDuesTab', () => {
     ).toBe(true);
   });
 
+  it('hides the record payment action for an already settled due (status Payé, T-76)', async () => {
+    const paidResult: DuePage = {
+      items: [
+        { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+      ],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    const fixture = await createFixture(() => of(paidResult), { user: treasurer });
+
+    const actionButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtons.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(false);
+  });
+
+  it('ignores an attempt to open the record payment dialog on an already settled due (T-76)', async () => {
+    const paidResult: DuePage = {
+      items: [
+        { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+      ],
+      page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    };
+    const fixture = await createFixture(() => of(paidResult), { user: treasurer });
+
+    fixture.componentInstance.openRecordPayment(paidResult.items[0]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
+  });
+
   it('ignores an attempt to open the record payment dialog on a closed campaign (T-81)', async () => {
     const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
 
@@ -281,7 +316,7 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
   });
 
-  it("hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)", async () => {
+  it('hides the record payment action for an Opérateur without peut_enregistrer_paiements (T-73, §2.3)', async () => {
     const fixture = await createFixture(undefined, {
       user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: false },
     });
@@ -399,6 +434,68 @@ describe('CampaignDuesTab', () => {
 
     expect(fixture.componentInstance.duePage()?.items[0].paidAmount).toBe(75_000);
     expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
+  });
+
+  it('recalculates and refreshes the remaining amount and status after several successive payments, including one that fully settles the due (T-75, RG-PAY-004 a RG-PAY-006)', async () => {
+    const secondPaymentResponse: PaymentCreationResponse = {
+      ...buildPaymentResponse(),
+      due: { ...result.items[0], paidAmount: 100_000, remainingAmount: 0, status: DueStatus.Paid },
+    };
+    const createPayment = vi
+      .fn<(dueId: string, request: CreatePaymentRequest) => Observable<PaymentCreationResponse>>()
+      .mockReturnValueOnce(of(buildPaymentResponse()))
+      .mockReturnValueOnce(of(secondPaymentResponse));
+    const fixture = await createFixture(undefined, { createPayment, user: treasurer });
+    const root: HTMLElement = fixture.nativeElement;
+
+    // Etat initial : cotisation partiellement payee, reste a payer de 50 000 GNF.
+    expect(root.textContent).toContain('Partiellement payé');
+    expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
+
+    // Premier reglement partiel : reste a payer recalcule a 25 000 GNF, statut inchange.
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
+    expect(fixture.componentInstance.duePage()?.items[0].status).toBe(DueStatus.PartiallyPaid);
+    expect(root.textContent).toContain(formatGnfAmountDetailed(25_000));
+    expect(root.textContent).toContain('Partiellement payé');
+
+    // Second reglement, sur la cotisation rafraichie, soldant totalement le reste a payer.
+    const refreshedDue = fixture.componentInstance.duePage()!.items[0];
+    fixture.componentInstance.openRecordPayment(refreshedDue);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.MobileMoney,
+    });
+    fixture.detectChanges();
+
+    expect(createPayment).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance.duePage()?.items[0].paidAmount).toBe(100_000);
+    expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(0);
+    expect(fixture.componentInstance.duePage()?.items[0].status).toBe(DueStatus.Paid);
+    expect(root.textContent).toContain(formatGnfAmountDetailed(0));
+
+    // Le badge de statut de la ligne (et non l'option du filtre) affiche desormais "Payé".
+    const statusBadge = root.querySelector('tbody td span');
+    expect(statusBadge?.textContent?.trim()).toBe('Payé');
+    expect(statusBadge?.classList.contains('text-success')).toBe(true);
+
+    // L'action d'enregistrement disparait immediatement, sans rechargement de page (T-76).
+    const actionButtonsAfterSettlement = Array.from(
+      root.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(
+      actionButtonsAfterSettlement.some((button) =>
+        button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ),
+    ).toBe(false);
   });
 
   it('closes the dialog when cancelled', async () => {
