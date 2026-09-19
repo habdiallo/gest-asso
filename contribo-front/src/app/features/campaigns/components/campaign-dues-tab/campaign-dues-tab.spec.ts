@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampagnesService, CampaignStatus, CurrencyCode, DueStatus } from '@api';
-import type { DuePage } from '@api';
+import { CampagnesService, CampaignStatus, CurrencyCode, DueStatus, MemberStatus } from '@api';
+import type { CurrentUser, DuePage, UserRole } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '../../../../../assets/i18n/fr.json';
+import { SessionService } from '@core/session/session.service';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
 const result: DuePage = {
@@ -32,6 +33,28 @@ const result: DuePage = {
   page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
 };
 
+function buildCurrentUser(role: UserRole): CurrentUser {
+  return {
+    userId: 'd5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d30',
+    association: {
+      id: 'e5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d31',
+      name: 'Association Test',
+      currency: CurrencyCode.Gnf,
+    },
+    member: {
+      id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      firstName: 'Awa',
+      lastName: 'Camara',
+      displayName: 'Awa Camara',
+      incomeCategory: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    },
+    role,
+    operatorCanRecordPayments: false,
+    accountActive: true,
+  };
+}
+
 async function createFixture(
   listCampaignDues: (
     campaignId: string,
@@ -40,6 +63,7 @@ async function createFixture(
     q?: string,
     status?: DueStatus,
   ) => Observable<DuePage> = () => of(result),
+  options: { role?: UserRole } = {},
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -52,6 +76,11 @@ async function createFixture(
     ],
     providers: [{ provide: CampagnesService, useValue: { listCampaignDues } }],
   }).compileComponents();
+
+  if (options.role) {
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.setUser(buildCurrentUser(options.role));
+  }
 
   const fixture = TestBed.createComponent(CampaignDuesTab);
   fixture.componentRef.setInput('campaignId', result.items[0].campaign.id);
@@ -75,6 +104,32 @@ describe('CampaignDuesTab', () => {
     expect(root.textContent).toContain('Amadou Diallo');
     expect(root.textContent).toContain('Partiellement payé');
   });
+
+  it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {
+    const fixture = await createFixture(() => of(result), { role: 'OPERATOR' });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).not.toContain('Standard');
+    expect(
+      Array.from(root.querySelectorAll('thead th')).some((th) =>
+        th.textContent?.includes('Catégorie'),
+      ),
+    ).toBe(false);
+    const row = root.querySelector('tbody tr');
+    expect(row?.querySelectorAll('td').length).toBe(4);
+  });
+
+  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
+    'keeps the income category column visible for %s',
+    async (role) => {
+      const fixture = await createFixture(() => of(result), { role });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Standard');
+    },
+  );
 
   it('shows a retry state when loading fails', async () => {
     const fixture = await createFixture(() => throwError(() => new Error('network error')));

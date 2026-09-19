@@ -53,6 +53,8 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
         useValue: {
           listMyDues: () =>
             of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
+          listMyContributions: () =>
+            of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
         } as unknown as EspacePersonnelService,
       },
     ],
@@ -102,6 +104,9 @@ describe('ProfilePage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('button[aria-controls="personal-panel-profile"]')).not.toBeNull();
     expect(root.querySelector('button[aria-controls="personal-panel-dues"]')).not.toBeNull();
+    expect(
+      root.querySelector('button[aria-controls="personal-panel-contributions"]'),
+    ).not.toBeNull();
     expect(root.querySelector('input')).toBeNull();
   });
 

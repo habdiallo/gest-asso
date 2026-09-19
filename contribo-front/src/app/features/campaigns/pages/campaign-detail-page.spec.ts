@@ -17,6 +17,24 @@ import { formatGnfAmountDetailed, formatGnfAmountInputDigits } from '@core/forma
 import { SessionService } from '@core/session/session.service';
 import { CampaignDetailPage } from './campaign-detail-page';
 
+/*
+ * jsdom (utilisé par Vitest) reconnaît `HTMLDialogElement` mais n'implémente
+ * pas `showModal()`/`close()` : voir la même limite documentée dans
+ * `shared/form-dialog/form-dialog.spec.ts`.
+ */
+if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+    if (!this.hasAttribute('open')) {
+      return;
+    }
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
 function buildCampaign(overrides: Partial<Campaign> = {}): Campaign {
   return {
     id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
@@ -35,6 +53,14 @@ function buildCampaign(overrides: Partial<Campaign> = {}): Campaign {
         currency: CurrencyCode.Gnf,
       },
     ],
+    financialSummary: {
+      expectedAmount: 6_000_000,
+      collectedAmount: 4_000_000,
+      remainingAmount: 2_000_000,
+      collectionRate: 66.7,
+      dueCounts: { total: 60, paid: 40, partiallyPaid: 5, unpaid: 15 },
+      currency: CurrencyCode.Gnf,
+    },
     ...overrides,
   };
 }
@@ -68,6 +94,7 @@ async function createFixture(
       campaignId: string,
       request: UpdateCampaignCategoryAmountsRequest,
     ) => Observable<Campaign>;
+    closeCampaign?: (campaignId: string) => Observable<Campaign>;
     role?: UserRole;
     campaignId?: string;
   } = {},
@@ -75,6 +102,9 @@ async function createFixture(
   const campaignId = options.campaignId ?? 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20';
   const updateCampaignCategoryAmounts =
     options.updateCampaignCategoryAmounts ??
+    ((): Observable<Campaign> => throwError(() => new Error('not stubbed')));
+  const closeCampaign =
+    options.closeCampaign ??
     ((): Observable<Campaign> => throwError(() => new Error('not stubbed')));
 
   await TestBed.configureTestingModule({
@@ -93,6 +123,7 @@ async function createFixture(
         useValue: {
           getCampaign,
           updateCampaignCategoryAmounts,
+          closeCampaign,
           listCampaignDues: () =>
             of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),
         } as unknown as CampagnesService,
@@ -117,6 +148,14 @@ function findEditButton(root: HTMLElement): HTMLButtonElement | null {
   return (
     (Array.from(root.querySelectorAll('button')).find(
       (button) => button.textContent?.trim() === 'Modifier le barème',
+    ) as HTMLButtonElement | undefined) ?? null
+  );
+}
+
+function findButtonByText(root: HTMLElement, text: string): HTMLButtonElement | null {
+  return (
+    (Array.from(root.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === text,
     ) as HTMLButtonElement | undefined) ?? null
   );
 }
@@ -166,7 +205,7 @@ describe('CampaignDetailPage', () => {
     expect(baremeTab.getAttribute('aria-selected')).toBe('true');
     expect(baremeTab.tabIndex).toBe(0);
     expect(tabs[1].getAttribute('aria-selected')).toBe('false');
-    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
 
     expect(root.querySelector('#campaign-tabpanel-bareme')).not.toBeNull();
     expect(root.querySelector('#campaign-tabpanel-cotisations')).toBeNull();
@@ -189,10 +228,10 @@ describe('CampaignDetailPage', () => {
     expect(cotisationsPanel?.textContent).toContain('Aucune cotisation pour cette campagne.');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
-    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, 0, 0]);
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
   });
 
-  it('switches to the bilan tab', async () => {
+  it('switches to the bilan tab and shows the campaign financial summary', async () => {
     const fixture = await createFixture(() => of(buildCampaign()));
     fixture.detectChanges();
 
@@ -203,9 +242,114 @@ describe('CampaignDetailPage', () => {
 
     const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
     expect(bilanPanel).not.toBeNull();
+    expect(bilanPanel?.textContent).toContain('Total attendu');
+    expect(bilanPanel?.textContent).toContain('6 000 000 GNF');
+    expect(bilanPanel?.textContent).toContain('Total encaissé');
+    expect(bilanPanel?.textContent).toContain('4 000 000 GNF');
+    expect(bilanPanel?.textContent).toContain('Reste à encaisser');
+    expect(bilanPanel?.textContent).toContain('2 000 000 GNF');
+  });
+
+  it('shows the unauthorized message on the bilan tab when financialSummary is absent', async () => {
+    const fixture = await createFixture(() => of(buildCampaign({ financialSummary: undefined })));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+    tabs[2].click();
+    fixture.detectChanges();
+
+    const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
     expect(bilanPanel?.textContent).toContain(
-      'Le bilan de la campagne sera disponible prochainement.',
+      "Vous n'êtes pas autorisé à consulter le bilan financier de cette campagne.",
     );
+  });
+
+  describe('keyboard navigation between tabs (T-64)', () => {
+    function findActiveTabButton(root: HTMLElement): HTMLButtonElement {
+      return root.querySelector('[role="tab"][aria-selected="true"]') as HTMLButtonElement;
+    }
+
+    function dispatchArrowKey(target: HTMLElement, key: 'ArrowLeft' | 'ArrowRight'): void {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    }
+
+    it('moves focus and activation to the next tab on ArrowRight, without a page reload', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+      expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
+      expect(root.querySelector('#campaign-tabpanel-bareme')).toBeNull();
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('moves focus and activation to the previous tab on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[2].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[1]);
+    });
+
+    it('wraps from the last tab to the first on ArrowRight', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      tabs[2].click();
+      fixture.detectChanges();
+
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
+      fixture.detectChanges();
+
+      tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[0]);
+    });
+
+    it('wraps from the first tab to the last on ArrowLeft', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      dispatchArrowKey(findActiveTabButton(root), 'ArrowLeft');
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[2].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[2]);
+    });
+
+    it('ignores other keys on the tablist', async () => {
+      const fixture = await createFixture(() => of(buildCampaign()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findActiveTabButton(root).dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      );
+      fixture.detectChanges();
+
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    });
   });
 
   it('shows the empty bareme message when there is no category amount', async () => {
@@ -426,6 +570,194 @@ describe('CampaignDetailPage', () => {
       expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
       expect(root.querySelector('form')).toBeNull();
       expect(findEditButton(root)).not.toBeNull();
+    });
+  });
+
+  describe('closure de campagne (T-80)', () => {
+    it('does not show the close action for an Operator', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Operator,
+      });
+      fixture.detectChanges();
+
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).toBeNull();
+    });
+
+    it('does not show the close action for a Member', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Member,
+      });
+      fixture.detectChanges();
+
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).toBeNull();
+    });
+
+    it('shows the close action for an Administrator on an open campaign', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).not.toBeNull();
+    });
+
+    it('shows the close action for a Treasurer on an upcoming campaign', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Treasurer,
+      });
+      fixture.detectChanges();
+
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).not.toBeNull();
+    });
+
+    it('does not show the close action for an Administrator once the campaign is already closed', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'CLOSED' })), {
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).toBeNull();
+    });
+
+    it('requires confirmation before calling closeCampaign', async () => {
+      const closeCampaign = vi.fn(() => of(buildCampaign({ status: 'CLOSED' })));
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Clôturer la campagne')?.click();
+      fixture.detectChanges();
+
+      expect(closeCampaign).not.toHaveBeenCalled();
+      expect(root.textContent).toContain(
+        "Cette action est définitive. Une fois clôturée, la campagne reste consultable mais n'accepte plus de modification ni de nouveau règlement.",
+      );
+
+      findButtonByText(root, 'Clôturer')?.click();
+      fixture.detectChanges();
+
+      expect(closeCampaign).toHaveBeenCalledWith('e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20');
+    });
+
+    it('cancelling the confirmation dialog does not call closeCampaign', async () => {
+      const closeCampaign = vi.fn(() => of(buildCampaign({ status: 'CLOSED' })));
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Clôturer la campagne')?.click();
+      fixture.detectChanges();
+
+      findButtonByText(root, 'Annuler')?.click();
+      fixture.detectChanges();
+
+      expect(closeCampaign).not.toHaveBeenCalled();
+      expect(findButtonByText(root, 'Clôturer la campagne')).not.toBeNull();
+    });
+
+    it('replaces the displayed campaign with the closed state returned by the API', async () => {
+      const closedCampaign = buildCampaign({ status: 'CLOSED' });
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign: () => of(closedCampaign),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Clôturer la campagne')?.click();
+      fixture.detectChanges();
+      findButtonByText(root, 'Clôturer')?.click();
+      fixture.detectChanges();
+
+      expect(root.textContent).toContain('Clôturée');
+      expect(findButtonByText(root, 'Clôturer la campagne')).toBeNull();
+    });
+
+    it('applies the closed state returned after the confirmation dialog was closed', async () => {
+      const response$ = new Subject<Campaign>();
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign: () => response$.asObservable(),
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCloseCampaignDialog();
+      fixture.componentInstance.confirmCloseCampaign();
+      fixture.detectChanges();
+
+      // Fermeture (Annuler/Échap/Fermer) pendant que la requête est encore en attente.
+      fixture.componentInstance.cancelCloseCampaignDialog();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.closeCampaignDialogOpen()).toBe(false);
+
+      response$.next(buildCampaign({ status: 'CLOSED' }));
+      response$.complete();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+      expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
+    });
+
+    it('ignores a late bareme response arriving after the campaign is closed (P2, PR #73)', async () => {
+      const baremeResponse$ = new Subject<Campaign>();
+      const openCampaign = buildCampaign({ status: 'OPEN' });
+      const fixture = await createFixture(() => of(openCampaign), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts: () => baremeResponse$.asObservable(),
+        closeCampaign: () => of(buildCampaign({ status: 'CLOSED' })),
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.startEditingBareme();
+      fixture.componentInstance.submitBareme();
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCloseCampaignDialog();
+      fixture.componentInstance.confirmCloseCampaign();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+
+      baremeResponse$.next(buildCampaign({ status: 'OPEN' }));
+      baremeResponse$.complete();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+      expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
+    });
+
+    it('shows a dedicated error message when the campaign is already closed server-side', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+        closeCampaign: () =>
+          throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 409,
+                error: {
+                  code: ErrorCode.CampaignAlreadyClosed,
+                  message: 'Cette campagne est déjà clôturée.',
+                } as ErrorResponse,
+              }),
+          ),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Clôturer la campagne')?.click();
+      fixture.detectChanges();
+      findButtonByText(root, 'Clôturer')?.click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        'Cette campagne est déjà clôturée.',
+      );
     });
   });
 });
