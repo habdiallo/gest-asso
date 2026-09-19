@@ -78,9 +78,18 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * campagne n'est pas déjà clôturée. Une boîte de confirmation explicite (le
  * dialogue générique `FormDialog`, T-15) rappelle que l'opération est
  * définitive avant l'appel à `POST /campaigns/{campaignId}/closure`. L'état
- * retourné par l'appel remplace la campagne affichée. La désactivation des
- * autres actions de modification sur une campagne clôturée (barème, membres
- * concernés, nouveau règlement) est un ticket dédié (T-81), hors périmètre ici.
+ * retourné par l'appel remplace la campagne affichée.
+ *
+ * Verrouillage des actions de modification sur une campagne clôturée (T-81) :
+ * l'édition du barème est déjà exclue par `canEditBaremeNow` (proposée
+ * uniquement tant que la campagne est à venir, donc jamais sur une campagne
+ * clôturée). L'enregistrement d'un nouveau règlement est masqué par
+ * `CampaignDuesTab` via l'entrée `campaignClosed`, calculée ici à partir du
+ * statut de la campagne. L'ajout d'un membre concerné n'est proposé nulle
+ * part après création (les membres concernés sont fixés, non modifiables,
+ * à la création de la campagne, T-65) : aucune action supplémentaire à
+ * désactiver pour ce ticket. Ce contrôle IHM ne remplace pas l'autorisation
+ * serveur.
  */
 @Component({
   selector: 'app-campaign-detail-page',
@@ -117,6 +126,9 @@ export class CampaignDetailPage {
   private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
+
+  /** Campagne clôturée (T-81) : transmis à `CampaignDuesTab` pour masquer l'enregistrement d'un nouveau règlement. */
+  readonly campaignClosed = computed(() => this.campaign()?.status === CampaignStatus.Closed);
 
   /** Administrateur/Trésorier seuls : Opérateur et Membre n'éditent jamais le barème. */
   readonly canEditBareme = computed(() => {

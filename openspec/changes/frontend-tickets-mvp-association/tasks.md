@@ -132,7 +132,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [ ] 12.2 [T-78] (P1) Onglet bilan : répartition des membres par statut (payé / partiel / non payé).
 - [ ] 12.3 [T-79] (P2) Application de la notation condensée GNF aux montants agrégés du bilan, avec accès à la valeur brute.
 - [x] 12.4 [T-80] (P1) Action "Clôturer la campagne" réservée à Administrateur/Trésorier, avec boîte de confirmation. — US-COT-008 ; openapi:`closeCampaign`
-- [ ] 12.5 [T-81] (P1) Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.
+- [x] 12.5 [T-81] (P1) Désactivation des actions de modification (barème, membres concernés, nouveau règlement) sur une campagne clôturée.
 
 ## 13. Cagnottes — consultation et création (`cagnottes-ui`)
 
