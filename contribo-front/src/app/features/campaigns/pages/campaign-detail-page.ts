@@ -290,6 +290,10 @@ export class CampaignDetailPage {
     this.closingCampaign.set(true);
     this.closeCampaignErrorMessage.set(null);
     const token = ++this.closeCampaignRequestToken;
+    // Invalide toute mutation de barème en cours : sa réponse arrivant après
+    // la clôture ne doit pas réintroduire un état de campagne antérieur
+    // (souvent UPCOMING/OPEN) par-dessus la campagne désormais CLOSED.
+    this.baremeRequestToken++;
 
     this.campaignsService
       .closeCampaign(campaign.id)

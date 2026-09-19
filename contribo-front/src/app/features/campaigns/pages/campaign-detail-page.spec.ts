@@ -591,6 +591,34 @@ describe('CampaignDetailPage', () => {
       expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
     });
 
+    it('ignores a late bareme response arriving after the campaign is closed (P2, PR #73)', async () => {
+      const baremeResponse$ = new Subject<Campaign>();
+      const openCampaign = buildCampaign({ status: 'OPEN' });
+      const fixture = await createFixture(() => of(openCampaign), {
+        role: UserRole.Administrator,
+        updateCampaignCategoryAmounts: () => baremeResponse$.asObservable(),
+        closeCampaign: () => of(buildCampaign({ status: 'CLOSED' })),
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.startEditingBareme();
+      fixture.componentInstance.submitBareme();
+      fixture.detectChanges();
+
+      fixture.componentInstance.openCloseCampaignDialog();
+      fixture.componentInstance.confirmCloseCampaign();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+
+      baremeResponse$.next(buildCampaign({ status: 'OPEN' }));
+      baremeResponse$.complete();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.campaign()?.status).toBe('CLOSED');
+      expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
+    });
+
     it('shows a dedicated error message when the campaign is already closed server-side', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
         role: UserRole.Administrator,
