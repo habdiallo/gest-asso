@@ -67,11 +67,15 @@ const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisatio
  * L'état retourné par l'appel remplace la campagne affichée (montants,
  * membres concernés et montants attendus recalculés), sans recalcul local.
  *
- * Limite connue : le signalement visuel d'une catégorie sans montant configuré
- * (T-69) et le formatage GNF en direct pendant la frappe (T-70) restent des
- * tickets dédiés ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
- * en direct, mais aucun repère visuel supplémentaire n'est ajouté pour une
- * catégorie sans montant.
+ * Signalement visuel d'une catégorie sans montant configuré (T-69) : une
+ * catégorie dont le montant vaut `0` (valeur par défaut à la création de la
+ * campagne, `campaign-create-form.ts`) est repérée par un badge dédié dans le
+ * tableau du barème, en lecture comme en édition, avec un libellé explicite
+ * en plus de la couleur (`categoryAmountUnconfigured`).
+ *
+ * Limite connue : le formatage GNF en direct pendant la frappe (T-70) reste un
+ * ticket dédié ; ce formulaire utilise déjà `AmountInput` (T-19), qui reformate
+ * en direct.
  *
  * Clôture de la campagne (T-80, US-COT-008, `openapi:closeCampaign`) : action
  * réservée à l'Administrateur et au Trésorier, proposée uniquement tant que la
@@ -126,6 +130,15 @@ export class CampaignDetailPage {
   private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
+
+  /**
+   * Catégorie sans montant configuré dans le barème (T-69) : `0` est la
+   * valeur par défaut attribuée à la création de la campagne
+   * (`campaign-create-form.ts`), avant toute saisie d'un montant dédié.
+   */
+  categoryAmountUnconfigured(amount: number): boolean {
+    return amount === 0;
+  }
 
   /** Campagne clôturée (T-81) : transmis à `CampaignDuesTab` pour masquer l'enregistrement d'un nouveau règlement. */
   readonly campaignClosed = computed(() => this.campaign()?.status === CampaignStatus.Closed);

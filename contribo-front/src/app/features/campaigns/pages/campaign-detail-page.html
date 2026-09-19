@@ -143,7 +143,32 @@
                     let i = $index
                   ) {
                     <tr class="border-b border-line">
-                      <td class="py-2 pr-4 text-text">{{ categoryAmount.incomeCategory.label }}</td>
+                      <td class="py-2 pr-4 text-text">
+                        <span class="inline-flex items-center gap-2">
+                          {{ categoryAmount.incomeCategory.label }}
+                          @if (categoryAmountUnconfigured(baremeAmounts.at(i).value ?? 0)) {
+                            <span
+                              class="inline-flex items-center gap-1 rounded-full border border-warning px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-warning"
+                            >
+                              <svg
+                                class="h-3 w-3"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z"
+                                />
+                              </svg>
+                              {{ 'campaigns.detail.bareme.notConfigured' | transloco }}
+                            </span>
+                          }
+                        </span>
+                      </td>
                       <td class="py-2 pr-4">
                         <app-amount-input
                           [formControlName]="i"
@@ -209,7 +234,34 @@
                   <tr class="border-b border-line">
                     <td class="py-2 pr-4 text-text">{{ categoryAmount.incomeCategory.label }}</td>
                     <td class="py-2 pr-4 text-text">
-                      {{ formatGnfAmountDetailed(categoryAmount.amount) }}
+                      <span class="inline-flex items-center gap-2">
+                        <span
+                          [class.text-warning]="categoryAmountUnconfigured(categoryAmount.amount)"
+                        >
+                          {{ formatGnfAmountDetailed(categoryAmount.amount) }}
+                        </span>
+                        @if (categoryAmountUnconfigured(categoryAmount.amount)) {
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full border border-warning px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-warning"
+                          >
+                            <svg
+                              class="h-3 w-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z"
+                              />
+                            </svg>
+                            {{ 'campaigns.detail.bareme.notConfigured' | transloco }}
+                          </span>
+                        }
+                      </span>
                     </td>
                     <td class="py-2 pr-4 text-text">{{ categoryAmount.memberCount }}</td>
                     <td class="py-2 text-text">

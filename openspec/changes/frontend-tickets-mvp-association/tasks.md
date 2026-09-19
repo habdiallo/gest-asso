@@ -114,7 +114,7 @@ déjà réalisées restent liées à l'initialisation historique `000`.
   Le formulaire de création de campagne (T-65, `campaign-create-form`) portait déjà le validateur de plage (`dateRangeValidator`, cohérent avec `SocialFundCreateForm`, T-84) : erreur groupe si `endDate < startDate`, messages dédiés (`endDateRequired` vs `endDateBeforeStart`), `aria-invalid`/`aria-describedby` sur le champ date de fin. Aucune campagne n'expose de formulaire de modification des dates dans le contrat (seul le barème se modifie, T-68) : le périmètre de T-66 se limite donc à la création. Ce ticket ajoute la traçabilité `T-66` explicite au validateur et un test de cas limite (date de fin = date de début, valeur explicitement autorisée par RG-COT-005).
 - [x] 10.3 [T-67] (P0) Masquage de l'action "Créer une campagne" pour Opérateur et Membre. — RG-COT-001
 - [x] 10.4 [T-68] (P0) Formulaire de configuration du barème (montant par catégorie de revenu) sur une campagne. — US-COT-002 ; openapi:`setCampaignRates`
-- [ ] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
+- [x] 10.5 [T-69] (P1) Signalement visuel d'une catégorie sans montant configuré dans le barème.
 - [ ] 10.6 [T-70] (P2) Champ de saisie de montant avec formatage GNF en direct dans le formulaire de barème.
 
 ## 11. Campagnes — règlements (`campaigns-ui`)
