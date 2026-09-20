@@ -151,6 +151,16 @@ export class DashboardPage {
     return value && value.view === 'MEMBER' ? value : null;
   });
 
+  /** Aperçu du tableau de bord (design/) : au plus les 3 campagnes les plus récentes, sans réduire `recentCampaigns` côté données. */
+  readonly recentCampaignsPreview = computed<readonly CampaignSummary[]>(() =>
+    (this.managementDashboard()?.recentCampaigns ?? []).slice(0, 3),
+  );
+
+  /** Aperçu du tableau de bord (design/) : au plus les 3 derniers règlements, sans réduire `recentPayments` côté données. */
+  readonly recentPaymentsPreview = computed(() =>
+    (this.managementDashboard()?.financialOverview?.recentPayments ?? []).slice(0, 3),
+  );
+
   /** Normalise `selectedCampaign` (choix précis) ou `allOpenCampaignsSummary` (« Toutes ») en une forme unique. */
   readonly campaignScopeView = computed<CampaignScopeView | null>(() => {
     const overview = this.managementDashboard()?.financialOverview;

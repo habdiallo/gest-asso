@@ -41,6 +41,20 @@ const demoCampaigns: CampaignSummary[] = [
     status: CampaignStatus.Closed,
     memberCount: 84,
   },
+  /**
+   * Deuxième campagne ouverte (T-117) : permet, comme pour `demoSocialFunds`
+   * (`features/social-funds/mocks/handlers.ts`), de vérifier que le sélecteur
+   * de périmètre du tableau de bord distingue bien une sélection précise d'un
+   * agrégat sur plusieurs campagnes ouvertes (`allOpenCampaignsSummary`).
+   */
+  {
+    id: '10700000-0000-4000-8000-000000000203',
+    name: 'Cotisation trimestrielle T3',
+    startDate: '2026-07-01',
+    endDate: '2026-09-30',
+    status: CampaignStatus.Open,
+    memberCount: 86,
+  },
 ];
 
 /**
@@ -55,9 +69,9 @@ const demoCampaignDetails: Record<string, Campaign> = {
     categoryAmounts: [
       {
         incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-        amount: 100_000,
+        amount: 200_000,
         memberCount: 60,
-        expectedAmount: 6_000_000,
+        expectedAmount: 12_000_000,
         currency: CurrencyCode.Gnf,
       },
       {
@@ -68,12 +82,14 @@ const demoCampaignDetails: Record<string, Campaign> = {
         currency: CurrencyCode.Gnf,
       },
     ],
+    // Alignées sur `financialOverview.selectedCampaign`/`recentCampaigns` de
+    // `features/dashboard/mocks/handlers.ts` (même campagne, mêmes montants).
     financialSummary: {
-      expectedAmount: 12_500_000,
-      collectedAmount: 8_375_000,
-      remainingAmount: 4_125_000,
-      collectionRate: 67.0,
-      dueCounts: { total: 86, paid: 52, partiallyPaid: 12, unpaid: 22 },
+      expectedAmount: 18_500_000,
+      collectedAmount: 12_400_000,
+      remainingAmount: 6_100_000,
+      collectionRate: 67,
+      dueCounts: { total: 86, paid: 38, partiallyPaid: 12, unpaid: 36 },
       currency: CurrencyCode.Gnf,
     },
   },
@@ -123,6 +139,36 @@ const demoCampaignDetails: Record<string, Campaign> = {
       remainingAmount: 0,
       collectionRate: 100,
       dueCounts: { total: 84, paid: 84, partiallyPaid: 0, unpaid: 0 },
+      currency: CurrencyCode.Gnf,
+    },
+  },
+  // Alignée sur `financialOverview.selectedCampaign`/`recentCampaigns` de
+  // `features/dashboard/mocks/handlers.ts` (même campagne, mêmes montants).
+  '10700000-0000-4000-8000-000000000203': {
+    ...demoCampaigns[3],
+    description: 'Cotisation trimestrielle courante, applicable à tous les membres actifs.',
+    categoryAmounts: [
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+        amount: 100_000,
+        memberCount: 60,
+        expectedAmount: 6_000_000,
+        currency: CurrencyCode.Gnf,
+      },
+      {
+        incomeCategory: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
+        amount: 150_000,
+        memberCount: 26,
+        expectedAmount: 3_900_000,
+        currency: CurrencyCode.Gnf,
+      },
+    ],
+    financialSummary: {
+      expectedAmount: 9_900_000,
+      collectedAmount: 4_950_000,
+      remainingAmount: 4_950_000,
+      collectionRate: 50,
+      dueCounts: { total: 86, paid: 43, partiallyPaid: 8, unpaid: 35 },
       currency: CurrencyCode.Gnf,
     },
   },

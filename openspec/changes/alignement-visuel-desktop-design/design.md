@@ -52,6 +52,19 @@ Le prototype `design/` présente le tableau de bord de gestion comme un panneau 
 
 **Alternative écartée** : reproduire ces éléments comme des placeholders statiques (sélecteurs non fonctionnels, raccourcis décoratifs). Écartée à la demande explicite du mainteneur, et incohérente avec la règle du dépôt qui interdit d'ajouter un comportement inventé sans le rendre réellement fonctionnel quand le contrat le permet déjà.
 
+### Panneau « Derniers règlements » : filtrage par campagne et lien « Voir l'historique » hors périmètre de ce ticket
+
+En vérifiant la fidélité visuelle du panneau (T-117, tâche 1.3), un écart de comportement a été identifié, distinct d'un écart purement visuel et donc non corrigé par ce ticket (la tâche 1.3 interdit explicitement de changer les indicateurs affichés ou leur source de données) :
+
+- Le libellé de périmètre affiché au-dessus des derniers règlements réutilise `campaignScopeView` (le même libellé que le panneau « Synthèse des cotisations »), ce qui laisse croire que `financialOverview.recentPayments` est filtré par la campagne sélectionnée (`campaignId`). Ce n'est pas le cas dans le mock de démonstration (`features/dashboard/mocks/handlers.ts`) : la liste renvoyée est statique, indépendante de `campaignId`. Le contrat (`ManagementFinancialOverview`, `besoins/openapi.yaml`) place pourtant `recentPayments` dans le même objet que `selectedCampaign`/`allOpenCampaignsSummary`, ce qui suggère qu'un filtrage par `campaignId` est attendu côté serveur réel.
+- Le bouton « Voir l'historique » du même panneau n'est pas un lien de navigation (`<span>` statique dans `dashboard-page.html`), alors que le prototype et l'attente du mainteneur sont qu'il ouvre l'historique des cotisations de la sélection en cours.
+
+**Solution retenue pour un futur ticket**, à planifier avec `nextTicketId` au moment de sa mise en œuvre (pas dans ce ticket) :
+- Filtrer `recentPayments` par `campaignId` quand une campagne précise est sélectionnée ; sans sélection, conserver l'agrégat toutes campagnes ouvertes confondues (comportement déjà correct dans ce cas).
+- Faire de « Voir l'historique » un vrai lien : vers `/campagnes/:id` avec l'onglet Cotisations pré-sélectionné quand une campagne précise est sélectionnée (nécessite que `campaign-detail-page.ts` puisse initialiser `activeTab` depuis un paramètre de route, au lieu du seul état local actuel) ; masqué/désactivé pour « Toutes les campagnes ouvertes », faute d'écran combiné listant l'historique de plusieurs campagnes.
+
+**Alternative écartée** : vider silencieusement le panneau en attendant. Écartée aussi, car cela retirerait un indicateur déjà affiché (récents règlements) sans que ce soit non plus le périmètre de ce ticket ; documenter l'écart et le traiter dans un ticket dédié est plus cohérent avec la règle du dépôt (`sans changer les indicateurs affichés ni leur source de données`).
+
 ### Dashboard mobile : hors périmètre de ce ticket, nouveau ticket à planifier
 
 Conformément au non-but « tablette et mobile hors périmètre de ce change », l'alignement du tableau de bord sur la maquette mobile de `design/` (colonne unique, cartes empilées) n'est pas traité par T-117. Il sera planifié comme ticket dédié une fois ce change desktop terminé, avec réservation d'un numéro via `nextTicketId` au moment de sa mise en œuvre.

@@ -447,7 +447,7 @@
               />
             } @else {
               <ul class="px-5">
-                @for (campaign of management.recentCampaigns; track campaign.id) {
+                @for (campaign of recentCampaignsPreview(); track campaign.id) {
                   <li class="border-b border-line last:border-b-0">
                     <a
                       [routerLink]="[navigationPaths.campaigns, campaign.id]"
@@ -536,10 +536,29 @@
                   <h2 class="text-base font-medium text-text">
                     {{ 'dashboard.management.financialTitle' | transloco }}
                   </h2>
-                  <p class="mt-1 text-xs text-text-3">
-                    {{ 'dashboard.management.financialSubtitle' | transloco }}
-                  </p>
+                  @if (campaignScopeView(); as scope) {
+                    <p class="mt-1 text-xs text-text-3">
+                      {{ scope.labelKey | transloco: scope.labelParams }}
+                    </p>
+                  }
+                  @if (financialOverview.recentPayments.length > 0) {
+                    <p class="mt-1 text-[11px] text-text-3">
+                      {{
+                        'dashboard.management.recentPaymentsCountLabel'
+                          | transloco
+                            : {
+                                displayed: recentPaymentsPreview().length,
+                                total: financialOverview.recentPayments.length,
+                              }
+                      }}
+                    </p>
+                  }
                 </div>
+                <span
+                  class="shrink-0 font-data text-[9px] font-medium uppercase tracking-[0.1em] text-gold"
+                >
+                  {{ 'dashboard.management.viewPaymentsHistory' | transloco }}
+                </span>
               </div>
               @if (financialOverview.recentPayments.length === 0) {
                 <app-empty-state
@@ -548,7 +567,7 @@
                 />
               } @else {
                 <ul class="px-5">
-                  @for (payment of financialOverview.recentPayments; track payment.id) {
+                  @for (payment of recentPaymentsPreview(); track payment.id) {
                     <li
                       class="grid min-h-[73px] grid-cols-[36px_1fr_auto] items-center gap-3 border-b border-line py-3 last:border-b-0"
                     >

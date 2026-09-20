@@ -97,6 +97,11 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
   registeredMemberCount: 91,
   newMemberCountThisMonth: 3,
   openCampaignCount: 2,
+  // Alignées sur `demoCampaignDetails` de `features/campaigns/mocks/handlers.ts`
+  // (mêmes campagnes, mêmes montants) : deux campagnes ouvertes permettent de
+  // vérifier que le sélecteur de périmètre distingue bien une sélection
+  // précise d'un agrégat sur plusieurs campagnes ouvertes (T-117), comme pour
+  // `demoSocialFunds`.
   recentCampaigns: [
     {
       id: '10700000-0000-4000-8000-000000000200',
@@ -111,6 +116,22 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
         remainingAmount: 6100000,
         collectionRate: 67,
         dueCounts: { total: 86, paid: 38, partiallyPaid: 12, unpaid: 36 },
+        currency: 'GNF',
+      },
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000203',
+      name: 'Cotisation trimestrielle T3',
+      startDate: '2026-07-01',
+      endDate: '2026-09-30',
+      status: CampaignStatus.Open,
+      memberCount: 86,
+      financialSummary: {
+        expectedAmount: 9900000,
+        collectedAmount: 4950000,
+        remainingAmount: 4950000,
+        collectionRate: 50,
+        dueCounts: { total: 86, paid: 43, partiallyPaid: 8, unpaid: 35 },
         currency: 'GNF',
       },
     },

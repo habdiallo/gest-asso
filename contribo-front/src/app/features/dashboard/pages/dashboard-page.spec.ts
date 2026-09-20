@@ -209,13 +209,103 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('2');
     expect(root.textContent).toContain('Solidarité septembre');
     expect(root.textContent).toContain('Ouverte');
-    expect(root.textContent).toContain('Bilan financier');
+    expect(root.textContent).toContain('Derniers règlements');
     expect(root.textContent).toContain('Moussa Bah');
     expect(root.textContent).toContain('1 250 000 GNF');
     expect(root.textContent).toContain('Mobile Money');
 
     const campaignLinks = Array.from(root.querySelectorAll('a[href="/campagnes"]'));
     expect(campaignLinks.map((link) => link.textContent?.trim())).toContain('Tout afficher');
+  });
+
+  it('shows at most 3 recent campaigns/payments with the scope label and a count, without a navigable history link', async () => {
+    const payment = (id: string, paymentDate: string) => ({
+      id,
+      dueId: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d41',
+      member: { id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d12', displayName: 'Moussa Bah' },
+      campaign: {
+        id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+        name: 'Solidarité septembre',
+        startDate: '2026-09-01',
+        endDate: '2026-09-30',
+        status: 'OPEN' as const,
+      },
+      amount: 50000,
+      paymentDate,
+      method: 'CASH' as const,
+      recordedBy: { userId: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d13', displayName: 'Fatou Sow' },
+      recordedAt: `${paymentDate}T14:32:00Z`,
+      currency: 'GNF' as const,
+    });
+    const dashboard = buildManagementDashboard({
+      recentCampaigns: [
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+          name: 'Campagne A',
+          startDate: '2026-09-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+          memberCount: 1,
+        },
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d21',
+          name: 'Campagne B',
+          startDate: '2026-08-15',
+          endDate: '2026-10-15',
+          status: 'OPEN',
+          memberCount: 2,
+        },
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d22',
+          name: 'Campagne C',
+          startDate: '2026-10-01',
+          endDate: '2026-10-31',
+          status: 'UPCOMING',
+          memberCount: 0,
+        },
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d23',
+          name: 'Campagne D',
+          startDate: '2026-07-01',
+          endDate: '2026-07-31',
+          status: 'CLOSED',
+          memberCount: 4,
+        },
+      ],
+      financialOverview: {
+        allOpenCampaignsSummary: {
+          openCampaignCount: 2,
+          financialSummary: {
+            expectedAmount: 100000,
+            collectedAmount: 50000,
+            remainingAmount: 50000,
+            collectionRate: 50,
+            dueCounts: { total: 2, paid: 1, partiallyPaid: 0, unpaid: 1 },
+            currency: 'GNF',
+          },
+        },
+        recentPayments: [
+          payment('a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d40', '2026-09-14'),
+          payment('a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d41', '2026-09-13'),
+          payment('a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d42', '2026-09-12'),
+          payment('a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d43', '2026-09-11'),
+        ],
+      },
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelectorAll('a[href^="/campagnes/"]').length).toBe(3);
+    expect(root.textContent).not.toContain('Campagne D');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
+    expect(root.textContent).toContain('3 dernier(s) règlement(s) affiché(s) sur 4');
+
+    const historyLinks = Array.from(root.querySelectorAll('a')).filter(
+      (link) => link.textContent?.trim() === "Voir l'historique",
+    );
+    expect(historyLinks).toHaveLength(0);
+    expect(root.textContent).toContain("Voir l'historique");
   });
 
   it('shows the campaign collection rate provided by the API as the progress bar width', async () => {
@@ -253,7 +343,7 @@ describe('DashboardPage', () => {
     const fixture = await createFixture(() => of(dashboard));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).not.toContain('Bilan financier');
+    expect(fixture.nativeElement.textContent).not.toContain('Derniers règlements');
   });
 
   it('hides the scope panel and the quick actions campaign shortcut when financialOverview is absent', async () => {
