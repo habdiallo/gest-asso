@@ -15,7 +15,7 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 - [x] 1.3 [T-117] Corriger les écarts listés en 1.2 sans changer les indicateurs affichés ni leur source de données.
 - [x] 1.4 [T-117] Ajouter le lien « Tableau de bord » en tête de `navigationItemsForRole` pour chaque rôle authentifié, vérifier son état actif sur l'écran de tableau de bord et l'absence de régression des gardes de routage (`authenticatedMatch`, `roleGuard`) et de la redirection post-connexion existante.
 - [x] 1.5 [T-117] Exécuter les validations pertinentes (`npm run build`, `npm test -- --watch=false`, `npm run lint`) et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà conformes (dashboard, connexion) et sur le rendu mobile existant (821 px et en dessous inchangés).
-- [ ] 1.6 [T-117] Committer le périmètre du ticket, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 1.6 [T-117] Committer le périmètre du ticket, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 2. Membres [T-118]
 
