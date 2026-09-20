@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 126,
+  "nextTicketId": 127,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2434,6 +2434,27 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "docs/chore-000-proposer-alignement-visuel-desktop-design",
       "branchAfterInitialization": "docs/chore-125-proposer-alignement-visuel-desktop-design"
+    },
+    {
+      "id": 126,
+      "title": "Harmoniser la taille et le rayon d'angle des boutons d'action, des conteneurs de tableau et des champs select sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "harmonisation-boutons-tableaux-select",
+      "change": "harmonisation-boutons-tableaux-select",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-harmonisation-boutons-tableaux-select",
+      "branchAfterInitialization": "front/fix-126-harmonisation-boutons-tableaux-select"
     }
   ]
 }
