@@ -41,6 +41,21 @@ Aucun outil de comparaison pixel-par-pixel n'est installé dans ce dépôt (voir
 
 **Alternative écartée** : outil de régression visuelle automatisé (ex. Percy, Chromatic). Écartée car cela introduirait une dépendance et un service tiers non discutés avec le mainteneur, disproportionnés pour ce chantier ; à reconsidérer séparément si le besoin se répète.
 
+### Tableau de bord (T-117) : le périmètre visuel inclut les éléments interactifs déjà couverts par le contrat
+
+Le prototype `design/` présente le tableau de bord de gestion comme un panneau interactif (sélecteurs de campagne/cagnotte pour le bilan financier, raccourcis de navigation « Actions rapides »), pas seulement comme des blocs statiques. Le mainteneur a demandé la fidélité complète à cet écran plutôt qu'une reproduction purement statique. Ce ticket câble donc réellement ces éléments plutôt que de les représenter à l'identique sans effet :
+- Le panneau « Périmètre des indicateurs » utilise `campaignId`/`socialFundId`, déjà prévus par `GET /dashboard` (`besoins/openapi.yaml`) mais jusque-là inexploités par le frontend, et les écrans `GET /campagnes`/`GET /cagnottes` (statut `OUVERTE`) déjà utilisés ailleurs pour peupler les deux sélecteurs.
+- Les panneaux de synthèse (cotisations, cagnotte) affichent le bilan financier de la campagne/cagnotte sélectionnée (`financialOverview.selectedCampaign`/`selectedSocialFund`), déjà exposé par le contrat.
+- « Actions rapides » sont de vrais liens de navigation vers les écrans existants (`/membres`, `/campagnes`, `/cagnottes`, `/roles-utilisateurs`, `/categories-de-revenu`, `/mon-espace`), filtrés par rôle selon les mêmes règles que ces écrans (`canCreateMember`/`canCreateCampaign`/`canCreateSocialFund`). Ils n'ouvrent pas directement les boîtes de dialogue de création du prototype : ces dialogues vivent dans d'autres features (`members`, `campaigns`, `social-funds`) et les y déclencher à distance depuis le tableau de bord sortirait du périmètre de ce ticket.
+- Écart assumé avec le prototype : le contrat n'expose pas d'agrégat multi-cagnottes (contrairement aux campagnes, où omettre `campaignId` retourne déjà l'agrégat serveur par défaut). Le sélecteur de cagnotte impose donc une cagnotte précise, sans option « Toutes les cagnottes ouvertes ».
+- Aucun indicateur affiché avant ce ticket n'est retiré : les 4 cartes déjà alimentées par `ManagementDashboard` (membres actifs, nouveaux membres, campagnes ouvertes, membres inscrits) restent inchangées ; les nouveaux panneaux de synthèse s'ajoutent sans les remplacer.
+
+**Alternative écartée** : reproduire ces éléments comme des placeholders statiques (sélecteurs non fonctionnels, raccourcis décoratifs). Écartée à la demande explicite du mainteneur, et incohérente avec la règle du dépôt qui interdit d'ajouter un comportement inventé sans le rendre réellement fonctionnel quand le contrat le permet déjà.
+
+### Dashboard mobile : hors périmètre de ce ticket, nouveau ticket à planifier
+
+Conformément au non-but « tablette et mobile hors périmètre de ce change », l'alignement du tableau de bord sur la maquette mobile de `design/` (colonne unique, cartes empilées) n'est pas traité par T-117. Il sera planifié comme ticket dédié une fois ce change desktop terminé, avec réservation d'un numéro via `nextTicketId` au moment de sa mise en œuvre.
+
 ## Risks / Trade-offs
 
 - [Risque] Une correction visuelle sur un composant partagé (ex. `shared/navigation-menu`, `shared/form-dialog`) régresse un autre écran non encore audité → Mitigation : exécuter `npm run build`, `npm test -- --watch=false` et une vérification manuelle des écrans déjà traités après chaque ticket touchant un composant partagé, avant de passer au suivant.

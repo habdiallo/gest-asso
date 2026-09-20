@@ -1,8 +1,44 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
-import type { DashboardResponse, ErrorResponse, ManagementDashboard, MemberDashboard } from '@api';
+import {
+  CampaignStatus,
+  DueStatus,
+  ErrorCode,
+  PaymentMethod,
+  SocialEventType,
+  SocialFundStatus,
+  UserRole,
+} from '@api';
+import type {
+  DashboardResponse,
+  ErrorResponse,
+  ManagementDashboard,
+  MemberDashboard,
+  SocialFundSummary,
+} from '@api';
 import type { DemoAccount } from '../../../../mocks/demo-accounts';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+
+/**
+ * Périmètre des indicateurs (T-117) : mêmes identifiants que `features/social-funds/mocks/handlers.ts`,
+ * pour rester cohérent avec les cagnottes retournées par `GET /social-funds` (le sélecteur de
+ * périmètre du tableau de bord liste les cagnottes ouvertes de cet autre handler).
+ */
+const demoOpenSocialFund: SocialFundSummary = {
+  id: '10700000-0000-4000-8000-000000000500',
+  title: 'Mariage de Fanta et Sékou',
+  eventType: SocialEventType.Wedding,
+  beneficiary: 'Famille Camara',
+  startDate: '2026-09-05',
+  endDate: '2026-09-28',
+  status: SocialFundStatus.Open,
+  targetAmount: 7000000,
+  collectedAmount: 4750000,
+  remainingToTargetAmount: 2250000,
+  progressRate: 67.9,
+  contributorCount: 43,
+  contributionCount: 51,
+  currency: 'GNF',
+};
 
 const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'> = {
   view: 'MANAGEMENT',
@@ -113,7 +149,10 @@ function authenticationRequired(): Response {
  * `financialOverview` doit aussi retirer `financialSummary` des campagnes
  * récentes, sinon le bilan financier fuite malgré la section masquée).
  */
-export function buildDashboardResponse(account: DemoAccount): DashboardResponse {
+export function buildDashboardResponse(
+  account: DemoAccount,
+  scope: { campaignId?: string; socialFundId?: string } = {},
+): DashboardResponse {
   if (account.user.role === UserRole.Member) {
     const { member } = account.user;
     const response: MemberDashboard = {
@@ -135,6 +174,14 @@ export function buildDashboardResponse(account: DemoAccount): DashboardResponse 
   const response: ManagementDashboard = {
     ...managementDashboard,
     viewer: account.user,
+    financialOverview: managementDashboard.financialOverview && {
+      ...managementDashboard.financialOverview,
+      selectedCampaign:
+        managementDashboard.recentCampaigns.find((campaign) => campaign.id === scope.campaignId) ??
+        managementDashboard.recentCampaigns[0],
+      selectedSocialFund:
+        scope.socialFundId === demoOpenSocialFund.id ? demoOpenSocialFund : undefined,
+    },
   };
   return response;
 }
@@ -155,6 +202,11 @@ export const dashboardHandlers = [
       return authenticationRequired();
     }
 
-    return HttpResponse.json<DashboardResponse>(buildDashboardResponse(account));
+    const url = new URL(request.url);
+    const scope = {
+      campaignId: url.searchParams.get('campaignId') ?? undefined,
+      socialFundId: url.searchParams.get('socialFundId') ?? undefined,
+    };
+    return HttpResponse.json<DashboardResponse>(buildDashboardResponse(account, scope));
   }),
 ];

@@ -2,12 +2,22 @@
 
 ### Requirement: Fidélité visuelle du tableau de bord en desktop
 
-Le frontend SHALL reproduire en desktop (≥1024 px, référence 1440 px) la présentation visuelle du tableau de bord de `design/` (cartes d'indicateurs, campagnes récentes, bilan financier) pour tous les écarts identifiés lors de la revue comparative avec le prototype, dans les deux thèmes, sans changer le contenu ni le comportement fonctionnel de l'écran existant (T-16).
+Le frontend SHALL reproduire en desktop (≥1024 px, référence 1440 px) la présentation visuelle du tableau de bord de `design/` (cartes d'indicateurs, panneau de périmètre des indicateurs, campagnes récentes, bilan financier, actions rapides, synthèses de campagne/cagnotte) pour tous les écarts identifiés lors de la revue comparative avec le prototype, dans les deux thèmes, sans changer le contenu ni le comportement fonctionnel préexistant de l'écran (T-16).
 
 #### Scenario: Comparaison directe à l'écran atteint après connexion
 - **WHEN** un utilisateur authentifié affiche le tableau de bord à 1440 px, thème sombre puis clair
 - **THEN** la mise en page, les espacements, les typographies et les composants correspondent à l'équivalent dans `design/`
 - **AND** les indicateurs affichés restent ceux fournis par l'API, sans donnée fictive du prototype
+
+#### Scenario: Sélection du périmètre des indicateurs financiers
+- **WHEN** un utilisateur de gestion disposant d'un bilan financier (`financialOverview`) sélectionne une campagne de cotisation ou une cagnotte sociale ouverte dans le panneau « Périmètre des indicateurs »
+- **THEN** le tableau de bord recharge `GET /dashboard` avec `campaignId`/`socialFundId` correspondants et les panneaux de synthèse affichent le bilan de la sélection
+- **AND** l'absence d'agrégat multi-cagnottes dans le contrat n'est jamais comblée par une donnée reconstituée côté frontend
+
+#### Scenario: Raccourcis de navigation du panneau Actions rapides
+- **WHEN** un utilisateur de gestion consulte le panneau « Actions rapides »
+- **THEN** seuls les raccourcis vers des écrans que son rôle peut atteindre sont affichés, avec le même critère d'autorisation que l'écran cible
+- **AND** chaque raccourci navigue vers l'écran existant correspondant, sans ouvrir à distance une boîte de dialogue d'une autre fonctionnalité
 
 ### Requirement: Fidélité visuelle des écrans Membres en desktop
 
