@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 117,
+  "nextTicketId": 126,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2241,6 +2241,199 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "docs/chore-000-cloturer-archivage-changes-openspec",
       "branchAfterInitialization": "docs/chore-116-cloturer-archivage-changes-openspec"
+    },
+    {
+      "id": 117,
+      "title": "Aligner visuellement le tableau de bord sur design/ et ajouter le lien de navigation Tableau de bord (reouverture ciblee de T-111).",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-tableau-de-bord",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6"
+      ],
+      "dependencies": [
+        111
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-tableau-de-bord",
+      "branchAfterInitialization": "front/fix-117-alignement-visuel-tableau-de-bord"
+    },
+    {
+      "id": 118,
+      "title": "Aligner visuellement la liste des membres et la fiche membre sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-membres",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5"
+      ],
+      "dependencies": [
+        117
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-membres",
+      "branchAfterInitialization": "front/fix-118-alignement-visuel-membres"
+    },
+    {
+      "id": 119,
+      "title": "Aligner visuellement l'ecran des categories de revenu et ses dialogues sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-categories-revenu",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5"
+      ],
+      "dependencies": [
+        118
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-categories-revenu",
+      "branchAfterInitialization": "front/fix-119-alignement-visuel-categories-revenu"
+    },
+    {
+      "id": 120,
+      "title": "Aligner visuellement la liste et le detail des campagnes (baremes, cotisations, bilan, dialogues) sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-campagnes",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "dependencies": [
+        119
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-campagnes",
+      "branchAfterInitialization": "front/fix-120-alignement-visuel-campagnes"
+    },
+    {
+      "id": 121,
+      "title": "Aligner visuellement la liste et le detail des cagnottes sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-cagnottes",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5"
+      ],
+      "dependencies": [
+        120
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-cagnottes",
+      "branchAfterInitialization": "front/fix-121-alignement-visuel-cagnottes"
+    },
+    {
+      "id": 122,
+      "title": "Aligner visuellement l'ecran roles et utilisateurs sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-roles-utilisateurs",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5"
+      ],
+      "dependencies": [
+        121
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-roles-utilisateurs",
+      "branchAfterInitialization": "front/fix-122-alignement-visuel-roles-utilisateurs"
+    },
+    {
+      "id": 123,
+      "title": "Aligner visuellement l'espace personnel du membre (profil, cotisations, contributions) sur design/.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-mon-espace",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4",
+        "7.5"
+      ],
+      "dependencies": [
+        122
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-mon-espace",
+      "branchAfterInitialization": "front/fix-123-alignement-visuel-mon-espace"
+    },
+    {
+      "id": 124,
+      "title": "Aligner visuellement le composant de dialogue de formulaire partage sur design/, pour les ecarts restants apres les ecrans proprietaires.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "alignement-visuel-dialogues-formulaire",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5"
+      ],
+      "dependencies": [
+        123
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-alignement-visuel-dialogues-formulaire",
+      "branchAfterInitialization": "front/fix-124-alignement-visuel-dialogues-formulaire"
+    },
+    {
+      "id": 125,
+      "title": "Rediger et enregistrer la proposition OpenSpec alignement-visuel-desktop-design (revue de fidelite visuelle desktop par comparaison avec design/) et ses tickets T-117 a T-124.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "proposer-alignement-visuel-desktop-design",
+      "change": "alignement-visuel-desktop-design",
+      "tasks": [
+        "0.1"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-proposer-alignement-visuel-desktop-design",
+      "branchAfterInitialization": "docs/chore-125-proposer-alignement-visuel-desktop-design"
     }
   ]
 }
