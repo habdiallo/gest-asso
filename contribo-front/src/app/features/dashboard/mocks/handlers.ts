@@ -4,41 +4,91 @@ import {
   DueStatus,
   ErrorCode,
   PaymentMethod,
-  SocialEventType,
   SocialFundStatus,
   UserRole,
 } from '@api';
 import type {
+  CampaignSummary,
+  CampaignsAggregateOverview,
   DashboardResponse,
   ErrorResponse,
   ManagementDashboard,
   MemberDashboard,
   SocialFundSummary,
+  SocialFundsAggregateOverview,
 } from '@api';
 import type { DemoAccount } from '../../../../mocks/demo-accounts';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { demoSocialFunds } from '../../social-funds/mocks/handlers';
 
 /**
- * Périmètre des indicateurs (T-117) : mêmes identifiants que `features/social-funds/mocks/handlers.ts`,
- * pour rester cohérent avec les cagnottes retournées par `GET /social-funds` (le sélecteur de
- * périmètre du tableau de bord liste les cagnottes ouvertes de cet autre handler).
+ * Agrégat de démonstration pour `allOpenCampaignsSummary` (T-117) : somme des
+ * `financialSummary` des campagnes ouvertes, calculée dynamiquement (jamais de
+ * valeur figée) afin de rester cohérente avec `recentCampaigns` ci-dessous.
  */
-const demoOpenSocialFund: SocialFundSummary = {
-  id: '10700000-0000-4000-8000-000000000500',
-  title: 'Mariage de Fanta et Sékou',
-  eventType: SocialEventType.Wedding,
-  beneficiary: 'Famille Camara',
-  startDate: '2026-09-05',
-  endDate: '2026-09-28',
-  status: SocialFundStatus.Open,
-  targetAmount: 7000000,
-  collectedAmount: 4750000,
-  remainingToTargetAmount: 2250000,
-  progressRate: 67.9,
-  contributorCount: 43,
-  contributionCount: 51,
-  currency: 'GNF',
-};
+function buildCampaignsAggregate(
+  openCampaigns: readonly CampaignSummary[],
+): CampaignsAggregateOverview {
+  const summaries = openCampaigns
+    .map((campaign) => campaign.financialSummary)
+    .filter(
+      (summary): summary is NonNullable<CampaignSummary['financialSummary']> =>
+        summary !== undefined,
+    );
+
+  const expectedAmount = summaries.reduce((sum, summary) => sum + summary.expectedAmount, 0);
+  const collectedAmount = summaries.reduce((sum, summary) => sum + summary.collectedAmount, 0);
+  const remainingAmount = summaries.reduce((sum, summary) => sum + summary.remainingAmount, 0);
+  const dueCounts = summaries.reduce(
+    (acc, summary) => ({
+      total: acc.total + summary.dueCounts.total,
+      paid: acc.paid + summary.dueCounts.paid,
+      partiallyPaid: acc.partiallyPaid + summary.dueCounts.partiallyPaid,
+      unpaid: acc.unpaid + summary.dueCounts.unpaid,
+    }),
+    { total: 0, paid: 0, partiallyPaid: 0, unpaid: 0 },
+  );
+
+  return {
+    openCampaignCount: openCampaigns.length,
+    financialSummary: {
+      expectedAmount,
+      collectedAmount,
+      remainingAmount,
+      collectionRate: expectedAmount > 0 ? Math.round((collectedAmount / expectedAmount) * 100) : 0,
+      dueCounts,
+      currency: 'GNF',
+    },
+  };
+}
+
+/**
+ * Agrégat de démonstration pour `allOpenSocialFundsSummary` (T-117) : somme des
+ * cagnottes ouvertes de `demoSocialFunds` (`features/social-funds/mocks/handlers.ts`,
+ * même source que le sélecteur de périmètre), calculée dynamiquement.
+ */
+function buildSocialFundsAggregate(
+  openSocialFunds: readonly SocialFundSummary[],
+): SocialFundsAggregateOverview {
+  const collectedAmount = openSocialFunds.reduce((sum, fund) => sum + fund.collectedAmount, 0);
+  const fundsWithTarget = openSocialFunds.filter((fund) => fund.targetAmount !== undefined);
+  const targetAmount = fundsWithTarget.length
+    ? fundsWithTarget.reduce((sum, fund) => sum + (fund.targetAmount ?? 0), 0)
+    : undefined;
+  const contributorCount = openSocialFunds.reduce((sum, fund) => sum + fund.contributorCount, 0);
+
+  return {
+    openSocialFundCount: openSocialFunds.length,
+    targetAmount,
+    collectedAmount,
+    progressRate:
+      targetAmount !== undefined && targetAmount > 0
+        ? Math.round((collectedAmount / targetAmount) * 1000) / 10
+        : undefined,
+    contributorCount,
+    currency: 'GNF',
+  };
+}
 
 const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'> = {
   view: 'MANAGEMENT',
@@ -171,16 +221,35 @@ export function buildDashboardResponse(
       ? demoManagementDashboardWithoutFinancials
       : demoManagementDashboardWithFinancials;
 
+  if (!managementDashboard.financialOverview) {
+    return { ...managementDashboard, viewer: account.user };
+  }
+
+  const openCampaigns = managementDashboard.recentCampaigns.filter(
+    (campaign) => campaign.status === CampaignStatus.Open,
+  );
+  const selectedCampaign = scope.campaignId
+    ? openCampaigns.find((campaign) => campaign.id === scope.campaignId)
+    : undefined;
+
+  const openSocialFunds = demoSocialFunds.filter((fund) => fund.status === SocialFundStatus.Open);
+  const selectedSocialFund = scope.socialFundId
+    ? openSocialFunds.find((fund) => fund.id === scope.socialFundId)
+    : undefined;
+
   const response: ManagementDashboard = {
     ...managementDashboard,
     viewer: account.user,
-    financialOverview: managementDashboard.financialOverview && {
+    financialOverview: {
       ...managementDashboard.financialOverview,
-      selectedCampaign:
-        managementDashboard.recentCampaigns.find((campaign) => campaign.id === scope.campaignId) ??
-        managementDashboard.recentCampaigns[0],
-      selectedSocialFund:
-        scope.socialFundId === demoOpenSocialFund.id ? demoOpenSocialFund : undefined,
+      selectedCampaign,
+      allOpenCampaignsSummary: selectedCampaign
+        ? undefined
+        : buildCampaignsAggregate(openCampaigns),
+      selectedSocialFund,
+      allOpenSocialFundsSummary: selectedSocialFund
+        ? undefined
+        : buildSocialFundsAggregate(openSocialFunds),
     },
   };
   return response;

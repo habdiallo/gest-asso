@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import {
   CampagnesService,
   CampaignStatus,
@@ -95,6 +95,7 @@ async function createFixture(
     createCampaign?: (request: unknown) => Observable<Campaign>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
     role?: UserRole;
+    queryParams?: Record<string, string>;
   } = {},
 ): Promise<ComponentFixture<CampaignsListPage>> {
   const createCampaign =
@@ -120,6 +121,18 @@ async function createFixture(
         provide: CatgoriesDeRevenuService,
         useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
       },
+      ...(options.queryParams
+        ? [
+            {
+              provide: ActivatedRoute,
+              useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams) } },
+            },
+            {
+              provide: Router,
+              useValue: { navigate: (): Promise<boolean> => Promise.resolve(true) },
+            },
+          ]
+        : []),
     ],
   }).compileComponents();
 
@@ -496,6 +509,22 @@ describe('CampaignsListPage', () => {
     expect(createRequest).toMatchObject({ name: 'Solidarité octobre' });
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
     expect(requestedPages).toEqual([0, 0]);
+  });
+
+  it('opens the create-campaign dialog directly when arriving with ?creer=1 (T-117, dashboard quick action)', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()), {
+      queryParams: { creer: '1' },
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+  });
+
+  it('does not open the create-campaign dialog when ?creer=1 is absent', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 
   it('shows an error and keeps the dialog open when the creation fails', async () => {

@@ -315,21 +315,27 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Périmètre des indicateurs');
-    const campaignSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#dashboard-campaign-scope',
-    );
-    const socialFundSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+    const campaignTrigger = root.querySelector('#dashboard-campaign-scope') as HTMLButtonElement;
+    const socialFundTrigger = root.querySelector(
       '#dashboard-social-fund-scope',
-    );
-    expect(campaignSelect.textContent).toContain('Solidarité septembre');
-    expect(socialFundSelect.textContent).toContain('Mariage de Fanta');
+    ) as HTMLButtonElement;
 
-    campaignSelect.value = 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20';
-    campaignSelect.dispatchEvent(new Event('change'));
+    campaignTrigger.click();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Solidarité septembre');
+    const campaignOption = Array.from(root.querySelectorAll('[role="option"]')).find((option) =>
+      option.textContent?.includes('Solidarité septembre'),
+    ) as HTMLButtonElement;
+    campaignOption.click();
     fixture.detectChanges();
 
     expect(lastCampaignId).toBe('e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20');
     expect(lastSocialFundId).toBeUndefined();
+    expect(campaignTrigger.textContent).toContain('Solidarité septembre');
+
+    socialFundTrigger.click();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Mariage de Fanta');
   });
 
   it('shows the campaign and social fund synthesis panels from the selected scope', async () => {
@@ -373,13 +379,126 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Synthèse des cotisations');
-    expect(root.textContent).toContain('12 400 000 GNF');
-    expect(root.textContent).toContain('18 500 000 GNF');
+    expect(root.textContent).toContain('12,4M GNF');
+    expect(root.textContent).toContain('18,5M GNF');
     expect(root.textContent).toContain('Synthèse de la cagnotte');
     expect(root.textContent).toContain('Mariage de Fanta');
-    expect(root.textContent).toContain('4 750 000 GNF');
-    expect(root.textContent).toContain('7 000 000 GNF');
+    expect(root.textContent).toContain('4,8M GNF');
+    expect(root.textContent).toContain('7M GNF');
     expect(root.textContent).toContain('12 contributeur(s)');
+  });
+
+  it('shows the top stat cards scoped to the selected campaign and social fund (T-117)', async () => {
+    const dashboard = buildManagementDashboard({
+      financialOverview: {
+        selectedCampaign: {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+          name: 'Solidarité septembre',
+          startDate: '2026-09-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+          memberCount: 86,
+          financialSummary: {
+            expectedAmount: 18500000,
+            collectedAmount: 12400000,
+            remainingAmount: 6100000,
+            collectionRate: 67,
+            dueCounts: { total: 86, paid: 50, partiallyPaid: 10, unpaid: 26 },
+            currency: 'GNF',
+          },
+        },
+        selectedSocialFund: {
+          id: 'g1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d50',
+          title: 'Mariage de Fanta',
+          eventType: 'WEDDING',
+          beneficiary: 'Famille Camara',
+          startDate: '2026-09-05',
+          endDate: '2026-09-28',
+          status: 'OPEN',
+          targetAmount: 7000000,
+          collectedAmount: 4750000,
+          contributorCount: 12,
+          contributionCount: 15,
+          currency: 'GNF',
+        },
+        recentPayments: [],
+      },
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Cotisations encaissées');
+    expect(root.textContent).toContain('67 % de 18,5M GNF');
+    expect(root.textContent).toContain('Reste sur cotisations');
+    expect(root.textContent).toContain('6 100 000 GNF');
+    expect(root.textContent).toContain('18,5M GNF attendus');
+    expect(root.textContent).toContain('Campagne · Solidarité septembre');
+    expect(root.textContent).toContain('Contributions encaissées');
+    expect(root.textContent).toContain('4 750 000 GNF');
+    expect(root.textContent).toContain('68 % de 7M GNF');
+    expect(root.textContent).toContain('Cagnotte · Mariage de Fanta');
+    expect(root.textContent).not.toContain('Nouveaux membres ce mois');
+    expect(root.textContent).not.toContain('Campagnes ouvertes');
+  });
+
+  it('shows a placeholder on the financial stat cards when no campaign or social fund is open', async () => {
+    const dashboard = buildManagementDashboard({
+      financialOverview: { recentPayments: [] },
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Aucune campagne ouverte à afficher.');
+    expect(root.textContent).toContain('Aucune cagnotte ouverte à afficher.');
+  });
+
+  it('shows the aggregate of all open campaigns/social funds on the "Toutes ouvertes" option (T-117)', async () => {
+    const dashboard = buildManagementDashboard({
+      financialOverview: {
+        allOpenCampaignsSummary: {
+          openCampaignCount: 2,
+          financialSummary: {
+            expectedAmount: 28300000,
+            collectedAmount: 16600000,
+            remainingAmount: 11700000,
+            collectionRate: 59,
+            dueCounts: { total: 148, paid: 80, partiallyPaid: 20, unpaid: 48 },
+            currency: 'GNF',
+          },
+        },
+        allOpenSocialFundsSummary: {
+          openSocialFundCount: 2,
+          targetAmount: 17000000,
+          collectedAmount: 12950000,
+          progressRate: 76.2,
+          contributorCount: 110,
+          currency: 'GNF',
+        },
+        recentPayments: [],
+      },
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('59 % de 28,3M GNF');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
+    expect(root.textContent).toContain('76 % de 17M GNF');
+    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnotte(s)');
+  });
+
+  it('keeps the non-financial stat cards when financialOverview is absent', async () => {
+    const dashboard = buildManagementDashboard({ financialOverview: undefined });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Nouveaux membres ce mois');
+    expect(root.textContent).toContain('Campagnes ouvertes');
+    expect(root.textContent).toContain('Membres inscrits');
+    expect(root.textContent).not.toContain('Cotisations encaissées');
   });
 
   it('shows the Administrator quick actions (roles and categories)', async () => {

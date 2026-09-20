@@ -11,7 +11,13 @@ import type {
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
 
-const demoSocialFunds: SocialFundSummary[] = [
+/**
+ * Cagnottes de démonstration (T-117) : deux cagnottes ouvertes (`...500`, `...502`)
+ * permettent de vérifier que le sélecteur de périmètre du tableau de bord
+ * distingue bien une sélection précise d'un agrégat sur plusieurs cagnottes
+ * (`allOpenSocialFundsSummary`, cf. `features/dashboard/mocks/handlers.ts`).
+ */
+export const demoSocialFunds: SocialFundSummary[] = [
   {
     id: '10700000-0000-4000-8000-000000000500',
     title: 'Mariage de Fanta et Sékou',
@@ -41,11 +47,28 @@ const demoSocialFunds: SocialFundSummary[] = [
     contributionCount: 26,
     currency: 'GNF',
   },
+  {
+    id: '10700000-0000-4000-8000-000000000502',
+    title: 'Soutien à la famille Bah',
+    eventType: SocialEventType.Death,
+    beneficiary: 'Famille Bah',
+    startDate: '2026-09-10',
+    endDate: '2026-09-30',
+    status: SocialFundStatus.Open,
+    targetAmount: 10000000,
+    collectedAmount: 8200000,
+    remainingToTargetAmount: 1800000,
+    progressRate: 82.0,
+    contributorCount: 67,
+    contributionCount: 80,
+    currency: 'GNF',
+  },
 ];
 
 const demoSocialFundDescriptions: Record<string, string> = {
   '10700000-0000-4000-8000-000000000500': "Collecte de soutien à l'occasion du mariage.",
   '10700000-0000-4000-8000-000000000501': 'Collecte de soutien à la famille éprouvée.',
+  '10700000-0000-4000-8000-000000000502': 'Collecte de soutien à la famille éprouvée.',
 };
 
 const demoContributorNames = [
@@ -206,9 +229,12 @@ export const socialFundsHandlers = [
     const pageNumber = Number(url.searchParams.get('page') ?? '0');
     const pageSize = Number(url.searchParams.get('size') ?? '20');
     const eventType = url.searchParams.get('eventType') as SocialEventType | null;
-    const filteredSocialFunds = eventType
-      ? demoSocialFunds.filter((socialFund) => socialFund.eventType === eventType)
-      : demoSocialFunds;
+    const status = url.searchParams.get('status') as SocialFundStatus | null;
+    const filteredSocialFunds = demoSocialFunds.filter(
+      (socialFund) =>
+        (!eventType || socialFund.eventType === eventType) &&
+        (!status || socialFund.status === status),
+    );
     const totalElements = filteredSocialFunds.length;
     const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
     const items = filteredSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);

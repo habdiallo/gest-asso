@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MembresService, MemberStatus } from '@api';
 import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -74,6 +74,12 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * et le Membre (T-37, RG-MEM-001) : seuls l'Administrateur et le Trésorier la
  * déclenchent, conformément à la spec `member-management-ui`.
  *
+ * Ouverture directe depuis les actions rapides du tableau de bord (T-117) :
+ * le paramètre de requête `creer` (`?creer=1`) ouvre ce dialogue dès l'arrivée
+ * sur l'écran, pour un opérateur autorisé, au lieu de l'obliger à cliquer une
+ * seconde fois sur « Ajouter un membre ». Le paramètre est retiré de l'URL
+ * une fois lu, pour qu'un rafraîchissement de page ne rouvre pas le dialogue.
+ *
  * Après une création réussie (T-35, RG-MEM-003) : le formulaire ne propose
  * aucun champ de saisie du statut (`member-create-form.ts`, T-33) et cet
  * écran affiche, une fois le dialogue fermé, une confirmation reprenant le
@@ -107,6 +113,8 @@ export class MembersListPage {
   private readonly membersService = inject(MembresService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private createDialogSession = 0;
   private requestSequence = 0;
   /** Formulaire de création affiché (T-102) : relu par `retryCreateMember`. */
@@ -196,6 +204,16 @@ export class MembersListPage {
       });
 
     this.loadPage(0);
+
+    if (this.route.snapshot.queryParamMap.get('creer') === '1') {
+      this.openCreateDialog();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { creer: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   onNameQueryInput(event: Event): void {

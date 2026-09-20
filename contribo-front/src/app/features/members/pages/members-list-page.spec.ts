@@ -11,7 +11,7 @@ import type {
   MemberSummary,
   UserRole,
 } from '@api';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
@@ -128,6 +128,7 @@ async function createFixture(
     createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
     role?: UserRole;
+    queryParams?: Record<string, string>;
   } = {},
 ): Promise<ComponentFixture<MembersListPage>> {
   const createMember =
@@ -154,6 +155,18 @@ async function createFixture(
         useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
       },
       provideRouter([]),
+      ...(options.queryParams
+        ? [
+            {
+              provide: ActivatedRoute,
+              useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams) } },
+            },
+            {
+              provide: Router,
+              useValue: { navigate: (): Promise<boolean> => Promise.resolve(true) },
+            },
+          ]
+        : []),
     ],
   }).compileComponents();
 
@@ -753,6 +766,24 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     expect(dialog.open).toBe(false);
+  });
+
+  it('opens the create-member dialog directly when arriving with ?creer=1 (T-117, dashboard quick action)', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()), {
+      queryParams: { creer: '1' },
+    });
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    expect(dialog.open).toBe(true);
+    expect(fixture.componentInstance.createDialogOpen()).toBe(true);
+  });
+
+  it('does not open the create-member dialog when ?creer=1 is absent', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 
   it.each(['OPERATOR', 'MEMBER'] as const)(
