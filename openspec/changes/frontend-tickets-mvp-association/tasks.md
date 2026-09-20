@@ -174,4 +174,4 @@ déjà réalisées restent liées à l'initialisation historique `000`.
 - [x] 17.2 [T-101] États vides ("aucun membre", "aucune campagne", "aucune contribution") sur chaque liste.
 - [x] 17.3 [T-102] Gestion uniforme des erreurs API (message générique + retry) sur les formulaires de création/modification.
 - [x] 17.4 [T-103] Vérification d'accessibilité clavier sur l'ensemble des dialogues de formulaire (focus trap, échappement).
-- [ ] 17.5 [T-104] Revue de cohérence responsive (desktop/tablette/mobile) sur l'ensemble des écrans livrés, par comparaison avec le prototype `design/`.
+- [x] 17.5 [T-104] Revue de cohérence responsive (desktop/tablette/mobile) sur l'ensemble des écrans livrés, par comparaison avec le prototype `design/`.
