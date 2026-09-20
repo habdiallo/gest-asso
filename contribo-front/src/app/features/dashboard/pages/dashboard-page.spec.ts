@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { TableauDeBordService } from '@api';
 import type { DashboardResponse, ManagementDashboard, MemberDashboard } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -101,6 +102,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       {
         provide: TableauDeBordService,
         useValue: { getDashboard } as unknown as TableauDeBordService,
@@ -166,6 +168,7 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Vue de gestion');
     expect(root.textContent).toContain('86');
     expect(root.textContent).toContain('sur 91 membres inscrits');
     expect(root.textContent).toContain('3');
@@ -176,6 +179,39 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('Moussa Bah');
     expect(root.textContent).toContain('1 250 000 GNF');
     expect(root.textContent).toContain('Mobile Money');
+
+    const viewAllLink = root.querySelector('a[href="/campagnes"]');
+    expect(viewAllLink?.textContent?.trim()).toBe('Tout afficher');
+  });
+
+  it('shows the campaign collection rate provided by the API as the progress bar width', async () => {
+    const dashboard = buildManagementDashboard({
+      recentCampaigns: [
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+          name: 'Solidarité septembre',
+          startDate: '2026-09-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+          memberCount: 86,
+          financialSummary: {
+            expectedAmount: 18500000,
+            collectedAmount: 12400000,
+            remainingAmount: 6100000,
+            collectionRate: 67,
+            dueCounts: { total: 86, paid: 50, partiallyPaid: 10, unpaid: 26 },
+            currency: 'GNF',
+          },
+        },
+      ],
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('67%');
+    const progressFill = root.querySelector<HTMLElement>('.bg-gradient-to-r.from-gold-hover');
+    expect(progressFill?.style.width).toBe('67%');
   });
 
   it('hides the financial section entirely when financialOverview is absent', async () => {
@@ -192,6 +228,7 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Espace membre');
     expect(root.textContent).toContain('Cotisations à payer');
     expect(root.textContent).toContain('50 000 GNF');
     expect(root.textContent).toContain('120 000 GNF');

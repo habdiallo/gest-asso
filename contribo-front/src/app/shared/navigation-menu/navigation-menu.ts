@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import type { NavigationItem } from '@core/navigation/navigation-item';
 import { navigationItemsForRole } from '@core/navigation/navigation-items';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
@@ -32,6 +33,29 @@ const SIDEBAR_ICONS: Readonly<Record<string, readonly string[]>> = {
   [NAVIGATION_PATHS.memberSpace]: ['M4 21a8 8 0 0 1 16 0'],
 };
 
+/**
+ * Icône dédiée au lien « Tableau de bord » (T-117) : quatre carrés arrondis,
+ * repris de `design/app.js` (`icons.dashboard`, quatre `<rect>`), au lieu des
+ * `<path>` de contour utilisés par les autres entrées de `SIDEBAR_ICONS`.
+ */
+const DASHBOARD_ICON_RECT_ORIGINS: ReadonlyArray<readonly [number, number]> = [
+  [3, 3],
+  [14, 3],
+  [3, 14],
+  [14, 14],
+];
+
+/**
+ * Lien ajouté en tête de la seule navigation verticale (spec
+ * `desktop-sidebar-visual`, exigence « Lien de navigation vers le tableau de
+ * bord ») : la navigation horizontale (barre basse mobile, hors périmètre de
+ * ce change) continue de dériver directement de `navigationItemsForRole`.
+ */
+const DASHBOARD_ITEM: NavigationItem = {
+  label: 'Tableau de bord',
+  path: NAVIGATION_PATHS.dashboard,
+};
+
 @Component({
   selector: 'app-navigation-menu',
   imports: [RouterLink, RouterLinkActive],
@@ -46,13 +70,21 @@ export class NavigationMenu {
 
   readonly items = computed(() => navigationItemsForRole(this.sessionService.user()?.role ?? null));
   readonly iconPaths = SIDEBAR_ICONS;
+  readonly dashboardIconRectOrigins = DASHBOARD_ICON_RECT_ORIGINS;
   readonly navigationPaths = NAVIGATION_PATHS;
+  readonly verticalItems = computed(() =>
+    this.items().length > 0 ? [DASHBOARD_ITEM, ...this.items()] : [],
+  );
+
   readonly verticalSections = computed(() => {
     const administrative = (path: string): boolean =>
       path === NAVIGATION_PATHS.incomeCategories || path === NAVIGATION_PATHS.rolesAndUsers;
     return [
-      { label: null, items: this.items().filter((item) => !administrative(item.path)) },
-      { label: 'Administration', items: this.items().filter((item) => administrative(item.path)) },
+      { label: null, items: this.verticalItems().filter((item) => !administrative(item.path)) },
+      {
+        label: 'Administration',
+        items: this.verticalItems().filter((item) => administrative(item.path)),
+      },
     ].filter((section) => section.items.length > 0);
   });
 
@@ -67,4 +99,11 @@ export class NavigationMenu {
       ? 'sidebar-link'
       : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[821px]:text-sm',
   );
+
+  /**
+   * Seul le lien « Tableau de bord » (`/`) exige une correspondance exacte de
+   * route : sans cela, `/` préfixe toutes les autres routes authentifiées et
+   * resterait actif en permanence (`RouterLinkActive` non exact).
+   */
+  readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
 }

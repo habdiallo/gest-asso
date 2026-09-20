@@ -10,11 +10,11 @@ Scope/type : `docs/chore`. Branche : `docs/chore-125-proposer-alignement-visuel-
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-117 --json` (`front/fix-117-alignement-visuel-tableau-de-bord`). Prérequis : T-111 (sidebar desktop). Périmètre : écran de tableau de bord (`features/dashboard`) + exception ciblée de `desktop-sidebar-visual` pour le lien « Tableau de bord ». Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle du tableau de bord ») et `specs/desktop-sidebar-visual/spec.md` (Requirement « Lien de navigation vers le tableau de bord » et sa version modifiée de « Présentation des liens et de leur état actif »).
 
-- [ ] 1.1 [T-117] Résoudre et vérifier T-117 (`resolve`/`verify`), créer/réutiliser sa branche depuis `origin/main`.
-- [ ] 1.2 [T-117] Se connecter avec un compte de chaque rôle authentifié, capturer l'écran atteint après connexion à 1440 px (thème sombre puis clair) et lister précisément ses écarts avec l'équivalent dans `design/` (mise en page, espacements, typographies, composants des cartes/campagnes récentes/bilan financier).
-- [ ] 1.3 [T-117] Corriger les écarts listés en 1.2 sans changer les indicateurs affichés ni leur source de données.
-- [ ] 1.4 [T-117] Ajouter le lien « Tableau de bord » en tête de `navigationItemsForRole` pour chaque rôle authentifié, vérifier son état actif sur l'écran de tableau de bord et l'absence de régression des gardes de routage (`authenticatedMatch`, `roleGuard`) et de la redirection post-connexion existante.
-- [ ] 1.5 [T-117] Exécuter les validations pertinentes (`npm run build`, `npm test -- --watch=false`, `npm run lint`) et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà conformes (dashboard, connexion) et sur le rendu mobile existant (821 px et en dessous inchangés).
+- [x] 1.1 [T-117] Résoudre et vérifier T-117 (`resolve`/`verify`), créer/réutiliser sa branche depuis `origin/main`.
+- [x] 1.2 [T-117] Se connecter avec un compte de chaque rôle authentifié, capturer l'écran atteint après connexion à 1440 px (thème sombre puis clair) et lister précisément ses écarts avec l'équivalent dans `design/` (mise en page, espacements, typographies, composants des cartes/campagnes récentes/bilan financier).
+- [x] 1.3 [T-117] Corriger les écarts listés en 1.2 sans changer les indicateurs affichés ni leur source de données.
+- [x] 1.4 [T-117] Ajouter le lien « Tableau de bord » en tête de `navigationItemsForRole` pour chaque rôle authentifié, vérifier son état actif sur l'écran de tableau de bord et l'absence de régression des gardes de routage (`authenticatedMatch`, `roleGuard`) et de la redirection post-connexion existante.
+- [x] 1.5 [T-117] Exécuter les validations pertinentes (`npm run build`, `npm test -- --watch=false`, `npm run lint`) et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà conformes (dashboard, connexion) et sur le rendu mobile existant (821 px et en dessous inchangés).
 - [ ] 1.6 [T-117] Committer le périmètre du ticket, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 2. Membres [T-118]

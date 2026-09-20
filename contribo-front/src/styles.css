@@ -35,6 +35,7 @@
   --error-wash: rgba(189, 58, 58, 0.18);
   --info: #74a4c8;
   --info-wash: rgba(59, 112, 151, 0.2);
+  --shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.65);
 }
 
 :root[data-theme='light'] {
@@ -60,6 +61,7 @@
   --error-wash: rgba(189, 58, 58, 0.1);
   --info: #3b7097;
   --info-wash: rgba(59, 112, 151, 0.1);
+  --shadow: 0 5px 24px -6px rgba(18, 19, 22, 0.1);
 }
 
 /* @theme inline conserve les références var(--xxx) telles quelles (non résolues à la
@@ -107,6 +109,10 @@
      cartes/panneaux (14px) est une valeur distincte de l'échelle abstraite ci-dessus. */
   --radius-card: 14px;
   --radius-modal: 20px;
+
+  /* Ombre des cartes/panneaux (section Shapes, `--shadow` de design/styles.css) :
+     expose l'utilitaire `shadow-card`, suivant le thème actif comme `rounded-card`. */
+  --shadow-card: var(--shadow);
 }
 
 /* Aligne sur design/styles.css (.app-shell overflow-x: hidden) : un tableau ou une

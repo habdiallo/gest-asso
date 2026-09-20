@@ -1,4 +1,5 @@
 export const NAVIGATION_PATHS = {
+  dashboard: '/',
   members: '/membres',
   incomeCategories: '/categories-de-revenu',
   campaigns: '/campagnes',

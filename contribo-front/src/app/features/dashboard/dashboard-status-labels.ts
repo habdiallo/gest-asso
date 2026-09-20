@@ -20,6 +20,23 @@ export function campaignStatusLabel(status: CampaignStatus): string {
 }
 
 /**
+ * Correspondance purement visuelle statut -> teinte du badge partagé
+ * (`bg-<tone>-wash`/`text-<tone>`, cf. `members-list-page.html`), pour la
+ * fidélité visuelle desktop (T-117) : ne change ni les statuts ni leurs libellés.
+ */
+export type StatusTone = 'success' | 'warning' | 'error' | 'info' | 'neutral';
+
+const CAMPAIGN_STATUS_TONES: Record<CampaignStatus, StatusTone> = {
+  [CampaignStatus.Upcoming]: 'info',
+  [CampaignStatus.Open]: 'success',
+  [CampaignStatus.Closed]: 'neutral',
+};
+
+export function campaignStatusTone(status: CampaignStatus): StatusTone {
+  return CAMPAIGN_STATUS_TONES[status];
+}
+
+/**
  * Libellés français des statuts de cotisation, repris tels quels du cahier
  * (US-COT, §"Statuts") : « À payer / Partiellement payé / Payé / En retard ».
  */
@@ -32,6 +49,17 @@ const DUE_STATUS_LABELS: Record<DueStatus, string> = {
 
 export function dueStatusLabel(status: DueStatus): string {
   return DUE_STATUS_LABELS[status];
+}
+
+const DUE_STATUS_TONES: Record<DueStatus, StatusTone> = {
+  [DueStatus.Due]: 'neutral',
+  [DueStatus.PartiallyPaid]: 'warning',
+  [DueStatus.Paid]: 'success',
+  [DueStatus.Overdue]: 'error',
+};
+
+export function dueStatusTone(status: DueStatus): StatusTone {
+  return DUE_STATUS_TONES[status];
 }
 
 /**

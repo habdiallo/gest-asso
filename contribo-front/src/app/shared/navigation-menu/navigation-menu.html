@@ -8,6 +8,7 @@
         @for (item of section.items; track item.path) {
           <a
             [routerLink]="item.path"
+            [routerLinkActiveOptions]="{ exact: exactRouteMatch(item.path) }"
             routerLinkActive="sidebar-link-active"
             ariaCurrentWhenActive="page"
             class="sidebar-link"
@@ -22,17 +23,24 @@
               aria-hidden="true"
               focusable="false"
             >
-              @for (path of iconPaths[item.path]; track path) {
-                <path [attr.d]="path" />
-              }
-              @if (
-                item.path === navigationPaths.members || item.path === navigationPaths.rolesAndUsers
-              ) {
-                <circle cx="9" cy="7" r="4" />
-              } @else if (item.path === navigationPaths.incomeCategories) {
-                <circle cx="7.5" cy="5.5" r=".5" />
-              } @else if (item.path === navigationPaths.memberSpace) {
-                <circle cx="12" cy="8" r="4" />
+              @if (item.path === navigationPaths.dashboard) {
+                @for (origin of dashboardIconRectOrigins; track origin) {
+                  <rect [attr.x]="origin[0]" [attr.y]="origin[1]" width="7" height="7" rx="1" />
+                }
+              } @else {
+                @for (path of iconPaths[item.path]; track path) {
+                  <path [attr.d]="path" />
+                }
+                @if (
+                  item.path === navigationPaths.members ||
+                  item.path === navigationPaths.rolesAndUsers
+                ) {
+                  <circle cx="9" cy="7" r="4" />
+                } @else if (item.path === navigationPaths.incomeCategories) {
+                  <circle cx="7.5" cy="5.5" r=".5" />
+                } @else if (item.path === navigationPaths.memberSpace) {
+                  <circle cx="12" cy="8" r="4" />
+                }
               }
             </svg>
             <span>{{ item.label }}</span>
@@ -43,6 +51,7 @@
       @for (item of items(); track item.path) {
         <a
           [routerLink]="item.path"
+          [routerLinkActiveOptions]="{ exact: exactRouteMatch(item.path) }"
           routerLinkActive="text-gold-hover"
           ariaCurrentWhenActive="page"
           [class]="linkClasses()"
