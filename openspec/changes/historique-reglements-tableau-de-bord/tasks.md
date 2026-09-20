@@ -51,8 +51,12 @@ campagne, onglet initial). Acceptation :
 
 ## 5. Livraison
 
-- [ ] 5.1 [T-126] Committer uniquement le périmètre du ticket, pousser la
+- [x] 5.1 [T-126] Committer uniquement le périmètre du ticket, pousser la
       branche `front/fix-126-historique-reglements-tableau-de-bord`.
-- [ ] 5.2 [T-126] Ouvrir la PR en brouillon vers `main` avec le modèle du
+- [x] 5.2 [T-126] Ouvrir la PR en brouillon vers `main` avec le modèle du
       dépôt et rapporter les validations et limites ; la revue et la fusion
       restent à faire par le mainteneur.
+
+PR ouverte : https://github.com/habdiallo/gest-asso/pull/126 (brouillon,
+construite sur T-117/PR #124 non encore fusionnée). Revue et fusion à
+effectuer par le mainteneur, après celles de la #124.
