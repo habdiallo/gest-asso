@@ -218,7 +218,7 @@ describe('DashboardPage', () => {
     expect(campaignLinks.map((link) => link.textContent?.trim())).toContain('Tout afficher');
   });
 
-  it('shows at most 3 recent campaigns/payments with the scope label and a count, without a navigable history link', async () => {
+  it('shows at most 3 recent campaigns/payments with the scope label and a count, hiding the history link when no campaign is selected (T-126)', async () => {
     const payment = (id: string, paymentDate: string) => ({
       id,
       dueId: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d41',
@@ -305,7 +305,34 @@ describe('DashboardPage', () => {
       (link) => link.textContent?.trim() === "Voir l'historique",
     );
     expect(historyLinks).toHaveLength(0);
-    expect(root.textContent).toContain("Voir l'historique");
+    expect(root.textContent).not.toContain("Voir l'historique");
+  });
+
+  it('shows "Voir l\'historique" as a link to the cotisations tab of the selected campaign (T-126)', async () => {
+    const dashboard = buildManagementDashboard({
+      financialOverview: {
+        selectedCampaign: {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+          name: 'Solidarité septembre',
+          startDate: '2026-09-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+          memberCount: 86,
+        },
+        recentPayments: [],
+      },
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const historyLink = Array.from(root.querySelectorAll('a')).find(
+      (link) => link.textContent?.trim() === "Voir l'historique",
+    );
+    expect(historyLink).toBeDefined();
+    expect(historyLink?.getAttribute('href')).toBe(
+      '/campagnes/e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20?onglet=cotisations',
+    );
   });
 
   it('shows the campaign collection rate provided by the API as the progress bar width', async () => {

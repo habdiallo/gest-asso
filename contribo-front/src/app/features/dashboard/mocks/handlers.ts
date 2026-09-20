@@ -137,6 +137,10 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
     },
   ],
   financialOverview: {
+    // Rattachés à des campagnes différentes (une ouverte parmi celles de
+    // `recentCampaigns`, une clôturée absente de cette liste) pour que le
+    // filtrage par `campaignId` de `buildDashboardResponse` soit observable :
+    // sélectionner une campagne précise n'affiche que son propre règlement.
     recentPayments: [
       {
         id: '10700000-0000-4000-8000-000000000300',
@@ -154,6 +158,42 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
         method: PaymentMethod.MobileMoney,
         recordedBy: { userId: '10700000-0000-4000-8000-000000000003', displayName: 'Fatou Sow' },
         recordedAt: '2026-09-12T14:32:00Z',
+        currency: 'GNF',
+      },
+      {
+        id: '10700000-0000-4000-8000-000000000303',
+        dueId: '10700000-0000-4000-8000-000000000304',
+        member: { id: '10700000-0000-4000-8000-000000000305', displayName: 'Aissatou Sow' },
+        campaign: {
+          id: '10700000-0000-4000-8000-000000000203',
+          name: 'Cotisation trimestrielle T3',
+          startDate: '2026-07-01',
+          endDate: '2026-09-30',
+          status: CampaignStatus.Open,
+        },
+        amount: 100000,
+        paymentDate: '2026-09-10',
+        method: PaymentMethod.Cash,
+        recordedBy: { userId: '10700000-0000-4000-8000-000000000003', displayName: 'Fatou Sow' },
+        recordedAt: '2026-09-10T10:15:00Z',
+        currency: 'GNF',
+      },
+      {
+        id: '10700000-0000-4000-8000-000000000306',
+        dueId: '10700000-0000-4000-8000-000000000307',
+        member: { id: '10700000-0000-4000-8000-000000000308', displayName: 'Mamadou Bah' },
+        campaign: {
+          id: '10700000-0000-4000-8000-000000000202',
+          name: 'Soutien juin 2026',
+          startDate: '2026-06-01',
+          endDate: '2026-06-30',
+          status: CampaignStatus.Closed,
+        },
+        amount: 250000,
+        paymentDate: '2026-06-20',
+        method: PaymentMethod.BankTransfer,
+        recordedBy: { userId: '10700000-0000-4000-8000-000000000003', displayName: 'Fatou Sow' },
+        recordedAt: '2026-06-20T11:00:00Z',
         currency: 'GNF',
       },
     ],
@@ -258,6 +298,19 @@ export function buildDashboardResponse(
     ? openSocialFunds.find((fund) => fund.id === scope.socialFundId)
     : undefined;
 
+  // Derniers règlements alignés sur le périmètre de campagne (T-126) : une
+  // campagne précise sélectionnée n'affiche que ses propres règlements ;
+  // sans sélection, seuls ceux des campagnes ouvertes sont retenus, plafonnés
+  // à 5 éléments conformément au contrat (`maxItems` de `recentPayments`).
+  const openCampaignIds = new Set(openCampaigns.map((campaign) => campaign.id));
+  const scopedRecentPayments = selectedCampaign
+    ? managementDashboard.financialOverview.recentPayments.filter(
+        (payment) => payment.campaign.id === selectedCampaign.id,
+      )
+    : managementDashboard.financialOverview.recentPayments
+        .filter((payment) => openCampaignIds.has(payment.campaign.id))
+        .slice(0, 5);
+
   const response: ManagementDashboard = {
     ...managementDashboard,
     viewer: account.user,
@@ -271,6 +324,7 @@ export function buildDashboardResponse(
       allOpenSocialFundsSummary: selectedSocialFund
         ? undefined
         : buildSocialFundsAggregate(openSocialFunds),
+      recentPayments: scopedRecentPayments,
     },
   };
   return response;
