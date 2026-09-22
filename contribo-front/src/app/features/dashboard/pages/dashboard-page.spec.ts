@@ -218,7 +218,7 @@ describe('DashboardPage', () => {
     expect(campaignLinks.map((link) => link.textContent?.trim())).toContain('Tout afficher');
   });
 
-  it('shows at most 3 recent campaigns/payments with the scope label and a count, hiding the history link when no campaign is selected (T-126)', async () => {
+  it('shows at most 3 recent campaigns/payments with the scope label and a count, hiding the history link when no campaign is selected (T-127)', async () => {
     const payment = (id: string, paymentDate: string) => ({
       id,
       dueId: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d41',
@@ -308,7 +308,7 @@ describe('DashboardPage', () => {
     expect(root.textContent).not.toContain("Voir l'historique");
   });
 
-  it('shows "Voir l\'historique" as a link to the cotisations tab of the selected campaign (T-126)', async () => {
+  it('shows "Voir l\'historique" as a link to the cotisations tab of the selected campaign (T-127)', async () => {
     const dashboard = buildManagementDashboard({
       financialOverview: {
         selectedCampaign: {

@@ -2460,6 +2460,33 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-harmonisation-boutons-tableaux-select",
       "branchAfterInitialization": "front/fix-126-harmonisation-boutons-tableaux-select"
+    },
+    {
+      "id": 127,
+      "title": "Filtrer les derniers reglements du tableau de bord par campagne selectionnee et brancher le lien Voir l'historique vers l'onglet Cotisations de la campagne concernee.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "historique-reglements-tableau-de-bord-t127",
+      "change": "historique-reglements-tableau-de-bord-t127",
+      "tasks": [
+        "1.1",
+        "2.1",
+        "2.2",
+        "3.1",
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "5.1",
+        "5.2"
+      ],
+      "dependencies": [
+        117
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-historique-reglements-tableau-de-bord-t127",
+      "branchAfterInitialization": "front/fix-127-historique-reglements-tableau-de-bord-t127"
     }
   ]
 }

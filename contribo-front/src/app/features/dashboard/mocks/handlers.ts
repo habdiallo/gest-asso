@@ -298,7 +298,7 @@ export function buildDashboardResponse(
     ? openSocialFunds.find((fund) => fund.id === scope.socialFundId)
     : undefined;
 
-  // Derniers règlements alignés sur le périmètre de campagne (T-126) : une
+  // Derniers règlements alignés sur le périmètre de campagne (T-127) : une
   // campagne précise sélectionnée n'affiche que ses propres règlements ;
   // sans sélection, seuls ceux des campagnes ouvertes sont retenus, plafonnés
   // à 5 éléments conformément au contrat (`maxItems` de `recentPayments`).
