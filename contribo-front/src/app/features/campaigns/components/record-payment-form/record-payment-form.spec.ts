@@ -215,7 +215,7 @@ describe('RecordPaymentForm', () => {
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
     const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]',
+      'button[type="button"]:not([aria-haspopup="listbox"])',
     ) as HTMLButtonElement;
     cancelButton.click();
 

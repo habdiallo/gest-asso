@@ -201,11 +201,7 @@ describe('CampaignsListPage', () => {
     });
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#campaigns-status-filter',
-    );
-    select.value = CampaignStatus.Closed;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Closed);
     fixture.detectChanges();
 
     expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
@@ -225,11 +221,7 @@ describe('CampaignsListPage', () => {
     nextButton.click();
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#campaigns-status-filter',
-    );
-    select.value = CampaignStatus.Open;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Open);
     fixture.detectChanges();
 
     expect(requestedPages).toEqual([0, 1, 0]);
@@ -243,15 +235,10 @@ describe('CampaignsListPage', () => {
     );
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-      '#campaigns-status-filter',
-    );
-    select.value = CampaignStatus.Open;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Open);
     fixture.detectChanges();
 
-    select.value = CampaignStatus.Closed;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Closed);
     fixture.detectChanges();
 
     // Regression T-58 (P2) : la réponse OPEN, arrivée après la sélection de
@@ -370,9 +357,6 @@ describe('CampaignsListPage', () => {
       fixture.detectChanges();
 
       const input: HTMLInputElement = fixture.nativeElement.querySelector('#campaigns-search');
-      const select: HTMLSelectElement = fixture.nativeElement.querySelector(
-        '#campaigns-status-filter',
-      );
 
       // Recherche 'alpha', amortie et chargée.
       input.value = 'alpha';
@@ -384,8 +368,7 @@ describe('CampaignsListPage', () => {
       // cela charge 'beta' avant la fin de l'amortissement de la saisie.
       input.value = 'beta';
       input.dispatchEvent(new Event('input'));
-      select.value = CampaignStatus.Open;
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onStatusFilterChange(CampaignStatus.Open);
       fixture.detectChanges();
 
       // L'utilisateur remet 'alpha' avant la fin des 300 ms.

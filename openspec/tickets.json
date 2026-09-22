@@ -2437,7 +2437,7 @@
     },
     {
       "id": 126,
-      "title": "Harmoniser la taille et le rayon d'angle des boutons d'action, des conteneurs de tableau et des champs select sur design/.",
+      "title": "Harmoniser la taille et le rayon d'angle des boutons d'action, des conteneurs de tableau, des champs de saisie et des champs select (nouveau composant partagé) sur design/, et introduire une carte indicateur reutilisable pour le tableau de bord.",
       "priority": "P2",
       "scope": "front",
       "type": "fix",
@@ -2449,7 +2449,12 @@
         "1.3",
         "1.4",
         "1.5",
-        "1.6"
+        "1.6",
+        "1.7",
+        "1.8",
+        "1.9",
+        "1.10",
+        "1.11"
       ],
       "dependencies": [],
       "planningStatus": "planned",

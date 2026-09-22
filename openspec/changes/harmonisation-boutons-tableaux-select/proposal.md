@@ -31,15 +31,34 @@ de se propager à chaque nouvel écran, y compris ceux déjà couverts par le ch
   chaque `<table>`) pour qu'il suive systématiquement le token `rounded-card` (`14px`), déjà
   appliqué correctement sur certains écrans (ex. `members-list-page.html` ligne du wrapper de
   tableau) mais pas vérifié sur l'ensemble des écrans avec tableau.
-- Harmoniser le composant partagé `shared/custom-select` (déclencheur et menu) et le composant
-  `shared/payment-method-select` sur le rayon `8px` du déclencheur de select du prototype
-  (`.select-trigger`), en conservant leur hauteur actuelle déjà conforme (`min-h-[48px]`).
-- Documenter l'échelle de rayons résultante (boutons/champs `8px`, conteneurs/tableaux `14px`,
-  pilules `9999px`) comme référence commune pour les futurs écrans, y compris ceux du change
+- Harmoniser les champs de saisie (`<input>` texte/date/nombre, `<textarea>`) de `features/*` et de
+  `shared/amount-input` sur la même échelle (`rounded` 8px, hauteur minimale 48px), sans modifier
+  leur anneau de focus doré déjà cohérent partout (`focus:border-gold focus:ring-[3px]
+  focus:ring-gold-wash`).
+- Constater que `shared/custom-select` cité dans l'audit initial n'existe pas dans le code actuel :
+  créer ce composant (listbox accessible `ControlValueAccessor`, rendu conforme à
+  `design/styles.css`) et l'utiliser pour remplacer les 11 `<select>` natifs du navigateur
+  actuellement affichés dans `features/*` et dans `shared/payment-method-select`, avec fermeture du
+  menu et retour du focus au déclencheur après sélection, sans anneau doré résiduel hors navigation
+  clavier.
+- Créer un composant partagé `shared/stat-card` (icône, liseré doré, libellé, valeur, sous-texte)
+  conforme au motif du prototype (`design/app.js`) et l'utiliser pour les 4 indicateurs déjà
+  affichés par `dashboard-page.html`, puis ajouter sur cet écran un sélecteur de campagne/cagnotte
+  (`shared/custom-select`) relié aux paramètres déjà prévus par le contrat (`campaignId`,
+  `socialFundId` de `GET /dashboard`) pour afficher, via ce même composant, le bilan financier de
+  gestion (`financialOverview`) déjà modélisé côté API mais jamais rendu jusqu'ici, uniquement
+  lorsque l'API le fournit.
+- Documenter l'échelle de rayons résultante (boutons/champs/select `8px`, conteneurs/tableaux
+  `14px`, pilules `9999px`) comme référence commune pour les futurs écrans, y compris ceux du change
   `alignement-visuel-desktop-design` non encore traités (T-118 à T-124).
-- **BREAKING** : aucune. Ce change ne modifie ni le comportement, ni les données affichées, ni les
-  droits par rôle ; il corrige uniquement des classes utilitaires Tailwind (rayon, hauteur,
-  espacement) sur des composants déjà existants.
+- **BREAKING** : aucune pour les corrections de classes Tailwind (boutons, tableaux, champs). Le
+  nouveau sélecteur de campagne/cagnotte du tableau de bord est un ajout de comportement (nouvel
+  appel `GET /dashboard` avec `campaignId`/`socialFundId`) sans changement du contrat API existant
+  ni des droits par rôle : les cartes financières ne s'affichent que si l'API les fournit déjà.
+- Portée du ticket : ce périmètre dépasse une simple correction de classes CSS (construction de deux
+  composants partagés et d'une fonctionnalité de sélection sur le tableau de bord), mais reste
+  volontairement regroupé sous le même ticket `T-126` (type `fix` conservé tel quel), à la demande
+  du porteur produit, plutôt que d'être scindé en tickets `feat` séparés.
 
 ## Capabilities
 
@@ -58,13 +77,18 @@ de se propager à chaque nouvel écran, y compris ceux déjà couverts par le ch
 
 ## Impact
 
-- Zones concernées : boutons d'action et tableaux dans `contribo-front/src/app/features/*`
-  (dashboard, members, campaigns, social-funds, income-categories, roles-users), ainsi que
-  `shared/custom-select/` et `shared/payment-method-select/`.
-- Aucun impact backend, contrat API (`besoins/openapi.yaml`), migration ou dépendance npm : seules
-  des classes Tailwind (rayon, hauteur) sont corrigées dans les templates existants.
+- Zones concernées : boutons d'action, tableaux et champs de saisie dans
+  `contribo-front/src/app/features/*` (dashboard, members, campaigns, social-funds,
+  income-categories, roles-users, auth), les nouveaux composants partagés
+  `shared/custom-select/` et `shared/stat-card/`, ainsi que `shared/payment-method-select/` et
+  `shared/amount-input/`.
+- Aucun impact sur le contrat API (`besoins/openapi.yaml`) : `financialOverview`,
+  `campaignId`/`socialFundId` de `getDashboard` sont déjà modélisés côté contrat, seulement pas
+  encore consommés par le frontend. Aucune migration ni dépendance npm nouvelle.
 - Un seul ticket réel, `scope front` / `type fix`, réservé dans `openspec/tickets.json` lors de la
-  rédaction de `tasks.md` de ce change ; une branche, une PR.
+  rédaction de `tasks.md` de ce change ; une branche, une PR. Son périmètre a été élargi en cours
+  d'implémentation (voir « What Changes ») à la demande du porteur produit, sans ouverture de ticket
+  supplémentaire.
 - Indépendant du change `alignement-visuel-desktop-design` (T-117 à T-125) : ne dépend d'aucun de
   ses tickets et ne les bloque pas ; peut être livré avant, pendant ou après, mais fournit une
   échelle de référence utile pour les tickets T-118 à T-124 restants de ce change.

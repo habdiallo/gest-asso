@@ -45,7 +45,7 @@
         <button
           type="button"
           (click)="openRecordDialog()"
-          class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+          class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
         >
           {{ 'socialFunds.recordContribution.button' | transloco }}
         </button>
@@ -55,7 +55,7 @@
         <button
           type="button"
           (click)="openCloseDialog()"
-          class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
+          class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
         >
           {{ 'socialFunds.close.button' | transloco }}
         </button>
@@ -85,7 +85,7 @@
             (click)="closeCloseDialog()"
             [attr.aria-disabled]="closingSocialFund() ? 'true' : null"
             [class.opacity-50]="closingSocialFund()"
-            class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
+            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
           >
             {{ 'socialFunds.close.cancel' | transloco }}
           </button>
@@ -94,7 +94,7 @@
             (click)="confirmCloseSocialFund()"
             [attr.aria-disabled]="closingSocialFund() ? 'true' : null"
             [class.opacity-50]="closingSocialFund()"
-            class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+            class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
           >
             {{
               (closingSocialFund() ? 'socialFunds.close.confirming' : 'socialFunds.close.confirm')
@@ -198,7 +198,7 @@
         />
       } @else {
         <div
-          class="mt-4 overflow-x-auto"
+          class="mt-4 overflow-x-auto rounded-card"
           [attr.aria-busy]="contributionsPageActionPending() ? 'true' : null"
         >
           <table class="w-full text-left text-sm">

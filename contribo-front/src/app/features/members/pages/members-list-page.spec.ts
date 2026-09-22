@@ -375,22 +375,24 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
-    expect(select).toBeTruthy();
-    const optionLabels = Array.from(select.querySelectorAll('option')).map((option) =>
+    const select = root.querySelector('#member-income-category-filter') as HTMLButtonElement | null;
+    if (!select) {
+      throw new Error('Le filtre de catégorie est introuvable.');
+    }
+    select.click();
+    fixture.detectChanges();
+    const optionLabels = Array.from(root.querySelectorAll('[role="option"]')).map((option) =>
       option.textContent?.trim(),
     );
-    expect(optionLabels).toEqual(['Toutes les catégories', 'Catégorie A', 'Catégorie B']);
+    expect(optionLabels).toEqual(['Catégorie A', 'Catégorie B']);
 
-    select.value = 'cat-b';
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onIncomeCategoryFilterChange('cat-b');
     fixture.detectChanges();
 
     expect(root.textContent).toContain('Toure');
     expect(root.textContent).not.toContain('Conde');
 
-    select.value = '';
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onIncomeCategoryFilterChange('');
     fixture.detectChanges();
 
     expect(root.textContent).toContain('Toure');
@@ -454,9 +456,7 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
-    select.value = 'cat-a';
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onIncomeCategoryFilterChange('cat-a');
     fixture.detectChanges();
     expect(fixture.componentInstance.selectedIncomeCategoryId()).toBe('cat-a');
 
@@ -465,8 +465,6 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.selectedIncomeCategoryId()).toBe('cat-a');
-    const selectAfter = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
-    expect(selectAfter.value).toBe('cat-a');
     const rows = Array.from(root.querySelectorAll('tbody tr'));
     expect(rows).toHaveLength(1);
     expect(root.textContent).toContain('SecondPageA');
@@ -502,9 +500,7 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const select = root.querySelector('#member-income-category-filter') as HTMLSelectElement;
-    select.value = 'cat-a';
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onIncomeCategoryFilterChange('cat-a');
     fixture.detectChanges();
 
     const nextButton = root.querySelectorAll('nav button')[1] as HTMLButtonElement;
@@ -685,9 +681,7 @@ describe('MembersListPage', () => {
     });
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
-    select.value = MemberStatus.Inactive;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(MemberStatus.Inactive);
     fixture.detectChanges();
 
     expect(requestedStatuses).toEqual([undefined, MemberStatus.Inactive]);
@@ -707,9 +701,7 @@ describe('MembersListPage', () => {
     nextButton.click();
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
-    select.value = MemberStatus.Active;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(MemberStatus.Active);
     fixture.detectChanges();
 
     expect(requestedPages).toEqual([0, 1, 0]);
@@ -723,13 +715,10 @@ describe('MembersListPage', () => {
     );
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#members-status-filter');
-    select.value = MemberStatus.Active;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(MemberStatus.Active);
     fixture.detectChanges();
 
-    select.value = MemberStatus.Inactive;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(MemberStatus.Inactive);
     fixture.detectChanges();
 
     // La réponse ACTIVE, arrivée après la sélection d'INACTIVE, ne doit pas

@@ -14,7 +14,7 @@
         required
         [attr.aria-invalid]="titleInvalid() ? true : null"
         [attr.aria-describedby]="titleInvalid() ? 'social-fund-create-title-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (titleInvalid()) {
         <p id="social-fund-create-title-error" class="mt-2 text-sm text-error" role="alert">
@@ -30,21 +30,16 @@
       >
         {{ 'socialFunds.create.fields.eventType' | transloco }}
       </label>
-      <select
-        id="social-fund-create-event-type"
+      <app-custom-select
+        controlId="social-fund-create-event-type"
         formControlName="eventType"
-        required
-        [attr.aria-invalid]="eventTypeInvalid() ? true : null"
-        [attr.aria-describedby]="eventTypeInvalid() ? 'social-fund-create-event-type-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="" disabled>
-          {{ 'socialFunds.create.fields.eventTypePlaceholder' | transloco }}
-        </option>
-        @for (eventType of eventTypeOptions; track eventType) {
-          <option [value]="eventType">{{ socialEventTypeLabel(eventType) }}</option>
-        }
-      </select>
+        [options]="eventTypeSelectOptions"
+        [placeholder]="'socialFunds.create.fields.eventTypePlaceholder' | transloco"
+        [required]="true"
+        [showRequiredError]="false"
+        [ariaInvalid]="eventTypeInvalid()"
+        [ariaDescribedBy]="eventTypeInvalid() ? 'social-fund-create-event-type-error' : null"
+      />
       @if (eventTypeInvalid()) {
         <p id="social-fund-create-event-type-error" class="mt-2 text-sm text-error" role="alert">
           {{ 'socialFunds.create.fields.eventTypeRequired' | transloco }}
@@ -68,7 +63,7 @@
         [attr.aria-describedby]="
           beneficiaryInvalid() ? 'social-fund-create-beneficiary-error' : null
         "
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (beneficiaryInvalid()) {
         <p id="social-fund-create-beneficiary-error" class="mt-2 text-sm text-error" role="alert">
@@ -93,7 +88,7 @@
         [attr.aria-describedby]="
           descriptionInvalid() ? 'social-fund-create-description-error' : null
         "
-        class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       ></textarea>
       @if (descriptionInvalid()) {
         <p id="social-fund-create-description-error" class="mt-2 text-sm text-error" role="alert">
@@ -116,7 +111,7 @@
         required
         [attr.aria-invalid]="startDateInvalid() ? true : null"
         [attr.aria-describedby]="startDateInvalid() ? 'social-fund-create-start-date-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (startDateInvalid()) {
         <p id="social-fund-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -139,7 +134,7 @@
         required
         [attr.aria-invalid]="endDateInvalid() ? true : null"
         [attr.aria-describedby]="endDateInvalid() ? 'social-fund-create-end-date-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (endDateRequiredInvalid()) {
         <p id="social-fund-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -164,14 +159,14 @@
     <button
       type="button"
       (click)="cancel()"
-      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+      class="h-11 rounded border border-line px-4 text-sm text-text"
     >
       {{ 'socialFunds.create.cancel' | transloco }}
     </button>
     <button
       type="submit"
       [disabled]="submitting()"
-      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
       {{
         (submitting() ? 'socialFunds.create.submitting' : 'socialFunds.create.submit') | transloco

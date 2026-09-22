@@ -81,9 +81,14 @@ describe('ContributionCreateForm', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    const trigger = fixture.nativeElement.querySelector(
+      '#contribution-create-member',
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
     const options = Array.from(
-      fixture.nativeElement.querySelectorAll('#contribution-create-member option'),
-    ).map((option) => (option as HTMLOptionElement).textContent?.trim());
+      fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<Element>,
+    ).map((option) => option.textContent?.trim());
     expect(options).toEqual(expect.arrayContaining(['Camara Fanta', 'Diallo Sékou']));
   });
 
@@ -248,9 +253,14 @@ describe('ContributionCreateForm', () => {
     fixture.detectChanges();
 
     expect(listMembers).toHaveBeenLastCalledWith(1, 20, undefined);
+    const trigger = fixture.nativeElement.querySelector(
+      '#contribution-create-member',
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
     const options = Array.from(
-      fixture.nativeElement.querySelectorAll('#contribution-create-member option'),
-    ).map((option) => (option as HTMLOptionElement).textContent?.trim());
+      fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<Element>,
+    ).map((option) => option.textContent?.trim());
     expect(options).toContain('Sow Mariama');
   });
 });

@@ -35,7 +35,7 @@
         required
         [attr.aria-invalid]="paymentDateInvalid() ? true : null"
         [attr.aria-describedby]="paymentDateInvalid() ? 'record-payment-date-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (paymentDateInvalid()) {
         <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -55,14 +55,14 @@
     <button
       type="button"
       (click)="cancel()"
-      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+      class="h-11 rounded border border-line px-4 text-sm text-text"
     >
       {{ 'campaigns.detail.cotisations.recordPayment.cancel' | transloco }}
     </button>
     <button
       type="submit"
       [disabled]="submitting()"
-      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
       {{
         (submitting()

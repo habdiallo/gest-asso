@@ -14,6 +14,8 @@ import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/fo
 import { CatgoriesDeRevenuService, CreateCampaignRequest } from '@api';
 import type { CampaignCategoryAmountInput, IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 
 /**
  * Valide que la date de fin n'est pas antérieure à la date de début
@@ -69,7 +71,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-campaign-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, CustomSelect],
   templateUrl: './campaign-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -84,6 +86,13 @@ export class CampaignCreateForm {
 
   readonly categoriesLoading = signal(true);
   readonly categoriesError = signal(false);
+  readonly memberSelectionOptions: readonly CustomSelectOption[] = [
+    {
+      value: 'ALL_ACTIVE_MEMBERS',
+      label: '',
+      translationKey: 'campaigns.create.fields.memberSelectionAllActive',
+    },
+  ];
   private readonly categories = signal<IncomeCategory[]>([]);
 
   /** Catégories effectivement portées par au moins un membre (RG contrat `categoryAmounts`). */

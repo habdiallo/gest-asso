@@ -28,7 +28,7 @@
         <button
           type="button"
           (click)="openEditDialog()"
-          class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
+          class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
         >
           {{ 'members.edit.button' | transloco }}
         </button>
@@ -37,7 +37,7 @@
         <button
           type="button"
           (click)="openDeactivateDialog()"
-          class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash"
+          class="min-h-11 rounded border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash"
         >
           {{ 'members.deactivate.button' | transloco }}
         </button>
@@ -46,7 +46,7 @@
         <button
           type="button"
           (click)="openReactivateDialog()"
-          class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
+          class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
         >
           {{ 'members.reactivate.button' | transloco }}
         </button>
@@ -127,7 +127,7 @@
             type="button"
             (click)="closeDeactivateDialog()"
             [disabled]="deactivating()"
-            class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong disabled:opacity-60"
+            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong disabled:opacity-60"
           >
             {{ 'members.deactivate.cancel' | transloco }}
           </button>
@@ -135,7 +135,7 @@
             type="button"
             (click)="confirmDeactivate()"
             [disabled]="deactivating()"
-            class="rounded-card border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
+            class="min-h-11 rounded border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
           >
             {{
               (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.confirm')
@@ -162,7 +162,7 @@
           <button
             type="button"
             (click)="closeReactivateDialog()"
-            class="rounded-card border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
+            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
           >
             {{ 'members.reactivate.cancel' | transloco }}
           </button>
@@ -170,7 +170,7 @@
             type="button"
             (click)="confirmReactivate()"
             [disabled]="reactivating()"
-            class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover disabled:opacity-60"
+            class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover disabled:opacity-60"
           >
             {{
               (reactivating() ? 'members.reactivate.confirming' : 'members.reactivate.confirm')

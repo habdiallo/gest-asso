@@ -19,18 +19,20 @@ describe('PaymentMethodSelect', () => {
     const fixture = TestBed.createComponent(PaymentMethodSelect);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
-    const optionValues = Array.from(select.options)
-      .map((option) => option.value)
-      .filter((value) => value !== '');
+    const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const options = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<HTMLElement>,
+    );
+    const optionValues = options.map((option) => option.dataset['value']);
 
     expect(optionValues).toEqual([
       PaymentMethod.Cash,
       PaymentMethod.MobileMoney,
       PaymentMethod.BankTransfer,
     ]);
-    expect(Array.from(select.options).map((option) => option.text)).toEqual([
-      'Sélectionner un mode de règlement',
+    expect(options.map((option) => option.textContent?.trim())).toEqual([
       'Espèces',
       'Mobile Money',
       'Virement bancaire',
@@ -42,17 +44,21 @@ describe('PaymentMethodSelect', () => {
     fixture.componentInstance.control.setValue(PaymentMethod.MobileMoney);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
-    expect(select.value).toBe(PaymentMethod.MobileMoney);
+    const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    expect(trigger.textContent).toContain('Mobile Money');
   });
 
   it('propagates a user selection back to the bound reactive form control', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
-    select.value = PaymentMethod.BankTransfer;
-    select.dispatchEvent(new Event('change'));
+    const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const option = fixture.nativeElement.querySelector(
+      `[role="option"][data-value="${PaymentMethod.BankTransfer}"]`,
+    ) as HTMLButtonElement;
+    option.click();
     fixture.detectChanges();
 
     expect(fixture.componentInstance.control.value).toBe(PaymentMethod.BankTransfer);
@@ -63,8 +69,8 @@ describe('PaymentMethodSelect', () => {
     fixture.componentRef.setInput('required', true);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
-    select.dispatchEvent(new Event('blur'));
+    const select = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    select.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
     fixture.detectChanges();
 
     expect(select.getAttribute('aria-invalid')).toBe('true');
@@ -81,7 +87,7 @@ describe('PaymentMethodSelect', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
+    const select = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     expect(select.getAttribute('aria-invalid')).toBeNull();
   });
 
@@ -94,7 +100,7 @@ describe('PaymentMethodSelect', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
+    const select = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     expect(select.getAttribute('aria-invalid')).toBe('true');
   });
 });

@@ -24,7 +24,7 @@
         required
         [attr.aria-invalid]="nameInvalid() ? true : null"
         [attr.aria-describedby]="nameInvalid() ? 'campaign-create-name-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (nameInvalid()) {
         <p id="campaign-create-name-error" class="mt-2 text-sm text-error" role="alert">
@@ -47,7 +47,7 @@
         maxlength="1000"
         [attr.aria-invalid]="descriptionInvalid() ? true : null"
         [attr.aria-describedby]="descriptionInvalid() ? 'campaign-create-description-error' : null"
-        class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       ></textarea>
       @if (descriptionInvalid()) {
         <p id="campaign-create-description-error" class="mt-2 text-sm text-error" role="alert">
@@ -70,7 +70,7 @@
         required
         [attr.aria-invalid]="startDateInvalid() ? true : null"
         [attr.aria-describedby]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (startDateInvalid()) {
         <p id="campaign-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -93,7 +93,7 @@
         required
         [attr.aria-invalid]="endDateInvalid() ? true : null"
         [attr.aria-describedby]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (endDateRequiredInvalid()) {
         <p id="campaign-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -113,16 +113,14 @@
       >
         {{ 'campaigns.create.fields.memberSelection' | transloco }}
       </label>
-      <select
-        id="campaign-create-member-selection"
-        disabled
+      <app-custom-select
+        controlId="campaign-create-member-selection"
+        [options]="memberSelectionOptions"
+        [value]="'ALL_ACTIVE_MEMBERS'"
+        [disabledInput]="true"
         [attr.aria-describedby]="'campaign-create-member-selection-hint'"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text-2 outline-none disabled:opacity-70"
-      >
-        <option selected>
-          {{ 'campaigns.create.fields.memberSelectionAllActive' | transloco }}
-        </option>
-      </select>
+        [ariaDescribedBy]="'campaign-create-member-selection-hint'"
+      />
       <p id="campaign-create-member-selection-hint" class="mt-2 text-xs text-text-3">
         {{ 'campaigns.create.fields.memberSelectionHint' | transloco }}
       </p>
@@ -133,14 +131,14 @@
     <button
       type="button"
       (click)="cancel()"
-      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+      class="h-11 rounded border border-line px-4 text-sm text-text"
     >
       {{ 'campaigns.create.cancel' | transloco }}
     </button>
     <button
       type="submit"
       [disabled]="submitting() || categoriesLoading() || noEligibleCategories()"
-      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
       {{ (submitting() ? 'campaigns.create.submitting' : 'campaigns.create.submit') | transloco }}
     </button>

@@ -1,148 +1,239 @@
-import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
   computed,
+  inject,
   input,
   model,
+  output,
   signal,
   viewChild,
   viewChildren,
 } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { ControlValueAccessor } from '@angular/forms';
+import { NgControl, TouchedChangeEvent } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { filter, map } from 'rxjs';
 
-/** Option affichée par `CustomSelect` : `value` est la donnée, `label` le texte visible. */
+let nextInstanceId = 0;
+
 export interface CustomSelectOption {
   readonly value: string;
   readonly label: string;
+  readonly translationKey?: string;
 }
 
-let sequence = 0;
-
 /**
- * Sélecteur à liste déroulante personnalisée (T-117), pour les écrans où le rendu
- * natif de `<select>` (menu non stylable) diverge trop de `design/styles.css`
- * (`.custom-select`, `.select-trigger`, `.select-menu`). Suit le motif ARGP
- * "Listbox" (déclencheur `button` + `role="listbox"`) plutôt qu'un `<select>`
- * natif : la navigation clavier (flèches, Origine/Fin, Échap, focus restitué au
- * déclencheur) et le focus visible restent assurés manuellement ci-dessous,
- * conformément à `.claude/rules/frontend/accessibilite.md`.
+ * Listbox personnalisé (déclencheur + menu) conforme au rendu de
+ * `design/styles.css` (`.select-trigger`/`.select-menu`/`.select-option`),
+ * utilisé à la place du rendu natif du `<select>` du navigateur.
  *
- * Le composant reste neutre sur la donnée : l'appelant fournit `options` et lie
- * `value` en `model()` (T-117, contrat bidirectionnel), sans connaître de
- * formulaire ou d'écran précis.
+ * Implémente `ControlValueAccessor` comme `shared/payment-method-select`
+ * (assignation manuelle à `NgControl` pour lire l'état `touched` réel du
+ * `FormControl` hôte : reset()/markAllAsTouched() ne passent pas par
+ * `registerOnTouched`, un signal local dédié divergerait donc du parent).
+ *
+ * Le focus est déplacé manuellement entre le déclencheur et les options
+ * (navigation clavier flèches/Home/End/Échap, comme `design/app.js`), et
+ * l'anneau doré n'utilise que `:focus-visible` (jamais `:focus`) pour ne
+ * jamais rester affiché après une sélection à la souris qui rend le focus
+ * au déclencheur par script.
  */
 @Component({
   selector: 'app-custom-select',
+  imports: [TranslocoPipe],
   templateUrl: './custom-select.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(document:click)': 'onDocumentClick($event)',
-  },
 })
-export class CustomSelect {
-  readonly options = input.required<readonly CustomSelectOption[]>();
-  readonly value = model<string>('');
-  /** Nom accessible du déclencheur, utilisé quand aucun `<label for>` externe n'existe déjà. */
-  readonly ariaLabel = input<string>('');
-  /** `id` du déclencheur : à associer à un `<label for>` externe existant. */
-  readonly triggerId = input<string>(`contribo-select-${++sequence}`);
+export class CustomSelect implements ControlValueAccessor, OnInit {
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  private readonly rootElement = viewChild<ElementRef<HTMLElement>>('root');
+  private readonly instanceId = `custom-select-${++nextInstanceId}`;
+
+  readonly options = input.required<ReadonlyArray<CustomSelectOption>>();
+  readonly controlId = input<string | null>(null);
+  readonly label = input<string>();
+  readonly placeholder = input('Sélectionner');
+  readonly required = input(false);
+  readonly showRequiredError = input(true);
+  readonly disabledInput = input(false);
+  readonly requiredErrorMessage = input('Ce champ est obligatoire.');
+  /** Permet à l'appelant de piloter `aria-invalid` depuis sa propre validation de formulaire. */
+  readonly ariaInvalid = input(false);
+  /** Permet à l'appelant de relier son propre paragraphe d'erreur externe via `aria-describedby`. */
+  readonly ariaDescribedBy = input<string | null>(null);
+
+  readonly fieldId = computed(() => this.controlId() ?? this.instanceId);
+  readonly errorId = computed(() => `${this.fieldId()}-error`);
+
+  readonly value = model<string | null>(null);
+  readonly disabled = signal(false);
+  readonly open = signal(false);
+  readonly touchedChange = output<void>();
+
+  readonly selectedOption = computed(
+    () => this.options().find((option) => option.value === this.value()) ?? null,
+  );
+
+  private readonly touchedFallback = signal(false);
+  private readonly touchedFromControl = signal<boolean | null>(null);
+  readonly touched = computed(() => this.touchedFromControl() ?? this.touchedFallback());
+  readonly isDisabled = computed(() => this.disabled() || this.disabledInput());
+
+  private readonly triggerRef = viewChild<ElementRef<HTMLButtonElement>>('trigger');
   private readonly optionButtons = viewChildren<ElementRef<HTMLButtonElement>>('optionButton');
 
-  readonly listboxId = `${this.triggerId()}-listbox`;
-  readonly open = signal(false);
+  private onChange: (value: string | null) => void = () => {};
+  private onTouched: () => void = () => {};
 
-  readonly selectedIndex = computed(() => {
-    const current = this.value();
-    return this.options().findIndex((option) => option.value === current);
-  });
-
-  readonly selectedLabel = computed(() => {
-    const index = this.selectedIndex();
-    return index >= 0 ? this.options()[index].label : '';
-  });
-
-  toggle(): void {
-    if (this.open()) {
-      this.close(true);
-    } else {
-      this.openMenu();
+  constructor() {
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
     }
   }
 
-  openMenu(): void {
-    if (this.open()) {
+  ngOnInit(): void {
+    const control = this.ngControl?.control;
+    if (!control) {
       return;
     }
-    this.open.set(true);
-    queueMicrotask(() => this.focusOption(Math.max(this.selectedIndex(), 0)));
+
+    this.touchedFromControl.set(control.touched);
+    control.events
+      .pipe(
+        filter((event): event is TouchedChangeEvent => event instanceof TouchedChangeEvent),
+        map((event) => event.touched),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((touchedValue) => this.touchedFromControl.set(touchedValue));
   }
 
-  close(focusTrigger: boolean): void {
-    if (!this.open()) {
+  writeValue(value: string | null): void {
+    this.value.set(value ?? null);
+  }
+
+  registerOnChange(fn: (value: string | null) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
+  toggleOpen(): void {
+    if (this.isDisabled()) {
       return;
     }
-    this.open.set(false);
-    if (focusTrigger) {
-      this.rootElement()
-        ?.nativeElement.querySelector<HTMLButtonElement>('[data-select-trigger]')
-        ?.focus();
-    }
+    this.open.update((current) => !current);
   }
 
   selectOption(option: CustomSelectOption): void {
+    if (this.isDisabled()) {
+      return;
+    }
     this.value.set(option.value);
-    this.close(true);
+    this.onChange(option.value);
+    this.open.set(false);
+    this.focusTrigger();
   }
 
-  onTriggerKeydown(event: KeyboardEvent): void {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+  handleTriggerKeydown(event: KeyboardEvent): void {
+    if (this.isDisabled()) {
+      return;
+    }
+    if (
+      event.key === 'Enter' ||
+      event.key === ' ' ||
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowUp'
+    ) {
       event.preventDefault();
-      this.openMenu();
+      this.open.set(true);
+      this.focusOptionAfterOpen();
     }
   }
 
-  onOptionKeydown(event: KeyboardEvent, index: number): void {
-    const buttons = this.optionButtons();
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        this.focusOption(Math.min(index + 1, buttons.length - 1));
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        this.focusOption(Math.max(index - 1, 0));
-        break;
-      case 'Home':
-        event.preventDefault();
-        this.focusOption(0);
-        break;
-      case 'End':
-        event.preventDefault();
-        this.focusOption(buttons.length - 1);
-        break;
-      case 'Escape':
-        event.preventDefault();
-        this.close(true);
-        break;
-      case 'Tab':
-        this.close(false);
-        break;
+  handleOptionKeydown(event: KeyboardEvent, option: CustomSelectOption): void {
+    const buttons = this.optionButtons().map((ref) => ref.nativeElement);
+    const currentIndex = buttons.indexOf(event.target as HTMLButtonElement);
+
+    if (
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowUp' ||
+      event.key === 'Home' ||
+      event.key === 'End'
+    ) {
+      event.preventDefault();
+      let nextIndex: number;
+      if (event.key === 'Home') {
+        nextIndex = 0;
+      } else if (event.key === 'End') {
+        nextIndex = buttons.length - 1;
+      } else {
+        const delta = event.key === 'ArrowDown' ? 1 : -1;
+        nextIndex = (currentIndex + delta + buttons.length) % buttons.length;
+      }
+      buttons[nextIndex]?.focus();
+      return;
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.selectOption(option);
     }
   }
 
-  onDocumentClick(event: Event): void {
+  handleFocusOut(event: FocusEvent): void {
+    const nextTarget = event.relatedTarget as Node | null;
+    if (nextTarget && this.elementRef.nativeElement.contains(nextTarget)) {
+      return;
+    }
+    this.touchedFallback.set(true);
+    this.onTouched();
+    this.touchedChange.emit();
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent): void {
     if (!this.open()) {
       return;
     }
-    const root = this.rootElement()?.nativeElement;
-    if (root && !root.contains(event.target as Node)) {
-      this.close(false);
+    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+      this.open.set(false);
     }
   }
 
-  private focusOption(index: number): void {
-    this.optionButtons()[index]?.nativeElement.focus();
+  @HostListener('document:keydown.escape')
+  handleGlobalEscape(): void {
+    if (this.open()) {
+      this.open.set(false);
+      this.focusTrigger();
+    }
+  }
+
+  private focusOptionAfterOpen(): void {
+    setTimeout(() => {
+      const buttons = this.optionButtons().map((ref) => ref.nativeElement);
+      if (buttons.length === 0) {
+        return;
+      }
+      const selectedIndex = this.options().findIndex((option) => option.value === this.value());
+      (buttons[selectedIndex] ?? buttons[0]).focus();
+    });
+  }
+
+  private focusTrigger(): void {
+    setTimeout(() => this.triggerRef()?.nativeElement.focus());
   }
 }

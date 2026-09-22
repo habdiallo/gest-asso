@@ -453,6 +453,8 @@ export const membersHandlers = [
     const index = demoMembers.findIndex((member) => member.id === memberId);
     if (index >= 0) {
       const { account: memberAccount, financialSummary, ...summary } = updated;
+      void memberAccount;
+      void financialSummary;
       demoMembers[index] = summary;
     }
     return HttpResponse.json<MemberDetails>(updated);
@@ -489,6 +491,8 @@ export const membersHandlers = [
       const index = demoMembers.findIndex((member) => member.id === memberId);
       if (index >= 0) {
         const { account: memberAccount, financialSummary, ...summary } = updated;
+        void memberAccount;
+        void financialSummary;
         demoMembers[index] = summary;
       }
       return HttpResponse.json<MemberDetails>(updated);

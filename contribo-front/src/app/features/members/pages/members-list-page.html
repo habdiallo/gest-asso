@@ -6,7 +6,7 @@
     @if (canCreateMember()) {
       <button
         type="button"
-        class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+        class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
         (click)="openCreateDialog()"
       >
         {{ 'members.create.button' | transloco }}
@@ -59,24 +59,20 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
     <div class="flex flex-col gap-2 sm:max-w-xs">
       <label for="members-status-filter" class="text-sm font-medium text-text-2">
         {{ 'members.statusFilterLabel' | transloco }}
       </label>
-      <select
-        id="members-status-filter"
+      <app-custom-select
+        controlId="members-status-filter"
+        [options]="statusSelectOptions"
         [value]="statusFilter()"
-        (change)="onStatusFilterChange($event)"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="">{{ 'members.statusFilterAll' | transloco }}</option>
-        @for (status of statusFilterOptions; track status) {
-          <option [value]="status">{{ memberStatusLabel(status) }}</option>
-        }
-      </select>
+        [placeholder]="'members.statusFilterAll' | transloco"
+        (valueChange)="onStatusFilterChange($event)"
+      />
     </div>
   </div>
 
@@ -104,17 +100,13 @@
           <label for="member-income-category-filter" class="text-sm text-text-2">
             {{ 'members.filters.incomeCategoryLabel' | transloco }}
           </label>
-          <select
-            id="member-income-category-filter"
-            class="rounded-card border border-line bg-surface px-3 py-2 text-sm text-text"
+          <app-custom-select
+            controlId="member-income-category-filter"
+            [options]="incomeCategorySelectOptions()"
             [value]="selectedIncomeCategoryId() ?? ''"
-            (change)="onIncomeCategoryFilterChange($event)"
-          >
-            <option value="">{{ 'members.filters.incomeCategoryAll' | transloco }}</option>
-            @for (category of incomeCategoryOptions(); track category.id) {
-              <option [value]="category.id">{{ category.label }}</option>
-            }
-          </select>
+            [placeholder]="'members.filters.incomeCategoryAll' | transloco"
+            (valueChange)="onIncomeCategoryFilterChange($event)"
+          />
         </div>
       }
 
@@ -209,7 +201,7 @@
       <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
           [class.opacity-40]="previousPageDisabled()"
           [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
           (click)="goToPreviousPage()"
@@ -224,7 +216,7 @@
         </p>
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
           [class.opacity-40]="nextPageDisabled()"
           [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
           (click)="goToNextPage()"

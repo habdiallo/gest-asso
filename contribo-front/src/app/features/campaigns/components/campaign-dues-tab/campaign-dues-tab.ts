@@ -19,6 +19,8 @@ import type { TranslationKey } from '@core/i18n/translation-keys';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
 
 /**
@@ -46,7 +48,7 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
  */
 @Component({
   selector: 'app-campaign-dues-tab',
-  imports: [TranslocoPipe, EmptyState, FormDialog, RecordPaymentForm],
+  imports: [TranslocoPipe, EmptyState, FormDialog, RecordPaymentForm, CustomSelect],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -94,6 +96,13 @@ export class CampaignDuesTab implements OnInit {
     DueStatus.Overdue,
   ];
   readonly statusFilter = signal<DueStatus | ''>('');
+  readonly statusSelectOptions: readonly CustomSelectOption[] = this.statusOptions.map(
+    (status) => ({
+      value: status,
+      label: '',
+      translationKey: this.statusLabels[status],
+    }),
+  );
   readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(
@@ -119,8 +128,8 @@ export class CampaignDuesTab implements OnInit {
     }
   }
 
-  onStatusFilterChange(event: Event): void {
-    this.statusFilter.set((event.target as HTMLSelectElement).value as DueStatus | '');
+  onStatusFilterChange(value: string | null): void {
+    this.statusFilter.set((value ?? '') as DueStatus | '');
     this.loadPage(0);
   }
 

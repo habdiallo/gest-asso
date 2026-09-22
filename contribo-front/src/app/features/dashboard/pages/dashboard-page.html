@@ -78,7 +78,7 @@
                 {{ 'dashboard.scope.campaignLabel' | transloco }}
               </label>
               <app-custom-select
-                triggerId="dashboard-campaign-scope"
+                controlId="dashboard-campaign-scope"
                 class="mt-1.5 block"
                 [options]="[{ value: '', label: campaignAllLabel }, ...campaignScopeOptions()]"
                 [value]="selectedCampaignId()"
@@ -93,7 +93,7 @@
                 {{ 'dashboard.scope.socialFundLabel' | transloco }}
               </label>
               <app-custom-select
-                triggerId="dashboard-social-fund-scope"
+                controlId="dashboard-social-fund-scope"
                 class="mt-1.5 block"
                 [options]="[{ value: '', label: socialFundAllLabel }, ...socialFundScopeOptions()]"
                 [value]="selectedSocialFundId()"

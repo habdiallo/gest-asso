@@ -12,6 +12,8 @@ import type { UserAccount, UserAccountPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, catchError, of, switchMap } from 'rxjs';
 import { operatorAuthorizationLabel, userRoleLabel } from '../roles-users-labels';
 
@@ -56,7 +58,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 @Component({
   selector: 'app-roles-users-page',
-  imports: [TranslocoPipe, EmptyState, FormDialog],
+  imports: [TranslocoPipe, EmptyState, FormDialog, CustomSelect],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,6 +72,10 @@ export class RolesUsersPage {
     UserRole.Operator,
     UserRole.Member,
   ];
+  readonly roleSelectOptions: readonly CustomSelectOption[] = this.roleOptions.map((role) => ({
+    value: role,
+    label: userRoleLabel(role),
+  }));
   /** Rôle pour lequel le contrôle `peut_enregistrer_paiements` (T-55) s'applique. */
   readonly operatorRole = UserRole.Operator;
 
@@ -155,8 +161,8 @@ export class RolesUsersPage {
     }, SEARCH_DEBOUNCE_MS);
   }
 
-  onRoleFilterChange(event: Event): void {
-    this.roleFilter.set((event.target as HTMLSelectElement).value as UserRole | '');
+  onRoleFilterChange(value: string | null): void {
+    this.roleFilter.set((value ?? '') as UserRole | '');
     this.page.set(0);
     this.refetch.next();
   }
@@ -194,8 +200,8 @@ export class RolesUsersPage {
     this.savingRole.set(false);
   }
 
-  onRoleDraftChange(event: Event): void {
-    this.roleDraft.set((event.target as HTMLSelectElement).value as UserRole);
+  onRoleDraftChange(value: string | null): void {
+    this.roleDraft.set((value ?? '') as UserRole);
   }
 
   /** Bascule l'état de `peut_enregistrer_paiements` (T-55) dans la fiche ouverte. */
