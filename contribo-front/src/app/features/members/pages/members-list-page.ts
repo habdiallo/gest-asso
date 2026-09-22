@@ -18,6 +18,8 @@ import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
@@ -104,6 +106,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    CustomSelect,
     MemberCreateForm,
   ],
   templateUrl: './members-list-page.html',
@@ -131,6 +134,13 @@ export class MembersListPage {
   readonly statusFilterOptions: readonly MemberStatus[] = [
     MemberStatus.Active,
     MemberStatus.Inactive,
+  ];
+  readonly statusSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'members.statusFilterAll' },
+    ...this.statusFilterOptions.map((status) => ({
+      value: status,
+      label: memberStatusLabel(status),
+    })),
   ];
   readonly statusFilter = signal<MemberStatus | ''>('');
 
@@ -183,6 +193,13 @@ export class MembersListPage {
       .map(([id, label]) => ({ id, label }))
       .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
   });
+  readonly incomeCategorySelectOptions = computed<readonly CustomSelectOption[]>(() => [
+    { value: '', label: '', translationKey: 'members.filters.incomeCategoryAll' },
+    ...this.incomeCategoryOptions().map((category) => ({
+      value: category.id,
+      label: category.label,
+    })),
+  ]);
 
   readonly filteredItems = computed<MemberSummary[]>(() => {
     const items = this.memberPage()?.items ?? [];
@@ -222,13 +239,12 @@ export class MembersListPage {
     this.nameQueryInput.next(value.trim());
   }
 
-  onIncomeCategoryFilterChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
+  onIncomeCategoryFilterChange(value: string | null): void {
     this.selectedIncomeCategoryId.set(value === '' ? null : value);
   }
 
-  onStatusFilterChange(event: Event): void {
-    this.statusFilter.set((event.target as HTMLSelectElement).value as MemberStatus | '');
+  onStatusFilterChange(value: string | null): void {
+    this.statusFilter.set((value ?? '') as MemberStatus | '');
     this.loadPage(0);
   }
 

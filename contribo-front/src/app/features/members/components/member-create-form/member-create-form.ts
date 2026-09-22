@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   input,
   output,
@@ -12,6 +13,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService } from '@api';
 import type { CreateMemberRequest, IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 
 /**
  * Formulaire de création de membre (T-33, US-MEM-001) : Nom, Prénom, Nom
@@ -30,7 +33,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
  */
 @Component({
   selector: 'app-member-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, CustomSelect],
   templateUrl: './member-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,6 +49,9 @@ export class MemberCreateForm {
   readonly categories = signal<IncomeCategory[]>([]);
   readonly categoriesLoading = signal(true);
   readonly categoriesError = signal(false);
+  readonly categorySelectOptions = computed<readonly CustomSelectOption[]>(() =>
+    this.categories().map((category) => ({ value: category.id, label: category.label })),
+  );
 
   readonly form = this.formBuilder.nonNullable.group({
     lastName: ['', Validators.required],

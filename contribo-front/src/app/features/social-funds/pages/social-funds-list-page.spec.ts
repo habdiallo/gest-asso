@@ -376,11 +376,8 @@ describe('SocialFundsListPage', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      expect(select).not.toBeNull();
-
-      select.value = 'DEATH';
-      select.dispatchEvent(new Event('change'));
+      expect(root.querySelector('#social-funds-event-type-filter')).not.toBeNull();
+      fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
       expect(listSocialFunds).toHaveBeenCalledWith(0, 20, undefined, undefined, 'DEATH');
@@ -391,14 +388,10 @@ describe('SocialFundsListPage', () => {
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
 
-      const root: HTMLElement = fixture.nativeElement;
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      select.value = 'WEDDING';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('WEDDING');
       fixture.detectChanges();
 
-      select.value = '';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('');
       fixture.detectChanges();
 
       expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, undefined, undefined);
@@ -423,9 +416,7 @@ describe('SocialFundsListPage', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      select.value = 'BAPTISM';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('BAPTISM');
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Aucune cagnotte pour le moment.');
@@ -439,30 +430,30 @@ describe('SocialFundsListPage', () => {
       ]);
       const listSocialFunds = vi.fn((...args: unknown[]) => {
         const eventType = (args[4] as string | undefined) ?? '';
-        return responses.get(eventType)!.asObservable();
+        const response = responses.get(eventType);
+        if (!response) {
+          throw new Error(`Réponse absente pour le filtre ${eventType}.`);
+        }
+        return response.asObservable();
       });
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
-      responses.get('')!.next(buildSocialFundPage());
+      responses.get('')?.next(buildSocialFundPage());
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-
-      select.value = 'WEDDING';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('WEDDING');
       fixture.detectChanges();
 
-      select.value = 'DEATH';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
       responses
-        .get('DEATH')!
-        .next(
+        .get('DEATH')
+        ?.next(
           buildSocialFundPage({ items: [{ ...buildSocialFundPage().items[0], title: 'Deces' }] }),
         );
-      responses.get('WEDDING')!.next(
+      responses.get('WEDDING')?.next(
         buildSocialFundPage({
           items: [{ ...buildSocialFundPage().items[0], title: 'Mariage tardif' }],
         }),
@@ -495,9 +486,7 @@ describe('SocialFundsListPage', () => {
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelector('nav[aria-label]')).not.toBeNull();
 
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      select.value = 'DEATH';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
       // La page précédente (issue du filtre "tous types") est vidée et sa
@@ -527,17 +516,15 @@ describe('SocialFundsListPage', () => {
     // croire à tort que le filtre ne renvoie aucun résultat.
     it('shows a loading status, not the empty message, while a filter change is pending', async () => {
       const pending = new Subject<SocialFundPage>();
-      const listSocialFunds = vi.fn(
-        (page = 0, _size?: number, _q?: string, _status?: string, eventType?: string) =>
-          eventType === undefined ? of(buildSocialFundPage()) : pending.asObservable(),
-      );
+      const listSocialFunds = vi.fn((...args: unknown[]) => {
+        const eventType = args[4] as string | undefined;
+        return eventType === undefined ? of(buildSocialFundPage()) : pending.asObservable();
+      });
       const fixture = await createFixture(listSocialFunds);
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      select.value = 'DEATH';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Chargement des cagnottes');
@@ -569,9 +556,7 @@ describe('SocialFundsListPage', () => {
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelectorAll<HTMLButtonElement>('nav button')).toHaveLength(2);
 
-      const select = root.querySelector('#social-funds-event-type-filter') as HTMLSelectElement;
-      select.value = 'DEATH';
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
       // Échec du chargement filtré traité comme une absence de page : la

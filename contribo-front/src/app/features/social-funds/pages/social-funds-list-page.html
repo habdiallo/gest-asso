@@ -14,7 +14,7 @@
     @if (canCreateSocialFund()) {
       <button
         type="button"
-        class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+        class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
         (click)="openCreateDialog()"
       >
         {{ 'socialFunds.create.button' | transloco }}
@@ -55,17 +55,13 @@
       <label for="social-funds-event-type-filter" class="text-sm font-medium text-text-2">
         {{ 'socialFunds.eventTypeFilterLabel' | transloco }}
       </label>
-      <select
-        id="social-funds-event-type-filter"
+      <app-custom-select
+        controlId="social-funds-event-type-filter"
+        [options]="eventTypeSelectOptions"
         [value]="eventTypeFilter()"
-        (change)="onEventTypeFilterChange($event)"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="">{{ 'socialFunds.eventTypeFilterAll' | transloco }}</option>
-        @for (eventType of eventTypeOptions; track eventType) {
-          <option [value]="eventType">{{ socialEventTypeLabel(eventType) }}</option>
-        }
-      </select>
+        [placeholder]="'socialFunds.eventTypeFilterAll' | transloco"
+        (valueChange)="onEventTypeFilterChange($event)"
+      />
     </div>
 
     <p class="mt-4 text-sm text-text-2" role="status" aria-live="polite">

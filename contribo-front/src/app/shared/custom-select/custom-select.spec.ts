@@ -1,91 +1,144 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import type { ComponentFixture } from '@angular/core/testing';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CustomSelect } from './custom-select';
+import type { CustomSelectOption } from './custom-select';
+
+const OPTIONS: readonly CustomSelectOption[] = [
+  { value: 'a', label: 'Option A' },
+  { value: 'b', label: 'Option B' },
+  { value: 'c', label: 'Option C' },
+];
+
+function flushMicrotasks(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve));
+}
 
 @Component({
-  imports: [CustomSelect],
-  template: `<app-custom-select
-    [options]="options"
-    [(value)]="value"
-    ariaLabel="Campagne de cotisation"
-  />`,
+  selector: 'app-host',
+  imports: [ReactiveFormsModule, CustomSelect],
+  template: `<app-custom-select [formControl]="control" [options]="options" [required]="true" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {
-  readonly options = [
-    { value: 'a', label: 'Campagne A' },
-    { value: 'b', label: 'Campagne B' },
-    { value: 'c', label: 'Campagne C' },
-  ];
-  readonly value = signal('a');
+  readonly control = new FormControl<string | null>(null);
+  readonly options = OPTIONS;
 }
 
 describe('CustomSelect', () => {
-  let fixture: ComponentFixture<HostComponent>;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HostComponent] });
-    fixture = TestBed.createComponent(HostComponent);
+  it('reflects an initial value from the bound reactive form control on the trigger', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.control.setValue('b');
     fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.textContent).toContain('Option B');
   });
 
-  function trigger(): HTMLButtonElement {
-    return fixture.debugElement.query(By.css('[data-select-trigger]')).nativeElement;
-  }
+  it('opens the menu on trigger click, selects an option on click, propagates it and closes', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
 
-  function listbox(): HTMLElement | null {
-    return fixture.nativeElement.querySelector('[role="listbox"]');
-  }
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
 
-  it('affiche le libellé de la valeur sélectionnée sans ouvrir le menu', () => {
-    expect(trigger().textContent).toContain('Campagne A');
-    expect(listbox()).toBeNull();
-    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    const optionButtons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]'),
+    );
+    expect(optionButtons.map((button) => button.textContent?.trim())).toEqual([
+      'Option A',
+      'Option B',
+      'Option C',
+    ]);
+
+    optionButtons[2].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.control.value).toBe('c');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('ouvre le menu au clic sur le déclencheur', () => {
-    trigger().click();
+  it('keeps one option in the tab order while moving the roving focus target', () => {
+    const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
 
-    expect(listbox()).not.toBeNull();
-    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
+
+    let optionButtons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]'),
+    );
+    expect(optionButtons.map((button) => button.tabIndex)).toEqual([0, -1, -1]);
+
+    optionButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fixture.detectChanges();
+    optionButtons = Array.from(fixture.nativeElement.querySelectorAll('[role="option"]'));
+    expect(optionButtons.map((button) => button.tabIndex)).toEqual([-1, 0, -1]);
   });
 
-  it('sélectionne une option au clic et referme le menu', () => {
-    trigger().click();
+  it('opens the menu and focuses an option on ArrowDown from the trigger', async () => {
+    const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
 
-    const options = fixture.nativeElement.querySelectorAll('[role="option"]');
-    (options[2] as HTMLButtonElement).click();
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fixture.detectChanges();
+    await flushMicrotasks();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.value()).toBe('c');
-    expect(listbox()).toBeNull();
-    expect(trigger().textContent).toContain('Campagne C');
+    const optionButtons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]'),
+    );
+    expect(document.activeElement).toBe(optionButtons[0]);
   });
 
-  it('ferme le menu et restitue le focus au déclencheur avec Échap', () => {
-    trigger().click();
+  it('closes the menu and returns focus to the trigger on Escape from an option', async () => {
+    const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
 
-    const firstOption = fixture.nativeElement.querySelector('[role="option"]') as HTMLButtonElement;
-    firstOption.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
     fixture.detectChanges();
 
-    expect(listbox()).toBeNull();
-    expect(document.activeElement).toBe(trigger());
+    const optionButtons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]'),
+    );
+    optionButtons[0].focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    await flushMicrotasks();
+    fixture.detectChanges();
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(trigger);
   });
 
-  it('ferme le menu au clic en dehors du composant', () => {
-    trigger().click();
-    fixture.detectChanges();
-    expect(listbox()).not.toBeNull();
-
-    document.body.click();
+  it('closes the menu when clicking outside without changing the value', () => {
+    const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
 
-    expect(listbox()).toBeNull();
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
+
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.componentInstance.control.value).toBeNull();
+  });
+
+  it('disables the trigger when the bound reactive form control is disabled', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    fixture.componentInstance.control.disable();
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.disabled).toBe(true);
   });
 });

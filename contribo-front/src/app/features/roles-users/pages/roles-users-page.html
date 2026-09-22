@@ -14,7 +14,7 @@
         type="search"
         (input)="onSearchInput($event)"
         [placeholder]="'rolesUsers.searchPlaceholder' | transloco"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
@@ -22,17 +22,13 @@
       <label for="roles-users-role-filter" class="text-sm font-medium text-text-2">
         {{ 'rolesUsers.roleFilterLabel' | transloco }}
       </label>
-      <select
-        id="roles-users-role-filter"
+      <app-custom-select
+        controlId="roles-users-role-filter"
+        [options]="roleFilterSelectOptions"
         [value]="roleFilter()"
-        (change)="onRoleFilterChange($event)"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="">{{ 'rolesUsers.roleFilterAll' | transloco }}</option>
-        @for (role of roleOptions; track role) {
-          <option [value]="role">{{ userRoleLabel(role) }}</option>
-        }
-      </select>
+        [placeholder]="'rolesUsers.roleFilterAll' | transloco"
+        (valueChange)="onRoleFilterChange($event)"
+      />
     </div>
   </div>
 
@@ -99,7 +95,7 @@
                   [attr.aria-label]="
                     'rolesUsers.editRoleAction' | transloco: { name: account.member.displayName }
                   "
-                  class="rounded-lg border border-line px-3 py-2 text-sm text-text hover:border-gold hover:text-gold-hover"
+                  class="min-h-11 rounded border border-line px-3 py-2 text-sm text-text hover:border-gold hover:text-gold-hover"
                 >
                   {{ 'rolesUsers.editRoleLabel' | transloco }}
                 </button>
@@ -124,7 +120,7 @@
             [attr.aria-disabled]="previousDisabled() ? 'true' : null"
             [class.opacity-40]="previousDisabled()"
             (click)="goToPreviousPage()"
-            class="rounded-lg border border-line px-3 py-2 text-text"
+            class="min-h-11 rounded border border-line px-3 py-2 text-text"
           >
             {{ 'rolesUsers.previousPage' | transloco }}
           </button>
@@ -133,7 +129,7 @@
             [attr.aria-disabled]="nextDisabled() ? 'true' : null"
             [class.opacity-40]="nextDisabled()"
             (click)="goToNextPage()"
-            class="rounded-lg border border-line px-3 py-2 text-text"
+            class="min-h-11 rounded border border-line px-3 py-2 text-text"
           >
             {{ 'rolesUsers.nextPage' | transloco }}
           </button>
@@ -154,18 +150,13 @@
           <label for="role-dialog-select" class="text-sm font-medium text-text-2">
             {{ 'rolesUsers.roleDialogLabel' | transloco }}
           </label>
-          <select
-            id="role-dialog-select"
+          <app-custom-select
+            controlId="role-dialog-select"
             [value]="roleDraft()"
-            (change)="onRoleDraftChange($event)"
-            class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-          >
-            @for (role of roleOptions; track role) {
-              <option [value]="role" [selected]="role === roleDraft()">
-                {{ userRoleLabel(role) }}
-              </option>
-            }
-          </select>
+            [options]="roleSelectOptions"
+            [placeholder]="'rolesUsers.roleDialogLabel' | transloco"
+            (valueChange)="onRoleDraftChange($event)"
+          />
         </div>
 
         @if (roleDraft() === operatorRole) {
@@ -193,7 +184,7 @@
           <button
             type="button"
             (click)="closeRoleDialog()"
-            class="rounded-lg border border-line px-4 py-2 text-text"
+            class="min-h-11 rounded border border-line px-4 py-2 text-text"
           >
             {{ 'rolesUsers.roleDialogCancel' | transloco }}
           </button>
@@ -201,7 +192,7 @@
             type="submit"
             [attr.aria-disabled]="savingRole() ? 'true' : null"
             [class.opacity-40]="savingRole()"
-            class="rounded-lg bg-gold px-4 py-2 font-medium text-gold-ink transition-colors hover:bg-gold-hover"
+            class="min-h-11 rounded bg-gold px-4 py-2 font-medium text-gold-ink transition-colors hover:bg-gold-hover"
           >
             {{ 'rolesUsers.roleDialogSave' | transloco }}
           </button>

@@ -17,6 +17,8 @@ import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, debounceTime } from 'rxjs';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { formatCalendarDate } from '../campaign-dates';
@@ -76,6 +78,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    CustomSelect,
     CampaignCreateForm,
   ],
   templateUrl: './campaigns-list-page.html',
@@ -111,6 +114,13 @@ export class CampaignsListPage {
   readonly statusFilterOptions: readonly CampaignStatus[] = [
     CampaignStatus.Open,
     CampaignStatus.Closed,
+  ];
+  readonly statusSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'campaigns.list.statusFilterAll' },
+    ...this.statusFilterOptions.map((status) => ({
+      value: status,
+      label: campaignStatusLabel(status),
+    })),
   ];
 
   readonly statusFilter = signal<CampaignStatus | ''>('');
@@ -156,8 +166,8 @@ export class CampaignsListPage {
     }
   }
 
-  onStatusFilterChange(event: Event): void {
-    this.statusFilter.set((event.target as HTMLSelectElement).value as CampaignStatus | '');
+  onStatusFilterChange(value: string | null): void {
+    this.statusFilter.set((value ?? '') as CampaignStatus | '');
     this.loadPage(0);
   }
 

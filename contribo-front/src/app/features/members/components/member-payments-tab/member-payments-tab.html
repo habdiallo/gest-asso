@@ -5,7 +5,7 @@
 } @else if (payments().length === 0) {
   <app-empty-state [message]="'memberDetail.payments.empty' | transloco" />
 } @else {
-  <div class="overflow-x-auto" [attr.aria-busy]="pageActionPending() ? 'true' : null">
+  <div class="overflow-x-auto rounded-card" [attr.aria-busy]="pageActionPending() ? 'true' : null">
     <table class="w-full text-left text-sm">
       <thead>
         <tr class="border-b border-line text-text-2">

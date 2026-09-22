@@ -26,7 +26,7 @@
         [value]="membersQuery()"
         (input)="onMembersQueryInput($event)"
         [placeholder]="'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco"
-        class="mb-2 h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="mb-2 min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
 
       <label
@@ -35,26 +35,21 @@
       >
         {{ 'socialFunds.recordContribution.fields.member' | transloco }}
       </label>
-      <select
-        id="contribution-create-member"
+      <app-custom-select
+        controlId="contribution-create-member"
         formControlName="memberId"
-        required
-        [attr.aria-invalid]="memberIdInvalid() ? true : null"
-        [attr.aria-describedby]="memberIdInvalid() ? 'contribution-create-member-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="" disabled>
-          {{
-            (membersLoading()
-              ? 'socialFunds.recordContribution.fields.memberLoading'
-              : 'socialFunds.recordContribution.fields.memberPlaceholder'
-            ) | transloco
-          }}
-        </option>
-        @for (member of members(); track member.id) {
-          <option [value]="member.id">{{ member.displayName }}</option>
-        }
-      </select>
+        [options]="memberSelectOptions()"
+        [placeholder]="
+          (membersLoading()
+            ? 'socialFunds.recordContribution.fields.memberLoading'
+            : 'socialFunds.recordContribution.fields.memberPlaceholder'
+          ) | transloco
+        "
+        [required]="true"
+        [showRequiredError]="false"
+        [ariaInvalid]="memberIdInvalid()"
+        [ariaDescribedBy]="memberIdInvalid() ? 'contribution-create-member-error' : null"
+      />
       @if (memberIdInvalid()) {
         <p id="contribution-create-member-error" class="mt-2 text-sm text-error" role="alert">
           {{ 'socialFunds.recordContribution.fields.memberRequired' | transloco }}
@@ -68,7 +63,7 @@
         >
           <button
             type="button"
-            class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+            class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
             [disabled]="membersPreviousPageDisabled()"
             [attr.aria-disabled]="membersPreviousPageDisabled()"
             (click)="membersPreviousPage()"
@@ -83,7 +78,7 @@
           </p>
           <button
             type="button"
-            class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+            class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
             [disabled]="membersNextPageDisabled()"
             [attr.aria-disabled]="membersNextPageDisabled()"
             (click)="membersNextPage()"
@@ -110,7 +105,7 @@
         [attr.aria-describedby]="
           contributionDateInvalid() ? 'contribution-create-date-error' : null
         "
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (contributionDateInvalid()) {
         <p id="contribution-create-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -140,14 +135,14 @@
     <button
       type="button"
       (click)="cancel()"
-      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+      class="h-11 rounded border border-line px-4 text-sm text-text"
     >
       {{ 'socialFunds.recordContribution.cancel' | transloco }}
     </button>
     <button
       type="submit"
       [disabled]="submitting()"
-      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
       {{
         (submitting()

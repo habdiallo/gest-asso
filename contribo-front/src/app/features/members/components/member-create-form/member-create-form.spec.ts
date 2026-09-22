@@ -54,10 +54,17 @@ describe('MemberCreateForm', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const options = fixture.nativeElement.querySelectorAll('option');
-    expect(
-      Array.from(options).map((option) => (option as HTMLOptionElement).textContent?.trim()),
-    ).toEqual(expect.arrayContaining(['Catégorie A', 'Catégorie B']));
+    const trigger = fixture.nativeElement.querySelector(
+      '#member-create-income-category',
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const options = fixture.nativeElement.querySelectorAll(
+      '[role="option"]',
+    ) as NodeListOf<Element>;
+    expect(Array.from(options).map((option) => option.textContent?.trim())).toEqual(
+      expect.arrayContaining(['Catégorie A', 'Catégorie B']),
+    );
   });
 
   it('shows an error when the income categories fail to load', async () => {
@@ -230,7 +237,7 @@ describe('MemberCreateForm', () => {
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
     const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]',
+      'button[type="button"]:not([aria-haspopup="listbox"])',
     ) as HTMLButtonElement;
     cancelButton.click();
 

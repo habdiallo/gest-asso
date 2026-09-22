@@ -201,8 +201,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
       fixture.detectChanges();
 
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      expect(select.value).toBe(UserRole.Member);
+      expect(fixture.componentInstance.roleDraft()).toBe(UserRole.Member);
     });
 
     it('appelle updateUserAccess avec le nouveau rôle et recharge la liste avec les critères courants', async () => {
@@ -221,9 +220,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
       fixture.detectChanges();
 
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      select.value = UserRole.Treasurer;
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Treasurer);
       fixture.detectChanges();
 
       const form = requireElement<HTMLFormElement>(root, 'form');
@@ -263,9 +260,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Sekou Kaba"]').click();
       fixture.detectChanges();
 
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      select.value = UserRole.Treasurer;
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Treasurer);
       fixture.detectChanges();
 
       requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
@@ -302,9 +297,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Ibrahima Bah"]').click();
       fixture.detectChanges();
 
-      const selectA = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      selectA.value = UserRole.Treasurer;
-      selectA.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Treasurer);
       fixture.detectChanges();
 
       requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
@@ -323,9 +316,7 @@ describe('RolesUsersPage', () => {
       // Ouvre la fiche de B et modifie sa sélection.
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Awa Camara"]').click();
       fixture.detectChanges();
-      const selectB = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      selectB.value = UserRole.Operator;
-      selectB.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Operator);
       fixture.detectChanges();
 
       // La réponse tardive de A arrive : la fiche de B doit rester ouverte avec sa saisie.
@@ -334,8 +325,7 @@ describe('RolesUsersPage', () => {
       fixture.detectChanges();
 
       expect(root.textContent).toContain('Rôle applicatif de Awa Camara');
-      const selectAfter = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      expect(selectAfter.value).toBe(UserRole.Operator);
+      expect(fixture.componentInstance.roleDraft()).toBe(UserRole.Operator);
     });
 
     it("force operatorCanRecordPayments à false lorsque le nouveau rôle n'est pas Opérateur", async () => {
@@ -355,9 +345,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Aminata Touré"]').click();
       fixture.detectChanges();
 
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      select.value = UserRole.Member;
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Member);
       fixture.detectChanges();
 
       requireElement<HTMLFormElement>(root, 'form').dispatchEvent(
@@ -392,8 +380,7 @@ describe('RolesUsersPage', () => {
       expect(root.querySelector('[role="alert"]')?.textContent).toContain(
         "Impossible d'enregistrer le rôle",
       );
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      expect(select.value).toBe(UserRole.Member);
+      expect(fixture.componentInstance.roleDraft()).toBe(UserRole.Member);
     });
 
     it.each([
@@ -464,9 +451,7 @@ describe('RolesUsersPage', () => {
       requireElement<HTMLButtonElement>(root, 'button[aria-label*="Mariama Diallo"]').click();
       fixture.detectChanges();
 
-      const select = requireElement<HTMLSelectElement>(root, '#role-dialog-select');
-      select.value = UserRole.Operator;
-      select.dispatchEvent(new Event('change'));
+      fixture.componentInstance.onRoleDraftChange(UserRole.Operator);
       fixture.detectChanges();
 
       expect(root.querySelector('#operator-authorization-toggle')).not.toBeNull();

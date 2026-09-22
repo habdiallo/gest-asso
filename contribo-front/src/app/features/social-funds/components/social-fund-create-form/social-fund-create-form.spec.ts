@@ -37,9 +37,14 @@ describe('SocialFundCreateForm', () => {
   it('lists the five event types as select options', async () => {
     const fixture = await createFixture();
 
+    const trigger = fixture.nativeElement.querySelector(
+      '#social-fund-create-event-type',
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
     const options = Array.from(
-      fixture.nativeElement.querySelectorAll('#social-fund-create-event-type option'),
-    ).map((option) => (option as HTMLOptionElement).textContent?.trim());
+      fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<Element>,
+    ).map((option) => option.textContent?.trim());
     expect(options).toEqual(
       expect.arrayContaining(['Mariage', 'Baptême', 'Décès', 'Naissance', 'Autre']),
     );
@@ -177,9 +182,8 @@ describe('SocialFundCreateForm', () => {
 
     const errorParagraph: HTMLParagraphElement | null =
       fixture.nativeElement.querySelector('[role="alert"]');
-    const amountInput: HTMLInputElement = fixture.nativeElement.querySelector(
-      'app-amount-input input',
-    );
+    const amountInput: HTMLInputElement =
+      fixture.nativeElement.querySelector('app-amount-input input');
     expect(amountInput.getAttribute('aria-invalid')).toBe('true');
     expect(errorParagraph?.textContent).toContain('au moins 1 GNF');
   });
@@ -203,7 +207,7 @@ describe('SocialFundCreateForm', () => {
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
     const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]',
+      'button[type="button"]:not([aria-haspopup="listbox"])',
     ) as HTMLButtonElement;
     cancelButton.click();
 

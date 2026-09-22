@@ -14,7 +14,7 @@
         required
         [attr.aria-invalid]="lastNameInvalid() ? true : null"
         [attr.aria-describedby]="lastNameInvalid() ? 'member-create-last-name-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (lastNameInvalid()) {
         <p id="member-create-last-name-error" class="mt-2 text-sm text-error" role="alert">
@@ -37,7 +37,7 @@
         required
         [attr.aria-invalid]="firstNameInvalid() ? true : null"
         [attr.aria-describedby]="firstNameInvalid() ? 'member-create-first-name-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (firstNameInvalid()) {
         <p id="member-create-first-name-error" class="mt-2 text-sm text-error" role="alert">
@@ -57,7 +57,7 @@
         id="member-create-preferred-name"
         type="text"
         formControlName="preferredName"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
@@ -74,7 +74,7 @@
         formControlName="phone"
         [attr.aria-invalid]="phoneInvalid() ? true : null"
         [attr.aria-describedby]="phoneInvalid() ? 'member-create-phone-error' : null"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
       @if (phoneInvalid()) {
         <p id="member-create-phone-error" class="mt-2 text-sm text-error" role="alert">
@@ -94,7 +94,7 @@
         id="member-create-country"
         type="text"
         formControlName="country"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
@@ -109,7 +109,7 @@
         id="member-create-city"
         type="text"
         formControlName="city"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
@@ -120,23 +120,16 @@
       >
         {{ 'members.create.fields.incomeCategory' | transloco }}
       </label>
-      <select
-        id="member-create-income-category"
+      <app-custom-select
+        controlId="member-create-income-category"
         formControlName="incomeCategoryId"
-        required
-        [attr.aria-invalid]="incomeCategoryInvalid() ? true : null"
-        [attr.aria-describedby]="
-          incomeCategoryInvalid() ? 'member-create-income-category-error' : null
-        "
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="" disabled>
-          {{ 'members.create.fields.incomeCategoryPlaceholder' | transloco }}
-        </option>
-        @for (category of categories(); track category.id) {
-          <option [value]="category.id">{{ category.label }}</option>
-        }
-      </select>
+        [options]="categorySelectOptions()"
+        [placeholder]="'members.create.fields.incomeCategoryPlaceholder' | transloco"
+        [required]="true"
+        [showRequiredError]="false"
+        [ariaInvalid]="incomeCategoryInvalid()"
+        [ariaDescribedBy]="incomeCategoryInvalid() ? 'member-create-income-category-error' : null"
+      />
       @if (incomeCategoryInvalid()) {
         <p id="member-create-income-category-error" class="mt-2 text-sm text-error" role="alert">
           {{ 'members.create.fields.incomeCategoryRequired' | transloco }}
@@ -164,7 +157,7 @@
         id="member-create-association-function"
         type="text"
         formControlName="associationFunction"
-        class="h-11 w-full rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
   </div>
@@ -173,14 +166,14 @@
     <button
       type="button"
       (click)="cancel()"
-      class="h-11 rounded-lg border border-line px-4 text-sm text-text"
+      class="h-11 rounded border border-line px-4 text-sm text-text"
     >
       {{ 'members.create.cancel' | transloco }}
     </button>
     <button
       type="submit"
       [disabled]="submitting()"
-      class="h-11 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
     >
       {{ (submitting() ? 'members.create.submitting' : 'members.create.submit') | transloco }}
     </button>

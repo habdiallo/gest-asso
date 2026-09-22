@@ -6,7 +6,7 @@
     @if (canCreateCampaign()) {
       <button
         type="button"
-        class="rounded-card bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+        class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
         (click)="openCreateDialog()"
       >
         {{ 'campaigns.create.button' | transloco }}
@@ -49,7 +49,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'campaigns.list.searchPlaceholder' | transloco"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
@@ -57,17 +57,13 @@
       <label for="campaigns-status-filter" class="text-sm font-medium text-text-2">
         {{ 'campaigns.list.statusFilterLabel' | transloco }}
       </label>
-      <select
-        id="campaigns-status-filter"
+      <app-custom-select
+        controlId="campaigns-status-filter"
+        [options]="statusSelectOptions"
         [value]="statusFilter()"
-        (change)="onStatusFilterChange($event)"
-        class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-      >
-        <option value="">{{ 'campaigns.list.statusFilterAll' | transloco }}</option>
-        @for (status of statusFilterOptions; track status) {
-          <option [value]="status">{{ campaignStatusLabel(status) }}</option>
-        }
-      </select>
+        [placeholder]="'campaigns.list.statusFilterAll' | transloco"
+        (valueChange)="onStatusFilterChange($event)"
+      />
     </div>
   </div>
 
@@ -121,7 +117,7 @@
       <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
           [class.opacity-40]="previousPageDisabled()"
           [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
           (click)="goToPreviousPage()"
@@ -137,7 +133,7 @@
         </p>
         <button
           type="button"
-          class="rounded-card border border-line px-4 py-2 text-sm text-text"
+          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
           [class.opacity-40]="nextPageDisabled()"
           [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
           (click)="goToNextPage()"

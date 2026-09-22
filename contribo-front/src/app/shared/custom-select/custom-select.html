@@ -1,17 +1,35 @@
-<div #root class="relative w-full">
+<div class="relative flex flex-col gap-2" (focusout)="handleFocusOut($event)">
+  @if (label()) {
+    <label [attr.for]="fieldId()" class="text-sm font-medium text-text-2">{{ label() }}</label>
+  }
   <button
-    [id]="triggerId()"
-    data-select-trigger
+    #trigger
     type="button"
-    class="flex min-h-[48px] w-full items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 px-3.5 text-left text-sm text-text outline-none transition-colors hover:border-line-strong focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
-    [attr.aria-label]="ariaLabel() || null"
-    [attr.aria-expanded]="open()"
-    [attr.aria-controls]="listboxId"
+    [id]="fieldId()"
+    [disabled]="isDisabled()"
     aria-haspopup="listbox"
-    (click)="toggle()"
-    (keydown)="onTriggerKeydown($event)"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="label() || null"
+    [attr.aria-required]="required() ? true : null"
+    [attr.aria-invalid]="ariaInvalid() || (touched() && required() && !value()) ? true : null"
+    [attr.aria-describedby]="
+      ariaDescribedBy() || (touched() && required() && !value() ? errorId() : null)
+    "
+    class="flex min-h-[48px] w-full items-center justify-between gap-3 rounded border border-line bg-surface-2 px-3 text-left text-text outline-none transition-colors hover:border-line-strong focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:opacity-40"
+    (click)="toggleOpen()"
+    (keydown)="handleTriggerKeydown($event)"
   >
-    <span class="truncate">{{ selectedLabel() }}</span>
+    <span class="min-w-0 flex-1 truncate" [class.text-text-2]="!selectedOption()">
+      @if (selectedOption(); as option) {
+        @if (option.translationKey; as translationKey) {
+          {{ translationKey | transloco }}
+        } @else {
+          {{ option.label }}
+        }
+      } @else {
+        {{ placeholder() }}
+      }
+    </span>
     <svg
       class="h-[15px] w-[15px] shrink-0 text-text-3 transition-transform"
       [class.rotate-180]="open()"
@@ -23,45 +41,55 @@
       stroke-linejoin="round"
       aria-hidden="true"
     >
-      <path d="m6 9 6 6 6-6" />
+      <path d="M6 9l6 6 6-6" />
     </svg>
   </button>
   @if (open()) {
     <div
-      [id]="listboxId"
       role="listbox"
-      [attr.aria-labelledby]="triggerId()"
-      class="absolute inset-x-0 top-[calc(100%+7px)] z-30 max-h-[236px] overflow-y-auto rounded-[10px] border border-line-strong bg-surface p-1.5 shadow-card"
+      [attr.aria-labelledby]="fieldId()"
+      class="absolute left-0 right-0 top-full z-[60] mt-[7px] max-h-[236px] overflow-y-auto rounded-[10px] border border-line-strong bg-surface-glass p-1.5 shadow-[0_18px_48px_-10px_rgba(0,0,0,0.48)] backdrop-blur-xl"
     >
       @for (option of options(); track option.value; let index = $index) {
         <button
           #optionButton
           type="button"
           role="option"
-          [attr.aria-selected]="index === selectedIndex()"
-          class="flex min-h-[42px] w-full items-center justify-between gap-2.5 rounded-[7px] px-2.5 text-left text-sm text-text-2 outline-none hover:bg-surface-2 hover:text-text focus:bg-surface-2 focus:text-text"
-          [class.text-gold]="index === selectedIndex()"
-          [class.bg-gold-wash]="index === selectedIndex()"
+          [attr.tabindex]="index === activeOptionIndex() ? 0 : -1"
+          [attr.data-value]="option.value"
+          [attr.aria-selected]="option.value === value()"
+          class="flex min-h-[42px] w-full items-center justify-between gap-2.5 rounded-[7px] px-2.5 text-left text-text-2 outline-none hover:bg-surface-2 hover:text-text focus-visible:bg-surface-2 focus-visible:text-text"
+          [class.text-gold]="option.value === value()"
+          [class.bg-gold-wash]="option.value === value()"
           (click)="selectOption(option)"
-          (keydown)="onOptionKeydown($event, index)"
+          (keydown)="handleOptionKeydown($event, option)"
         >
-          <span class="truncate">{{ option.label }}</span>
-          @if (index === selectedIndex()) {
+          <span class="min-w-0 truncate">
+            @if (option.translationKey; as translationKey) {
+              {{ translationKey | transloco }}
+            } @else {
+              {{ option.label }}
+            }
+          </span>
+          @if (option.value === value()) {
             <svg
               class="h-[15px] w-[15px] shrink-0"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="1.8"
+              stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <path d="m5 12 4 4L19 6" />
+              <path d="M5 13l4 4L19 7" />
             </svg>
           }
         </button>
       }
     </div>
+  }
+  @if (showRequiredError() && touched() && required() && !value()) {
+    <p [id]="errorId()" class="text-sm text-error" role="alert">{{ requiredErrorMessage() }}</p>
   }
 </div>

@@ -1,27 +1,16 @@
 <div class="flex flex-col gap-2">
-  <label [attr.for]="fieldId" class="text-sm font-medium text-text-2">
-    {{ label() }}
-  </label>
-  <select
-    [id]="fieldId"
+  <app-custom-select
+    [controlId]="fieldId"
+    [label]="label()"
+    [options]="options"
+    [value]="value()"
     [required]="required()"
-    [disabled]="disabled()"
-    [attr.aria-required]="required() ? true : null"
-    [attr.aria-invalid]="touched() && required() && !value() ? true : null"
-    [attr.aria-describedby]="touched() && required() && !value() ? errorId : null"
-    class="h-11 rounded-lg border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash disabled:opacity-40"
-    (change)="handleChange($event)"
-    (blur)="handleBlur()"
-  >
-    <option value="" disabled hidden [selected]="!value()">
-      Sélectionner un mode de règlement
-    </option>
-    @for (option of options; track option.value) {
-      <option [value]="option.value" [selected]="option.value === value()">
-        {{ option.label }}
-      </option>
-    }
-  </select>
+    [showRequiredError]="false"
+    [ariaInvalid]="touched() && required() && !value()"
+    [ariaDescribedBy]="touched() && required() && !value() ? errorId : null"
+    (valueChange)="handleChange($event)"
+    (touchedChange)="handleBlur()"
+  />
   @if (touched() && required() && !value()) {
     <p [id]="errorId" class="text-sm text-error" role="alert">
       Le mode de règlement est obligatoire.

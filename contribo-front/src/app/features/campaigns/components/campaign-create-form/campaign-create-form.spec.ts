@@ -70,7 +70,7 @@ describe('CampaignCreateForm', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector(
+    const select: HTMLButtonElement = fixture.nativeElement.querySelector(
       '#campaign-create-member-selection',
     );
     expect(select.disabled).toBe(true);
@@ -253,7 +253,7 @@ describe('CampaignCreateForm', () => {
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
     const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]',
+      'button[type="button"]:not([aria-haspopup="listbox"])',
     ) as HTMLButtonElement;
     cancelButton.click();
 

@@ -17,6 +17,8 @@ import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { catchError, map, of, Subject, switchMap } from 'rxjs';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
@@ -79,6 +81,7 @@ const PAGE_SIZE = 20;
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    CustomSelect,
     SocialFundCreateForm,
   ],
   templateUrl: './social-funds-list-page.html',
@@ -108,6 +111,13 @@ export class SocialFundsListPage {
     SocialEventType.Death,
     SocialEventType.Birth,
     SocialEventType.Other,
+  ];
+  readonly eventTypeSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'socialFunds.eventTypeFilterAll' },
+    ...this.eventTypeOptions.map((eventType) => ({
+      value: eventType,
+      label: socialEventTypeLabel(eventType),
+    })),
   ];
 
   readonly eventTypeFilter = signal<SocialEventType | ''>('');
@@ -220,9 +230,8 @@ export class SocialFundsListPage {
    * réel en réutilisant le message `socialFunds.loading` avec `role="status"`, plutôt
    * que d'afficher `socialFunds.empty` pendant l'attente.
    */
-  onEventTypeFilterChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.eventTypeFilter.set(value as SocialEventType | '');
+  onEventTypeFilterChange(value: string | null): void {
+    this.eventTypeFilter.set((value ?? '') as SocialEventType | '');
     this.page.set(null);
     this.fetchPage(0, { isInitialLoad: false });
   }

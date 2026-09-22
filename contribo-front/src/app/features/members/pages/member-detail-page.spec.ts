@@ -428,7 +428,14 @@ describe('MemberDetailPage', () => {
       [memberIdB, new Subject<MemberDetails>()],
     ]);
     const paramMap = new Subject<ReturnType<typeof convertToParamMap>>();
-    const getMember = vi.fn((memberId: string) => responses.get(memberId)!.asObservable());
+    const responseFor = (memberId: string): Subject<MemberDetails> => {
+      const response = responses.get(memberId);
+      if (!response) {
+        throw new Error(`Réponse absente pour le membre ${memberId}.`);
+      }
+      return response;
+    };
+    const getMember = vi.fn((memberId: string) => responseFor(memberId).asObservable());
 
     await TestBed.configureTestingModule({
       imports: [
@@ -470,8 +477,8 @@ describe('MemberDetailPage', () => {
     paramMap.next(convertToParamMap({ memberId: memberIdA }));
     paramMap.next(convertToParamMap({ memberId: memberIdB }));
 
-    responses.get(memberIdB)!.next(buildMemberDetails({ id: memberIdB, displayName: 'Membre B' }));
-    responses.get(memberIdA)!.next(buildMemberDetails({ id: memberIdA, displayName: 'Membre A' }));
+    responseFor(memberIdB).next(buildMemberDetails({ id: memberIdB, displayName: 'Membre B' }));
+    responseFor(memberIdA).next(buildMemberDetails({ id: memberIdA, displayName: 'Membre A' }));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;

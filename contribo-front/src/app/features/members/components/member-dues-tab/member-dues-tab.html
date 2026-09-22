@@ -9,7 +9,7 @@
     </p>
     <button
       type="button"
-      class="mt-3 rounded-lg border border-line px-4 py-2 text-sm text-text"
+      class="mt-3 min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
       (click)="retry()"
     >
       {{ 'memberDetail.cotisations.retry' | transloco }}
@@ -18,7 +18,7 @@
     @if (result.items.length === 0) {
       <app-empty-state [message]="'memberDetail.cotisations.empty' | transloco" />
     } @else {
-      <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+      <div class="overflow-x-auto rounded-card border border-line bg-surface">
         <table class="w-full text-left text-sm">
           <caption class="sr-only">
             {{
@@ -102,7 +102,7 @@
       >
         <button
           type="button"
-          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
           [disabled]="previousPageDisabled()"
           [attr.aria-disabled]="previousPageDisabled()"
           (click)="previousPage()"
@@ -117,7 +117,7 @@
         </p>
         <button
           type="button"
-          class="rounded-lg border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+          class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
           [disabled]="nextPageDisabled()"
           [attr.aria-disabled]="nextPageDisabled()"
           (click)="nextPage()"

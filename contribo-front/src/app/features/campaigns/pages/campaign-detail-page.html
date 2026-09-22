@@ -37,7 +37,7 @@
         <button
           type="button"
           (click)="openCloseCampaignDialog()"
-          class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
+          class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
         >
           {{ 'campaigns.detail.close.action' | transloco }}
         </button>
@@ -60,7 +60,7 @@
               type="button"
               [disabled]="closingCampaign()"
               (click)="cancelCloseCampaignDialog()"
-              class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
+              class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
             >
               {{ 'campaigns.detail.close.cancel' | transloco }}
             </button>
@@ -68,7 +68,7 @@
               type="button"
               [disabled]="closingCampaign()"
               (click)="confirmCloseCampaign()"
-              class="inline-flex h-11 items-center rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+              class="inline-flex h-11 items-center rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
             >
               {{
                 (closingCampaign()
@@ -121,7 +121,7 @@
           <p class="text-text-2">{{ 'campaigns.detail.bareme.empty' | transloco }}</p>
         } @else if (editingBareme()) {
           <form [formGroup]="baremeForm" (ngSubmit)="submitBareme()">
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded-card">
               <table class="w-full text-left text-sm">
                 <thead>
                   <tr class="border-b border-line text-text-2">
@@ -196,14 +196,14 @@
                 type="button"
                 [disabled]="submittingBareme()"
                 (click)="cancelEditingBareme()"
-                class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
+                class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
               >
                 {{ 'campaigns.detail.bareme.cancel' | transloco }}
               </button>
               <button
                 type="submit"
                 [disabled]="submittingBareme()"
-                class="inline-flex h-11 items-center rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
+                class="inline-flex h-11 items-center rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
               >
                 {{
                   (submittingBareme()
@@ -215,7 +215,7 @@
             </div>
           </form>
         } @else {
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto rounded-card">
             <table class="w-full text-left text-sm">
               <thead>
                 <tr class="border-b border-line text-text-2">
@@ -282,7 +282,7 @@
               <button
                 type="button"
                 (click)="startEditingBareme()"
-                class="inline-flex h-11 items-center rounded-lg border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
+                class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
               >
                 {{ 'campaigns.detail.bareme.edit' | transloco }}
               </button>

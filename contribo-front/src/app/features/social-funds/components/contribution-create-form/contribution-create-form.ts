@@ -15,6 +15,8 @@ import type { CreateContributionRequest, MemberPage, PaymentMethod } from '@api'
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { PaymentMethodSelect } from '@shared/payment-method-select/payment-method-select';
 
 /** Taille de page utilisée pour charger la liste des membres sélectionnables (`GET /members`). */
@@ -55,7 +57,7 @@ const MEMBERS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-contribution-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, PaymentMethodSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, CustomSelect, PaymentMethodSelect],
   templateUrl: './contribution-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -73,6 +75,9 @@ export class ContributionCreateForm {
   readonly membersError = signal(false);
   private readonly memberPage = signal<MemberPage | null>(null);
   readonly members = computed(() => this.memberPage()?.items ?? []);
+  readonly memberSelectOptions = computed<readonly CustomSelectOption[]>(() =>
+    this.members().map((member) => ({ value: member.id, label: member.displayName })),
+  );
 
   readonly membersQuery = signal('');
   private readonly membersQueryInput = new Subject<string>();

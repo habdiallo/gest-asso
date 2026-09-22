@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   input,
   output,
@@ -13,10 +14,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService } from '@api';
 import type { UpdateMemberRequest, IncomeCategory, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 
 @Component({
   selector: 'app-member-edit-form',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, CustomSelect],
   templateUrl: './member-edit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,6 +36,9 @@ export class MemberEditForm implements OnInit {
   readonly categories = signal<IncomeCategory[]>([]);
   readonly categoriesLoading = signal(true);
   readonly categoriesError = signal(false);
+  readonly categorySelectOptions = computed<readonly CustomSelectOption[]>(() =>
+    this.categories().map((category) => ({ value: category.id, label: category.label })),
+  );
 
   readonly form = this.formBuilder.nonNullable.group({
     lastName: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(/.*\S.*/)]],

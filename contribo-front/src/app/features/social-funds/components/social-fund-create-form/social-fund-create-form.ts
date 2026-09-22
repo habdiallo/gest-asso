@@ -5,6 +5,8 @@ import { SocialEventType } from '@api';
 import type { CreateSocialFundRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
+import { CustomSelect } from '@shared/custom-select/custom-select';
 import { socialEventTypeLabel } from '../../social-fund-labels';
 
 /**
@@ -48,7 +50,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-social-fund-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput],
+  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, CustomSelect],
   templateUrl: './social-fund-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -66,6 +68,9 @@ export class SocialFundCreateForm {
     SocialEventType.Birth,
     SocialEventType.Other,
   ];
+  readonly eventTypeSelectOptions: readonly CustomSelectOption[] = this.eventTypeOptions.map(
+    (eventType) => ({ value: eventType, label: socialEventTypeLabel(eventType) }),
+  );
 
   readonly socialEventTypeLabel = socialEventTypeLabel;
 

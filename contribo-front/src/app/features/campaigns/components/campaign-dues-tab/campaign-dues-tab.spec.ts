@@ -175,14 +175,6 @@ async function createFixture(
   return fixture;
 }
 
-function getStatusFilterSelect(root: HTMLElement): HTMLSelectElement {
-  const select = root.querySelector<HTMLSelectElement>('#campaign-dues-status-filter');
-  if (!select) {
-    throw new Error('Le sélecteur de statut est introuvable.');
-  }
-  return select;
-}
-
 describe('CampaignDuesTab', () => {
   it('loads and renders campaign dues', async () => {
     const fixture = await createFixture();
@@ -224,7 +216,10 @@ describe('CampaignDuesTab', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
       'Impossible de charger les cotisations.',
     );
-    expect(fixture.nativeElement.querySelector('button')?.textContent).toContain('Réessayer');
+    expect(
+      fixture.nativeElement.querySelector('button[type="button"]:not([aria-haspopup="listbox"])')
+        ?.textContent,
+    ).toContain('Réessayer');
   });
 
   it('hides the record payment action when the user is not authorized', async () => {
@@ -467,7 +462,11 @@ describe('CampaignDuesTab', () => {
     expect(root.textContent).toContain('Partiellement payé');
 
     // Second reglement, sur la cotisation rafraichie, soldant totalement le reste a payer.
-    const refreshedDue = fixture.componentInstance.duePage()!.items[0];
+    const refreshedPage = fixture.componentInstance.duePage();
+    if (!refreshedPage) {
+      throw new Error('La page des cotisations rafraîchie est introuvable.');
+    }
+    const refreshedDue = refreshedPage.items[0];
     fixture.componentInstance.openRecordPayment(refreshedDue);
     fixture.componentInstance.handleRecordPayment({
       amount: 25_000,
@@ -513,13 +512,8 @@ describe('CampaignDuesTab', () => {
   it('reloads with the selected status filter and resets to the first page', async () => {
     const listCampaignDues = vi.fn(() => of(result));
     const fixture = await createFixture(listCampaignDues);
-    const root: HTMLElement = fixture.nativeElement;
-
     listCampaignDues.mockClear();
-    const select = getStatusFilterSelect(root);
-
-    select.value = DueStatus.Paid;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(DueStatus.Paid);
     fixture.detectChanges();
 
     expect(listCampaignDues).toHaveBeenCalledWith(
@@ -540,12 +534,8 @@ describe('CampaignDuesTab', () => {
       return callCount === 1 ? initial$.asObservable() : filtered$.asObservable();
     });
     const fixture = await createFixture(listCampaignDues);
-    const root: HTMLElement = fixture.nativeElement;
-
     // Chargement initial encore en attente lorsque l'utilisateur choisit PAID.
-    const select = getStatusFilterSelect(root);
-    select.value = DueStatus.Paid;
-    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.onStatusFilterChange(DueStatus.Paid);
     fixture.detectChanges();
 
     const paidResult: DuePage = {
