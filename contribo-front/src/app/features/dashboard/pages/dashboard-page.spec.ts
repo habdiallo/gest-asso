@@ -447,6 +447,58 @@ describe('DashboardPage', () => {
     expect(fixture.nativeElement.textContent).not.toContain('12');
   });
 
+  it('keeps the current dashboard visible when a scope request fails', async () => {
+    const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
+    let requestCount = 0;
+    const fixture = await createFixture(() => {
+      requestCount += 1;
+      return requestCount === 1
+        ? of(dashboard)
+        : throwError(() => new Error('scope network error'));
+    });
+
+    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('86');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Impossible de mettre à jour le périmètre. Réessayez.',
+    );
+    expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
+    expect(fixture.componentInstance.loadError()).toBe(false);
+  });
+
+  it('retries loading scope options after an option request fails', async () => {
+    const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
+    let campaignListCalls = 0;
+    const campaign = {
+      id: 'campaign-retried',
+      name: 'Campagne réessayée',
+      startDate: '2026-09-01',
+      endDate: '2026-09-30',
+      status: 'OPEN' as const,
+      memberCount: 10,
+    };
+    const fixture = await createFixture(() => of(dashboard), {
+      listCampaigns: () => {
+        campaignListCalls += 1;
+        return campaignListCalls === 1
+          ? throwError(() => new Error('campaign options error'))
+          : of({
+              items: [campaign],
+              page: { number: 0, size: 50, totalElements: 1, totalPages: 1 },
+            });
+      },
+    });
+
+    expect(fixture.componentInstance.openCampaigns()).toEqual([]);
+    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    fixture.detectChanges();
+
+    expect(campaignListCalls).toBe(2);
+    expect(fixture.componentInstance.openCampaigns()).toEqual([campaign]);
+  });
+
   it('loads every page of open campaign and social fund options', async () => {
     const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
     const fixture = await createFixture(() => of(dashboard), {

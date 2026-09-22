@@ -54,6 +54,7 @@
   "dashboard.scope.title": "Données affichées",
   "dashboard.scope.intro": "Les cotisations et les cagnottes ont des sélections indépendantes.",
   "dashboard.scope.updating": " Mise à jour…",
+  "dashboard.scope.error": "Impossible de mettre à jour le périmètre. Réessayez.",
   "dashboard.scope.campaignLabel": "Campagne de cotisation",
   "dashboard.scope.campaignAllOption": "Toutes les campagnes ouvertes",
   "dashboard.scope.socialFundLabel": "Cagnotte sociale",

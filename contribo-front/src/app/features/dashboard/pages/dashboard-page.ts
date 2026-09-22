@@ -126,6 +126,7 @@ export class DashboardPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly scopeLoading = signal(false);
+  readonly scopeError = signal(false);
   private readonly dashboard = signal<DashboardResponse | null>(null);
   private dashboardRequestId = 0;
 
@@ -134,6 +135,7 @@ export class DashboardPage {
   readonly selectedCampaignId = signal<string>('');
   readonly selectedSocialFundId = signal<string>('');
   private scopeListsLoaded = false;
+  private scopeListsLoading = false;
 
   /** Options du sélecteur « Campagne de cotisation », hors option « Toutes », gérée séparément dans le template (traduite). */
   readonly campaignScopeOptions = computed(() =>
@@ -277,6 +279,7 @@ export class DashboardPage {
   private loadDashboard(): void {
     const requestId = ++this.dashboardRequestId;
     const isInitialLoad = this.dashboard() === null;
+    this.scopeError.set(false);
     if (isInitialLoad) {
       this.loading.set(true);
     } else {
@@ -295,14 +298,15 @@ export class DashboardPage {
             return;
           }
           this.dashboard.set(dashboard);
+          this.loadError.set(false);
           this.loading.set(false);
           this.scopeLoading.set(false);
           if (
             dashboard.view === 'MANAGEMENT' &&
             dashboard.financialOverview !== undefined &&
-            !this.scopeListsLoaded
+            !this.scopeListsLoaded &&
+            !this.scopeListsLoading
           ) {
-            this.scopeListsLoaded = true;
             this.loadScopeOptions();
           }
         },
@@ -310,7 +314,11 @@ export class DashboardPage {
           if (requestId !== this.dashboardRequestId) {
             return;
           }
-          this.loadError.set(true);
+          if (isInitialLoad) {
+            this.loadError.set(true);
+          } else {
+            this.scopeError.set(true);
+          }
           this.loading.set(false);
           this.scopeLoading.set(false);
         },
@@ -319,6 +327,7 @@ export class DashboardPage {
 
   /** Options des deux sélecteurs du panneau « Périmètre des indicateurs », chargées une seule fois. */
   private loadScopeOptions(): void {
+    this.scopeListsLoading = true;
     const campaigns$ = this.loadAllPages((page) =>
       this.campaignsService.listCampaigns(page, 50, undefined, CampaignStatus.Open),
     );
@@ -332,6 +341,12 @@ export class DashboardPage {
         next: ({ campaigns, socialFunds }) => {
           this.openCampaigns.set(campaigns);
           this.openSocialFunds.set(socialFunds);
+          this.scopeListsLoaded = true;
+          this.scopeListsLoading = false;
+        },
+        error: () => {
+          this.scopeListsLoading = false;
+          this.scopeError.set(true);
         },
       });
   }
