@@ -112,9 +112,13 @@ export class SocialFundsListPage {
     SocialEventType.Birth,
     SocialEventType.Other,
   ];
-  readonly eventTypeSelectOptions: readonly CustomSelectOption[] = this.eventTypeOptions.map(
-    (eventType) => ({ value: eventType, label: socialEventTypeLabel(eventType) }),
-  );
+  readonly eventTypeSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'socialFunds.eventTypeFilterAll' },
+    ...this.eventTypeOptions.map((eventType) => ({
+      value: eventType,
+      label: socialEventTypeLabel(eventType),
+    })),
+  ];
 
   readonly eventTypeFilter = signal<SocialEventType | ''>('');
 

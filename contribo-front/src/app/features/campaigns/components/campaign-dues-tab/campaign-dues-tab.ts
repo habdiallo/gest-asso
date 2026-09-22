@@ -96,13 +96,14 @@ export class CampaignDuesTab implements OnInit {
     DueStatus.Overdue,
   ];
   readonly statusFilter = signal<DueStatus | ''>('');
-  readonly statusSelectOptions: readonly CustomSelectOption[] = this.statusOptions.map(
-    (status) => ({
+  readonly statusSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'campaigns.detail.cotisations.filter.all' },
+    ...this.statusOptions.map((status) => ({
       value: status,
       label: '',
       translationKey: this.statusLabels[status],
-    }),
-  );
+    })),
+  ];
   readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(

@@ -115,9 +115,13 @@ export class CampaignsListPage {
     CampaignStatus.Open,
     CampaignStatus.Closed,
   ];
-  readonly statusSelectOptions: readonly CustomSelectOption[] = this.statusFilterOptions.map(
-    (status) => ({ value: status, label: campaignStatusLabel(status) }),
-  );
+  readonly statusSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'campaigns.list.statusFilterAll' },
+    ...this.statusFilterOptions.map((status) => ({
+      value: status,
+      label: campaignStatusLabel(status),
+    })),
+  ];
 
   readonly statusFilter = signal<CampaignStatus | ''>('');
   readonly nameQuery = signal('');

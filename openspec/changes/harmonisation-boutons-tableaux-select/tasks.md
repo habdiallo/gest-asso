@@ -25,8 +25,8 @@ saisie et composants select de `contribo-front/src/app/features/*`, nouveaux com
       aujourd'hui et ceux avec un rayon incorrect.
 - [x] 1.4 [T-126] Corriger `shared/payment-method-select` vers une hauteur minimale de 48px
       (`min-h-[48px]`) et un rayon `rounded` (8px). (Le rattachement à `shared/custom-select` est
-      traité séparément par la tâche 1.7 : `shared/custom-select` n'existait pas dans le code au
-      moment de l'audit initial de ce change, voir tâche 1.6.)
+      traité séparément par la tâche 1.7 : `shared/custom-select` n'existait pas dans la base
+      `main` au moment de l'audit initial de ce change, voir tâche 1.6.)
 - [x] 1.5 [T-126] Harmoniser les champs de saisie (`<input>` texte/date/nombre, `<textarea>`) de
       `contribo-front/src/app/features/*` et `contribo-front/src/app/shared/amount-input` vers le
       rayon `rounded` (8px) et une hauteur minimale de 48px (`min-h-[48px]`), cohérents avec

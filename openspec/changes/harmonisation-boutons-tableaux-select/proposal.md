@@ -1,6 +1,7 @@
 ## Why
 
-Une revue rapide de `design/styles.css` (prototype de référence) et des templates frontend actuels
+Une revue rapide de `design/styles.css` (prototype de référence) et des templates frontend de la
+base `main` au moment de l'audit
 montre que les rayons d'angle (`border-radius`) et les tailles des boutons, tableaux et champs
 select ne suivent pas une échelle cohérente. Le prototype distingue clairement trois échelles :
 boutons/champs à `8px` (`.btn`, `.field input`, `.select-trigger`), conteneurs/tableaux à `14px`
@@ -9,8 +10,9 @@ Ces trois valeurs sont déjà déclarées comme tokens Tailwind dans `contribo-f
 (`--radius: 0.5rem` soit 8px, `--radius-card: 14px`), mais leur usage dans les templates est
 incohérent : par exemple `members-list-page.html` applique `rounded-card` (14px, pensé pour les
 conteneurs) au bouton principal « Ajouter un membre » et aux boutons de pagination, alors que
-`rounded-lg` (16px) est utilisé sur des champs de recherche et sur le déclencheur du composant
-partagé `shared/custom-select` là où le prototype attend `8px`. Le porteur du produit a repéré cet
+`rounded-lg` (16px) est utilisé sur des champs de recherche et sur les `<select>` natifs là où le
+prototype attend `8px`. Le composant partagé `shared/custom-select` est créé par ce change et
+n'appartient pas à la base auditée. Le porteur du produit a repéré cet
 écart en comparant ses boutons et ses tableaux au prototype, avec le bouton « Nouvelle campagne »
 du tableau de bord (`min-h-11`, soit la même hauteur `44px` que `.btn` dans le prototype) comme
 référence de taille correcte à généraliser. Sans correction ciblée, cette incohérence continuera
@@ -35,7 +37,7 @@ de se propager à chaque nouvel écran, y compris ceux déjà couverts par le ch
   `shared/amount-input` sur la même échelle (`rounded` 8px, hauteur minimale 48px), sans modifier
   leur anneau de focus doré déjà cohérent partout (`focus:border-gold focus:ring-[3px]
   focus:ring-gold-wash`).
-- Constater que `shared/custom-select` cité dans l'audit initial n'existe pas dans le code actuel :
+- Constater que `shared/custom-select` cité dans l'audit initial n'existe pas dans la base `main` :
   créer ce composant (listbox accessible `ControlValueAccessor`, rendu conforme à
   `design/styles.css`) et l'utiliser pour remplacer les 11 `<select>` natifs du navigateur
   actuellement affichés dans `features/*` et dans `shared/payment-method-select`, avec fermeture du

@@ -9,30 +9,26 @@ border-radius: 8px; }`, et les conteneurs (`--radius`, `.panel`, `.data-panel`, 
 `14px`. Les jetons existent donc déjà côté frontend ; le problème est un usage incohérent de ces
 jetons (et d'autres valeurs `rounded-*` non prévues par l'échelle) dans les templates.
 
-Audit ciblé (grep sur `contribo-front/src/app/features` et `shared/`) :
+Audit ciblé de la base `main` avant l'implémentation (grep sur
+`contribo-front/src/app/features` et `shared/`) :
 
-- **Boutons** : le bouton « Nouvelle campagne » du tableau de bord (`dashboard-page.html`) utilise
-  `min-h-11` (44px, correct) mais `rounded-lg` (16px, incorrect : attendu `rounded` = 8px). Le
-  bouton principal et les boutons de pagination de `members-list-page.html` utilisent `rounded-card`
-  (14px, pensé pour les conteneurs, incorrect pour un bouton). 21 fichiers de `features/` utilisent
-  `rounded-lg` sur des boutons, champs ou dialogues.
+- **Boutons** : dans la base `main`, le bouton principal et les boutons de pagination de
+  `members-list-page.html` utilisent `rounded-card` (14px, pensé pour les conteneurs, incorrect pour
+  un bouton), et plusieurs écrans utilisent `rounded-lg`. Le bouton « Nouvelle campagne » du
+  tableau de bord est apporté par la dépendance T-117 ; il n'existe pas dans la base `main` auditée,
+  mais sa classe cible reste `min-h-11` (44px) avec `rounded` (8px). 21 fichiers de `features/`
+  utilisent `rounded-lg` sur des boutons, champs ou dialogues.
 - **Tableaux** (wrapper `overflow-x-auto` autour de chaque `<table>`) : `members-list-page.html`,
   `roles-users-page.html` et `income-categories-page.html` utilisent déjà `rounded-card` (14px,
   correct). `member-dues-tab.html`, `member-contributions-tab.html` et `campaign-dues-tab.html`
-  utilisent `rounded-xl` (24px, incorrect). `social-fund-detail-page.html`,
-  `member-payments-tab.html` et `campaign-detail-page.html` (deux tableaux) n'ont aucune classe de
-  rayon sur leur wrapper.
-- **Select** : `shared/custom-select` n'existe pas dans le code actuel (aucun fichier, aucune
-  référence `app-custom-select` dans tout `contribo-front/src/app`), contrairement à ce que
-  l'audit initial de ce change supposait. 11 écrans affichent en réalité un `<select>` natif du
-  navigateur (`social-fund-create-form.html`, `social-funds-list-page.html`,
-  `contribution-create-form.html`, `roles-users-page.html`, `member-create-form.html`,
-  `member-edit-form.html`, `members-list-page.html`, `campaign-dues-tab.html`,
-  `campaign-create-form.html`, `campaigns-list-page.html`, `shared/payment-method-select`), avec un
-  rendu de menu déroulant imposé par le système d'exploitation, jamais celui du prototype (menu
-  personnalisé avec coche et surbrillance dorée, `design/app.js`). `shared/payment-method-select`
-  est un `<select>` natif à `h-11` (44px) et `rounded-lg` (16px), alors que le prototype traite les
-  contrôles de saisie (champs et select) de façon uniforme à 48px / 8px.
+  utilisent `rounded-xl` (24px, incorrect), tandis que `social-fund-detail-page.html`,
+  `member-payments-tab.html` et les deux tableaux de `campaign-detail-page.html` n'ont aucune classe
+  de rayon sur leur wrapper.
+- **Select** : `shared/custom-select` n'existe pas dans la base `main` auditée (aucun fichier ni
+  référence `app-custom-select` dans cette base). Les 11 écrans listés affichent donc un `<select>`
+  natif du navigateur, avec un rendu imposé par le système d'exploitation, et
+  `shared/payment-method-select` est à `h-11` (44px) et `rounded-lg` (16px). Le résultat attendu
+  est le composant personnalisé du prototype, avec menu, coche et surbrillance dorée, en 48px / 8px.
 - **Champs de saisie** : la quasi-totalité des `<input>` texte/date/nombre et `<textarea>` de
   `features/*` et `shared/amount-input` utilisent `h-11` (44px, `login-page.html` et les dialogues
   de catégories de revenus utilisent `h-12`, 48px, déjà correct) et `rounded-lg` (16px), au lieu de
@@ -42,9 +38,9 @@ Audit ciblé (grep sur `contribo-front/src/app/features` et `shared/`) :
   `focus:ring-gold-wash`, 49 de `focus:border-gold` ; le seul écart concerne une case à cocher de
   rôle sur `roles-users-page.html`, hors périmètre car ce n'est pas un champ de saisie), donc à
   conserver sans modification.
-- **Tableau de bord** : `dashboard-page.html` actuel n'a ni bouton (le bouton « Nouvelle campagne »
-  cité par le porteur produit comme référence n'existe plus dans le code, cette page n'a aucun
-  `<button>`/`<a>`) ni carte à icône/liseré doré : ses 4 cartes indicateurs
+- **Tableau de bord** : dans la base `main` auditée, `dashboard-page.html` n'a pas encore le bouton
+  « Nouvelle campagne » cité par le porteur produit comme référence, ni de carte à icône/liseré
+  doré : ses 4 cartes indicateurs
   (`rounded-card border border-line bg-surface-glass p-5`) sont dépourvues d'icône et de liseré,
   contrairement au motif `statCard(...)` de `design/app.js` (icône, liseré doré, libellé, valeur,
   sous-texte). Par ailleurs, `DashboardPage` (composant Angular) documente déjà dans son
@@ -115,8 +111,8 @@ Audit ciblé (grep sur `contribo-front/src/app/features` et `shared/`) :
   cible de tous les boutons d'action, car déjà conforme à `.btn` du prototype ; ne pas réintroduire
   une valeur différente (ex. `h-11` à 44px déjà correct côté hauteur mais pas de rayon).
 - **Un seul ticket, une seule PR, périmètre élargi en cours de route** : l'audit initial de ce
-  change citait un `shared/custom-select` et un bouton « Nouvelle campagne » qui n'existent pas
-  dans le code (voir « Context » ci-dessus). Plutôt que de simplement retirer ces références, le
+  change portait sur la base `main`, où `shared/custom-select` et le bouton « Nouvelle campagne »
+  n'existaient pas encore (voir « Context » ci-dessus). Plutôt que de simplement retirer ces références, le
   porteur produit a demandé, lors de la revue de ce change, d'élargir T-126 pour : construire
   réellement `shared/custom-select` et l'appliquer à tous les `<select>` natifs de l'application,
   harmoniser les champs de saisie, et introduire `shared/stat-card` avec le sélecteur de

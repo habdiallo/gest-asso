@@ -76,6 +76,10 @@ export class RolesUsersPage {
     value: role,
     label: userRoleLabel(role),
   }));
+  readonly roleFilterSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'rolesUsers.roleFilterAll' },
+    ...this.roleSelectOptions,
+  ];
   /** Rôle pour lequel le contrôle `peut_enregistrer_paiements` (T-55) s'applique. */
   readonly operatorRole = UserRole.Operator;
 

@@ -384,7 +384,7 @@ describe('MembersListPage', () => {
     const optionLabels = Array.from(root.querySelectorAll('[role="option"]')).map((option) =>
       option.textContent?.trim(),
     );
-    expect(optionLabels).toEqual(['Catégorie A', 'Catégorie B']);
+    expect(optionLabels).toEqual(['Toutes les catégories', 'Catégorie A', 'Catégorie B']);
 
     fixture.componentInstance.onIncomeCategoryFilterChange('cat-b');
     fixture.detectChanges();

@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { StatCard } from './stat-card';
 
 @Component({
   imports: [StatCard],
   template: `<app-stat-card icon="users" label="Membres actifs" value="86" detail="sur 91" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {}
 

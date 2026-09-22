@@ -60,6 +60,25 @@ describe('CustomSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('keeps one option in the tab order while moving the roving focus target', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
+
+    let optionButtons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="option"]'),
+    );
+    expect(optionButtons.map((button) => button.tabIndex)).toEqual([0, -1, -1]);
+
+    optionButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fixture.detectChanges();
+    optionButtons = Array.from(fixture.nativeElement.querySelectorAll('[role="option"]'));
+    expect(optionButtons.map((button) => button.tabIndex)).toEqual([-1, 0, -1]);
+  });
+
   it('opens the menu and focuses an option on ArrowDown from the trigger', async () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();

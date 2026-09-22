@@ -135,9 +135,13 @@ export class MembersListPage {
     MemberStatus.Active,
     MemberStatus.Inactive,
   ];
-  readonly statusSelectOptions: readonly CustomSelectOption[] = this.statusFilterOptions.map(
-    (status) => ({ value: status, label: memberStatusLabel(status) }),
-  );
+  readonly statusSelectOptions: readonly CustomSelectOption[] = [
+    { value: '', label: '', translationKey: 'members.statusFilterAll' },
+    ...this.statusFilterOptions.map((status) => ({
+      value: status,
+      label: memberStatusLabel(status),
+    })),
+  ];
   readonly statusFilter = signal<MemberStatus | ''>('');
 
   readonly showFinancialDetail = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
@@ -189,12 +193,13 @@ export class MembersListPage {
       .map(([id, label]) => ({ id, label }))
       .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
   });
-  readonly incomeCategorySelectOptions = computed<readonly CustomSelectOption[]>(() =>
-    this.incomeCategoryOptions().map((category) => ({
+  readonly incomeCategorySelectOptions = computed<readonly CustomSelectOption[]>(() => [
+    { value: '', label: '', translationKey: 'members.filters.incomeCategoryAll' },
+    ...this.incomeCategoryOptions().map((category) => ({
       value: category.id,
       label: category.label,
     })),
-  );
+  ]);
 
   readonly filteredItems = computed<MemberSummary[]>(() => {
     const items = this.memberPage()?.items ?? [];

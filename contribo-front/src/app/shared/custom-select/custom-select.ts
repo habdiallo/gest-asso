@@ -76,6 +76,7 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly value = model<string | null>(null);
   readonly disabled = signal(false);
   readonly open = signal(false);
+  readonly activeOptionIndex = signal(0);
   readonly touchedChange = output<void>();
 
   readonly selectedOption = computed(
@@ -135,7 +136,11 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
     if (this.isDisabled()) {
       return;
     }
-    this.open.update((current) => !current);
+    const nextOpen = !this.open();
+    this.open.set(nextOpen);
+    if (nextOpen) {
+      this.setActiveOptionIndex();
+    }
   }
 
   selectOption(option: CustomSelectOption): void {
@@ -160,6 +165,7 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
     ) {
       event.preventDefault();
       this.open.set(true);
+      this.setActiveOptionIndex();
       this.focusOptionAfterOpen();
     }
   }
@@ -167,6 +173,10 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   handleOptionKeydown(event: KeyboardEvent, option: CustomSelectOption): void {
     const buttons = this.optionButtons().map((ref) => ref.nativeElement);
     const currentIndex = buttons.indexOf(event.target as HTMLButtonElement);
+
+    if (buttons.length === 0) {
+      return;
+    }
 
     if (
       event.key === 'ArrowDown' ||
@@ -184,6 +194,7 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
         const delta = event.key === 'ArrowDown' ? 1 : -1;
         nextIndex = (currentIndex + delta + buttons.length) % buttons.length;
       }
+      this.activeOptionIndex.set(nextIndex);
       buttons[nextIndex]?.focus();
       return;
     }
@@ -229,8 +240,15 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
         return;
       }
       const selectedIndex = this.options().findIndex((option) => option.value === this.value());
-      (buttons[selectedIndex] ?? buttons[0]).focus();
+      const nextIndex = selectedIndex >= 0 ? selectedIndex : 0;
+      this.activeOptionIndex.set(nextIndex);
+      buttons[nextIndex].focus();
     });
+  }
+
+  private setActiveOptionIndex(): void {
+    const selectedIndex = this.options().findIndex((option) => option.value === this.value());
+    this.activeOptionIndex.set(selectedIndex >= 0 ? selectedIndex : 0);
   }
 
   private focusTrigger(): void {
