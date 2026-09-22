@@ -38,6 +38,11 @@ export type CampaignDetailTab = 'bareme' | 'cotisations' | 'bilan';
 
 const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisations', 'bilan'];
 
+/** Un onglet valide reconnu dans le paramètre de requête `onglet` (T-127), sinon `undefined`. */
+function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
+  return CAMPAIGN_DETAIL_TABS.find((tab) => tab === value);
+}
+
 /**
  * Écran détail de campagne (T-60, `openapi:getCampaign`) : informations
  * générales de la campagne et trois onglets, barème, cotisations, bilan,
@@ -192,6 +197,14 @@ export class CampaignDetailPage {
   private closeCampaignRequestToken = 0;
 
   constructor() {
+    // Onglet initial (T-127) : le tableau de bord lie vers l'onglet
+    // Cotisations d'une campagne précise via `?onglet=cotisations` ; une
+    // valeur absente ou non reconnue laisse le premier onglet par défaut.
+    const initialTab = parseInitialTab(this.route.snapshot.queryParamMap.get('onglet'));
+    if (initialTab) {
+      this.activeTab.set(initialTab);
+    }
+
     const campaignId = this.route.snapshot.paramMap.get('campaignId');
     if (campaignId) {
       this.loadCampaign(campaignId);

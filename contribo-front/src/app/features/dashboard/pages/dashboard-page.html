@@ -559,11 +559,15 @@
                     </p>
                   }
                 </div>
-                <span
-                  class="shrink-0 font-data text-[9px] font-medium uppercase tracking-[0.1em] text-gold"
-                >
-                  {{ 'dashboard.management.viewPaymentsHistory' | transloco }}
-                </span>
+                @if (financialOverview.selectedCampaign; as selectedCampaign) {
+                  <a
+                    [routerLink]="[navigationPaths.campaigns, selectedCampaign.id]"
+                    [queryParams]="{ onglet: 'cotisations' }"
+                    class="shrink-0 font-data text-[9px] font-medium uppercase tracking-[0.1em] text-gold hover:text-gold-hover"
+                  >
+                    {{ 'dashboard.management.viewPaymentsHistory' | transloco }}
+                  </a>
+                }
               </div>
               @if (financialOverview.recentPayments.length === 0) {
                 <app-empty-state

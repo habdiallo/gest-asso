@@ -99,6 +99,7 @@ async function createFixture(
     listCampaignDues?: () => Observable<DuePage>;
     role?: UserRole;
     campaignId?: string;
+    queryParams?: Record<string, string>;
   } = {},
 ): Promise<ComponentFixture<CampaignDetailPage>> {
   const campaignId = options.campaignId ?? 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20';
@@ -134,7 +135,12 @@ async function createFixture(
       },
       {
         provide: ActivatedRoute,
-        useValue: { snapshot: { paramMap: convertToParamMap({ campaignId }) } },
+        useValue: {
+          snapshot: {
+            paramMap: convertToParamMap({ campaignId }),
+            queryParamMap: convertToParamMap(options.queryParams ?? {}),
+          },
+        },
       },
     ],
   }).compileComponents();
@@ -215,6 +221,29 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-tabpanel-cotisations')).toBeNull();
     expect(root.textContent).toContain('Standard');
     expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
+  });
+
+  it('activates the cotisations tab at load from the onglet query param (T-127)', async () => {
+    const fixture = await createFixture(() => of(buildCampaign()), {
+      queryParams: { onglet: 'cotisations' },
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+    expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
+  });
+
+  it('ignores an unrecognized onglet query param and keeps the default tab (T-127)', async () => {
+    const fixture = await createFixture(() => of(buildCampaign()), {
+      queryParams: { onglet: 'inconnu' },
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
   });
 
   it('switches to the cotisations tab without a full page reload', async () => {
