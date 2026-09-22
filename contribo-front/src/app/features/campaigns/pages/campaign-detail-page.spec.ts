@@ -223,7 +223,7 @@ describe('CampaignDetailPage', () => {
     expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
   });
 
-  it('activates the cotisations tab at load from the onglet query param (T-126)', async () => {
+  it('activates the cotisations tab at load from the onglet query param (T-127)', async () => {
     const fixture = await createFixture(() => of(buildCampaign()), {
       queryParams: { onglet: 'cotisations' },
     });
@@ -235,7 +235,7 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
   });
 
-  it('ignores an unrecognized onglet query param and keeps the default tab (T-126)', async () => {
+  it('ignores an unrecognized onglet query param and keeps the default tab (T-127)', async () => {
     const fixture = await createFixture(() => of(buildCampaign()), {
       queryParams: { onglet: 'inconnu' },
     });
