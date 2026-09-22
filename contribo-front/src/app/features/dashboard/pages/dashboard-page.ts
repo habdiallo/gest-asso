@@ -265,14 +265,14 @@ export class DashboardPage {
   }
 
   /** Gestionnaire du sélecteur « Campagne de cotisation » du panneau de périmètre. */
-  onCampaignScopeChange(value: string): void {
-    this.selectedCampaignId.set(value);
+  onCampaignScopeChange(value: string | null): void {
+    this.selectedCampaignId.set(value ?? '');
     this.loadDashboard();
   }
 
   /** Gestionnaire du sélecteur « Cagnotte sociale » du panneau de périmètre. */
-  onSocialFundScopeChange(value: string): void {
-    this.selectedSocialFundId.set(value);
+  onSocialFundScopeChange(value: string | null): void {
+    this.selectedSocialFundId.set(value ?? '');
     this.loadDashboard();
   }
 
