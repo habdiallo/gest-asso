@@ -474,6 +474,31 @@ describe('DashboardPage', () => {
     expect(fixture.nativeElement.textContent).not.toContain('12');
   });
 
+  it('keeps the latest dashboard response after two rapid scope changes', async () => {
+    const initialRequest = new Subject<DashboardResponse>();
+    const firstScopeRequest = new Subject<DashboardResponse>();
+    const latestScopeRequest = new Subject<DashboardResponse>();
+    let requestCount = 0;
+    const fixture = await createFixture(() => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        return initialRequest.asObservable();
+      }
+      return requestCount === 2
+        ? firstScopeRequest.asObservable()
+        : latestScopeRequest.asObservable();
+    });
+
+    fixture.componentInstance.onCampaignScopeChange('campaign-a');
+    fixture.componentInstance.onCampaignScopeChange('campaign-b');
+    latestScopeRequest.next(buildManagementDashboard({ activeMemberCount: 99 }));
+    firstScopeRequest.next(buildManagementDashboard({ activeMemberCount: 12 }));
+    initialRequest.next(buildManagementDashboard({ activeMemberCount: 1 }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.managementDashboard()?.activeMemberCount).toBe(99);
+  });
+
   it('keeps the current dashboard visible when a scope request fails', async () => {
     const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
     let requestCount = 0;
