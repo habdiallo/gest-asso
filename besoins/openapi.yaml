@@ -1198,14 +1198,18 @@ components:
     DashboardCampaignId:
       name: campaignId
       in: query
-      description: Campagne utilisée pour les indicateurs financiers de gestion.
+      description: >-
+        Campagne utilisée pour les indicateurs financiers de gestion. Absent :
+        agrégat de toutes les campagnes ouvertes (allOpenCampaignsSummary).
       schema:
         type: string
         format: uuid
     DashboardSocialFundId:
       name: socialFundId
       in: query
-      description: Cagnotte utilisée pour les indicateurs financiers de gestion.
+      description: >-
+        Cagnotte utilisée pour les indicateurs financiers de gestion. Absent :
+        agrégat de toutes les cagnottes ouvertes (allOpenSocialFundsSummary).
       schema:
         type: string
         format: uuid
@@ -1434,14 +1438,71 @@ components:
       required: [recentPayments]
       properties:
         selectedCampaign:
+          description: Présent lorsque campaignId désigne une campagne ouverte précise.
           $ref: '#/components/schemas/CampaignSummary'
+        allOpenCampaignsSummary:
+          description: Présent lorsque campaignId est omis ; agrégat de toutes les campagnes ouvertes.
+          $ref: '#/components/schemas/CampaignsAggregateOverview'
         selectedSocialFund:
+          description: Présent lorsque socialFundId désigne une cagnotte ouverte précise.
           $ref: '#/components/schemas/SocialFundSummary'
+        allOpenSocialFundsSummary:
+          description: Présent lorsque socialFundId est omis ; agrégat de toutes les cagnottes ouvertes.
+          $ref: '#/components/schemas/SocialFundsAggregateOverview'
         recentPayments:
           type: array
           maxItems: 5
           items:
             $ref: '#/components/schemas/Payment'
+    CampaignsAggregateOverview:
+      type: object
+      additionalProperties: false
+      required: [openCampaignCount, financialSummary]
+      properties:
+        openCampaignCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 2
+        financialSummary:
+          $ref: '#/components/schemas/CampaignFinancialSummary'
+    SocialFundsAggregateOverview:
+      type: object
+      additionalProperties: false
+      required: [openSocialFundCount, collectedAmount, contributorCount, currency]
+      properties:
+        openSocialFundCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 2
+        targetAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          description: Somme des objectifs définis des cagnottes ouvertes ; absent si aucune n'a d'objectif.
+          example: 17000000
+        collectedAmount:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 12950000
+        progressRate:
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+          description: Présent uniquement lorsque targetAmount est défini ; peut dépasser 100.
+          example: 76.2
+        contributorCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+          example: 110
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
     MemberDashboard:
       type: object
       additionalProperties: false

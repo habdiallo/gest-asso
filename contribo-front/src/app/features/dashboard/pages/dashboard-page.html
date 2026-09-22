@@ -1,7 +1,43 @@
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{ 'dashboard.title' | transloco }}
-  </h1>
+<main class="mx-auto max-w-[1440px] px-5 pb-16 pt-8 sm:px-8 sm:pt-10 lg:px-12">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      @if (managementDashboard()) {
+        <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
+          {{ 'dashboard.kickerManagement' | transloco }}
+        </p>
+      } @else if (memberDashboard()) {
+        <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
+          {{ 'dashboard.kickerMember' | transloco }}
+        </p>
+      }
+      <h1
+        class="mt-2 font-display text-[38px] uppercase leading-[0.94] tracking-[0.035em] text-text sm:text-[46px] lg:text-[56px]"
+      >
+        {{ 'dashboard.title' | transloco }}
+      </h1>
+    </div>
+    @if (canCreateCampaign()) {
+      <a
+        [routerLink]="navigationPaths.campaigns"
+        [queryParams]="{ creer: '1' }"
+        class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
+      >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        {{ 'dashboard.management.newCampaign' | transloco }}
+      </a>
+    }
+  </div>
 
   @if (loading()) {
     <p class="mt-6 text-text-2" role="status">{{ 'dashboard.loading' | transloco }}</p>
@@ -9,193 +45,1096 @@
     <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
   } @else {
     @if (managementDashboard(); as management) {
-      <p class="mt-1 text-sm text-text-2">
+      <p class="mt-2 max-w-2xl text-sm text-text-2">
         {{ 'dashboard.asOf' | transloco: { date: formatInstant(management.asOf) } }}
       </p>
 
+      @if (management.financialOverview; as financialOverview) {
+        <section
+          class="mt-5 grid grid-cols-1 items-end gap-5 rounded-card border border-line bg-surface px-5 py-[18px] shadow-card lg:grid-cols-[minmax(250px,0.7fr)_minmax(480px,1.3fr)]"
+        >
+          <div class="min-w-0">
+            <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
+              {{ 'dashboard.scope.kicker' | transloco }}
+            </p>
+            <h2 class="mt-1 text-lg font-medium text-text">
+              {{ 'dashboard.scope.title' | transloco }}
+            </h2>
+            <p class="mt-1.5 max-w-[520px] text-[11px] leading-relaxed text-text-3">
+              {{ 'dashboard.scope.intro' | transloco }}
+              @if (scopeLoading()) {
+                <span role="status">{{ 'dashboard.scope.updating' | transloco }}</span>
+              }
+            </p>
+          </div>
+          @let campaignAllLabel = 'dashboard.scope.campaignAllOption' | transloco;
+          @let socialFundAllLabel = 'dashboard.scope.socialFundAllOption' | transloco;
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="min-w-0">
+              <label
+                for="dashboard-campaign-scope"
+                class="text-[10px] font-medium uppercase tracking-[0.1em] text-text-2"
+              >
+                {{ 'dashboard.scope.campaignLabel' | transloco }}
+              </label>
+              <app-custom-select
+                triggerId="dashboard-campaign-scope"
+                class="mt-1.5 block"
+                [options]="[{ value: '', label: campaignAllLabel }, ...campaignScopeOptions()]"
+                [value]="selectedCampaignId()"
+                (valueChange)="onCampaignScopeChange($event)"
+              />
+            </div>
+            <div class="min-w-0">
+              <label
+                for="dashboard-social-fund-scope"
+                class="text-[10px] font-medium uppercase tracking-[0.1em] text-text-2"
+              >
+                {{ 'dashboard.scope.socialFundLabel' | transloco }}
+              </label>
+              <app-custom-select
+                triggerId="dashboard-social-fund-scope"
+                class="mt-1.5 block"
+                [options]="[{ value: '', label: socialFundAllLabel }, ...socialFundScopeOptions()]"
+                [value]="selectedSocialFundId()"
+                (valueChange)="onSocialFundScopeChange($event)"
+              />
+            </div>
+          </div>
+          @if (scopeError()) {
+            <p class="text-sm text-error" role="alert">
+              {{ 'dashboard.scope.error' | transloco }}
+            </p>
+          }
+        </section>
+      }
+
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.management.activeMembers' | transloco }}
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.management.activeMembers' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+            {{ management.activeMemberCount }}
           </p>
-          <p class="mt-3 font-display text-3xl text-text">{{ management.activeMemberCount }}</p>
-          <p class="mt-1 text-xs text-text-2">
+          <p class="mt-2 text-xs text-text-3">
             {{
               'dashboard.management.activeMembersMeta'
                 | transloco: { count: management.registeredMemberCount }
             }}
           </p>
         </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.management.newMembers' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">
-            {{ management.newMemberCountThisMonth }}
-          </p>
-        </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.management.openCampaigns' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">{{ management.openCampaignCount }}</p>
-        </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.management.registeredMembers' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">
-            {{ management.registeredMemberCount }}
-          </p>
-        </div>
-      </div>
-
-      <section class="mt-8">
-        <h2 class="font-display text-xl uppercase tracking-wide text-text">
-          {{ 'dashboard.management.recentCampaignsTitle' | transloco }}
-        </h2>
-        @if (management.recentCampaigns.length === 0) {
-          <p class="mt-3 text-text-2">
-            {{ 'dashboard.management.recentCampaignsEmpty' | transloco }}
-          </p>
-        } @else {
-          <ul class="mt-3 flex flex-col gap-3">
-            @for (campaign of management.recentCampaigns; track campaign.id) {
-              <li class="rounded-card border border-line bg-surface p-4">
-                <div class="flex flex-wrap items-baseline justify-between gap-2">
-                  <span class="font-medium text-text">{{ campaign.name }}</span>
-                  <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-                    {{ campaignStatusLabel(campaign.status) }}
-                  </span>
-                </div>
-                <p class="mt-1 text-sm text-text-2">
+        @if (management.financialOverview) {
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.collectedDues' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20M6 15h2" />
+                </svg>
+              </span>
+            </div>
+            @if (campaignScopeView(); as scope) {
+              @let collectedAmount = formatAmountCondensed(scope.financialSummary.collectedAmount);
+              <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+                <span [title]="collectedAmount.fullText">
+                  <span aria-hidden="true">{{ collectedAmount.text }}</span>
+                  <span class="sr-only">{{ collectedAmount.fullText }}</span>
+                </span>
+              </p>
+              <p class="mt-2 text-xs text-text-3">
+                {{
+                  'dashboard.management.collectedDuesMeta'
+                    | transloco
+                      : {
+                          rate: scope.financialSummary.collectionRate,
+                          expected: formatAmountCondensed(scope.financialSummary.expectedAmount)
+                            .text,
+                        }
+                }}
+              </p>
+              <p
+                class="mt-3 border-t border-line pt-2.5 text-[10px] uppercase tracking-[0.05em] text-text-2"
+              >
+                {{ scope.labelKey | transloco: scope.labelParams }}
+              </p>
+            } @else {
+              <p class="mt-5 text-sm text-text-3">
+                {{ 'dashboard.management.collectedDuesEmpty' | transloco }}
+              </p>
+            }
+          </div>
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.remainingDues' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              </span>
+            </div>
+            @if (campaignScopeView(); as scope) {
+              @let remainingAmount = formatAmountCondensed(scope.financialSummary.remainingAmount);
+              <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+                <span [title]="remainingAmount.fullText">
+                  <span aria-hidden="true">{{ remainingAmount.text }}</span>
+                  <span class="sr-only">{{ remainingAmount.fullText }}</span>
+                </span>
+              </p>
+              <p class="mt-2 text-xs text-text-3">
+                {{
+                  'dashboard.management.remainingDuesMeta'
+                    | transloco
+                      : {
+                          expected: formatAmountCondensed(scope.financialSummary.expectedAmount)
+                            .text,
+                        }
+                }}
+              </p>
+              <p
+                class="mt-3 border-t border-line pt-2.5 text-[10px] uppercase tracking-[0.05em] text-text-2"
+              >
+                {{ scope.labelKey | transloco: scope.labelParams }}
+              </p>
+            } @else {
+              <p class="mt-5 text-sm text-text-3">
+                {{ 'dashboard.management.collectedDuesEmpty' | transloco }}
+              </p>
+            }
+          </div>
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.collectedContributions' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"
+                  />
+                </svg>
+              </span>
+            </div>
+            @if (socialFundScopeView(); as scope) {
+              @let contributionsAmount = formatAmountCondensed(scope.collectedAmount);
+              <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+                <span [title]="contributionsAmount.fullText">
+                  <span aria-hidden="true">{{ contributionsAmount.text }}</span>
+                  <span class="sr-only">{{ contributionsAmount.fullText }}</span>
+                </span>
+              </p>
+              <p class="mt-2 text-xs text-text-3">
+                @if (scope.targetAmount; as targetAmount) {
                   {{
-                    'dashboard.management.campaignPeriod'
+                    'dashboard.management.collectedContributionsMeta'
                       | transloco
                         : {
-                            start: formatCalendarDate(campaign.startDate),
-                            end: formatCalendarDate(campaign.endDate),
+                            rate: socialFundCollectionPercentage(
+                              targetAmount,
+                              scope.collectedAmount
+                            ),
+                            target: formatAmountCondensed(targetAmount).text,
                           }
                   }}
-                </p>
-                <p class="mt-1 text-sm text-text-2">
+                } @else {
                   {{
-                    'dashboard.management.campaignMembers'
-                      | transloco: { count: campaign.memberCount }
+                    'dashboard.synthesis.contributorCount'
+                      | transloco: { count: scope.contributorCount }
                   }}
-                </p>
-                @if (campaign.financialSummary; as financialSummary) {
-                  <p class="mt-1 text-sm text-text-2">
-                    {{ formatAmount(financialSummary.collectedAmount) }} /
-                    {{ formatAmount(financialSummary.expectedAmount) }}
-                  </p>
                 }
-              </li>
+              </p>
+              <p
+                class="mt-3 border-t border-line pt-2.5 text-[10px] uppercase tracking-[0.05em] text-text-2"
+              >
+                {{ scope.labelKey | transloco: scope.labelParams }}
+              </p>
+            } @else {
+              <p class="mt-5 text-sm text-text-3">
+                {{ 'dashboard.management.collectedContributionsEmpty' | transloco }}
+              </p>
             }
-          </ul>
-        }
-      </section>
-
-      @if (management.financialOverview; as financialOverview) {
-        <section class="mt-8">
-          <h2 class="font-display text-xl uppercase tracking-wide text-text">
-            {{ 'dashboard.management.financialTitle' | transloco }}
-          </h2>
-          @if (financialOverview.recentPayments.length === 0) {
-            <p class="mt-3 text-text-2">
-              {{ 'dashboard.management.recentPaymentsEmpty' | transloco }}
+          </div>
+        } @else {
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.newMembers' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </span>
+            </div>
+            <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+              {{ management.newMemberCountThisMonth }}
             </p>
-          } @else {
-            <ul class="mt-3 flex flex-col gap-3">
-              @for (payment of financialOverview.recentPayments; track payment.id) {
-                <li class="rounded-card border border-line bg-surface p-4">
-                  <div class="flex flex-wrap items-baseline justify-between gap-2">
-                    <span class="font-medium text-text">{{ payment.member.displayName }}</span>
-                    <span class="font-display text-lg text-gold-hover">
-                      {{ formatAmount(payment.amount) }}
-                    </span>
-                  </div>
-                  <p class="mt-1 text-sm text-text-2">{{ payment.campaign.name }}</p>
-                  <p class="mt-1 text-sm text-text-2">
-                    {{ formatCalendarDate(payment.paymentDate) }} —
-                    {{ paymentMethodLabel(payment.method) }}
-                  </p>
-                </li>
+          </div>
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.openCampaigns' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="5" width="18" height="16" rx="2" />
+                  <path d="M16 3v4M8 3v4M3 11h18" />
+                </svg>
+              </span>
+            </div>
+            <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+              {{ management.openCampaignCount }}
+            </p>
+          </div>
+          <div
+            class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <span
+                class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
+              >
+                {{ 'dashboard.management.registeredMembers' | transloco }}
+              </span>
+              <span
+                class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[17px] w-[17px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </span>
+            </div>
+            <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+              {{ management.registeredMemberCount }}
+            </p>
+          </div>
+        }
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.75fr)]">
+        <div class="flex flex-col gap-5">
+          <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+            <div
+              class="flex min-h-[68px] items-center justify-between gap-4 border-b border-line px-5 py-4"
+            >
+              <div>
+                <h2 class="text-base font-medium text-text">
+                  {{ 'dashboard.management.recentCampaignsTitle' | transloco }}
+                </h2>
+                <p class="mt-1 text-xs text-text-3">
+                  {{ 'dashboard.management.recentCampaignsSubtitle' | transloco }}
+                </p>
+              </div>
+              <a
+                [routerLink]="navigationPaths.campaigns"
+                class="shrink-0 font-data text-[9px] font-medium uppercase tracking-[0.1em] text-gold hover:text-gold-hover"
+              >
+                {{ 'dashboard.management.viewAllCampaigns' | transloco }}
+              </a>
+            </div>
+            @if (management.recentCampaigns.length === 0) {
+              <app-empty-state
+                class="m-5 block"
+                [message]="'dashboard.management.recentCampaignsEmpty' | transloco"
+              />
+            } @else {
+              <ul class="px-5">
+                @for (campaign of recentCampaignsPreview(); track campaign.id) {
+                  <li class="border-b border-line last:border-b-0">
+                    <a
+                      [routerLink]="[navigationPaths.campaigns, campaign.id]"
+                      class="grid grid-cols-1 items-center gap-3 py-4 sm:grid-cols-[minmax(180px,1.2fr)_minmax(140px,.8fr)_minmax(160px,1fr)_16px] sm:gap-5"
+                    >
+                      <div>
+                        <p class="text-sm font-medium text-text">{{ campaign.name }}</p>
+                        <p class="mt-1 text-[11px] text-text-3">
+                          {{
+                            'dashboard.management.campaignPeriod'
+                              | transloco
+                                : {
+                                    start: formatCalendarDate(campaign.startDate),
+                                    end: formatCalendarDate(campaign.endDate),
+                                  }
+                          }}
+                        </p>
+                      </div>
+                      <div>
+                        <span
+                          [class]="
+                            'inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
+                            statusToneClasses(campaignStatusTone(campaign.status))
+                          "
+                        >
+                          <span
+                            [class]="
+                              'h-1.5 w-1.5 rounded-full ' +
+                              statusToneDotClasses(campaignStatusTone(campaign.status))
+                            "
+                            aria-hidden="true"
+                          ></span>
+                          {{ campaignStatusLabel(campaign.status) }}
+                        </span>
+                      </div>
+                      <div>
+                        @if (campaign.financialSummary; as financialSummary) {
+                          @let collectedAmount =
+                            formatAmountCondensed(financialSummary.collectedAmount);
+                          <div class="flex justify-between font-data text-[10px] text-text-3">
+                            <span [title]="collectedAmount.fullText">{{
+                              collectedAmount.text
+                            }}</span>
+                            <span>{{ financialSummary.collectionRate }}%</span>
+                          </div>
+                          <div class="mt-2 h-[5px] overflow-hidden rounded-full bg-surface-2">
+                            <span
+                              class="block h-full rounded-full bg-gradient-to-r from-gold-hover to-gold"
+                              [style.width.%]="financialSummary.collectionRate"
+                            ></span>
+                          </div>
+                        } @else {
+                          <p class="text-[11px] text-text-3">
+                            {{
+                              'dashboard.management.campaignMembers'
+                                | transloco: { count: campaign.memberCount }
+                            }}
+                          </p>
+                        }
+                      </div>
+                      <svg
+                        class="hidden h-4 w-4 shrink-0 text-text-3 sm:block"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          @if (management.financialOverview; as financialOverview) {
+            <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+              <div
+                class="flex min-h-[68px] items-center justify-between gap-4 border-b border-line px-5 py-4"
+              >
+                <div>
+                  <h2 class="text-base font-medium text-text">
+                    {{ 'dashboard.management.financialTitle' | transloco }}
+                  </h2>
+                  @if (campaignScopeView(); as scope) {
+                    <p class="mt-1 text-xs text-text-3">
+                      {{ scope.labelKey | transloco: scope.labelParams }}
+                    </p>
+                  }
+                  @if (financialOverview.recentPayments.length > 0) {
+                    <p class="mt-1 text-[11px] text-text-3">
+                      {{
+                        'dashboard.management.recentPaymentsCountLabel'
+                          | transloco
+                            : {
+                                displayed: recentPaymentsPreview().length,
+                                total: financialOverview.recentPayments.length,
+                              }
+                      }}
+                    </p>
+                  }
+                </div>
+                <span
+                  class="shrink-0 font-data text-[9px] font-medium uppercase tracking-[0.1em] text-gold"
+                >
+                  {{ 'dashboard.management.viewPaymentsHistory' | transloco }}
+                </span>
+              </div>
+              @if (financialOverview.recentPayments.length === 0) {
+                <app-empty-state
+                  class="m-5 block"
+                  [message]="'dashboard.management.recentPaymentsEmpty' | transloco"
+                />
+              } @else {
+                <ul class="px-5">
+                  @for (payment of recentPaymentsPreview(); track payment.id) {
+                    <li
+                      class="grid min-h-[73px] grid-cols-[36px_1fr_auto] items-center gap-3 border-b border-line py-3 last:border-b-0"
+                    >
+                      <span
+                        class="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-surface-2 text-text-2"
+                        aria-hidden="true"
+                      >
+                        <svg
+                          class="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <rect x="2" y="5" width="20" height="14" rx="2" />
+                          <path d="M2 10h20M6 15h2" />
+                        </svg>
+                      </span>
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-medium text-text">
+                          {{ payment.member.displayName }}
+                        </p>
+                        <p class="mt-1 truncate text-[11px] text-text-3">
+                          {{ payment.campaign.name }} · {{ paymentMethodLabel(payment.method) }} ·
+                          {{ formatCalendarDate(payment.paymentDate) }}
+                        </p>
+                      </div>
+                      <span class="font-data text-xs text-success">
+                        + {{ formatAmount(payment.amount) }}
+                      </span>
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
+            </section>
           }
-        </section>
-      }
+        </div>
+
+        <div class="flex flex-col gap-5">
+          <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+            <div class="min-h-[68px] border-b border-line px-5 py-4">
+              <h2 class="text-base font-medium text-text">
+                {{ 'dashboard.quickActions.title' | transloco }}
+              </h2>
+              <p class="mt-1 text-xs text-text-3">
+                {{ 'dashboard.quickActions.subtitle' | transloco }}
+              </p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 p-5">
+              <a
+                [routerLink]="navigationPaths.members"
+                [queryParams]="canCreateMember() ? { creer: '1' } : undefined"
+                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+              >
+                <svg
+                  class="h-[18px] w-[18px] text-gold"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                {{
+                  (canCreateMember()
+                    ? 'dashboard.quickActions.addMember'
+                    : 'dashboard.quickActions.viewMembers'
+                  ) | transloco
+                }}
+              </a>
+              @if (isAdministrator()) {
+                <a
+                  [routerLink]="navigationPaths.rolesAndUsers"
+                  class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                >
+                  <svg
+                    class="h-[18px] w-[18px] text-gold"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  {{ 'dashboard.quickActions.manageRoles' | transloco }}
+                </a>
+                <a
+                  [routerLink]="navigationPaths.incomeCategories"
+                  class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                >
+                  <svg
+                    class="h-[18px] w-[18px] text-gold"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M20.59 13.41 11 3.83V2H4v7h1.83l9.58 9.59a2 2 0 0 0 2.82 0l2.36-2.36a2 2 0 0 0 0-2.82z"
+                    />
+                    <circle cx="7.5" cy="5.5" r=".5" />
+                  </svg>
+                  {{ 'dashboard.quickActions.manageCategories' | transloco }}
+                </a>
+              } @else {
+                <a
+                  [routerLink]="navigationPaths.socialFunds"
+                  class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                >
+                  <svg
+                    class="h-[18px] w-[18px] text-gold"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"
+                    />
+                  </svg>
+                  {{
+                    (canCreateSocialFund()
+                      ? 'dashboard.quickActions.createSocialFund'
+                      : 'dashboard.quickActions.viewSocialFunds'
+                    ) | transloco
+                  }}
+                </a>
+              }
+              <a
+                [routerLink]="navigationPaths.campaigns"
+                [queryParams]="canCreateCampaign() ? { creer: '1' } : undefined"
+                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+              >
+                <svg
+                  class="h-[18px] w-[18px] text-gold"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="5" width="18" height="16" rx="2" />
+                  <path d="M16 3v4M8 3v4M3 11h18" />
+                </svg>
+                {{
+                  (canCreateCampaign()
+                    ? 'dashboard.quickActions.createCampaign'
+                    : 'dashboard.quickActions.viewCampaigns'
+                  ) | transloco
+                }}
+              </a>
+            </div>
+          </section>
+
+          @if (campaignScopeView(); as scope) {
+            <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+              <div class="min-h-[68px] border-b border-line px-5 py-4">
+                <h2 class="text-base font-medium text-text">
+                  {{ 'dashboard.synthesis.campaignTitle' | transloco }}
+                </h2>
+                <p class="mt-1 text-xs text-text-3">
+                  {{ scope.labelKey | transloco: scope.labelParams }}
+                </p>
+              </div>
+              <div class="p-5">
+                @let synthesisCollected =
+                  formatAmountCondensed(scope.financialSummary.collectedAmount);
+                @let synthesisRemaining =
+                  formatAmountCondensed(scope.financialSummary.remainingAmount);
+                @let synthesisExpected =
+                  formatAmountCondensed(scope.financialSummary.expectedAmount);
+                <div class="flex justify-between font-data text-[10px] text-text-3">
+                  <span>
+                    {{
+                      'dashboard.synthesis.collected'
+                        | transloco: { rate: scope.financialSummary.collectionRate }
+                    }}
+                  </span>
+                  <span [title]="synthesisCollected.fullText">{{ synthesisCollected.text }}</span>
+                </div>
+                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                  <span
+                    class="block h-full rounded-full bg-success"
+                    [style.width.%]="scope.financialSummary.collectionRate"
+                  ></span>
+                </div>
+                <div class="mt-4 flex justify-between font-data text-[10px] text-text-3">
+                  <span>
+                    {{
+                      'dashboard.synthesis.remaining'
+                        | transloco: { rate: 100 - scope.financialSummary.collectionRate }
+                    }}
+                  </span>
+                  <span [title]="synthesisRemaining.fullText">{{ synthesisRemaining.text }}</span>
+                </div>
+                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                  <span
+                    class="block h-full rounded-full bg-warning"
+                    [style.width.%]="100 - scope.financialSummary.collectionRate"
+                  ></span>
+                </div>
+                <div
+                  class="mt-4 flex items-center justify-between border-t border-line pt-3 text-xs text-text"
+                >
+                  <span>{{ 'dashboard.synthesis.expectedAmount' | transloco }}</span>
+                  <strong class="font-data" [title]="synthesisExpected.fullText">{{
+                    synthesisExpected.text
+                  }}</strong>
+                </div>
+              </div>
+            </section>
+          }
+
+          @if (socialFundScopeView(); as scope) {
+            <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+              <div class="min-h-[68px] border-b border-line px-5 py-4">
+                <h2 class="text-base font-medium text-text">
+                  {{ 'dashboard.synthesis.socialFundTitle' | transloco }}
+                </h2>
+                <p class="mt-1 text-xs text-text-3">
+                  {{ scope.labelKey | transloco: scope.labelParams }}
+                </p>
+              </div>
+              <div class="p-5">
+                @let synthesisFundCollected = formatAmountCondensed(scope.collectedAmount);
+                <div class="flex items-center justify-between text-xs text-text">
+                  <span>{{ 'dashboard.synthesis.collectedAmount' | transloco }}</span>
+                  <strong class="font-data" [title]="synthesisFundCollected.fullText">{{
+                    synthesisFundCollected.text
+                  }}</strong>
+                </div>
+                @if (scope.targetAmount; as targetAmount) {
+                  @let synthesisFundTarget = formatAmountCondensed(targetAmount);
+                  <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                    <span
+                      class="block h-full rounded-full bg-success"
+                      [style.width.%]="
+                        socialFundCollectionPercentage(targetAmount, scope.collectedAmount)
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    class="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs text-text"
+                  >
+                    <span>{{ 'dashboard.synthesis.targetAmount' | transloco }}</span>
+                    <strong class="font-data" [title]="synthesisFundTarget.fullText">{{
+                      synthesisFundTarget.text
+                    }}</strong>
+                  </div>
+                }
+                <div class="mt-3 text-[11px] text-text-3">
+                  {{
+                    'dashboard.synthesis.contributorCount'
+                      | transloco: { count: scope.contributorCount }
+                  }}
+                </div>
+              </div>
+            </section>
+          }
+        </div>
+      </div>
     }
 
     @if (memberDashboard(); as member) {
-      <p class="mt-1 text-sm text-text-2">
+      <p class="mt-2 max-w-2xl text-sm text-text-2">
         {{ 'dashboard.asOf' | transloco: { date: formatInstant(member.asOf) } }}
       </p>
 
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.member.unpaidDues' | transloco }}
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.member.unpaidDues' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+            {{ member.unpaidDueCount }}
           </p>
-          <p class="mt-3 font-display text-3xl text-text">{{ member.unpaidDueCount }}</p>
         </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.member.remainingAmount' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">
-            {{ formatAmount(member.totalRemainingAmount) }}
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.member.remainingAmount' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M2 10h20M6 15h2" />
+              </svg>
+            </span>
+          </div>
+          @let memberRemainingAmount = formatAmountCondensed(member.totalRemainingAmount);
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+            <span [title]="memberRemainingAmount.fullText">
+              <span aria-hidden="true">{{ memberRemainingAmount.text }}</span>
+              <span class="sr-only">{{ memberRemainingAmount.fullText }}</span>
+            </span>
           </p>
         </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.member.paidDues' | transloco }}
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.member.paidDues' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 12 4 4L19 6" />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+            {{ member.paidDueCount }}
           </p>
-          <p class="mt-3 font-display text-3xl text-text">{{ member.paidDueCount }}</p>
         </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.member.totalContributions' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">
-            {{ formatAmount(member.totalContributionAmount) }}
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.member.totalContributions' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"
+                />
+              </svg>
+            </span>
+          </div>
+          @let memberContributionAmount = formatAmountCondensed(member.totalContributionAmount);
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
+            <span [title]="memberContributionAmount.fullText">
+              <span aria-hidden="true">{{ memberContributionAmount.text }}</span>
+              <span class="sr-only">{{ memberContributionAmount.fullText }}</span>
+            </span>
           </p>
         </div>
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.1em] text-text-2">
-            {{ 'dashboard.member.contributedSocialFunds' | transloco }}
-          </p>
-          <p class="mt-3 font-display text-3xl text-text">
+        <div
+          class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+              {{ 'dashboard.member.contributedSocialFunds' | transloco }}
+            </span>
+            <span
+              class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-gold-wash text-gold"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-[17px] w-[17px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-5 font-display text-[31px] leading-none tracking-[0.055em] text-text">
             {{ member.contributedSocialFundCount }}
           </p>
         </div>
       </div>
 
-      <section class="mt-8">
-        <h2 class="font-display text-xl uppercase tracking-wide text-text">
-          {{ 'dashboard.member.recentDuesTitle' | transloco }}
-        </h2>
-        @if (member.recentDues.length === 0) {
-          <p class="mt-3 text-text-2">{{ 'dashboard.member.recentDuesEmpty' | transloco }}</p>
-        } @else {
-          <ul class="mt-3 flex flex-col gap-3">
-            @for (due of member.recentDues; track due.id) {
-              <li class="rounded-card border border-line bg-surface p-4">
-                <div class="flex flex-wrap items-baseline justify-between gap-2">
-                  <span class="font-medium text-text">{{ due.campaign.name }}</span>
-                  <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-                    {{ dueStatusLabel(due.status) }}
-                  </span>
+      <div class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.75fr)]">
+        <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+          <div
+            class="flex min-h-[68px] items-center justify-between gap-4 border-b border-line px-5 py-4"
+          >
+            <div>
+              <h2 class="text-base font-medium text-text">
+                {{ 'dashboard.member.recentDuesTitle' | transloco }}
+              </h2>
+              <p class="mt-1 text-xs text-text-3">
+                {{ 'dashboard.member.recentDuesSubtitle' | transloco }}
+              </p>
+            </div>
+          </div>
+          @if (member.recentDues.length === 0) {
+            <app-empty-state
+              class="m-5 block"
+              [message]="'dashboard.member.recentDuesEmpty' | transloco"
+            />
+          } @else {
+            <ul class="px-5">
+              @for (due of member.recentDues; track due.id) {
+                <li
+                  class="grid grid-cols-1 gap-3 border-b border-line py-4 last:border-b-0 sm:grid-cols-[minmax(180px,1.2fr)_minmax(140px,.8fr)_minmax(160px,1fr)] sm:items-center sm:gap-5"
+                >
+                  <div>
+                    <p class="text-sm font-medium text-text">{{ due.campaign.name }}</p>
+                  </div>
+                  <div>
+                    <span
+                      [class]="
+                        'inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
+                        statusToneClasses(dueStatusTone(due.status))
+                      "
+                    >
+                      <span
+                        [class]="
+                          'h-1.5 w-1.5 rounded-full ' +
+                          statusToneDotClasses(dueStatusTone(due.status))
+                        "
+                        aria-hidden="true"
+                      ></span>
+                      {{ dueStatusLabel(due.status) }}
+                    </span>
+                  </div>
+                  <div>
+                    <div class="flex justify-between font-data text-[10px] text-text-3">
+                      <span
+                        >{{ formatAmount(due.paidAmount) }} /
+                        {{ formatAmount(due.dueAmount) }}</span
+                      >
+                      <span>{{ dueCollectionPercentage(due.dueAmount, due.paidAmount) }}%</span>
+                    </div>
+                    <div class="mt-2 h-[5px] overflow-hidden rounded-full bg-surface-2">
+                      <span
+                        class="block h-full rounded-full bg-gradient-to-r from-gold-hover to-gold"
+                        [style.width.%]="dueCollectionPercentage(due.dueAmount, due.paidAmount)"
+                      ></span>
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <aside>
+          <section class="overflow-hidden rounded-card border border-line bg-surface shadow-card">
+            <div class="min-h-[68px] border-b border-line px-5 py-4">
+              <h2 class="text-base font-medium text-text">
+                {{ 'dashboard.profile.title' | transloco }}
+              </h2>
+              <p class="mt-1 text-xs text-text-3">{{ 'dashboard.profile.subtitle' | transloco }}</p>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center gap-3">
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold-wash font-display text-sm text-gold"
+                  aria-hidden="true"
+                >
+                  {{ member.viewer.member.displayName.slice(0, 2).toUpperCase() }}
+                </span>
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-medium text-text">
+                    {{ member.viewer.member.displayName }}
+                  </p>
+                  @if (member.viewer.member.city) {
+                    <p class="mt-1 truncate text-xs text-text-3">{{ member.viewer.member.city }}</p>
+                  }
                 </div>
-                <p class="mt-1 text-sm text-text-2">
-                  {{ formatAmount(due.paidAmount) }} / {{ formatAmount(due.dueAmount) }}
-                </p>
-              </li>
-            }
-          </ul>
-        }
-      </section>
+              </div>
+              <dl class="mt-4 flex flex-col gap-3 border-t border-line pt-4 text-xs">
+                <div class="flex items-center justify-between gap-3">
+                  <dt class="text-text-3">{{ 'dashboard.profile.category' | transloco }}</dt>
+                  <dd class="font-medium text-text">
+                    {{ member.viewer.member.incomeCategory.label }}
+                  </dd>
+                </div>
+                @if (member.viewer.member.associationFunction) {
+                  <div class="flex items-center justify-between gap-3">
+                    <dt class="text-text-3">{{ 'dashboard.profile.function' | transloco }}</dt>
+                    <dd class="font-medium text-text">
+                      {{ member.viewer.member.associationFunction }}
+                    </dd>
+                  </div>
+                }
+              </dl>
+              <a
+                [routerLink]="navigationPaths.memberSpace"
+                class="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface-2 px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-gold-hover"
+              >
+                {{ 'dashboard.profile.viewProfile' | transloco }}
+              </a>
+            </div>
+          </section>
+        </aside>
+      </div>
     }
   }
 </main>

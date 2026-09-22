@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -60,6 +60,12 @@ import { campaignStatusLabel } from '../campaign-status-labels';
  * (T-84/T-86). Le Membre n'accède déjà pas à cet écran (`roleGuard` sur la
  * route `/campagnes`, voir `app.routes.ts`) ; ce masquage protège en plus
  * l'Opérateur, seul rôle non autorisé qui consulte effectivement cette liste.
+ *
+ * Ouverture directe depuis les actions rapides du tableau de bord (T-117) :
+ * le paramètre de requête `creer` (`?creer=1`) ouvre ce dialogue dès l'arrivée
+ * sur l'écran, pour un rôle autorisé, au lieu d'obliger un second clic sur
+ * « Créer une campagne ». Le paramètre est retiré de l'URL une fois lu, pour
+ * qu'un rafraîchissement de page ne rouvre pas le dialogue.
  */
 @Component({
   selector: 'app-campaigns-list-page',
@@ -79,6 +85,8 @@ export class CampaignsListPage {
   private readonly campaignsService = inject(CampagnesService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private createDialogSession = 0;
   /** Formulaire de création affiché (T-102) : relu par `retryCreateCampaign`. */
   private readonly createForm = viewChild<CampaignCreateForm>('createForm');
@@ -136,6 +144,16 @@ export class CampaignsListPage {
       });
 
     this.loadPage(this.requestedPage());
+
+    if (this.route.snapshot.queryParamMap.get('creer') === '1') {
+      this.openCreateDialog();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { creer: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   onStatusFilterChange(event: Event): void {

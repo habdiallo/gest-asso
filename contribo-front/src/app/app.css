@@ -129,3 +129,49 @@
   align-items: center;
   gap: 8px;
 }
+
+.desktop-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  height: 78px;
+  padding: 0 48px;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(20px);
+}
+
+.desktop-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-3);
+  font: 500 10px var(--font-data);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.desktop-breadcrumb svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.desktop-breadcrumb strong {
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.desktop-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 1180px) {
+  .desktop-topbar {
+    padding: 0 32px;
+  }
+}

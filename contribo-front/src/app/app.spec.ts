@@ -153,7 +153,7 @@ describe('App', () => {
       expect(profile?.querySelector('.sidebar-avatar')?.textContent).toBe('AC');
       expect(profile?.querySelector('a, button')).toBeNull();
       expect(root.querySelector('header .sidebar-profile')).toBeNull();
-      expect(root.querySelector('aside app-theme-toggle button')).toBeTruthy();
+      expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
       expect(root.querySelector('aside app-logout-button button')?.textContent?.trim()).toBe(
         'Se déconnecter',
       );
@@ -175,8 +175,27 @@ describe('App', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('aside .sidebar-profile strong')).toBeNull();
     expect(root.querySelector('aside .sidebar-avatar')).toBeNull();
-    expect(root.querySelector('aside app-theme-toggle button')).toBeTruthy();
+    expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
     expect(root.querySelector('aside app-logout-button button')).toBeTruthy();
+  });
+
+  it('updates the desktop breadcrumb label as the route changes (T-117)', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    fixture.detectChanges();
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('.desktop-breadcrumb strong')?.textContent?.trim()).toBe(
+      'Tableau de bord',
+    );
+
+    await router.navigateByUrl('/campagnes');
+    fixture.detectChanges();
+
+    expect(root.querySelector('.desktop-breadcrumb strong')?.textContent?.trim()).toBe('Campagnes');
   });
 
   it('redirects an unknown route to the home feature', async () => {

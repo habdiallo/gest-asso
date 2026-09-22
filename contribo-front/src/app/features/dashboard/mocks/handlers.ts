@@ -1,8 +1,94 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
-import type { DashboardResponse, ErrorResponse, ManagementDashboard, MemberDashboard } from '@api';
+import {
+  CampaignStatus,
+  DueStatus,
+  ErrorCode,
+  PaymentMethod,
+  SocialFundStatus,
+  UserRole,
+} from '@api';
+import type {
+  CampaignSummary,
+  CampaignsAggregateOverview,
+  DashboardResponse,
+  ErrorResponse,
+  ManagementDashboard,
+  MemberDashboard,
+  SocialFundSummary,
+  SocialFundsAggregateOverview,
+} from '@api';
 import type { DemoAccount } from '../../../../mocks/demo-accounts';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { demoSocialFunds } from '../../social-funds/mocks/handlers';
+
+/**
+ * Agrégat de démonstration pour `allOpenCampaignsSummary` (T-117) : somme des
+ * `financialSummary` des campagnes ouvertes, calculée dynamiquement (jamais de
+ * valeur figée) afin de rester cohérente avec `recentCampaigns` ci-dessous.
+ */
+function buildCampaignsAggregate(
+  openCampaigns: readonly CampaignSummary[],
+): CampaignsAggregateOverview {
+  const summaries = openCampaigns
+    .map((campaign) => campaign.financialSummary)
+    .filter(
+      (summary): summary is NonNullable<CampaignSummary['financialSummary']> =>
+        summary !== undefined,
+    );
+
+  const expectedAmount = summaries.reduce((sum, summary) => sum + summary.expectedAmount, 0);
+  const collectedAmount = summaries.reduce((sum, summary) => sum + summary.collectedAmount, 0);
+  const remainingAmount = summaries.reduce((sum, summary) => sum + summary.remainingAmount, 0);
+  const dueCounts = summaries.reduce(
+    (acc, summary) => ({
+      total: acc.total + summary.dueCounts.total,
+      paid: acc.paid + summary.dueCounts.paid,
+      partiallyPaid: acc.partiallyPaid + summary.dueCounts.partiallyPaid,
+      unpaid: acc.unpaid + summary.dueCounts.unpaid,
+    }),
+    { total: 0, paid: 0, partiallyPaid: 0, unpaid: 0 },
+  );
+
+  return {
+    openCampaignCount: openCampaigns.length,
+    financialSummary: {
+      expectedAmount,
+      collectedAmount,
+      remainingAmount,
+      collectionRate: expectedAmount > 0 ? Math.round((collectedAmount / expectedAmount) * 100) : 0,
+      dueCounts,
+      currency: 'GNF',
+    },
+  };
+}
+
+/**
+ * Agrégat de démonstration pour `allOpenSocialFundsSummary` (T-117) : somme des
+ * cagnottes ouvertes de `demoSocialFunds` (`features/social-funds/mocks/handlers.ts`,
+ * même source que le sélecteur de périmètre), calculée dynamiquement.
+ */
+function buildSocialFundsAggregate(
+  openSocialFunds: readonly SocialFundSummary[],
+): SocialFundsAggregateOverview {
+  const collectedAmount = openSocialFunds.reduce((sum, fund) => sum + fund.collectedAmount, 0);
+  const fundsWithTarget = openSocialFunds.filter((fund) => fund.targetAmount !== undefined);
+  const targetAmount = fundsWithTarget.length
+    ? fundsWithTarget.reduce((sum, fund) => sum + (fund.targetAmount ?? 0), 0)
+    : undefined;
+  const contributorCount = openSocialFunds.reduce((sum, fund) => sum + fund.contributorCount, 0);
+
+  return {
+    openSocialFundCount: openSocialFunds.length,
+    targetAmount,
+    collectedAmount,
+    progressRate:
+      targetAmount !== undefined && targetAmount > 0
+        ? Math.round((collectedAmount / targetAmount) * 1000) / 10
+        : undefined,
+    contributorCount,
+    currency: 'GNF',
+  };
+}
 
 const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'> = {
   view: 'MANAGEMENT',
@@ -11,6 +97,11 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
   registeredMemberCount: 91,
   newMemberCountThisMonth: 3,
   openCampaignCount: 2,
+  // Alignées sur `demoCampaignDetails` de `features/campaigns/mocks/handlers.ts`
+  // (mêmes campagnes, mêmes montants) : deux campagnes ouvertes permettent de
+  // vérifier que le sélecteur de périmètre distingue bien une sélection
+  // précise d'un agrégat sur plusieurs campagnes ouvertes (T-117), comme pour
+  // `demoSocialFunds`.
   recentCampaigns: [
     {
       id: '10700000-0000-4000-8000-000000000200',
@@ -25,6 +116,22 @@ const demoManagementDashboardWithFinancials: Omit<ManagementDashboard, 'viewer'>
         remainingAmount: 6100000,
         collectionRate: 67,
         dueCounts: { total: 86, paid: 38, partiallyPaid: 12, unpaid: 36 },
+        currency: 'GNF',
+      },
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000203',
+      name: 'Cotisation trimestrielle T3',
+      startDate: '2026-07-01',
+      endDate: '2026-09-30',
+      status: CampaignStatus.Open,
+      memberCount: 86,
+      financialSummary: {
+        expectedAmount: 9900000,
+        collectedAmount: 4950000,
+        remainingAmount: 4950000,
+        collectionRate: 50,
+        dueCounts: { total: 86, paid: 43, partiallyPaid: 8, unpaid: 35 },
         currency: 'GNF',
       },
     },
@@ -113,7 +220,10 @@ function authenticationRequired(): Response {
  * `financialOverview` doit aussi retirer `financialSummary` des campagnes
  * récentes, sinon le bilan financier fuite malgré la section masquée).
  */
-export function buildDashboardResponse(account: DemoAccount): DashboardResponse {
+export function buildDashboardResponse(
+  account: DemoAccount,
+  scope: { campaignId?: string; socialFundId?: string } = {},
+): DashboardResponse {
   if (account.user.role === UserRole.Member) {
     const { member } = account.user;
     const response: MemberDashboard = {
@@ -132,9 +242,36 @@ export function buildDashboardResponse(account: DemoAccount): DashboardResponse 
       ? demoManagementDashboardWithoutFinancials
       : demoManagementDashboardWithFinancials;
 
+  if (!managementDashboard.financialOverview) {
+    return { ...managementDashboard, viewer: account.user };
+  }
+
+  const openCampaigns = managementDashboard.recentCampaigns.filter(
+    (campaign) => campaign.status === CampaignStatus.Open,
+  );
+  const selectedCampaign = scope.campaignId
+    ? openCampaigns.find((campaign) => campaign.id === scope.campaignId)
+    : undefined;
+
+  const openSocialFunds = demoSocialFunds.filter((fund) => fund.status === SocialFundStatus.Open);
+  const selectedSocialFund = scope.socialFundId
+    ? openSocialFunds.find((fund) => fund.id === scope.socialFundId)
+    : undefined;
+
   const response: ManagementDashboard = {
     ...managementDashboard,
     viewer: account.user,
+    financialOverview: {
+      ...managementDashboard.financialOverview,
+      selectedCampaign,
+      allOpenCampaignsSummary: selectedCampaign
+        ? undefined
+        : buildCampaignsAggregate(openCampaigns),
+      selectedSocialFund,
+      allOpenSocialFundsSummary: selectedSocialFund
+        ? undefined
+        : buildSocialFundsAggregate(openSocialFunds),
+    },
   };
   return response;
 }
@@ -155,6 +292,11 @@ export const dashboardHandlers = [
       return authenticationRequired();
     }
 
-    return HttpResponse.json<DashboardResponse>(buildDashboardResponse(account));
+    const url = new URL(request.url);
+    const scope = {
+      campaignId: url.searchParams.get('campaignId') ?? undefined,
+      socialFundId: url.searchParams.get('socialFundId') ?? undefined,
+    };
+    return HttpResponse.json<DashboardResponse>(buildDashboardResponse(account, scope));
   }),
 ];
