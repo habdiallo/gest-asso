@@ -25,6 +25,9 @@ import type {
   SocialFundSummary,
 } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { EMPTY, forkJoin } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { expand, map, reduce } from 'rxjs/operators';
 import { formatGnfAmountCondensed, formatGnfAmountDetailed } from '@core/formatting/currency';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { CustomSelect } from '@shared/custom-select/custom-select';
@@ -124,6 +127,7 @@ export class DashboardPage {
   readonly loadError = signal(false);
   readonly scopeLoading = signal(false);
   private readonly dashboard = signal<DashboardResponse | null>(null);
+  private dashboardRequestId = 0;
 
   readonly openCampaigns = signal<readonly CampaignSummary[]>([]);
   readonly openSocialFunds = signal<readonly SocialFundSummary[]>([]);
@@ -271,6 +275,7 @@ export class DashboardPage {
   }
 
   private loadDashboard(): void {
+    const requestId = ++this.dashboardRequestId;
     const isInitialLoad = this.dashboard() === null;
     if (isInitialLoad) {
       this.loading.set(true);
@@ -286,6 +291,9 @@ export class DashboardPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (dashboard) => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
           this.dashboard.set(dashboard);
           this.loading.set(false);
           this.scopeLoading.set(false);
@@ -299,6 +307,9 @@ export class DashboardPage {
           }
         },
         error: () => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
           this.loadError.set(true);
           this.loading.set(false);
           this.scopeLoading.set(false);
@@ -308,14 +319,35 @@ export class DashboardPage {
 
   /** Options des deux sélecteurs du panneau « Périmètre des indicateurs », chargées une seule fois. */
   private loadScopeOptions(): void {
-    this.campaignsService
-      .listCampaigns(0, 50, undefined, CampaignStatus.Open)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (page) => this.openCampaigns.set(page.items) });
+    const campaigns$ = this.loadAllPages((page) =>
+      this.campaignsService.listCampaigns(page, 50, undefined, CampaignStatus.Open),
+    );
+    const socialFunds$ = this.loadAllPages((page) =>
+      this.socialFundsService.listSocialFunds(page, 50, undefined, SocialFundStatus.Open),
+    );
 
-    this.socialFundsService
-      .listSocialFunds(0, 50, undefined, SocialFundStatus.Open)
+    forkJoin({ campaigns: campaigns$, socialFunds: socialFunds$ })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (page) => this.openSocialFunds.set(page.items) });
+      .subscribe({
+        next: ({ campaigns, socialFunds }) => {
+          this.openCampaigns.set(campaigns);
+          this.openSocialFunds.set(socialFunds);
+        },
+      });
+  }
+
+  private loadAllPages<T>(
+    loadPage: (
+      page: number,
+    ) => Observable<{ items: readonly T[]; page: { number: number; totalPages: number } }>,
+  ): Observable<readonly T[]> {
+    return loadPage(0).pipe(
+      expand((response) => {
+        const nextPage = response.page.number + 1;
+        return nextPage < response.page.totalPages ? loadPage(nextPage) : EMPTY;
+      }),
+      map((response) => response.items),
+      reduce((items, pageItems) => items.concat(pageItems), [] as T[]),
+    );
   }
 }

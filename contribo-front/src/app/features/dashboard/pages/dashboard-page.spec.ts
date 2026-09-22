@@ -108,8 +108,8 @@ const emptySocialFundPage: SocialFundPage = {
 async function createFixture(
   getDashboard: () => Observable<DashboardResponse>,
   options: {
-    listCampaigns?: () => Observable<CampaignPage>;
-    listSocialFunds?: () => Observable<SocialFundPage>;
+    listCampaigns?: (page?: number) => Observable<CampaignPage>;
+    listSocialFunds?: (page?: number) => Observable<SocialFundPage>;
   } = {},
 ): Promise<ComponentFixture<DashboardPage>> {
   await TestBed.configureTestingModule({
@@ -426,6 +426,74 @@ describe('DashboardPage', () => {
     socialFundTrigger.click();
     fixture.detectChanges();
     expect(root.textContent).toContain('Mariage de Fanta');
+  });
+
+  it('keeps the latest dashboard response when scope requests complete out of order', async () => {
+    const initialRequest = new Subject<DashboardResponse>();
+    const scopedRequest = new Subject<DashboardResponse>();
+    let requestCount = 0;
+    const fixture = await createFixture(() => {
+      requestCount += 1;
+      return requestCount === 1 ? initialRequest.asObservable() : scopedRequest.asObservable();
+    });
+
+    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    scopedRequest.next(buildManagementDashboard({ activeMemberCount: 99 }));
+    fixture.detectChanges();
+    initialRequest.next(buildManagementDashboard({ activeMemberCount: 12 }));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('99');
+    expect(fixture.nativeElement.textContent).not.toContain('12');
+  });
+
+  it('loads every page of open campaign and social fund options', async () => {
+    const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
+    const fixture = await createFixture(() => of(dashboard), {
+      listCampaigns: (page = 0) =>
+        of({
+          items: [
+            {
+              id: `campaign-${page}`,
+              name: `Campagne ${page}`,
+              startDate: '2026-09-01',
+              endDate: '2026-09-30',
+              status: 'OPEN' as const,
+              memberCount: 10,
+            },
+          ],
+          page: { number: page, size: 1, totalElements: 2, totalPages: 2 },
+        }),
+      listSocialFunds: (page = 0) =>
+        of({
+          items: [
+            {
+              id: `fund-${page}`,
+              title: `Cagnotte ${page}`,
+              eventType: 'WEDDING' as const,
+              beneficiary: 'Famille Test',
+              startDate: '2026-09-01',
+              endDate: '2026-09-30',
+              status: 'OPEN' as const,
+              collectedAmount: 1000,
+              contributorCount: 1,
+              contributionCount: 1,
+              currency: 'GNF' as const,
+            },
+          ],
+          page: { number: page, size: 1, totalElements: 2, totalPages: 2 },
+        }),
+    });
+
+    fixture.detectChanges();
+    expect(fixture.componentInstance.openCampaigns().map((item) => item.id)).toEqual([
+      'campaign-0',
+      'campaign-1',
+    ]);
+    expect(fixture.componentInstance.openSocialFunds().map((item) => item.id)).toEqual([
+      'fund-0',
+      'fund-1',
+    ]);
   });
 
   it('shows the campaign and social fund synthesis panels from the selected scope', async () => {
