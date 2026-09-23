@@ -31,6 +31,8 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
 - Reproduire la liste Cagnottes sur le même motif de recherche, segments de statut
   et cartes financières, en conservant sa pagination, son filtre par type d'événement
   et ses droits d'accès.
+- Factoriser le rendu des cartes financières Campagnes/Cagnottes dans un composant
+  partagé adaptable, avec les mêmes états de repos, hover et focus que le prototype.
 - Conserver les autorisations, les routes existantes, les gardes, la session, les
   actions thème/déconnexion et la navigation mobile. Aucun changement API ou backend.
 
@@ -46,6 +48,8 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
 - `desktop-sidebar-visual`: faire évoluer la présentation et les données de navigation
   pour aligner les menus, libellés, regroupements et le pied avec le prototype, tout en
   maintenant les règles d'autorisation et les destinations existantes.
+- `reusable-financial-cards`: contrat visuel et fonctionnel des cartes financières
+  partagées par les listes Campagnes et Cagnottes.
 
 ## Impact
 

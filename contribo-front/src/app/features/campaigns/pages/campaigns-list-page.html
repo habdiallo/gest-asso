@@ -120,81 +120,33 @@
         @for (campaign of campaignPage.items; track campaign.id) {
           @let displayStatus = campaignListStatus(campaign.status);
           @let statusTone = campaignStatusTone(campaign.status);
-          <li
-            class="flex min-h-[245px] flex-col rounded-card border border-line bg-surface p-5 shadow-card"
-          >
-            <a class="group flex h-full flex-col" [routerLink]="[campaign.id]">
-              <div class="flex items-start justify-between gap-3">
-                <span
-                  class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2"
-                >
-                  {{ campaign.memberCount }} {{ 'campaigns.list.members' | transloco }}
-                </span>
-                <span
-                  class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-data text-[9px] font-medium uppercase tracking-[0.1em]"
-                  [class.bg-success-wash]="statusTone === 'success'"
-                  [class.text-success]="statusTone === 'success'"
-                  [class.bg-surface-2]="statusTone === 'neutral'"
-                  [class.text-text-2]="statusTone === 'neutral'"
-                >
-                  <span
-                    class="h-1.5 w-1.5 rounded-full"
-                    [class.bg-success]="statusTone === 'success'"
-                    [class.bg-text-3]="statusTone === 'neutral'"
-                    aria-hidden="true"
-                  ></span>
-                  {{ campaignStatusLabel(displayStatus) }}
-                </span>
-              </div>
-
-              <h2
-                class="mt-5 text-lg font-medium text-text transition-colors group-hover:text-gold"
-              >
-                {{ campaign.name }}
-              </h2>
-              <p class="mt-1 text-xs text-text-2">
-                {{
-                  'campaigns.list.period'
-                    | transloco
-                      : {
-                          start: formatCalendarDate(campaign.startDate),
-                          end: formatCalendarDate(campaign.endDate),
-                        }
-                }}
-              </p>
-
-              @if (campaign.financialSummary; as financialSummary) {
-                @let collectedAmount = formatAmount(financialSummary.collectedAmount);
-                @let expectedAmount = formatAmount(financialSummary.expectedAmount);
-                <div class="mt-auto pt-6">
-                  <p class="font-display text-2xl leading-none text-text">
-                    <span [title]="collectedAmount.fullText">
-                      <span aria-hidden="true">{{ collectedAmount.text }}</span>
-                      <span class="sr-only">{{ collectedAmount.fullText }}</span>
-                    </span>
-                    <span class="text-[11px] text-text-2" [title]="expectedAmount.fullText">
-                      /
-                      <span aria-hidden="true">{{ expectedAmount.text }}</span>
-                      <span class="sr-only">{{ expectedAmount.fullText }}</span>
-                    </span>
-                  </p>
-                  <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
-                    <span
-                      class="block h-full rounded-full bg-gold transition-[width] duration-300"
-                      [style.width.%]="collectionProgress(financialSummary.collectionRate)"
-                    ></span>
-                  </div>
-                  <div class="mt-2 flex justify-between text-[10px] text-text-2">
-                    <span>{{ 'campaigns.list.collected' | transloco }}</span>
-                    <span>{{ financialSummary.collectionRate }}%</span>
-                  </div>
-                </div>
-              } @else {
-                <div class="mt-auto border-t border-line pt-4 text-xs text-text-2">
-                  {{ 'campaigns.list.consultation' | transloco }}
-                </div>
-              }
-            </a>
+          @let financialSummary = campaign.financialSummary;
+          <li class="min-h-[300px]">
+            <app-financial-card
+              [routerLink]="[campaign.id]"
+              [eyebrow]="campaign.memberCount + ' ' + ('campaigns.list.members' | transloco)"
+              [statusLabel]="campaignStatusLabel(displayStatus)"
+              [statusTone]="statusTone"
+              [title]="campaign.name"
+              [subtitle]="
+                'campaigns.list.period'
+                  | transloco
+                    : {
+                        start: formatCalendarDate(campaign.startDate),
+                        end: formatCalendarDate(campaign.endDate),
+                      }
+              "
+              [collectedAmount]="
+                financialSummary ? formatAmount(financialSummary.collectedAmount) : null
+              "
+              [targetAmount]="
+                financialSummary ? formatAmount(financialSummary.expectedAmount) : null
+              "
+              [progressRate]="financialSummary?.collectionRate ?? null"
+              [financialFallback]="'campaigns.list.consultation' | transloco"
+              [footerLabel]="financialSummary ? ('campaigns.list.collected' | transloco) : null"
+              [footerValue]="financialSummary ? financialSummary.collectionRate + '%' : null"
+            />
           </li>
         }
       </ul>

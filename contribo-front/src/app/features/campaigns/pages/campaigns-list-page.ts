@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -17,6 +17,7 @@ import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { FinancialCard } from '@shared/financial-card/financial-card';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
@@ -77,11 +78,11 @@ import {
 @Component({
   selector: 'app-campaigns-list-page',
   imports: [
-    RouterLink,
     TranslocoPipe,
     ActionButton,
     ApiErrorRetry,
     EmptyState,
+    FinancialCard,
     FormDialog,
     LoadingSkeleton,
     PageHeader,
@@ -136,10 +137,6 @@ export class CampaignsListPage {
   readonly campaignListStatus = campaignListStatus;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly campaignStatusTone = campaignStatusTone;
-
-  collectionProgress(value: number): number {
-    return Math.min(100, Math.max(0, value));
-  }
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.campaignPage()?.page.number ?? 0) === 0,

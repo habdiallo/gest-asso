@@ -8,7 +8,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { CagnottesService, SocialEventType, SocialFundStatus } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -16,6 +15,7 @@ import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { FinancialCard } from '@shared/financial-card/financial-card';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
@@ -40,7 +40,7 @@ const PAGE_SIZE = 20;
  * `CagnottesService`) et affiche les cagnottes sociales renvoyées par le
  * serveur. Écran/route/feature entièrement distincts de l'écran des
  * campagnes de cotisation (RG-CAG-001 : une cagnotte est indépendante d'une
- * campagne) ; aucun composant n'est partagé entre les deux.
+ * campagne) ; seul le composant visuel neutre `FinancialCard` est partagé.
  *
  * Le contrôle d'accès par rôle applicatif (Administrateur/Trésorier/Opérateur)
  * est porté par `roleGuard` sur la route `/cagnottes` (voir `app.routes.ts`),
@@ -79,11 +79,11 @@ const PAGE_SIZE = 20;
 @Component({
   selector: 'app-social-funds-list-page',
   imports: [
-    RouterLink,
     TranslocoPipe,
     ActionButton,
     ApiErrorRetry,
     EmptyState,
+    FinancialCard,
     FormDialog,
     LoadingSkeleton,
     PageHeader,

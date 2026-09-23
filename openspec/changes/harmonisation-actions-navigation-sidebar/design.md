@@ -132,6 +132,22 @@ préservés, ce dernier restant disponible dans un filtre secondaire afin de ne 
 perdre une capacité métier déjà livrée. Aucun changement du contrat API n'est
 nécessaire.
 
+### 7. Composant partagé de cartes financières
+
+Les cartes Campagnes et Cagnottes utilisent le composant neutre
+`contribo-front/src/app/shared/financial-card/`. Il reçoit uniquement des valeurs
+d'affichage et une destination de détail : libellé supérieur, statut et son ton,
+titre, sous-titre, montant encaissé, objectif facultatif, progression facultative,
+libellé de pied et valeur de progression. Les pages restent responsables des
+formats de dates, de montants et des libellés métier propres à leur API.
+
+Le composant rend un lien Angular couvrant la carte et applique le même conteneur
+que `.campaign-card` du prototype : bordure et ombre de repos, déplacement de 2 px
+et bordure dorée au survol, titre doré au survol ou au focus, ainsi qu'un anneau
+`focus-visible` accessible. L'absence d'objectif masque complètement la comparaison
+avec l'objectif et la barre de progression, sans transformer un montant absent en
+zéro.
+
 ## Risks / Trade-offs
 
 - [Risque] Un lien converti en bouton pourrait perdre le comportement d'URL ou de

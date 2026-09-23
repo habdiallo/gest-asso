@@ -240,9 +240,11 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).toContain('Famille Camara');
     expect(root.textContent).toContain('43 contributeur(s)');
 
-    const progressBar = root.querySelector<HTMLElement>('[data-testid="social-fund-progress-bar"]');
+    const progressBar = root.querySelector<HTMLElement>(
+      '[data-testid="financial-card-progress-bar"]',
+    );
     expect(progressBar?.style.width).toBe('67.9%');
-    expect(root.querySelector('[data-testid="social-fund-status-dot"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="financial-card-status-dot"]')).not.toBeNull();
     expect(root.querySelector('[role="group"]')?.textContent).toContain('Toutes');
     expect(root.querySelector('[role="group"]')?.textContent).toContain('Ouvertes');
     expect(root.querySelector('[role="group"]')?.textContent).toContain('Clôturées');
@@ -323,7 +325,7 @@ describe('SocialFundsListPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('1,9M GNF');
-    expect(root.querySelector('[data-testid="social-fund-progress-bar"]')).toBeNull();
+    expect(root.querySelector('[data-testid="financial-card-progress-bar"]')).toBeNull();
     // Aucun comparatif "collecté / objectif" ne doit apparaître sans objectif défini.
     expect(root.textContent).not.toContain('/');
   });
