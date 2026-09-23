@@ -35,4 +35,4 @@ thèmes.
 
 - [x] 5.1 [T-128] Comparer le dashboard et la sidebar avec le prototype local à 1440 px et 1024 px, en thème sombre puis clair, et vérifier le clavier, le focus, le texte agrandi et le breakpoint mobile existant.
 - [x] 5.2 [T-128] Exécuter `npm test -- --watch=false`, `npm run build` et `npm run lint` depuis `contribo-front/`, puis relire le diff pour confirmer qu'aucun contrat API ou fichier hors périmètre n'a changé.
-- [ ] 5.3 [T-128] Exécuter `node scripts/tickets.mjs check`, committer uniquement le périmètre T-128, pousser la branche dédiée et préparer une PR vers `main` avec les validations et captures avant/après, sans fusionner.
+- [x] 5.3 [T-128] Exécuter `node scripts/tickets.mjs check`, committer uniquement le périmètre T-128, pousser la branche dédiée et préparer une PR vers `main` avec les validations et captures avant/après, sans fusionner.
