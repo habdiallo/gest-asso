@@ -30,6 +30,9 @@ import {
   campaignStatusTone,
 } from '../campaign-status-labels';
 
+/** Nombre maximal de cartes affichées par page, soit deux lignes de trois cartes sur desktop. */
+const PAGE_SIZE = 6;
+
 /**
  * Écran liste des campagnes (T-57, `openapi:listCampaigns`) : nom, période
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
@@ -276,7 +279,7 @@ export class CampaignsListPage {
     this.lastRequestedNameQuery = nameQuery;
 
     this.campaignsService
-      .listCampaigns(page, undefined, nameQuery || undefined, this.statusFilter() || undefined)
+      .listCampaigns(page, PAGE_SIZE, nameQuery || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {

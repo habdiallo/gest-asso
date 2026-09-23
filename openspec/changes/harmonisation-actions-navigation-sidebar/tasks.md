@@ -46,3 +46,5 @@ thèmes.
 - [x] 5.9 [T-128] Brancher la recherche et le filtre statut sur les paramètres API existants, couvrir le rendu et les états de la liste Cagnottes par tests, puis exécuter les validations frontend et mettre à jour la PR.
 - [x] 5.10 [T-128] Factoriser les cartes financières Campagnes/Cagnottes dans `contribo-front/src/app/shared/financial-card/`, avec un contrat d'affichage adaptable, un lien de détail et les états hover/focus du prototype.
 - [x] 5.11 [T-128] Migrer les deux listes vers la carte partagée, couvrir les variantes avec et sans objectif par tests, puis exécuter les validations frontend et mettre à jour la PR.
+- [x] 5.12 [T-128] Compacter les cartes financières selon le prototype, supprimer l'étirement `h-full` des grilles et limiter les requêtes des listes à six éléments par page en conservant la pagination.
+- [x] 5.13 [T-128] Garantir et documenter le tri des campagnes et cagnottes par date de début décroissante avant pagination, aligner les mocks et couvrir l'ordre par tests.

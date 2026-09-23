@@ -32,8 +32,8 @@ import {
 } from '../social-fund-labels';
 import { progressBarWidth } from '../social-fund-progress';
 
-/** Taille de page utilisée pour `GET /social-funds` (RG de pagination par défaut). */
-const PAGE_SIZE = 20;
+/** Nombre maximal de cartes affichées par page, soit deux lignes de trois cartes sur desktop. */
+const PAGE_SIZE = 6;
 
 /**
  * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@api`,

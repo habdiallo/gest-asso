@@ -65,7 +65,7 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
         },
       },
     ],
-    page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    page: { number: 0, size: 6, totalElements: 1, totalPages: 1 },
     ...overrides,
   };
 }
@@ -216,7 +216,7 @@ describe('CampaignsListPage', () => {
       of(
         buildCampaignPage({
           items: [],
-          page: { number: 0, size: 20, totalElements: 0, totalPages: 1 },
+          page: { number: 0, size: 6, totalElements: 0, totalPages: 1 },
         }),
       ),
     );
@@ -237,6 +237,13 @@ describe('CampaignsListPage', () => {
     fixture.detectChanges();
 
     expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
+  });
+
+  it('requests at most six campaigns per page', async () => {
+    const listCampaigns = vi.fn(() => of(buildCampaignPage()));
+    await createFixture(listCampaigns);
+
+    expect(listCampaigns).toHaveBeenCalledWith(0, 6, undefined, undefined);
   });
 
   it('requests the first page again when the status filter changes', async () => {

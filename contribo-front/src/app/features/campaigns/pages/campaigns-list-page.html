@@ -121,7 +121,7 @@
           @let displayStatus = campaignListStatus(campaign.status);
           @let statusTone = campaignStatusTone(campaign.status);
           @let financialSummary = campaign.financialSummary;
-          <li class="min-h-[300px]">
+          <li>
             <app-financial-card
               [routerLink]="[campaign.id]"
               [eyebrow]="campaign.memberCount + ' ' + ('campaigns.list.members' | transloco)"

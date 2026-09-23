@@ -42,3 +42,26 @@ statut SHALL être compréhensible par son texte et son point coloré.
   dorée et applique un déplacement vertical de 2 px au survol
 - **AND** le titre adopte l'accent doré au survol ou au focus
 - **AND** aucun contenu métier ne disparaît
+
+### Requirement: Listes compactes et ordonnées
+
+Les listes Campagnes et Cagnottes SHALL demander au service API au maximum six
+éléments par page et SHALL conserver la pagination au-delà de cette limite. Le
+service SHALL renvoyer les éléments de la date de début la plus récente à la plus
+ancienne, avec la date de fin comme départage secondaire. La carte SHALL conserver
+une hauteur compacte proche du prototype sans imposer `h-full` à son élément de grille.
+
+#### Scenario: Première page desktop
+
+- **WHEN** une liste contient plus de six campagnes ou cagnottes
+- **THEN** la première requête demande une page de six éléments
+- **AND** l'écran affiche au plus six cartes, dans une grille de trois colonnes
+  lorsque la largeur desktop le permet
+- **AND** les contrôles de pagination permettent d'ouvrir les éléments suivants
+
+#### Scenario: Ordre des résultats
+
+- **WHEN** plusieurs éléments ont des dates de début différentes
+- **THEN** la première page commence par l'élément dont `startDate` est la plus récente
+- **AND** le tri est appliqué avant le découpage en pages afin qu'un élément ne soit
+  pas décalé entre deux pages

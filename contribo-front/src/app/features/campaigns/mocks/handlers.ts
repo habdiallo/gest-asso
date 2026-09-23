@@ -419,16 +419,20 @@ export const campaignsHandlers = [
         !normalizedQuery || normalizeForSearch(campaign.name).includes(normalizedQuery);
       return matchesStatus && matchesQuery;
     });
+    const sorted = [...filtered].sort(
+      (left, right) =>
+        right.startDate.localeCompare(left.startDate) || right.endDate.localeCompare(left.endDate),
+    );
     const start = page * size;
-    const items = filtered.slice(start, start + size);
+    const items = sorted.slice(start, start + size);
 
     return HttpResponse.json<CampaignPage>({
       items,
       page: {
         number: page,
         size,
-        totalElements: filtered.length,
-        totalPages: Math.max(1, Math.ceil(filtered.length / size)),
+        totalElements: sorted.length,
+        totalPages: Math.max(1, Math.ceil(sorted.length / size)),
       },
     });
   }),

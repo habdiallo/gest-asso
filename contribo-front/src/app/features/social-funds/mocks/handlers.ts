@@ -241,9 +241,13 @@ export const socialFundsHandlers = [
         (!eventType || socialFund.eventType === eventType) &&
         (!status || socialFund.status === status),
     );
-    const totalElements = filteredSocialFunds.length;
+    const sortedSocialFunds = [...filteredSocialFunds].sort(
+      (left, right) =>
+        right.startDate.localeCompare(left.startDate) || right.endDate.localeCompare(left.endDate),
+    );
+    const totalElements = sortedSocialFunds.length;
     const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / pageSize);
-    const items = filteredSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+    const items = sortedSocialFunds.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
 
     const page: SocialFundPage = {
       items,

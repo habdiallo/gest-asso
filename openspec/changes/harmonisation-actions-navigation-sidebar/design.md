@@ -129,8 +129,8 @@ informations sont renvoyées par l'API.
 La recherche et le statut utilisent les paramètres contractuels `q` et `status` de
 `GET /social-funds`. La pagination et le filtre existant par type d'événement sont
 préservés, ce dernier restant disponible dans un filtre secondaire afin de ne pas
-perdre une capacité métier déjà livrée. Aucun changement du contrat API n'est
-nécessaire.
+perdre une capacité métier déjà livrée. La réponse est ordonnée de la date de début
+la plus récente à la plus ancienne avant pagination, conformément au contrat API.
 
 ### 7. Composant partagé de cartes financières
 
@@ -147,6 +147,21 @@ et bordure dorée au survol, titre doré au survol ou au focus, ainsi qu'un anne
 `focus-visible` accessible. L'absence d'objectif masque complètement la comparaison
 avec l'objectif et la barre de progression, sans transformer un montant absent en
 zéro.
+
+### 8. Dimensions et ordre des listes
+
+Le composant partagé utilise une hauteur minimale compacte de 312 px, un padding de
+21 px et ne dépend pas de `h-full`. Les éléments de grille ne portent pas de hauteur
+minimale additionnelle : une carte ne peut donc pas étirer toutes les cartes de sa
+ligne lorsqu'une variante a un contenu différent. Les listes demandent au serveur
+six éléments par page, ce qui produit au maximum deux lignes de trois cartes sur
+desktop, puis conservent la pagination existante pour les éléments suivants.
+
+Les campagnes et les cagnottes sont triées par `startDate` décroissante, puis par
+`endDate` décroissante en cas d'égalité, avant la pagination. Le contrat OpenAPI
+documente cet ordre pour les deux opérations de liste. Le mock MSW applique le même
+tri afin que la démonstration et les tests représentent le comportement attendu du
+serveur.
 
 ## Risks / Trade-offs
 

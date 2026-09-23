@@ -130,7 +130,7 @@
       >
         @for (socialFund of socialFunds(); track socialFund.id) {
           @let statusTone = socialFundStatusTone(socialFund.status);
-          <li class="min-h-[300px]">
+          <li>
             <app-financial-card
               [routerLink]="[socialFund.id]"
               [eyebrow]="socialEventTypeLabel(socialFund.eventType)"

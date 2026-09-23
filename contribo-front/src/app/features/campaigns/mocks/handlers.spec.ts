@@ -1,6 +1,6 @@
 import { setupServer } from 'msw/node';
 import { ErrorCode, UserRole } from '@api';
-import type { Campaign, ErrorResponse } from '@api';
+import type { Campaign, CampaignPage, ErrorResponse } from '@api';
 import { demoAccounts } from '../../../../mocks/demo-accounts';
 import { campaignsHandlers } from './handlers';
 
@@ -34,6 +34,23 @@ function updateAmounts(
     body: JSON.stringify({ categoryAmounts }),
   });
 }
+
+describe('GET /api/v1/campaigns (mock)', () => {
+  it('returns campaigns from the most recent start date before pagination', async () => {
+    const response = await fetch('/api/v1/campaigns?size=2', {
+      headers: headersFor(UserRole.Treasurer),
+    });
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as CampaignPage;
+    expect(page.items.map((campaign) => campaign.name)).toEqual([
+      'Solidarité septembre',
+      'Rentrée associative',
+    ]);
+    expect(page.page.size).toBe(2);
+    expect(page.page.totalElements).toBe(4);
+  });
+});
 
 describe('PUT /api/v1/campaigns/{id}/category-amounts (mock, T-113)', () => {
   it('accepte un tableau JSON et conserve le barème et le bilan mis à jour', async () => {

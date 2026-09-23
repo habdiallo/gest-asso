@@ -44,6 +44,8 @@ describe('FinancialCard', () => {
     const link = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
 
     expect(link.getAttribute('href')).toBe('/campagnes/campaign-id');
+    expect(link.classList.contains('min-h-[312px]')).toBe(true);
+    expect(link.classList.contains('h-full')).toBe(false);
     expect(link.textContent).toContain('Solidarité septembre');
     expect(link.textContent).toContain('12,4M GNF');
     expect(link.textContent).toContain('18,5M GNF');

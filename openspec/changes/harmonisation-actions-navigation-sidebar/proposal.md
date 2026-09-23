@@ -33,6 +33,11 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
   et ses droits d'accès.
 - Factoriser le rendu des cartes financières Campagnes/Cagnottes dans un composant
   partagé adaptable, avec les mêmes états de repos, hover et focus que le prototype.
+- Compacter les cartes financières pour reprendre les dimensions du prototype, éviter
+  l'étirement vertical des lignes et limiter les listes à six cartes par page desktop
+  avec pagination conservée.
+- Garantir l'ordre des listes, de la campagne ou cagnotte dont la date de début est
+  la plus récente vers la plus ancienne, avant le découpage en pages.
 - Conserver les autorisations, les routes existantes, les gardes, la session, les
   actions thème/déconnexion et la navigation mobile. Aucun changement API ou backend.
 
@@ -58,6 +63,7 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
   `roles-users`, ainsi que les traductions et tests associés.
 - Navigation verticale, définition `navigation-items.ts`, `navigation-menu` et shell
   desktop, avec vérifications des variantes de rôles et du responsive existant.
-- Aucun nouveau package, aucune migration et aucune modification du contrat API.
+- Aucun nouveau package, aucune migration ni modification de forme du contrat API ou
+  du backend ; la description de l'ordre attendu des listes est précisée dans OpenAPI.
 - Un ticket front/fix unique sera réservé comme T-128 dans `openspec/tickets.json`,
   avec une branche et une PR dédiées vers `main`.

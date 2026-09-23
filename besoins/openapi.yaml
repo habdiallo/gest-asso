@@ -848,7 +848,7 @@ paths:
         - $ref: '#/components/parameters/SocialFundEventTypeFilter'
       responses:
         '200':
-          description: Page de cagnottes sociales.
+          description: Page de cagnottes sociales, de la plus récente à la plus ancienne selon la date de début.
           content:
             application/json:
               schema:
