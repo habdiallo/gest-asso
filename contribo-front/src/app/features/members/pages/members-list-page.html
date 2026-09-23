@@ -75,6 +75,32 @@
         class="min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text outline-none transition-colors placeholder:text-text-3 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
+    @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
+      <div class="w-full shrink-0 sm:w-[190px]">
+        <app-custom-select
+          controlId="member-income-category-filter"
+          [options]="incomeCategorySelectOptions()"
+          [value]="selectedIncomeCategoryId() ?? ''"
+          [placeholder]="'members.filters.incomeCategoryShort' | transloco"
+          [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
+          [compact]="true"
+          (valueChange)="onIncomeCategoryFilterChange($event)"
+        />
+      </div>
+    }
+    @if (countrySelectOptions().length > 1) {
+      <div class="w-full shrink-0 sm:w-[160px]">
+        <app-custom-select
+          controlId="member-country-filter"
+          [options]="countrySelectOptions()"
+          [value]="selectedCountry() ?? ''"
+          [placeholder]="'members.filters.countryShort' | transloco"
+          [ariaLabel]="'members.filters.countryLabel' | transloco"
+          [compact]="true"
+          (valueChange)="onCountryFilterChange($event)"
+        />
+      </div>
+    }
     <div
       class="flex shrink-0 rounded-lg border border-line bg-surface-2 p-1"
       role="group"
@@ -110,21 +136,6 @@
     @if (page.items.length === 0) {
       <app-empty-state class="mt-6 block" [message]="'members.empty' | transloco" />
     } @else {
-      @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
-        <div class="mt-6 flex flex-wrap items-center gap-2">
-          <label for="member-income-category-filter" class="text-sm text-text-2">
-            {{ 'members.filters.incomeCategoryLabel' | transloco }}
-          </label>
-          <app-custom-select
-            controlId="member-income-category-filter"
-            [options]="incomeCategorySelectOptions()"
-            [value]="selectedIncomeCategoryId() ?? ''"
-            [placeholder]="'members.filters.incomeCategoryAll' | transloco"
-            (valueChange)="onIncomeCategoryFilterChange($event)"
-          />
-        </div>
-      }
-
       @if (filteredItems().length === 0) {
         <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {

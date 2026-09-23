@@ -60,6 +60,8 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly options = input.required<ReadonlyArray<CustomSelectOption>>();
   readonly controlId = input<string | null>(null);
   readonly label = input<string>();
+  readonly ariaLabel = input<string | null>(null);
+  readonly compact = input(false);
   readonly placeholder = input('Sélectionner');
   readonly required = input(false);
   readonly showRequiredError = input(true);

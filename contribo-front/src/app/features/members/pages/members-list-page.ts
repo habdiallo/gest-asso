@@ -181,13 +181,13 @@ export class MembersListPage {
   }
 
   /**
-   * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les
-   * catégories". Les options proposées et le filtrage appliqué se limitent
-   * aux membres de la page actuellement chargée, `listMembers` n'exposant
-   * aucun paramètre de filtre par catégorie. La sélection est conservée
-   * pendant la pagination : une catégorie absente de la nouvelle page
-   * affiche une liste filtrée vide plutôt que de réafficher toutes les
-   * catégories.
+   * Filtres par catégorie de revenu (T-26) et par pays : `null` signifie
+   * "toutes les valeurs". Les options proposées et le filtrage appliqué se
+   * limitent aux membres de la page actuellement chargée, `listMembers`
+   * n'exposant aucun paramètre de requête pour ces deux filtres. Les sélections
+   * sont conservées pendant la pagination : une valeur absente de la nouvelle
+   * page affiche une liste filtrée vide plutôt que de réafficher tous les
+   * membres.
    */
   readonly selectedIncomeCategoryId = signal<string | null>(null);
 
@@ -208,14 +208,31 @@ export class MembersListPage {
       label: category.label,
     })),
   ]);
+  readonly selectedCountry = signal<string | null>(null);
+  readonly countryOptions = computed(() => {
+    const countries = new Set<string>();
+    for (const member of this.memberPage()?.items ?? []) {
+      const country = member.country?.trim();
+      if (country) {
+        countries.add(country);
+      }
+    }
+    return [...countries].sort((left, right) => left.localeCompare(right, 'fr'));
+  });
+  readonly countrySelectOptions = computed<readonly CustomSelectOption[]>(() => [
+    { value: '', label: '', translationKey: 'members.filters.countryAll' },
+    ...this.countryOptions().map((country) => ({ value: country, label: country })),
+  ]);
 
   readonly filteredItems = computed<MemberSummary[]>(() => {
     const items = this.memberPage()?.items ?? [];
     const categoryId = this.selectedIncomeCategoryId();
-    if (!categoryId) {
-      return items;
-    }
-    return items.filter((member) => member.incomeCategory.id === categoryId);
+    const country = this.selectedCountry();
+    return items.filter(
+      (member) =>
+        (!categoryId || member.incomeCategory.id === categoryId) &&
+        (!country || member.country?.trim() === country),
+    );
   });
 
   constructor() {
@@ -249,6 +266,10 @@ export class MembersListPage {
 
   onIncomeCategoryFilterChange(value: string | null): void {
     this.selectedIncomeCategoryId.set(value === '' ? null : value);
+  }
+
+  onCountryFilterChange(value: string | null): void {
+    this.selectedCountry.set(value === '' ? null : value);
   }
 
   onStatusFilterChange(value: string | null): void {
