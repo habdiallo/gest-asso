@@ -14,6 +14,17 @@ export function socialFundStatusLabel(status: SocialFundStatus): string {
   return SOCIAL_FUND_STATUS_LABELS[status];
 }
 
+export type SocialFundStatusTone = 'success' | 'neutral';
+
+const SOCIAL_FUND_STATUS_TONES: Record<SocialFundStatus, SocialFundStatusTone> = {
+  [SocialFundStatus.Open]: 'success',
+  [SocialFundStatus.Closed]: 'neutral',
+};
+
+export function socialFundStatusTone(status: SocialFundStatus): SocialFundStatusTone {
+  return SOCIAL_FUND_STATUS_TONES[status];
+}
+
 /**
  * Libellés français des types d'événement social, repris tels quels du cahier
  * (US-CAG-001) : Mariage, Baptême, Décès, Naissance, Autre.

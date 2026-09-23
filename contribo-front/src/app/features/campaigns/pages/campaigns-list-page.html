@@ -1,18 +1,26 @@
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-      {{ 'campaigns.list.title' | transloco }}
-    </h1>
+<main class="mx-auto max-w-[1440px] px-5 pb-16 pt-8 sm:px-8 sm:pt-10 lg:px-12">
+  <app-page-header
+    [kicker]="'campaigns.list.kicker' | transloco"
+    [title]="'campaigns.list.title' | transloco"
+    [intro]="'campaigns.list.intro' | transloco"
+  >
     @if (canCreateCampaign()) {
-      <button
-        type="button"
-        class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
-        (click)="openCreateDialog()"
-      >
+      <app-action-button (click)="openCreateDialog()">
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
         {{ 'campaigns.create.button' | transloco }}
-      </button>
+      </app-action-button>
     }
-  </div>
+  </app-page-header>
 
   @if (canCreateCampaign()) {
     <app-form-dialog
@@ -38,32 +46,48 @@
     </app-form-dialog>
   }
 
-  <div class="mt-6 flex flex-wrap gap-4">
-    <div class="flex flex-col gap-2 sm:max-w-xs sm:grow">
-      <label for="campaigns-search" class="text-sm font-medium text-text-2">
-        {{ 'campaigns.list.searchLabel' | transloco }}
-      </label>
+  <div class="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+    <label class="relative min-w-0 flex-1">
+      <span class="sr-only">{{ 'campaigns.list.searchLabel' | transloco }}</span>
+      <svg
+        class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-2"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-4-4" />
+      </svg>
       <input
         id="campaigns-search"
         type="search"
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'campaigns.list.searchPlaceholder' | transloco"
-        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-12 w-full rounded-lg border border-line bg-surface-2 py-2 pl-12 pr-4 text-sm text-text outline-none transition-colors placeholder:text-text-2 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
-    </div>
+    </label>
 
-    <div class="flex flex-col gap-2 sm:max-w-xs">
-      <label for="campaigns-status-filter" class="text-sm font-medium text-text-2">
-        {{ 'campaigns.list.statusFilterLabel' | transloco }}
-      </label>
-      <app-custom-select
-        controlId="campaigns-status-filter"
-        [options]="statusSelectOptions"
-        [value]="statusFilter()"
-        [placeholder]="'campaigns.list.statusFilterAll' | transloco"
-        (valueChange)="onStatusFilterChange($event)"
-      />
+    <div
+      class="flex min-h-12 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface p-1"
+      role="group"
+      [attr.aria-label]="'campaigns.list.statusFilterLabel' | transloco"
+    >
+      @for (option of statusOptions; track option.labelKey) {
+        <button
+          type="button"
+          class="min-h-10 rounded-md px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-text-2 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          [class.bg-surface-2]="statusFilter() === option.value"
+          [class.text-text]="statusFilter() === option.value"
+          [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
+          (click)="onStatusFilterChange(option.value)"
+        >
+          {{ option.labelKey | transloco }}
+        </button>
+      }
     </div>
   </div>
 
@@ -89,27 +113,40 @@
     @if (campaignPage.items.length === 0) {
       <app-empty-state class="mt-6 block" [message]="'campaigns.list.empty' | transloco" />
     } @else {
-      <ul class="mt-6 flex flex-col gap-3" [attr.aria-busy]="loading() ? 'true' : null">
+      <ul
+        class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        [attr.aria-busy]="loading() ? 'true' : null"
+      >
         @for (campaign of campaignPage.items; track campaign.id) {
-          <li class="rounded-card border border-line bg-surface p-4">
-            <a class="block" [routerLink]="[campaign.id]">
-              <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <span class="font-medium text-text">{{ campaign.name }}</span>
-                <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-                  {{ campaignStatusLabel(campaign.status) }}
-                </span>
-              </div>
-              <p class="mt-1 text-sm text-text-2">
-                {{
-                  'campaigns.list.period'
-                    | transloco
-                      : {
-                          start: formatCalendarDate(campaign.startDate),
-                          end: formatCalendarDate(campaign.endDate),
-                        }
-                }}
-              </p>
-            </a>
+          @let displayStatus = campaignListStatus(campaign.status);
+          @let statusTone = campaignStatusTone(campaign.status);
+          @let financialSummary = campaign.financialSummary;
+          <li>
+            <app-financial-card
+              [routerLink]="[campaign.id]"
+              [eyebrow]="campaign.memberCount + ' ' + ('campaigns.list.members' | transloco)"
+              [statusLabel]="campaignStatusLabel(displayStatus)"
+              [statusTone]="statusTone"
+              [title]="campaign.name"
+              [subtitle]="
+                'campaigns.list.period'
+                  | transloco
+                    : {
+                        start: formatCalendarDate(campaign.startDate),
+                        end: formatCalendarDate(campaign.endDate),
+                      }
+              "
+              [collectedAmount]="
+                financialSummary ? formatAmount(financialSummary.collectedAmount) : null
+              "
+              [targetAmount]="
+                financialSummary ? formatAmount(financialSummary.expectedAmount) : null
+              "
+              [progressRate]="financialSummary?.collectionRate ?? null"
+              [financialFallback]="'campaigns.list.consultation' | transloco"
+              [footerLabel]="financialSummary ? ('campaigns.list.collected' | transloco) : null"
+              [footerValue]="financialSummary ? financialSummary.collectionRate + '%' : null"
+            />
           </li>
         }
       </ul>

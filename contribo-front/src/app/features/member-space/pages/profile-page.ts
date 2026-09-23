@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import type { MemberSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { PageHeader } from '@shared/page-header/page-header';
 import { MyDues } from '../components/my-dues';
 import { MyContributions } from '../components/my-contributions';
 import { memberStatusLabel } from '../member-status-labels';
@@ -23,7 +24,7 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [TranslocoPipe, MyDues, MyContributions],
+  imports: [TranslocoPipe, PageHeader, MyDues, MyContributions],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

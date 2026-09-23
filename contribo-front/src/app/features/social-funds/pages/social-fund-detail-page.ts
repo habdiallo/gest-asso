@@ -14,9 +14,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { canRecordPayments } from '@core/session/payment-authorization';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
 import { formatSocialFundCalendarDate, formatSocialFundDateTime } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
@@ -79,9 +81,11 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
   imports: [
     RouterLink,
     TranslocoPipe,
+    ActionButton,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
     ContributionCreateForm,
   ],
   templateUrl: './social-fund-detail-page.html',

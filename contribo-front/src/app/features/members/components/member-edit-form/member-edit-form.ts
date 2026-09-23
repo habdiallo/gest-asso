@@ -14,12 +14,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService } from '@api';
 import type { UpdateMemberRequest, IncomeCategory, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 
 @Component({
   selector: 'app-member-edit-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
   templateUrl: './member-edit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

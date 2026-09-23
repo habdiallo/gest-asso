@@ -60,19 +60,17 @@ describe('NavigationMenu', () => {
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Membres',
-      'Catégories de revenu',
-      'Campagnes',
+      'Cotisations',
       'Cagnottes',
-      'Rôles et utilisateurs',
-      'Mon espace',
+      'Utilisateurs & rôles',
+      'Catégories',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/membres',
-      '/categories-de-revenu',
       '/campagnes',
       '/cagnottes',
       '/roles-utilisateurs',
-      '/mon-espace',
+      '/categories-de-revenu',
     ]);
   });
 
@@ -85,7 +83,7 @@ describe('NavigationMenu', () => {
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Membres',
-      'Campagnes',
+      'Cotisations',
       'Cagnottes',
       'Mon espace',
     ]);
@@ -106,7 +104,7 @@ describe('NavigationMenu', () => {
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Membres',
-      'Campagnes',
+      'Cotisations',
       'Cagnottes',
       'Mon espace',
     ]);
@@ -132,14 +130,7 @@ describe('NavigationMenu', () => {
   it.each([
     [
       'ADMINISTRATOR',
-      [
-        '/membres',
-        '/campagnes',
-        '/cagnottes',
-        '/mon-espace',
-        '/categories-de-revenu',
-        '/roles-utilisateurs',
-      ],
+      ['/membres', '/campagnes', '/cagnottes', '/roles-utilisateurs', '/categories-de-revenu'],
     ],
     ['TREASURER', ['/membres', '/campagnes', '/cagnottes', '/mon-espace']],
     ['OPERATOR', ['/membres', '/campagnes', '/cagnottes', '/mon-espace']],

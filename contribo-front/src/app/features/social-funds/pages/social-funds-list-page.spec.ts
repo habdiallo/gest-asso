@@ -2,7 +2,13 @@ import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CagnottesService, CurrencyCode, MemberStatus, SocialEventType } from '@api';
+import {
+  CagnottesService,
+  CurrencyCode,
+  MemberStatus,
+  SocialEventType,
+  SocialFundStatus,
+} from '@api';
 import type {
   CreateSocialFundRequest,
   CurrentUser,
@@ -73,7 +79,7 @@ function buildSocialFundPage(overrides: Partial<SocialFundPage> = {}): SocialFun
         currency: 'GNF',
       },
     ],
-    page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+    page: { number: 0, size: 6, totalElements: 1, totalPages: 1 },
     ...overrides,
   };
 }
@@ -172,7 +178,7 @@ describe('SocialFundsListPage', () => {
       return page === 0
         ? of(
             buildSocialFundPage({
-              page: { number: 0, size: 20, totalElements: 21, totalPages: 2 },
+              page: { number: 0, size: 6, totalElements: 21, totalPages: 2 },
             }),
           )
         : pending.asObservable();
@@ -193,7 +199,7 @@ describe('SocialFundsListPage', () => {
     expect(requestedPages).toEqual([0, 1]);
 
     pending.next(
-      buildSocialFundPage({ page: { number: 1, size: 20, totalElements: 21, totalPages: 2 } }),
+      buildSocialFundPage({ page: { number: 1, size: 6, totalElements: 21, totalPages: 2 } }),
     );
     pending.complete();
     fixture.detectChanges();
@@ -234,8 +240,43 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).toContain('Famille Camara');
     expect(root.textContent).toContain('43 contributeur(s)');
 
-    const progressBar = root.querySelector<HTMLElement>('[data-testid="social-fund-progress-bar"]');
+    const progressBar = root.querySelector<HTMLElement>(
+      '[data-testid="financial-card-progress-bar"]',
+    );
     expect(progressBar?.style.width).toBe('67.9%');
+    expect(root.querySelector('[data-testid="financial-card-status-dot"]')).not.toBeNull();
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Toutes');
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Ouvertes');
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Clôturées');
+  });
+
+  it('requests the selected social fund status on the first page', async () => {
+    const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+    const fixture = await createFixture(listSocialFunds);
+    fixture.detectChanges();
+
+    fixture.componentInstance.onStatusFilterChange(SocialFundStatus.Closed);
+    fixture.detectChanges();
+
+    expect(listSocialFunds).toHaveBeenLastCalledWith(0, 6, undefined, 'CLOSED', undefined);
+  });
+
+  it('debounces the name search and sends the trimmed query to the API', async () => {
+    const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+    const fixture = await createFixture(listSocialFunds);
+    fixture.detectChanges();
+
+    const input = (fixture.nativeElement as HTMLElement).querySelector(
+      '#social-funds-search',
+    ) as HTMLInputElement;
+    input.value = '  Bah  ';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    fixture.detectChanges();
+
+    expect(listSocialFunds).toHaveBeenLastCalledWith(0, 6, 'Bah', undefined, undefined);
   });
 
   it('shows the condensed GNF amounts with the full detailed value as a tooltip (RG-FMT-003)', async () => {
@@ -284,7 +325,7 @@ describe('SocialFundsListPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('1,9M GNF');
-    expect(root.querySelector('[data-testid="social-fund-progress-bar"]')).toBeNull();
+    expect(root.querySelector('[data-testid="financial-card-progress-bar"]')).toBeNull();
     // Aucun comparatif "collecté / objectif" ne doit apparaître sans objectif défini.
     expect(root.textContent).not.toContain('/');
   });
@@ -304,12 +345,12 @@ describe('SocialFundsListPage', () => {
       expect(fixture.nativeElement.querySelector('nav[aria-label]')).toBeNull();
     });
 
-    it('shows pagination controls and requests the next page beyond 20 social funds', async () => {
+    it('shows pagination controls and requests the next page beyond six social funds', async () => {
       const listSocialFunds = vi.fn((page = 0) =>
         of(
           buildSocialFundPage({
-            items: page === 0 ? buildManyItems(20) : buildManyItems(5),
-            page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+            items: page === 0 ? buildManyItems(6) : buildManyItems(5),
+            page: { number: page, size: 6, totalElements: 11, totalPages: 2 },
           }),
         ),
       );
@@ -327,7 +368,7 @@ describe('SocialFundsListPage', () => {
       nextButton.click();
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined);
+      expect(listSocialFunds).toHaveBeenCalledWith(1, 6, undefined, undefined, undefined);
       expect(root.textContent).toContain('Page 2 sur 2');
       expect(previousButton.getAttribute('aria-disabled')).toBeNull();
       expect(nextButton.getAttribute('aria-disabled')).toBe('true');
@@ -335,7 +376,7 @@ describe('SocialFundsListPage', () => {
       previousButton.click();
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenCalledWith(0, 20, undefined, undefined, undefined);
+      expect(listSocialFunds).toHaveBeenCalledWith(0, 6, undefined, undefined, undefined);
       expect(root.textContent).toContain('Page 1 sur 2');
     });
 
@@ -344,8 +385,8 @@ describe('SocialFundsListPage', () => {
         page === 0
           ? of(
               buildSocialFundPage({
-                items: buildManyItems(20),
-                page: { number: 0, size: 20, totalElements: 25, totalPages: 2 },
+                items: buildManyItems(6),
+                page: { number: 0, size: 6, totalElements: 11, totalPages: 2 },
               }),
             )
           : throwError(() => new Error('network error')),
@@ -368,7 +409,7 @@ describe('SocialFundsListPage', () => {
       const listSocialFunds = vi.fn((page = 0) =>
         of(
           buildSocialFundPage({
-            page: { number: page, size: 20, totalElements: 1, totalPages: 1 },
+            page: { number: page, size: 6, totalElements: 1, totalPages: 1 },
           }),
         ),
       );
@@ -380,7 +421,7 @@ describe('SocialFundsListPage', () => {
       fixture.componentInstance.onEventTypeFilterChange('DEATH');
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenCalledWith(0, 20, undefined, undefined, 'DEATH');
+      expect(listSocialFunds).toHaveBeenCalledWith(0, 6, undefined, undefined, 'DEATH');
     });
 
     it('clears the filter and requests every event type again', async () => {
@@ -394,7 +435,7 @@ describe('SocialFundsListPage', () => {
       fixture.componentInstance.onEventTypeFilterChange('');
       fixture.detectChanges();
 
-      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, undefined, undefined);
+      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 6, undefined, undefined, undefined);
     });
 
     it('shows the empty-list message when no social fund matches the selected event type', async () => {
@@ -405,7 +446,7 @@ describe('SocialFundsListPage', () => {
             items: eventType ? [] : buildSocialFundPage().items,
             page: {
               number: 0,
-              size: 20,
+              size: 6,
               totalElements: eventType ? 0 : 1,
               totalPages: eventType ? 0 : 1,
             },
@@ -474,8 +515,8 @@ describe('SocialFundsListPage', () => {
           eventType === undefined
             ? of(
                 buildSocialFundPage({
-                  items: buildManyItems(20),
-                  page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+                  items: buildManyItems(6),
+                  page: { number: page, size: 6, totalElements: 11, totalPages: 2 },
                 }),
               )
             : pending.asObservable(),
@@ -502,7 +543,7 @@ describe('SocialFundsListPage', () => {
       pending.next(
         buildSocialFundPage({
           items: buildManyItems(3),
-          page: { number: 0, size: 20, totalElements: 3, totalPages: 1 },
+          page: { number: 0, size: 6, totalElements: 3, totalPages: 1 },
         }),
       );
       fixture.detectChanges();
@@ -544,8 +585,8 @@ describe('SocialFundsListPage', () => {
           eventType === undefined
             ? of(
                 buildSocialFundPage({
-                  items: buildManyItems(20),
-                  page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+                  items: buildManyItems(6),
+                  page: { number: page, size: 6, totalElements: 11, totalPages: 2 },
                 }),
               )
             : throwError(() => new Error('network error')),
@@ -626,7 +667,7 @@ describe('SocialFundsListPage', () => {
         startDate: '2026-10-01',
         endDate: '2026-10-31',
       });
-      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, undefined, undefined);
+      expect(listSocialFunds).toHaveBeenLastCalledWith(0, 6, undefined, undefined, undefined);
       expect(fixture.componentInstance.createDialogOpen()).toBe(false);
     });
 

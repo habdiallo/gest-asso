@@ -70,7 +70,7 @@ function buildMemberDetails(overrides: Partial<MemberDetails> = {}): MemberDetai
 }
 
 function buildMember(overrides: Partial<MemberSummary> = {}): MemberSummary {
-  return {
+  const member: MemberSummary = {
     id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
     firstName: 'Amadou',
     lastName: 'Diallo',
@@ -83,6 +83,10 @@ function buildMember(overrides: Partial<MemberSummary> = {}): MemberSummary {
     associationFunction: 'Président',
     status: 'ACTIVE',
     ...overrides,
+  };
+  return {
+    ...member,
+    displayName: overrides.displayName ?? `${member.firstName} ${member.lastName}`,
   };
 }
 
@@ -301,7 +305,7 @@ describe('MembersListPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     const row = root.querySelector('tbody tr');
     expect(row?.textContent).toContain('Inactif');
-    expect(row?.textContent?.match(/Non renseigné/g)?.length).toBe(5);
+    expect(row?.textContent?.match(/Non renseigné/g)?.length).toBe(4);
   });
 
   it('distinguishes active and inactive members visually in the status column (RG-MEM-007)', async () => {
@@ -346,7 +350,7 @@ describe('MembersListPage', () => {
       ),
     ).toBe(false);
     const row = root.querySelector('tbody tr');
-    expect(row?.querySelectorAll('td').length).toBe(9);
+    expect(row?.querySelectorAll('td').length).toBe(5);
   });
 
   it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
@@ -411,8 +415,43 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('Aucun membre ne correspond à cette catégorie de revenu.');
+    expect(root.textContent).toContain('Aucun membre ne correspond aux filtres sélectionnés.');
     expect(root.querySelector('table')).toBeNull();
+  });
+
+  it('filters the member list by country in the shared toolbar', async () => {
+    const memberGuinea = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d32',
+      displayName: 'Amadou Diallo',
+      country: 'Guinée',
+    });
+    const memberSenegal = buildMember({
+      id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d33',
+      displayName: 'Mariam Sow',
+      country: 'Sénégal',
+    });
+    const fixture = await createFixture(() =>
+      of(buildMemberPage({ items: [memberGuinea, memberSenegal] })),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const countrySelect = root.querySelector('#member-country-filter') as HTMLButtonElement | null;
+    expect(countrySelect).toBeTruthy();
+
+    countrySelect?.click();
+    fixture.detectChanges();
+    expect(
+      Array.from(root.querySelectorAll('[role="option"]')).map((option) =>
+        option.textContent?.trim(),
+      ),
+    ).toEqual(['Tous les pays', 'Guinée', 'Sénégal']);
+
+    fixture.componentInstance.onCountryFilterChange('Sénégal');
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Mariam Sow');
+    expect(root.textContent).not.toContain('Amadou Diallo');
   });
 
   it('hides the income category filter for an Opérateur (RG-MEM-008)', async () => {

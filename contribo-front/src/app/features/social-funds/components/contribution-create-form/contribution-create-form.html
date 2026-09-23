@@ -132,24 +132,16 @@
   </div>
 
   <div class="mt-6 flex items-center justify-end gap-3">
-    <button
-      type="button"
-      (click)="cancel()"
-      class="h-11 rounded border border-line px-4 text-sm text-text"
-    >
+    <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'socialFunds.recordContribution.cancel' | transloco }}
-    </button>
-    <button
-      type="submit"
-      [disabled]="submitting()"
-      class="h-11 rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
-    >
+    </app-action-button>
+    <app-action-button type="submit" [disabled]="submitting()">
       {{
         (submitting()
           ? 'socialFunds.recordContribution.submitting'
           : 'socialFunds.recordContribution.submit'
         ) | transloco
       }}
-    </button>
+    </app-action-button>
   </div>
 </form>

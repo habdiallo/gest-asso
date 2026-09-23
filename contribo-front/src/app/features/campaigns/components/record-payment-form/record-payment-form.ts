@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, input, output } fro
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { CreatePaymentRequest, Due, PaymentMethod } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { PaymentMethodSelect } from '@shared/payment-method-select/payment-method-select';
 
@@ -32,7 +33,7 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  */
 @Component({
   selector: 'app-record-payment-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, PaymentMethodSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, AmountInput, PaymentMethodSelect],
   templateUrl: './record-payment-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

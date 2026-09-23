@@ -1,0 +1,80 @@
+<a
+  [routerLink]="routerLink()"
+  class="group flex cursor-pointer flex-col rounded-card border border-line bg-surface p-[21px] shadow-card outline-none transition-[border-color,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+>
+  <div class="flex items-start justify-between gap-3">
+    <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
+      {{ eyebrow() }}
+    </span>
+    <span
+      class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-data text-[9px] font-medium uppercase tracking-[0.1em]"
+      [class.bg-success-wash]="statusTone() === 'success'"
+      [class.text-success]="statusTone() === 'success'"
+      [class.bg-surface-2]="statusTone() === 'neutral'"
+      [class.text-text-2]="statusTone() === 'neutral'"
+    >
+      <span
+        data-testid="financial-card-status-dot"
+        class="h-1.5 w-1.5 rounded-full"
+        [class.bg-success]="statusTone() === 'success'"
+        [class.bg-text-3]="statusTone() === 'neutral'"
+        aria-hidden="true"
+      ></span>
+      {{ statusLabel() }}
+    </span>
+  </div>
+
+  <h2
+    class="mt-5 text-lg font-medium text-text transition-colors group-hover:text-gold group-focus-visible:text-gold"
+  >
+    {{ title() }}
+  </h2>
+  <p class="mt-1 text-xs text-text-2">{{ subtitle() }}</p>
+
+  @if (collectedAmount(); as collectedAmount) {
+    <div class="mt-[22px]">
+      @if (hasProgress(); as hasProgress) {
+        @if (targetAmount(); as targetAmount) {
+          <p class="font-display text-2xl leading-none text-text">
+            <span [title]="collectedAmount.fullText">
+              <span aria-hidden="true">{{ collectedAmount.text }}</span>
+              <span class="sr-only">{{ collectedAmount.fullText }}</span>
+            </span>
+            <span class="text-[11px] text-text-2" [title]="targetAmount.fullText">
+              /
+              <span aria-hidden="true">{{ targetAmount.text }}</span>
+              <span class="sr-only">{{ targetAmount.fullText }}</span>
+            </span>
+          </p>
+          <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
+            <span
+              data-testid="financial-card-progress-bar"
+              class="block h-full rounded-full bg-gold transition-[width] duration-300"
+              [style.width.%]="boundedProgressRate()"
+            ></span>
+          </div>
+        }
+      } @else {
+        <p class="font-display text-2xl leading-none text-text">
+          <span [title]="collectedAmount.fullText">
+            <span aria-hidden="true">{{ collectedAmount.text }}</span>
+            <span class="sr-only">{{ collectedAmount.fullText }}</span>
+          </span>
+        </p>
+      }
+
+      @if (footerLabel(); as footerLabel) {
+        <div class="mt-2 flex justify-between text-[10px] text-text-2">
+          <span>{{ footerLabel }}</span>
+          @if (footerValue(); as footerValue) {
+            <span>{{ footerValue }}</span>
+          }
+        </div>
+      }
+    </div>
+  } @else if (financialFallback(); as financialFallback) {
+    <div class="mt-[22px] border-t border-line pt-4 text-xs text-text-2">
+      {{ financialFallback }}
+    </div>
+  }
+</a>

@@ -4,6 +4,7 @@ import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/fo
 import { SocialEventType } from '@api';
 import type { CreateSocialFundRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
@@ -50,7 +51,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-social-fund-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, AmountInput, CustomSelect],
   templateUrl: './social-fund-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

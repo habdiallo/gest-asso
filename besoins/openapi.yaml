@@ -848,7 +848,7 @@ paths:
         - $ref: '#/components/parameters/SocialFundEventTypeFilter'
       responses:
         '200':
-          description: Page de cagnottes sociales.
+          description: Page de cagnottes sociales, de la plus récente à la plus ancienne selon la date de début.
           content:
             application/json:
               schema:
@@ -1098,7 +1098,10 @@ components:
     CampaignStatusFilter:
       name: status
       in: query
-      description: Filtre sur le statut de la campagne.
+      description: >-
+        Filtre de présentation sur le statut de la campagne. Pour `GET /campaigns`,
+        la valeur `OPEN` inclut les campagnes techniques `UPCOMING`, afin que le
+        segment utilisateur « Ouvertes » ne masque pas une campagne à venir.
       schema:
         $ref: '#/components/schemas/CampaignStatus'
     SocialFundStatusFilter:

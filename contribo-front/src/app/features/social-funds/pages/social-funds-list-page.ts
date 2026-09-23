@@ -8,48 +8,52 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { CagnottesService, SocialEventType } from '@api';
+import { CagnottesService, SocialEventType, SocialFundStatus } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { FinancialCard } from '@shared/financial-card/financial-card';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
-import { catchError, map, of, Subject, switchMap } from 'rxjs';
+import { catchError, debounceTime, map, of, Subject, switchMap } from 'rxjs';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
-import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
+import {
+  socialEventTypeLabel,
+  socialFundStatusLabel,
+  socialFundStatusTone,
+} from '../social-fund-labels';
 import { progressBarWidth } from '../social-fund-progress';
 
-/** Taille de page utilisée pour `GET /social-funds` (RG de pagination par défaut). */
-const PAGE_SIZE = 20;
+/** Nombre maximal de cartes affichées par page, soit deux lignes de trois cartes sur desktop. */
+const PAGE_SIZE = 6;
 
 /**
  * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@api`,
  * `CagnottesService`) et affiche les cagnottes sociales renvoyées par le
  * serveur. Écran/route/feature entièrement distincts de l'écran des
  * campagnes de cotisation (RG-CAG-001 : une cagnotte est indépendante d'une
- * campagne) ; aucun composant n'est partagé entre les deux.
+ * campagne) ; seul le composant visuel neutre `FinancialCard` est partagé.
  *
  * Le contrôle d'accès par rôle applicatif (Administrateur/Trésorier/Opérateur)
  * est porté par `roleGuard` sur la route `/cagnottes` (voir `app.routes.ts`),
  * jamais déduit ici de la fonction associative.
  *
  * La pagination (page précédente/suivante) exploite les métadonnées
- * `page.number`/`page.totalPages` renvoyées par le serveur. Le filtre par
- * type d'événement (T-83) appelle `GET /social-funds?eventType=...`
- * (paramètre `SocialFundEventTypeFilter` de `besoins/openapi.yaml`) et
- * revient à la première page à chaque changement. Les requêtes de page et
- * de filtre passent par un unique flux avec `switchMap`, afin qu'un
- * changement rapide de filtre ou de page annule la requête précédente et
- * n'affiche jamais un résultat qui ne correspond plus au filtre courant.
- * Limite connue : la recherche texte (US-CAG) n'est pas encore exploitée
- * par cet écran.
+ * `page.number`/`page.totalPages` renvoyées par le serveur. La recherche par
+ * nom et le filtre de statut utilisent les paramètres contractuels `q` et
+ * `status`, avec une temporisation de saisie pour éviter une requête par
+ * caractère. Le filtre par type d'événement (T-83) utilise `eventType`.
+ * Tous les filtres reviennent à la première page et passent par un unique
+ * flux avec `switchMap`, afin qu'un changement rapide annule la requête
+ * précédente et n'affiche jamais un résultat obsolète.
  *
  * Ajoute également l'action "Créer une cagnotte" (T-84, US-CAG-001) : ouvre
  * le formulaire de création dans `FormDialog` (T-15) et appelle
@@ -75,12 +79,14 @@ const PAGE_SIZE = 20;
 @Component({
   selector: 'app-social-funds-list-page',
   imports: [
-    RouterLink,
     TranslocoPipe,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
+    FinancialCard,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
     CustomSelect,
     SocialFundCreateForm,
   ],
@@ -121,6 +127,15 @@ export class SocialFundsListPage {
   ];
 
   readonly eventTypeFilter = signal<SocialEventType | ''>('');
+  readonly statusOptions: readonly { value: SocialFundStatus | ''; labelKey: string }[] = [
+    { value: '', labelKey: 'socialFunds.statusFilterAll' },
+    { value: SocialFundStatus.Open, labelKey: 'socialFunds.statusFilterOpen' },
+    { value: SocialFundStatus.Closed, labelKey: 'socialFunds.statusFilterClosed' },
+  ];
+  readonly statusFilter = signal<SocialFundStatus | ''>('');
+  readonly nameQuery = signal('');
+  private readonly nameQueryInput = new Subject<string>();
+  private lastRequestedNameQuery = '';
 
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
@@ -153,9 +168,20 @@ export class SocialFundsListPage {
   readonly formatCalendarDate = formatSocialFundCalendarDate;
   readonly socialFundStatusLabel = socialFundStatusLabel;
   readonly socialEventTypeLabel = socialEventTypeLabel;
+  readonly socialFundStatusTone = socialFundStatusTone;
   readonly progressBarWidth = progressBarWidth;
 
   constructor() {
+    this.nameQueryInput
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value === this.lastRequestedNameQuery) {
+          return;
+        }
+        this.page.set(null);
+        this.fetchPage(0, { isInitialLoad: false });
+      });
+
     this.pageRequests
       .pipe(
         switchMap(({ pageNumber, isInitialLoad }) =>
@@ -163,8 +189,8 @@ export class SocialFundsListPage {
             .listSocialFunds(
               pageNumber,
               PAGE_SIZE,
-              undefined,
-              undefined,
+              this.nameQuery().trim() || undefined,
+              this.statusFilter() || undefined,
               this.eventTypeFilter() || undefined,
             )
             .pipe(
@@ -234,6 +260,18 @@ export class SocialFundsListPage {
     this.eventTypeFilter.set((value ?? '') as SocialEventType | '');
     this.page.set(null);
     this.fetchPage(0, { isInitialLoad: false });
+  }
+
+  onStatusFilterChange(value: string | null): void {
+    this.statusFilter.set((value ?? '') as SocialFundStatus | '');
+    this.page.set(null);
+    this.fetchPage(0, { isInitialLoad: false });
+  }
+
+  onNameQueryInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.nameQuery.set(value);
+    this.nameQueryInput.next(value.trim());
   }
 
   /** Ouvre le formulaire de création de cagnotte (T-84), réservé à l'Administrateur et au Trésorier (T-86). */
@@ -307,6 +345,8 @@ export class SocialFundsListPage {
       this.pageActionPending.set(true);
       this.pageActionError.set(false);
     }
+
+    this.lastRequestedNameQuery = this.nameQuery().trim();
 
     this.pageRequests.next({ pageNumber, isInitialLoad: options.isInitialLoad });
   }

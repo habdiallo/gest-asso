@@ -8,29 +8,40 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { FinancialCard } from '@shared/financial-card/financial-card';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
-import type { CustomSelectOption } from '@shared/custom-select/custom-select';
-import { CustomSelect } from '@shared/custom-select/custom-select';
+import { PageHeader } from '@shared/page-header/page-header';
 import { Subject, debounceTime } from 'rxjs';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { formatCalendarDate } from '../campaign-dates';
-import { campaignStatusLabel } from '../campaign-status-labels';
+import {
+  campaignListStatus,
+  campaignStatusLabel,
+  campaignStatusTone,
+} from '../campaign-status-labels';
+
+/** Nombre maximal de cartes affichées par page, soit deux lignes de trois cartes sur desktop. */
+const PAGE_SIZE = 6;
 
 /**
  * Écran liste des campagnes (T-57, `openapi:listCampaigns`) : nom, période
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
  * restreint déjà l'accès par rôle via `roleGuard`). Le filtre par statut
  * (T-58, paramètre contractuel `status`) restreint la liste aux campagnes
- * ouvertes ou clôturées ; les campagnes à venir restent visibles via
- * l'option « Toutes ».
+ * ouvertes ou clôturées. Dans le contrat de cette liste, la valeur demandée
+ * `OPEN` inclut aussi les campagnes techniques `UPCOMING`, afin que le segment
+ * « Ouvertes » corresponde au statut visuel affiché. La liste présente les
+ * cartes financières du prototype et normalise `UPCOMING` en campagne ouverte.
  *
  * La recherche par nom (T-59, paramètre contractuel `q` de
  * `GET /campaigns`) filtre côté serveur les campagnes dont le nom
@@ -72,13 +83,14 @@ import { campaignStatusLabel } from '../campaign-status-labels';
 @Component({
   selector: 'app-campaigns-list-page',
   imports: [
-    RouterLink,
     TranslocoPipe,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
+    FinancialCard,
     FormDialog,
     LoadingSkeleton,
-    CustomSelect,
+    PageHeader,
     CampaignCreateForm,
   ],
   templateUrl: './campaigns-list-page.html',
@@ -111,16 +123,10 @@ export class CampaignsListPage {
   readonly creating = signal(false);
   readonly createError = signal(false);
 
-  readonly statusFilterOptions: readonly CampaignStatus[] = [
-    CampaignStatus.Open,
-    CampaignStatus.Closed,
-  ];
-  readonly statusSelectOptions: readonly CustomSelectOption[] = [
-    { value: '', label: '', translationKey: 'campaigns.list.statusFilterAll' },
-    ...this.statusFilterOptions.map((status) => ({
-      value: status,
-      label: campaignStatusLabel(status),
-    })),
+  readonly statusOptions: readonly { value: CampaignStatus | ''; labelKey: string }[] = [
+    { value: '', labelKey: 'campaigns.list.statusFilterAll' },
+    { value: CampaignStatus.Open, labelKey: 'campaigns.list.statusFilterOpen' },
+    { value: CampaignStatus.Closed, labelKey: 'campaigns.list.statusFilterClosed' },
   ];
 
   readonly statusFilter = signal<CampaignStatus | ''>('');
@@ -132,7 +138,10 @@ export class CampaignsListPage {
   readonly campaignPage = signal<CampaignPage | null>(null);
 
   readonly formatCalendarDate = formatCalendarDate;
+  readonly formatAmount = formatGnfAmountCondensed;
+  readonly campaignListStatus = campaignListStatus;
   readonly campaignStatusLabel = campaignStatusLabel;
+  readonly campaignStatusTone = campaignStatusTone;
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.campaignPage()?.page.number ?? 0) === 0,
@@ -272,7 +281,7 @@ export class CampaignsListPage {
     this.lastRequestedNameQuery = nameQuery;
 
     this.campaignsService
-      .listCampaigns(page, undefined, nameQuery || undefined, this.statusFilter() || undefined)
+      .listCampaigns(page, PAGE_SIZE, nameQuery || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (campaignPage) => {

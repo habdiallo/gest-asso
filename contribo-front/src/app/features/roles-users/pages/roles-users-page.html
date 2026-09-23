@@ -1,8 +1,9 @@
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-    {{ 'rolesUsers.title' | transloco }}
-  </h1>
-  <p class="mt-1 text-sm text-text-2">{{ 'rolesUsers.subtitle' | transloco }}</p>
+<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
+  <app-page-header
+    [kicker]="'rolesUsers.kicker' | transloco"
+    [title]="'rolesUsers.title' | transloco"
+    [intro]="'rolesUsers.subtitle' | transloco"
+  />
 
   <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div class="flex flex-col gap-2 sm:max-w-xs sm:flex-1">
@@ -89,16 +90,15 @@
                 }
               </td>
               <td class="px-4 py-3 text-right">
-                <button
-                  type="button"
+                <app-action-button
+                  variant="secondary"
                   (click)="openRoleDialog(account)"
-                  [attr.aria-label]="
+                  [ariaLabel]="
                     'rolesUsers.editRoleAction' | transloco: { name: account.member.displayName }
                   "
-                  class="min-h-11 rounded border border-line px-3 py-2 text-sm text-text hover:border-gold hover:text-gold-hover"
                 >
                   {{ 'rolesUsers.editRoleLabel' | transloco }}
-                </button>
+                </app-action-button>
               </td>
             </tr>
           }
@@ -181,21 +181,12 @@
         }
 
         <div class="mt-6 flex justify-end gap-2">
-          <button
-            type="button"
-            (click)="closeRoleDialog()"
-            class="min-h-11 rounded border border-line px-4 py-2 text-text"
-          >
+          <app-action-button type="button" variant="secondary" (click)="closeRoleDialog()">
             {{ 'rolesUsers.roleDialogCancel' | transloco }}
-          </button>
-          <button
-            type="submit"
-            [attr.aria-disabled]="savingRole() ? 'true' : null"
-            [class.opacity-40]="savingRole()"
-            class="min-h-11 rounded bg-gold px-4 py-2 font-medium text-gold-ink transition-colors hover:bg-gold-hover"
-          >
+          </app-action-button>
+          <app-action-button type="submit" [loading]="savingRole()">
             {{ 'rolesUsers.roleDialogSave' | transloco }}
-          </button>
+          </app-action-button>
         </div>
       </form>
     </app-form-dialog>

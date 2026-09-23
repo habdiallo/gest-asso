@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 128,
+  "nextTicketId": 129,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2487,6 +2487,51 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-historique-reglements-tableau-de-bord-t127",
       "branchAfterInitialization": "front/fix-127-historique-reglements-tableau-de-bord-t127"
+    },
+    {
+      "id": 128,
+      "title": "Harmoniser les actions reutilisables et la navigation laterale avec le prototype de design.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "harmonisation-actions-navigation-sidebar",
+      "change": "harmonisation-actions-navigation-sidebar",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6",
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7",
+        "5.8",
+        "5.9",
+        "5.10",
+        "5.11",
+        "5.12",
+        "5.13",
+        "5.14",
+        "5.15"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-harmonisation-actions-navigation-sidebar",
+      "branchAfterInitialization": "front/fix-128-harmonisation-actions-navigation-sidebar"
     }
   ]
 }

@@ -10,7 +10,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserRole, UtilisateursEtRlesService } from '@api';
 import type { UserAccount, UserAccountPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { PageHeader } from '@shared/page-header/page-header';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
@@ -58,7 +60,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 @Component({
   selector: 'app-roles-users-page',
-  imports: [TranslocoPipe, EmptyState, FormDialog, CustomSelect],
+  imports: [TranslocoPipe, ActionButton, EmptyState, PageHeader, FormDialog, CustomSelect],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

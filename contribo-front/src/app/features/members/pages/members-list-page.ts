@@ -14,10 +14,12 @@ import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } fr
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -27,13 +29,15 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. La pagination de base (page suivante/précédente sur
- * `page`/`size`) est fournie par ce ticket, afin que l'ensemble du répertoire
- * reste accessible au-delà des 20 premiers membres. La colonne Statut affiche
- * un badge distinguant visuellement les membres actifs des membres inactifs
- * (T-22, RG-MEM-007), en plus du libellé textuel, pour ne pas reposer
- * uniquement sur la couleur. Chaque ligne mène à la fiche détaillée du membre
- * (T-27, US-MEM-003).
+ * à US-MEM-002. La présentation reprend le tableau du prototype, avec
+ * l'identité, la ville et le pays regroupés autour de l'avatar. La pagination
+ * de base (page suivante/précédente sur `page`/`size`) est fournie par ce
+ * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 20
+ * premiers membres. La colonne Statut affiche un badge
+ * distinguant visuellement les membres actifs des membres inactifs (T-22,
+ * RG-MEM-007), en plus du libellé textuel, pour ne pas reposer uniquement sur
+ * la couleur. Chaque ligne mène à la fiche détaillée du membre (T-27,
+ * US-MEM-003).
  *
  * Recherche par nom (T-24, paramètre contractuel `q` de `GET /members`) :
  * filtre côté serveur les membres dont un champ nominatif correspond à la
@@ -102,10 +106,12 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
   imports: [
     TranslocoPipe,
     RouterLink,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
     CustomSelect,
     MemberCreateForm,
   ],
@@ -131,16 +137,13 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
-  readonly statusFilterOptions: readonly MemberStatus[] = [
-    MemberStatus.Active,
-    MemberStatus.Inactive,
-  ];
-  readonly statusSelectOptions: readonly CustomSelectOption[] = [
-    { value: '', label: '', translationKey: 'members.statusFilterAll' },
-    ...this.statusFilterOptions.map((status) => ({
-      value: status,
-      label: memberStatusLabel(status),
-    })),
+  readonly statusFilterOptions: readonly {
+    value: MemberStatus | '';
+    translationKey: string;
+  }[] = [
+    { value: '', translationKey: 'members.statusFilterAll' },
+    { value: MemberStatus.Active, translationKey: 'members.statusFilterActive' },
+    { value: MemberStatus.Inactive, translationKey: 'members.statusFilterInactive' },
   ];
   readonly statusFilter = signal<MemberStatus | ''>('');
 
@@ -172,14 +175,19 @@ export class MembersListPage {
   readonly memberStatusLabel = memberStatusLabel;
   readonly memberIsActive = memberIsActive;
 
+  memberInitials(member: Pick<MemberSummary, 'firstName' | 'lastName'>): string {
+    const initials = `${member.firstName.trim().charAt(0)}${member.lastName.trim().charAt(0)}`;
+    return initials.toUpperCase();
+  }
+
   /**
-   * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les
-   * catégories". Les options proposées et le filtrage appliqué se limitent
-   * aux membres de la page actuellement chargée, `listMembers` n'exposant
-   * aucun paramètre de filtre par catégorie. La sélection est conservée
-   * pendant la pagination : une catégorie absente de la nouvelle page
-   * affiche une liste filtrée vide plutôt que de réafficher toutes les
-   * catégories.
+   * Filtres par catégorie de revenu (T-26) et par pays : `null` signifie
+   * "toutes les valeurs". Les options proposées et le filtrage appliqué se
+   * limitent aux membres de la page actuellement chargée, `listMembers`
+   * n'exposant aucun paramètre de requête pour ces deux filtres. Les sélections
+   * sont conservées pendant la pagination : une valeur absente de la nouvelle
+   * page affiche une liste filtrée vide plutôt que de réafficher tous les
+   * membres.
    */
   readonly selectedIncomeCategoryId = signal<string | null>(null);
 
@@ -200,14 +208,31 @@ export class MembersListPage {
       label: category.label,
     })),
   ]);
+  readonly selectedCountry = signal<string | null>(null);
+  readonly countryOptions = computed(() => {
+    const countries = new Set<string>();
+    for (const member of this.memberPage()?.items ?? []) {
+      const country = member.country?.trim();
+      if (country) {
+        countries.add(country);
+      }
+    }
+    return [...countries].sort((left, right) => left.localeCompare(right, 'fr'));
+  });
+  readonly countrySelectOptions = computed<readonly CustomSelectOption[]>(() => [
+    { value: '', label: '', translationKey: 'members.filters.countryAll' },
+    ...this.countryOptions().map((country) => ({ value: country, label: country })),
+  ]);
 
   readonly filteredItems = computed<MemberSummary[]>(() => {
     const items = this.memberPage()?.items ?? [];
     const categoryId = this.selectedIncomeCategoryId();
-    if (!categoryId) {
-      return items;
-    }
-    return items.filter((member) => member.incomeCategory.id === categoryId);
+    const country = this.selectedCountry();
+    return items.filter(
+      (member) =>
+        (!categoryId || member.incomeCategory.id === categoryId) &&
+        (!country || member.country?.trim() === country),
+    );
   });
 
   constructor() {
@@ -241,6 +266,10 @@ export class MembersListPage {
 
   onIncomeCategoryFilterChange(value: string | null): void {
     this.selectedIncomeCategoryId.set(value === '' ? null : value);
+  }
+
+  onCountryFilterChange(value: string | null): void {
+    this.selectedCountry.set(value === '' ? null : value);
   }
 
   onStatusFilterChange(value: string | null): void {

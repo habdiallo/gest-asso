@@ -24,10 +24,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
@@ -110,12 +112,14 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
   imports: [
     TranslocoPipe,
     ReactiveFormsModule,
+    ActionButton,
     AmountInput,
     ApiErrorRetry,
     CampaignDuesTab,
     CampaignBilanTab,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
   ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
