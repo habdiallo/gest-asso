@@ -14,6 +14,7 @@ import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 
@@ -38,7 +39,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-edit-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorRetry, FormDialog],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, ApiErrorRetry, FormDialog],
   templateUrl: './edit-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

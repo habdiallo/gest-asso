@@ -42,23 +42,15 @@
 
     <div class="mt-4 flex flex-wrap gap-3">
       @if (canRecordContribution()) {
-        <button
-          type="button"
-          (click)="openRecordDialog()"
-          class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
-        >
+        <app-action-button type="button" (click)="openRecordDialog()">
           {{ 'socialFunds.recordContribution.button' | transloco }}
-        </button>
+        </app-action-button>
       }
 
       @if (canCloseSocialFund()) {
-        <button
-          type="button"
-          (click)="openCloseDialog()"
-          class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
-        >
+        <app-action-button type="button" variant="secondary" (click)="openCloseDialog()">
           {{ 'socialFunds.close.button' | transloco }}
-        </button>
+        </app-action-button>
       }
     </div>
 
@@ -80,27 +72,24 @@
         }
 
         <div class="mt-5 flex justify-end gap-3">
-          <button
+          <app-action-button
             type="button"
+            variant="secondary"
             (click)="closeCloseDialog()"
-            [attr.aria-disabled]="closingSocialFund() ? 'true' : null"
-            [class.opacity-50]="closingSocialFund()"
-            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
+            [loading]="closingSocialFund()"
           >
             {{ 'socialFunds.close.cancel' | transloco }}
-          </button>
-          <button
+          </app-action-button>
+          <app-action-button
             type="button"
+            [loading]="closingSocialFund()"
             (click)="confirmCloseSocialFund()"
-            [attr.aria-disabled]="closingSocialFund() ? 'true' : null"
-            [class.opacity-50]="closingSocialFund()"
-            class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
           >
             {{
               (closingSocialFund() ? 'socialFunds.close.confirming' : 'socialFunds.close.confirm')
                 | transloco
             }}
-          </button>
+          </app-action-button>
         </div>
       }
     </app-form-dialog>

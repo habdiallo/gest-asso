@@ -14,6 +14,7 @@ import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } fr
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -102,6 +103,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
   imports: [
     TranslocoPipe,
     RouterLink,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
     FormDialog,

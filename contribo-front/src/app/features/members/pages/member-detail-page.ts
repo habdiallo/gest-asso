@@ -23,6 +23,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -110,6 +111,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
   imports: [
     TranslocoPipe,
     RouterLink,
+    ActionButton,
     ApiErrorRetry,
     FormDialog,
     LoadingSkeleton,

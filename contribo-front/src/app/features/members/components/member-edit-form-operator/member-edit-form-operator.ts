@@ -3,6 +3,7 @@ import type { OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { UpdateMemberContactRequest, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 
 /**
  * Variante Opérateur du formulaire de modification d'un membre (T-39,
@@ -15,7 +16,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
  */
 @Component({
   selector: 'app-member-edit-form-operator',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton],
   templateUrl: './member-edit-form-operator.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

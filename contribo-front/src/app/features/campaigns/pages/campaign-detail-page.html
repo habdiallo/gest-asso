@@ -34,13 +34,9 @@
 
     @if (canCloseCampaignNow()) {
       <div class="mt-4 flex justify-end">
-        <button
-          type="button"
-          (click)="openCloseCampaignDialog()"
-          class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
-        >
+        <app-action-button type="button" variant="secondary" (click)="openCloseCampaignDialog()">
           {{ 'campaigns.detail.close.action' | transloco }}
-        </button>
+        </app-action-button>
       </div>
 
       <app-form-dialog
@@ -56,19 +52,18 @@
           }
 
           <div class="mt-6 flex items-center justify-end gap-3">
-            <button
+            <app-action-button
               type="button"
+              variant="secondary"
               [disabled]="closingCampaign()"
               (click)="cancelCloseCampaignDialog()"
-              class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
             >
               {{ 'campaigns.detail.close.cancel' | transloco }}
-            </button>
-            <button
+            </app-action-button>
+            <app-action-button
               type="button"
               [disabled]="closingCampaign()"
               (click)="confirmCloseCampaign()"
-              class="inline-flex h-11 items-center rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
             >
               {{
                 (closingCampaign()
@@ -76,7 +71,7 @@
                   : 'campaigns.detail.close.confirm'
                 ) | transloco
               }}
-            </button>
+            </app-action-button>
           </div>
         }
       </app-form-dialog>
@@ -192,26 +187,22 @@
             }
 
             <div class="mt-4 flex items-center justify-end gap-3">
-              <button
+              <app-action-button
                 type="button"
+                variant="secondary"
                 [disabled]="submittingBareme()"
                 (click)="cancelEditingBareme()"
-                class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong disabled:opacity-40"
               >
                 {{ 'campaigns.detail.bareme.cancel' | transloco }}
-              </button>
-              <button
-                type="submit"
-                [disabled]="submittingBareme()"
-                class="inline-flex h-11 items-center rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-40"
-              >
+              </app-action-button>
+              <app-action-button type="submit" [disabled]="submittingBareme()">
                 {{
                   (submittingBareme()
                     ? 'campaigns.detail.bareme.submitting'
                     : 'campaigns.detail.bareme.submit'
                   ) | transloco
                 }}
-              </button>
+              </app-action-button>
             </div>
           </form>
         } @else {
@@ -279,13 +270,9 @@
 
           @if (canEditBaremeNow()) {
             <div class="mt-4 flex justify-end">
-              <button
-                type="button"
-                (click)="startEditingBareme()"
-                class="inline-flex h-11 items-center rounded border border-line px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
-              >
+              <app-action-button type="button" variant="secondary" (click)="startEditingBareme()">
                 {{ 'campaigns.detail.bareme.edit' | transloco }}
-              </button>
+              </app-action-button>
             </div>
           }
         }

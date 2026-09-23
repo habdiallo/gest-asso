@@ -3,13 +3,9 @@
     <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
       {{ 'incomeCategories.title' | transloco }}
     </h1>
-    <button
-      type="button"
-      (click)="openCreateDialog()"
-      class="inline-flex h-11 items-center rounded bg-gold px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink transition-colors hover:bg-gold-hover"
-    >
+    <app-action-button (click)="openCreateDialog()">
       {{ 'incomeCategories.actions.add' | transloco }}
-    </button>
+    </app-action-button>
   </div>
 
   <app-create-income-category-dialog
@@ -59,16 +55,15 @@
               <td class="px-4 py-3 text-text-2">{{ category.memberCount }}</td>
               <td class="px-4 py-3 text-text-2">{{ formatInstant(category.updatedAt) }}</td>
               <td class="px-4 py-3 text-right">
-                <button
-                  type="button"
+                <app-action-button
+                  variant="secondary"
                   (click)="openEditDialog(category)"
-                  [attr.aria-label]="
+                  [ariaLabel]="
                     'incomeCategories.actions.edit' | transloco: { label: category.label }
                   "
-                  class="inline-flex min-h-11 items-center rounded border border-line px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-line-strong"
                 >
                   {{ 'incomeCategories.actions.editButton' | transloco }}
-                </button>
+                </app-action-button>
               </td>
             </tr>
           }

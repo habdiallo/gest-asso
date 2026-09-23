@@ -14,6 +14,7 @@ import { MembresService } from '@api';
 import type { CreateContributionRequest, MemberPage, PaymentMethod } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
+import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
@@ -57,7 +58,14 @@ const MEMBERS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-contribution-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, AmountInput, CustomSelect, PaymentMethodSelect],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    ActionButton,
+    AmountInput,
+    CustomSelect,
+    PaymentMethodSelect,
+  ],
   templateUrl: './contribution-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

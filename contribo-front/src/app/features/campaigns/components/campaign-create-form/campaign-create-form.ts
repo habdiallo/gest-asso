@@ -14,6 +14,7 @@ import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/fo
 import { CatgoriesDeRevenuService, CreateCampaignRequest } from '@api';
 import type { CampaignCategoryAmountInput, IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 
@@ -71,7 +72,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-campaign-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
   templateUrl: './campaign-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

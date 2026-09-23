@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CatgoriesDeRevenuService } from '@api';
 import type { IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
 import { EditIncomeCategoryDialog } from '../components/edit-income-category-dialog/edit-income-category-dialog';
@@ -33,7 +34,13 @@ import { formatInstant } from '../income-categories-dates';
  */
 @Component({
   selector: 'app-income-categories-page',
-  imports: [TranslocoPipe, EmptyState, CreateIncomeCategoryDialog, EditIncomeCategoryDialog],
+  imports: [
+    TranslocoPipe,
+    ActionButton,
+    EmptyState,
+    CreateIncomeCategoryDialog,
+    EditIncomeCategoryDialog,
+  ],
   templateUrl: './income-categories-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -24,6 +24,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -110,6 +111,7 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
   imports: [
     TranslocoPipe,
     ReactiveFormsModule,
+    ActionButton,
     AmountInput,
     ApiErrorRetry,
     CampaignDuesTab,

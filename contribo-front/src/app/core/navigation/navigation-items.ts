@@ -4,23 +4,22 @@ import { NAVIGATION_PATHS } from './navigation-paths';
 
 const ADMINISTRATOR_ITEMS: NavigationItem[] = [
   { label: 'Membres', path: NAVIGATION_PATHS.members },
-  { label: 'Catégories de revenu', path: NAVIGATION_PATHS.incomeCategories },
-  { label: 'Campagnes', path: NAVIGATION_PATHS.campaigns },
+  { label: 'Cotisations', path: NAVIGATION_PATHS.campaigns },
   { label: 'Cagnottes', path: NAVIGATION_PATHS.socialFunds },
-  { label: 'Rôles et utilisateurs', path: NAVIGATION_PATHS.rolesAndUsers },
-  { label: 'Mon espace', path: NAVIGATION_PATHS.memberSpace },
+  { label: 'Utilisateurs & rôles', path: NAVIGATION_PATHS.rolesAndUsers },
+  { label: 'Catégories', path: NAVIGATION_PATHS.incomeCategories },
 ];
 
 const TREASURER_ITEMS: NavigationItem[] = [
   { label: 'Membres', path: NAVIGATION_PATHS.members },
-  { label: 'Campagnes', path: NAVIGATION_PATHS.campaigns },
+  { label: 'Cotisations', path: NAVIGATION_PATHS.campaigns },
   { label: 'Cagnottes', path: NAVIGATION_PATHS.socialFunds },
   { label: 'Mon espace', path: NAVIGATION_PATHS.memberSpace },
 ];
 
 const OPERATOR_ITEMS: NavigationItem[] = [
   { label: 'Membres', path: NAVIGATION_PATHS.members },
-  { label: 'Campagnes', path: NAVIGATION_PATHS.campaigns },
+  { label: 'Cotisations', path: NAVIGATION_PATHS.campaigns },
   { label: 'Cagnottes', path: NAVIGATION_PATHS.socialFunds },
   { label: 'Mon espace', path: NAVIGATION_PATHS.memberSpace },
 ];

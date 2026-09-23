@@ -13,6 +13,7 @@ import { CagnottesService, SocialEventType } from '@api';
 import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -77,6 +78,7 @@ const PAGE_SIZE = 20;
   imports: [
     RouterLink,
     TranslocoPipe,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
     FormDialog,

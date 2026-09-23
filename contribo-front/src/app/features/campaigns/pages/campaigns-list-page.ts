@@ -13,6 +13,7 @@ import { CampagnesService, CampaignStatus, UserRole } from '@api';
 import type { CampaignPage, CreateCampaignRequest } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -74,6 +75,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
   imports: [
     RouterLink,
     TranslocoPipe,
+    ActionButton,
     ApiErrorRetry,
     EmptyState,
     FormDialog,

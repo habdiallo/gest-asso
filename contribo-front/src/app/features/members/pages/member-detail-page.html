@@ -25,31 +25,19 @@
 
     <div class="mt-4 flex flex-wrap gap-3">
       @if (canEdit()) {
-        <button
-          type="button"
-          (click)="openEditDialog()"
-          class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover"
-        >
+        <app-action-button type="button" (click)="openEditDialog()">
           {{ 'members.edit.button' | transloco }}
-        </button>
+        </app-action-button>
       }
       @if (canDeactivate()) {
-        <button
-          type="button"
-          (click)="openDeactivateDialog()"
-          class="min-h-11 rounded border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash"
-        >
+        <app-action-button type="button" variant="danger" (click)="openDeactivateDialog()">
           {{ 'members.deactivate.button' | transloco }}
-        </button>
+        </app-action-button>
       }
       @if (canReactivate()) {
-        <button
-          type="button"
-          (click)="openReactivateDialog()"
-          class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong hover:text-gold-hover"
-        >
+        <app-action-button type="button" variant="secondary" (click)="openReactivateDialog()">
           {{ 'members.reactivate.button' | transloco }}
-        </button>
+        </app-action-button>
       }
     </div>
     @if (!canRecordPayments()) {
@@ -123,25 +111,25 @@
         }
         <p class="text-sm text-text">{{ 'members.deactivate.confirmMessage' | transloco }}</p>
         <div class="mt-6 flex justify-end gap-3">
-          <button
+          <app-action-button
             type="button"
+            variant="secondary"
             (click)="closeDeactivateDialog()"
             [disabled]="deactivating()"
-            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong disabled:opacity-60"
           >
             {{ 'members.deactivate.cancel' | transloco }}
-          </button>
-          <button
+          </app-action-button>
+          <app-action-button
             type="button"
+            variant="danger"
             (click)="confirmDeactivate()"
             [disabled]="deactivating()"
-            class="min-h-11 rounded border border-error px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-error hover:bg-error-wash disabled:opacity-60"
           >
             {{
               (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.confirm')
                 | transloco
             }}
-          </button>
+          </app-action-button>
         </div>
       }
     </app-form-dialog>
@@ -159,24 +147,19 @@
         }
         <p class="text-sm text-text">{{ 'members.reactivate.confirmMessage' | transloco }}</p>
         <div class="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            (click)="closeReactivateDialog()"
-            class="min-h-11 rounded border border-line px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-text hover:border-line-strong"
-          >
+          <app-action-button type="button" variant="secondary" (click)="closeReactivateDialog()">
             {{ 'members.reactivate.cancel' | transloco }}
-          </button>
-          <button
+          </app-action-button>
+          <app-action-button
             type="button"
             (click)="confirmReactivate()"
             [disabled]="reactivating()"
-            class="min-h-11 rounded bg-gold px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gold-ink hover:bg-gold-hover disabled:opacity-60"
           >
             {{
               (reactivating() ? 'members.reactivate.confirming' : 'members.reactivate.confirm')
                 | transloco
             }}
-          </button>
+          </app-action-button>
         </div>
       }
     </app-form-dialog>
