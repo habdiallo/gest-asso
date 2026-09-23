@@ -28,6 +28,9 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
 - Reproduire la liste Campagnes du prototype avec une grille de cartes financières,
   une recherche iconifiée et des filtres segmentés limités à Toutes, Ouvertes et
   Clôturées.
+- Reproduire la liste Cagnottes sur le même motif de recherche, segments de statut
+  et cartes financières, en conservant sa pagination, son filtre par type d'événement
+  et ses droits d'accès.
 - Conserver les autorisations, les routes existantes, les gardes, la session, les
   actions thème/déconnexion et la navigation mobile. Aucun changement API ou backend.
 

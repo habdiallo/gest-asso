@@ -2,7 +2,13 @@ import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CagnottesService, CurrencyCode, MemberStatus, SocialEventType } from '@api';
+import {
+  CagnottesService,
+  CurrencyCode,
+  MemberStatus,
+  SocialEventType,
+  SocialFundStatus,
+} from '@api';
 import type {
   CreateSocialFundRequest,
   CurrentUser,
@@ -236,6 +242,39 @@ describe('SocialFundsListPage', () => {
 
     const progressBar = root.querySelector<HTMLElement>('[data-testid="social-fund-progress-bar"]');
     expect(progressBar?.style.width).toBe('67.9%');
+    expect(root.querySelector('[data-testid="social-fund-status-dot"]')).not.toBeNull();
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Toutes');
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Ouvertes');
+    expect(root.querySelector('[role="group"]')?.textContent).toContain('Clôturées');
+  });
+
+  it('requests the selected social fund status on the first page', async () => {
+    const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+    const fixture = await createFixture(listSocialFunds);
+    fixture.detectChanges();
+
+    fixture.componentInstance.onStatusFilterChange(SocialFundStatus.Closed);
+    fixture.detectChanges();
+
+    expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, undefined, 'CLOSED', undefined);
+  });
+
+  it('debounces the name search and sends the trimmed query to the API', async () => {
+    const listSocialFunds = vi.fn(() => of(buildSocialFundPage()));
+    const fixture = await createFixture(listSocialFunds);
+    fixture.detectChanges();
+
+    const input = (fixture.nativeElement as HTMLElement).querySelector(
+      '#social-funds-search',
+    ) as HTMLInputElement;
+    input.value = '  Bah  ';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    fixture.detectChanges();
+
+    expect(listSocialFunds).toHaveBeenLastCalledWith(0, 20, 'Bah', undefined, undefined);
   });
 
   it('shows the condensed GNF amounts with the full detailed value as a tooltip (RG-FMT-003)', async () => {

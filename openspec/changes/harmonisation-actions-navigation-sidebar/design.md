@@ -117,6 +117,21 @@ les règles de détail et les données historiques, est normalisée visuellement
 Ouverte dans cette page afin de ne pas exposer un troisième statut à l'utilisateur.
 Cette décision ne modifie ni le contrat API ni les conditions d'édition du barème.
 
+### 6. Liste Cagnottes alignée sur les cartes du prototype
+
+La page `/cagnottes` reprend le même shell de liste que `/campagnes` : largeur
+maximale de 1440 px, recherche iconifiée, groupe segmenté Toutes/Ouvertes/Clôturées
+et grille responsive de cartes. Chaque carte affiche le type d'événement, le statut
+avec un point de couleur, le titre, le bénéficiaire et la période, puis le montant
+encaissé, l'objectif, la progression et le nombre de contributeurs lorsque ces
+informations sont renvoyées par l'API.
+
+La recherche et le statut utilisent les paramètres contractuels `q` et `status` de
+`GET /social-funds`. La pagination et le filtre existant par type d'événement sont
+préservés, ce dernier restant disponible dans un filtre secondaire afin de ne pas
+perdre une capacité métier déjà livrée. Aucun changement du contrat API n'est
+nécessaire.
+
 ## Risks / Trade-offs
 
 - [Risque] Un lien converti en bouton pourrait perdre le comportement d'URL ou de

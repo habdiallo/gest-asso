@@ -206,8 +206,9 @@ function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
  * progression) et une cagnotte clôturée sans objectif (RG : un objectif
  * absent ne doit jamais être affiché comme atteint à zéro).
  *
- * Le filtre `eventType` (T-83, paramètre `SocialFundEventTypeFilter` du
- * contrat) est appliqué avant la pagination, comme sur le serveur réel.
+ * Les filtres `q`, `status` et `eventType` (paramètres contractuels de
+ * `besoins/openapi.yaml`) sont appliqués avant la pagination, comme sur le
+ * serveur réel.
  *
  * `POST /api/v1/social-funds` (T-84, `createSocialFund`) ajoute la nouvelle
  * cagnotte au jeu de démonstration : statut ouvert, aucun montant collecté,
@@ -228,10 +229,15 @@ export const socialFundsHandlers = [
     const url = new URL(request.url);
     const pageNumber = Number(url.searchParams.get('page') ?? '0');
     const pageSize = Number(url.searchParams.get('size') ?? '20');
+    const query = url.searchParams.get('q')?.trim().toLocaleLowerCase('fr-FR') ?? '';
     const eventType = url.searchParams.get('eventType') as SocialEventType | null;
     const status = url.searchParams.get('status') as SocialFundStatus | null;
     const filteredSocialFunds = demoSocialFunds.filter(
       (socialFund) =>
+        (!query ||
+          `${socialFund.title} ${socialFund.beneficiary}`
+            .toLocaleLowerCase('fr-FR')
+            .includes(query)) &&
         (!eventType || socialFund.eventType === eventType) &&
         (!status || socialFund.status === status),
     );

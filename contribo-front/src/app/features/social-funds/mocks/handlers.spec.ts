@@ -109,3 +109,34 @@ describe('GET /api/v1/social-funds/{socialFundId}/contributions (mocks MSW, T-91
     }
   });
 });
+
+describe('GET /api/v1/social-funds (filters)', () => {
+  it('filters by the visible search query before pagination', async () => {
+    const response = await runRequest(
+      new Request('http://localhost/api/v1/social-funds?q=Bah&size=20', {
+        headers: { Authorization: `Bearer ${demoAccounts[0].accessToken}` },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as SocialFundPage;
+    expect(page.items.length).toBeGreaterThan(0);
+    expect(
+      page.items.every((item) =>
+        `${item.title} ${item.beneficiary}`.toLocaleLowerCase('fr-FR').includes('bah'),
+      ),
+    ).toBe(true);
+  });
+
+  it('filters by status before pagination', async () => {
+    const response = await runRequest(
+      new Request('http://localhost/api/v1/social-funds?status=CLOSED&size=20', {
+        headers: { Authorization: `Bearer ${demoAccounts[0].accessToken}` },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as SocialFundPage;
+    expect(page.items.every((item) => item.status === 'CLOSED')).toBe(true);
+  });
+});
