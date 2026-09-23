@@ -14,16 +14,13 @@
       {{ (notFound() ? 'memberDetail.notFound' : 'memberDetail.error') | transloco }}
     </p>
   } @else if (member(); as member) {
-    <div class="mt-4 flex flex-wrap items-baseline justify-between gap-2">
-      <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-        {{ member.displayName }}
-      </h1>
+    <app-page-header [kicker]="'members.kicker' | transloco" [title]="member.displayName">
       <span class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ memberStatusLabel(member.status) }}
       </span>
-    </div>
+    </app-page-header>
 
-    <div class="mt-4 flex flex-wrap gap-3">
+    <div class="flex flex-wrap gap-3">
       @if (canEdit()) {
         <app-action-button type="button" (click)="openEditDialog()">
           {{ 'members.edit.button' | transloco }}

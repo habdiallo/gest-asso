@@ -33,6 +33,7 @@ import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { ActionButton } from '@shared/action-button/action-button';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { PageHeader } from '@shared/page-header/page-header';
 import { formatCalendarDate, formatInstant } from '../dashboard-dates';
 import {
   campaignStatusLabel,
@@ -114,7 +115,7 @@ interface SocialFundScopeView {
  */
 @Component({
   selector: 'app-dashboard-page',
-  imports: [TranslocoPipe, RouterLink, ActionButton, CustomSelect, EmptyState],
+  imports: [TranslocoPipe, RouterLink, ActionButton, CustomSelect, EmptyState, PageHeader],
   templateUrl: './dashboard-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

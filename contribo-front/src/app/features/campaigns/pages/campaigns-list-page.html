@@ -1,14 +1,15 @@
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-      {{ 'campaigns.list.title' | transloco }}
-    </h1>
+  <app-page-header
+    [kicker]="'campaigns.list.kicker' | transloco"
+    [title]="'campaigns.list.title' | transloco"
+    [intro]="'campaigns.list.intro' | transloco"
+  >
     @if (canCreateCampaign()) {
       <app-action-button (click)="openCreateDialog()">
         {{ 'campaigns.create.button' | transloco }}
       </app-action-button>
     }
-  </div>
+  </app-page-header>
 
   @if (canCreateCampaign()) {
     <app-form-dialog

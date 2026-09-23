@@ -23,6 +23,7 @@ thèmes.
 - [x] 3.2 [T-128] Migrer les actions principales des listes Membres, Campagnes, Cagnottes, Catégories et Rôles et utilisateurs vers le composant partagé, sans modifier les droits, routes ou paramètres.
 - [x] 3.3 [T-128] Migrer les actions des formulaires et détails concernés en conservant `type="button"` pour annuler ou déclencher une action locale et `type="submit"` pour valider, puis vérifier l'absence de double soumission.
 - [x] 3.4 [T-128] Conserver les composants spécialisés des onglets, filtres, selects, pagination et liens textuels lorsqu'ils ne correspondent pas au contrat d'action `.btn`.
+- [x] 3.5 [T-128] Aligner les en-têtes de toutes les pages métier sur le motif `.page-head` du prototype avec un composant partagé, le kicker, le titre et l'introduction.
 
 ## 4. Navigation et sidebar
 
@@ -36,3 +37,4 @@ thèmes.
 - [x] 5.1 [T-128] Comparer le dashboard et la sidebar avec le prototype local à 1440 px et 1024 px, en thème sombre puis clair, et vérifier le clavier, le focus, le texte agrandi et le breakpoint mobile existant.
 - [x] 5.2 [T-128] Exécuter `npm test -- --watch=false`, `npm run build` et `npm run lint` depuis `contribo-front/`, puis relire le diff pour confirmer qu'aucun contrat API ou fichier hors périmètre n'a changé.
 - [x] 5.3 [T-128] Exécuter `node scripts/tickets.mjs check`, committer uniquement le périmètre T-128, pousser la branche dédiée et préparer une PR vers `main` avec les validations et captures avant/après, sans fusionner.
+- [x] 5.4 [T-128] Comparer visuellement les en-têtes des pages Membres, Campagnes, Cagnottes, Catégories, Rôles et espace membre avec le prototype, puis vérifier les tests, le build, le lint et le formatage.

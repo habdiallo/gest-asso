@@ -29,6 +29,7 @@ import { AmountInput } from '@shared/amount-input/amount-input';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
@@ -118,6 +119,7 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
     CampaignBilanTab,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
   ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

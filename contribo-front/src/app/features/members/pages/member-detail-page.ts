@@ -27,6 +27,7 @@ import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
@@ -115,6 +116,7 @@ const MEMBER_DETAIL_TABS: readonly MemberDetailTab[] = [
     ApiErrorRetry,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
     MemberEditForm,
     MemberEditFormOperator,
     MemberDuesTab,

@@ -18,6 +18,7 @@ import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { PageHeader } from '@shared/page-header/page-header';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, debounceTime } from 'rxjs';
@@ -80,6 +81,7 @@ import { campaignStatusLabel } from '../campaign-status-labels';
     EmptyState,
     FormDialog,
     LoadingSkeleton,
+    PageHeader,
     CustomSelect,
     CampaignCreateForm,
   ],

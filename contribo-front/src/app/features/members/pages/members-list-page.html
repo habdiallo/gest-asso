@@ -1,14 +1,20 @@
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-      {{ 'members.title' | transloco }}
-    </h1>
+  @let summary = memberPage()?.summary;
+  <app-page-header
+    [kicker]="'members.kicker' | transloco"
+    [title]="'members.title' | transloco"
+    [intro]="
+      summary
+        ? ('members.summary' | transloco: { active: summary.active, total: summary.total })
+        : null
+    "
+  >
     @if (canCreateMember()) {
       <app-action-button (click)="openCreateDialog()">
         {{ 'members.create.button' | transloco }}
       </app-action-button>
     }
-  </div>
+  </app-page-header>
 
   @if (canCreateMember()) {
     <app-form-dialog
@@ -82,12 +88,6 @@
     } @else if (loadError()) {
       <p class="mt-6 text-error" role="alert">{{ 'members.error' | transloco }}</p>
     }
-    <p class="mt-1 text-sm text-text-2">
-      {{
-        'members.summary' | transloco: { active: page.summary.active, total: page.summary.total }
-      }}
-    </p>
-
     @if (page.items.length === 0) {
       <app-empty-state class="mt-6 block" [message]="'members.empty' | transloco" />
     } @else {

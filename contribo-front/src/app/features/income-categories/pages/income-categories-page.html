@@ -1,12 +1,13 @@
 <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="font-display text-3xl uppercase tracking-wide text-gold-hover">
-      {{ 'incomeCategories.title' | transloco }}
-    </h1>
+  <app-page-header
+    [kicker]="'incomeCategories.kicker' | transloco"
+    [title]="'incomeCategories.title' | transloco"
+    [intro]="'incomeCategories.intro' | transloco"
+  >
     <app-action-button (click)="openCreateDialog()">
       {{ 'incomeCategories.actions.add' | transloco }}
     </app-action-button>
-  </div>
+  </app-page-header>
 
   <app-create-income-category-dialog
     [open]="createDialogOpen()"
