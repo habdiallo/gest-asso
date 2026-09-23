@@ -29,13 +29,15 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
- * à US-MEM-002. La pagination de base (page suivante/précédente sur
- * `page`/`size`) est fournie par ce ticket, afin que l'ensemble du répertoire
- * reste accessible au-delà des 20 premiers membres. La colonne Statut affiche
- * un badge distinguant visuellement les membres actifs des membres inactifs
- * (T-22, RG-MEM-007), en plus du libellé textuel, pour ne pas reposer
- * uniquement sur la couleur. Chaque ligne mène à la fiche détaillée du membre
- * (T-27, US-MEM-003).
+ * à US-MEM-002. La présentation reprend le tableau du prototype, avec
+ * l'identité, la ville et le pays regroupés autour de l'avatar. La pagination
+ * de base (page suivante/précédente sur `page`/`size`) est fournie par ce
+ * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 20
+ * premiers membres. La colonne Statut affiche un badge
+ * distinguant visuellement les membres actifs des membres inactifs (T-22,
+ * RG-MEM-007), en plus du libellé textuel, pour ne pas reposer uniquement sur
+ * la couleur. Chaque ligne mène à la fiche détaillée du membre (T-27,
+ * US-MEM-003).
  *
  * Recherche par nom (T-24, paramètre contractuel `q` de `GET /members`) :
  * filtre côté serveur les membres dont un champ nominatif correspond à la
@@ -135,16 +137,13 @@ export class MembersListPage {
   readonly loadError = signal(false);
   readonly memberPage = signal<MemberPage | null>(null);
 
-  readonly statusFilterOptions: readonly MemberStatus[] = [
-    MemberStatus.Active,
-    MemberStatus.Inactive,
-  ];
-  readonly statusSelectOptions: readonly CustomSelectOption[] = [
-    { value: '', label: '', translationKey: 'members.statusFilterAll' },
-    ...this.statusFilterOptions.map((status) => ({
-      value: status,
-      label: memberStatusLabel(status),
-    })),
+  readonly statusFilterOptions: readonly {
+    value: MemberStatus | '';
+    translationKey: string;
+  }[] = [
+    { value: '', translationKey: 'members.statusFilterAll' },
+    { value: MemberStatus.Active, translationKey: 'members.statusFilterActive' },
+    { value: MemberStatus.Inactive, translationKey: 'members.statusFilterInactive' },
   ];
   readonly statusFilter = signal<MemberStatus | ''>('');
 
@@ -175,6 +174,11 @@ export class MembersListPage {
 
   readonly memberStatusLabel = memberStatusLabel;
   readonly memberIsActive = memberIsActive;
+
+  memberInitials(member: Pick<MemberSummary, 'firstName' | 'lastName'>): string {
+    const initials = `${member.firstName.trim().charAt(0)}${member.lastName.trim().charAt(0)}`;
+    return initials.toUpperCase();
+  }
 
   /**
    * Filtre par catégorie de revenu (T-26) : `null` signifie "toutes les

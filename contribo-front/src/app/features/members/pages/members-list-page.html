@@ -49,11 +49,22 @@
     </p>
   }
 
-  <div class="mt-6 flex flex-wrap gap-4">
-    <div class="flex flex-col gap-2 sm:max-w-xs">
-      <label for="members-search" class="text-sm font-medium text-text-2">
+  <div class="mt-6 flex flex-wrap items-center gap-3">
+    <div class="relative min-w-[240px] flex-1">
+      <label for="members-search" class="sr-only">
         {{ 'members.searchLabel' | transloco }}
       </label>
+      <svg
+        class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-3"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-4-4"></path>
+      </svg>
       <input
         id="members-search"
         type="search"
@@ -61,20 +72,28 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text outline-none transition-colors placeholder:text-text-3 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
-    <div class="flex flex-col gap-2 sm:max-w-xs">
-      <label for="members-status-filter" class="text-sm font-medium text-text-2">
-        {{ 'members.statusFilterLabel' | transloco }}
-      </label>
-      <app-custom-select
-        controlId="members-status-filter"
-        [options]="statusSelectOptions"
-        [value]="statusFilter()"
-        [placeholder]="'members.statusFilterAll' | transloco"
-        (valueChange)="onStatusFilterChange($event)"
-      />
+    <div
+      class="flex shrink-0 rounded-lg border border-line bg-surface-2 p-1"
+      role="group"
+      [attr.aria-label]="'members.statusFilterLabel' | transloco"
+    >
+      @for (filter of statusFilterOptions; track filter.value) {
+        <button
+          type="button"
+          class="min-h-9 rounded-md px-3 text-[9px] font-medium uppercase tracking-[0.08em] transition-colors"
+          [class.bg-surface]="statusFilter() === filter.value"
+          [class.text-text]="statusFilter() === filter.value"
+          [class.text-text-3]="statusFilter() !== filter.value"
+          [class.shadow-sm]="statusFilter() === filter.value"
+          [attr.aria-pressed]="statusFilter() === filter.value"
+          (click)="onStatusFilterChange(filter.value)"
+        >
+          {{ filter.translationKey | transloco }}
+        </button>
+      }
     </div>
   </div>
 
@@ -110,58 +129,73 @@
         <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {
         <div
-          class="mt-6 overflow-x-auto rounded-card border border-line"
+          class="mt-6 overflow-x-auto rounded-card border border-line bg-surface shadow-card"
           [attr.aria-busy]="loading() ? 'true' : null"
         >
-          <table class="w-full text-left text-sm">
+          <table class="w-full min-w-[980px] text-left text-sm">
             <thead>
-              <tr class="border-b border-line text-xs uppercase tracking-[0.08em] text-text-2">
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.lastName' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.firstName' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">
-                  {{ 'members.columns.preferredName' | transloco }}
-                </th>
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.country' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.city' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.phone' | transloco }}</th>
+              <tr class="bg-surface-2 text-[9px] uppercase tracking-[0.13em] text-text-3">
+                <th scope="col" class="h-11 px-4">{{ 'members.columns.member' | transloco }}</th>
+                <th scope="col" class="h-11 px-4">{{ 'members.columns.phone' | transloco }}</th>
                 @if (showFinancialDetail()) {
-                  <th scope="col" class="px-4 py-3">
+                  <th scope="col" class="h-11 px-4">
                     {{ 'members.columns.incomeCategory' | transloco }}
                   </th>
                 }
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.function' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">{{ 'members.columns.status' | transloco }}</th>
-                <th scope="col" class="px-4 py-3">
+                <th scope="col" class="h-11 px-4">{{ 'members.columns.function' | transloco }}</th>
+                <th scope="col" class="h-11 px-4">{{ 'members.columns.status' | transloco }}</th>
+                <th scope="col" class="h-11 px-4 text-right">
                   <span class="sr-only">{{ 'members.viewDetail' | transloco }}</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               @for (member of filteredItems(); track member.id) {
-                <tr class="border-b border-line last:border-0">
-                  <td class="px-4 py-3 text-text">{{ member.lastName }}</td>
-                  <td class="px-4 py-3 text-text">{{ member.firstName }}</td>
-                  <td class="px-4 py-3 text-text-2">
-                    {{ member.preferredName || ('members.valueMissing' | transloco) }}
+                <tr
+                  class="group border-t border-line text-text-2 transition-colors hover:bg-gold-wash"
+                >
+                  <td class="h-16 px-4">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <span
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
+                        aria-hidden="true"
+                      >
+                        {{ memberInitials(member) }}
+                      </span>
+                      <div class="min-w-0">
+                        <strong class="block truncate font-medium text-text">{{
+                          member.displayName
+                        }}</strong>
+                        <span class="mt-1 block text-xs text-text-3">
+                          @if (member.city || member.country) {
+                            {{ member.city || ('members.valueMissing' | transloco) }}
+                            @if (member.city && member.country) {
+                              <span aria-hidden="true">, </span>
+                            }
+                            {{ member.country || ('members.valueMissing' | transloco) }}
+                          } @else {
+                            {{ 'members.valueMissing' | transloco }}
+                          }
+                        </span>
+                        <span class="sr-only">
+                          {{ 'members.columns.preferredName' | transloco }}:
+                          {{ member.preferredName || ('members.valueMissing' | transloco) }}
+                        </span>
+                      </div>
+                    </div>
                   </td>
-                  <td class="px-4 py-3 text-text-2">
-                    {{ member.country || ('members.valueMissing' | transloco) }}
-                  </td>
-                  <td class="px-4 py-3 text-text-2">
-                    {{ member.city || ('members.valueMissing' | transloco) }}
-                  </td>
-                  <td class="px-4 py-3 text-text-2">
+                  <td class="h-16 px-4 text-text-2">
                     {{ member.phone || ('members.valueMissing' | transloco) }}
                   </td>
                   @if (showFinancialDetail()) {
-                    <td class="px-4 py-3 text-text-2">{{ member.incomeCategory.label }}</td>
+                    <td class="h-16 px-4 text-text-2">{{ member.incomeCategory.label }}</td>
                   }
-                  <td class="px-4 py-3 text-text-2">
+                  <td class="h-16 px-4 text-text-2">
                     {{ member.associationFunction || ('members.valueMissing' | transloco) }}
                   </td>
-                  <td class="px-4 py-3">
+                  <td class="h-16 px-4">
                     <span
-                      class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                      class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[9px] font-data font-medium uppercase tracking-[0.11em]"
                       [class.bg-success-wash]="memberIsActive(member.status)"
                       [class.text-success]="memberIsActive(member.status)"
                       [class.bg-surface-2]="!memberIsActive(member.status)"
@@ -176,15 +210,25 @@
                       {{ memberStatusLabel(member.status) }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-right">
+                  <td class="h-16 px-4 text-right">
                     <a
                       [routerLink]="[member.id]"
-                      class="text-sm text-gold-hover underline-offset-2 hover:underline"
+                      class="inline-flex rounded p-2 text-text-3 transition-colors hover:bg-surface-2 hover:text-gold-hover focus-visible:text-gold-hover"
+                      [attr.aria-label]="
+                        ('members.viewDetail' | transloco) + ' : ' + member.displayName
+                      "
                     >
-                      {{ 'members.viewDetail' | transloco }}
-                      <span class="sr-only">
-                        {{ member.displayName }}
-                      </span>
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 18 6-6-6-6"></path>
+                      </svg>
+                      <span class="sr-only">{{ 'members.viewDetail' | transloco }}</span>
                     </a>
                   </td>
                 </tr>
@@ -194,7 +238,10 @@
         </div>
       }
 
-      <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Pagination">
+      <nav
+        class="mt-6 flex items-center justify-between gap-4"
+        [attr.aria-label]="'members.pagination.nav' | transloco"
+      >
         <button
           type="button"
           class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
