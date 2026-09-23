@@ -24,14 +24,30 @@ const demoCampaigns: CampaignSummary[] = [
     endDate: '2026-09-30',
     status: CampaignStatus.Open,
     memberCount: 86,
+    financialSummary: {
+      expectedAmount: 18_500_000,
+      collectedAmount: 12_400_000,
+      remainingAmount: 6_100_000,
+      collectionRate: 67,
+      dueCounts: { total: 86, paid: 38, partiallyPaid: 12, unpaid: 36 },
+      currency: CurrencyCode.Gnf,
+    },
   },
   {
     id: '10700000-0000-4000-8000-000000000201',
-    name: 'Rentrée scolaire',
-    startDate: '2026-10-01',
-    endDate: '2026-10-31',
-    status: CampaignStatus.Upcoming,
-    memberCount: 91,
+    name: 'Rentrée associative',
+    startDate: '2026-08-15',
+    endDate: '2026-10-15',
+    status: CampaignStatus.Open,
+    memberCount: 62,
+    financialSummary: {
+      expectedAmount: 9_800_000,
+      collectedAmount: 4_200_000,
+      remainingAmount: 5_600_000,
+      collectionRate: 43,
+      dueCounts: { total: 62, paid: 27, partiallyPaid: 6, unpaid: 29 },
+      currency: CurrencyCode.Gnf,
+    },
   },
   {
     id: '10700000-0000-4000-8000-000000000202',
@@ -40,6 +56,14 @@ const demoCampaigns: CampaignSummary[] = [
     endDate: '2026-06-30',
     status: CampaignStatus.Closed,
     memberCount: 84,
+    financialSummary: {
+      expectedAmount: 15_200_000,
+      collectedAmount: 14_800_000,
+      remainingAmount: 400_000,
+      collectionRate: 97,
+      dueCounts: { total: 84, paid: 80, partiallyPaid: 2, unpaid: 2 },
+      currency: CurrencyCode.Gnf,
+    },
   },
   /**
    * Deuxième campagne ouverte (T-117) : permet, comme pour `demoSocialFunds`
@@ -54,6 +78,14 @@ const demoCampaigns: CampaignSummary[] = [
     endDate: '2026-09-30',
     status: CampaignStatus.Open,
     memberCount: 86,
+    financialSummary: {
+      expectedAmount: 9_900_000,
+      collectedAmount: 4_950_000,
+      remainingAmount: 4_950_000,
+      collectionRate: 50,
+      dueCounts: { total: 86, paid: 43, partiallyPaid: 8, unpaid: 35 },
+      currency: CurrencyCode.Gnf,
+    },
   },
 ];
 
@@ -95,6 +127,9 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
   '10700000-0000-4000-8000-000000000201': {
     ...demoCampaigns[1],
+    // Le détail conserve la valeur technique UPCOMING pour couvrir les règles
+    // d'édition du barème, sans exposer ce statut dans la liste Campagnes.
+    status: CampaignStatus.Upcoming,
     description: 'Contribution exceptionnelle pour la rentrée scolaire des enfants de membres.',
     categoryAmounts: [
       {
@@ -422,7 +457,7 @@ export const campaignsHandlers = [
       name: body.name,
       startDate: body.startDate,
       endDate: body.endDate,
-      status: CampaignStatus.Upcoming,
+      status: CampaignStatus.Open,
       memberCount: 0,
     };
     demoCampaigns.unshift(summary);

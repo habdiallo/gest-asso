@@ -55,6 +55,14 @@ function buildCampaignPage(overrides: Partial<CampaignPage> = {}): CampaignPage 
         endDate: '2026-09-30',
         status: 'OPEN',
         memberCount: 86,
+        financialSummary: {
+          expectedAmount: 18_500_000,
+          collectedAmount: 12_400_000,
+          remainingAmount: 6_100_000,
+          collectionRate: 67,
+          dueCounts: { total: 86, paid: 38, partiallyPaid: 12, unpaid: 36 },
+          currency: CurrencyCode.Gnf,
+        },
       },
     ],
     page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
@@ -177,6 +185,30 @@ describe('CampaignsListPage', () => {
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('1 septembre 2026');
     expect(root.textContent).toContain('30 septembre 2026');
+    expect(root.textContent).toContain('12,4M GNF');
+    expect(root.textContent).toContain('18,5M GNF');
+    expect(root.textContent).toContain('67%');
+  });
+
+  it('renders the prototype status segments and does not expose an upcoming label', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildCampaignPage({
+          items: [{ ...buildCampaignPage().items[0], status: CampaignStatus.Upcoming }],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const statusGroup = root.querySelector('[role="group"]');
+    const statusButtons = Array.from(statusGroup?.querySelectorAll('button') ?? []).map((button) =>
+      button.textContent?.trim(),
+    );
+
+    expect(statusButtons).toEqual(['Toutes', 'Ouvertes', 'Clôturées']);
+    expect(root.textContent).toContain('Ouverte');
+    expect(root.textContent).not.toContain('À venir');
   });
 
   it('shows the empty-list message when there is no campaign', async () => {

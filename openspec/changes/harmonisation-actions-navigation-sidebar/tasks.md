@@ -40,3 +40,5 @@ thèmes.
 - [x] 5.3 [T-128] Exécuter `node scripts/tickets.mjs check`, committer uniquement le périmètre T-128, pousser la branche dédiée et préparer une PR vers `main` avec les validations et captures avant/après, sans fusionner.
 - [x] 5.4 [T-128] Comparer visuellement les en-têtes des pages Membres, Campagnes, Cagnottes, Catégories, Rôles et espace membre avec le prototype, puis vérifier les tests, le build, le lint et le formatage.
 - [x] 5.5 [T-128] Comparer visuellement la liste Membres avec le prototype, puis vérifier les états recherche, filtres statut/catégorie/pays, chargement, erreur, absence de résultat, pagination, clavier et responsive.
+- [x] 5.6 [T-128] Reproduire visuellement la liste Campagnes du prototype avec recherche iconifiée, filtres segmentés Toutes/Ouvertes/Clôturées, grille de cartes financières responsive et normalisation visuelle de `UPCOMING` en Ouverte sans modifier le contrat API.
+- [x] 5.7 [T-128] Ajouter les tests de rendu des cartes, de progression financière, des filtres segmentés et de l'absence du libellé « À venir », puis exécuter les validations frontend et mettre à jour la PR.

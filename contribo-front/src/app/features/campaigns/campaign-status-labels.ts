@@ -2,11 +2,9 @@ import { CampaignStatus } from '@api';
 
 /**
  * Libellés français des statuts de campagne (schéma `CampaignStatus` de
- * `besoins/openapi.yaml`) : à venir avant le début, ouverte jusqu'à la
- * clôture explicite, clôturée après clôture. Décision applicative reprise
- * de `features/dashboard/dashboard-status-labels.ts` : les features ne
- * s'importent pas entre elles (`.claude/rules/frontend/angular.md`), le
- * mapping est donc dupliqué ici plutôt que partagé directement.
+ * `besoins/openapi.yaml`). Le détail conserve le libellé technique « À venir »
+ * pour les règles d'édition du barème, tandis que la liste normalise ce statut
+ * dans son vocabulaire visuel ouvert/clôturé.
  */
 const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
   [CampaignStatus.Upcoming]: 'À venir',
@@ -16,4 +14,23 @@ const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
 
 export function campaignStatusLabel(status: CampaignStatus): string {
   return CAMPAIGN_STATUS_LABELS[status];
+}
+
+/** Statut présenté par la liste Campagnes, limitée aux états ouverts et clôturés. */
+export type CampaignListStatus = typeof CampaignStatus.Open | typeof CampaignStatus.Closed;
+
+export function campaignListStatus(status: CampaignStatus): CampaignListStatus {
+  return status === CampaignStatus.Closed ? CampaignStatus.Closed : CampaignStatus.Open;
+}
+
+export type CampaignStatusTone = 'success' | 'neutral';
+
+const CAMPAIGN_STATUS_TONES: Record<CampaignStatus, CampaignStatusTone> = {
+  [CampaignStatus.Upcoming]: 'success',
+  [CampaignStatus.Open]: 'success',
+  [CampaignStatus.Closed]: 'neutral',
+};
+
+export function campaignStatusTone(status: CampaignStatus): CampaignStatusTone {
+  return CAMPAIGN_STATUS_TONES[status];
 }

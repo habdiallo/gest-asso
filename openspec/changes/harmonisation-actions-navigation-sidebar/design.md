@@ -101,6 +101,22 @@ du pied sur `.profile*` du prototype. La déconnexion et le changement de thème
 restent accessibles et conservent leurs effets, même si leur placement exact doit
 être adapté au shell Angular.
 
+### 5. Liste Campagnes alignée sur les cartes du prototype
+
+La page `/campagnes` reprend le motif de la référence visuelle : en-tête avec
+action de création, barre de recherche pleine largeur, groupe segmenté de filtres
+et grille responsive de cartes. Chaque carte affiche le nombre de membres, le nom,
+la période, le statut, puis le montant encaissé, le montant attendu et la
+progression lorsque `financialSummary` est fourni par l'API. Les rôles qui ne
+reçoivent pas ce bilan conservent une carte de consultation sans inventer de
+montants.
+
+La présentation de la liste ne propose que les statuts Toutes, Ouvertes et
+Clôturées. La valeur technique `UPCOMING`, encore acceptée par le contrat pour
+les règles de détail et les données historiques, est normalisée visuellement en
+Ouverte dans cette page afin de ne pas exposer un troisième statut à l'utilisateur.
+Cette décision ne modifie ni le contrat API ni les conditions d'édition du barème.
+
 ## Risks / Trade-offs
 
 - [Risque] Un lien converti en bouton pourrait perdre le comportement d'URL ou de

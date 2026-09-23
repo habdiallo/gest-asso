@@ -25,6 +25,9 @@ navigation soient cohérentes sur tous les menus, sans modifier les droits méti
 - Aligner la définition de navigation et le rendu de la sidebar authentifiée sur le
   prototype pour chaque rôle : ordre, libellés, regroupement Administration, icônes,
   état actif, identité et actions du pied.
+- Reproduire la liste Campagnes du prototype avec une grille de cartes financières,
+  une recherche iconifiée et des filtres segmentés limités à Toutes, Ouvertes et
+  Clôturées.
 - Conserver les autorisations, les routes existantes, les gardes, la session, les
   actions thème/déconnexion et la navigation mobile. Aucun changement API ou backend.
 
