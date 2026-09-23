@@ -115,7 +115,10 @@ La présentation de la liste ne propose que les statuts Toutes, Ouvertes et
 Clôturées. La valeur technique `UPCOMING`, encore acceptée par le contrat pour
 les règles de détail et les données historiques, est normalisée visuellement en
 Ouverte dans cette page afin de ne pas exposer un troisième statut à l'utilisateur.
-Cette décision ne modifie ni le contrat API ni les conditions d'édition du barème.
+Le segment « Ouvertes » utilise `status=OPEN`, défini par le contrat de liste comme
+l'union des états techniques `OPEN` et `UPCOMING`, pour ne pas masquer une campagne
+présentée comme ouverte. Cette décision ne modifie pas les conditions d'édition du
+barème, qui continuent de dépendre du statut technique.
 
 ### 6. Liste Cagnottes alignée sur les cartes du prototype
 
@@ -150,12 +153,14 @@ zéro.
 
 ### 8. Dimensions et ordre des listes
 
-Le composant partagé utilise une hauteur minimale compacte de 312 px, un padding de
-21 px et ne dépend pas de `h-full`. Les éléments de grille ne portent pas de hauteur
-minimale additionnelle : une carte ne peut donc pas étirer toutes les cartes de sa
-ligne lorsqu'une variante a un contenu différent. Les listes demandent au serveur
-six éléments par page, ce qui produit au maximum deux lignes de trois cartes sur
-desktop, puis conservent la pagination existante pour les éléments suivants.
+Le composant partagé utilise un padding de 21 px et ne dépend ni d'une hauteur
+minimale ni de `h-full` : la carte prend la hauteur de son contenu. Le bloc financier
+suit le sous-titre avec une marge de 22 px, comme `.campaign-card` dans le prototype,
+au lieu d'être repoussé artificiellement en bas de carte. Les éléments de grille ne
+portent pas de hauteur minimale additionnelle : une variante plus courte ne peut donc
+pas étirer les autres cartes de sa ligne. Les listes demandent au serveur six éléments
+par page, ce qui produit au maximum deux lignes de trois cartes sur desktop, puis
+conservent la pagination existante pour les éléments suivants.
 
 Les campagnes et les cagnottes sont triées par `startDate` décroissante, puis par
 `endDate` décroissante en cas d'égalité, avant la pagination. Le contrat OpenAPI

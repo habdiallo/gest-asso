@@ -49,7 +49,8 @@ Les listes Campagnes et Cagnottes SHALL demander au service API au maximum six
 éléments par page et SHALL conserver la pagination au-delà de cette limite. Le
 service SHALL renvoyer les éléments de la date de début la plus récente à la plus
 ancienne, avec la date de fin comme départage secondaire. La carte SHALL conserver
-une hauteur compacte proche du prototype sans imposer `h-full` à son élément de grille.
+le flux vertical du prototype, sans hauteur minimale, `h-full` ni espacement automatique
+qui repousserait le bilan financier en bas de la carte.
 
 #### Scenario: Première page desktop
 
@@ -58,6 +59,13 @@ une hauteur compacte proche du prototype sans imposer `h-full` à son élément 
 - **AND** l'écran affiche au plus six cartes, dans une grille de trois colonnes
   lorsque la largeur desktop le permet
 - **AND** les contrôles de pagination permettent d'ouvrir les éléments suivants
+
+#### Scenario: Bilan financier compact
+
+- **WHEN** une carte affiche son titre, sa période et son bilan financier
+- **THEN** le montant commence après la marge verticale du prototype, sans espace
+  extensible entre la période et le montant
+- **AND** la hauteur de la carte est déterminée par son contenu
 
 #### Scenario: Ordre des résultats
 

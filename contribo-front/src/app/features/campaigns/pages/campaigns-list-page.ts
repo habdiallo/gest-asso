@@ -38,8 +38,10 @@ const PAGE_SIZE = 6;
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
  * restreint déjà l'accès par rôle via `roleGuard`). Le filtre par statut
  * (T-58, paramètre contractuel `status`) restreint la liste aux campagnes
- * ouvertes ou clôturées. La liste présente les cartes financières du prototype
- * et normalise visuellement une éventuelle valeur `UPCOMING` en campagne ouverte.
+ * ouvertes ou clôturées. Dans le contrat de cette liste, la valeur demandée
+ * `OPEN` inclut aussi les campagnes techniques `UPCOMING`, afin que le segment
+ * « Ouvertes » corresponde au statut visuel affiché. La liste présente les
+ * cartes financières du prototype et normalise `UPCOMING` en campagne ouverte.
  *
  * La recherche par nom (T-59, paramètre contractuel `q` de
  * `GET /campaigns`) filtre côté serveur les campagnes dont le nom

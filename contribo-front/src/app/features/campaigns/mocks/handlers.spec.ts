@@ -50,6 +50,19 @@ describe('GET /api/v1/campaigns (mock)', () => {
     expect(page.page.size).toBe(2);
     expect(page.page.totalElements).toBe(4);
   });
+
+  it('includes upcoming campaigns in the open presentation filter', async () => {
+    const response = await fetch('/api/v1/campaigns?status=OPEN', {
+      headers: headersFor(UserRole.Treasurer),
+    });
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as CampaignPage;
+    expect(page.items.map((campaign) => campaign.name)).toContain('Rentrée associative');
+    expect(page.items.find((campaign) => campaign.name === 'Rentrée associative')?.status).toBe(
+      'UPCOMING',
+    );
+  });
 });
 
 describe('PUT /api/v1/campaigns/{id}/category-amounts (mock, T-113)', () => {

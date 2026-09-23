@@ -48,3 +48,5 @@ thèmes.
 - [x] 5.11 [T-128] Migrer les deux listes vers la carte partagée, couvrir les variantes avec et sans objectif par tests, puis exécuter les validations frontend et mettre à jour la PR.
 - [x] 5.12 [T-128] Compacter les cartes financières selon le prototype, supprimer l'étirement `h-full` des grilles et limiter les requêtes des listes à six éléments par page en conservant la pagination.
 - [x] 5.13 [T-128] Garantir et documenter le tri des campagnes et cagnottes par date de début décroissante avant pagination, aligner les mocks et couvrir l'ordre par tests.
+- [x] 5.14 [T-128] Retirer la hauteur minimale et l'espacement extensible des cartes financières, aligner le bilan sur le flux vertical du prototype et couvrir la régression.
+- [x] 5.15 [T-128] Traiter les retours de revue : inclure `UPCOMING` dans le segment Campagnes « Ouvertes » et appliquer l'accent doré du titre de carte au focus clavier, avec contrat et tests.

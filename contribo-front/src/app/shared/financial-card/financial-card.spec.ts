@@ -44,7 +44,7 @@ describe('FinancialCard', () => {
     const link = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
 
     expect(link.getAttribute('href')).toBe('/campagnes/campaign-id');
-    expect(link.classList.contains('min-h-[312px]')).toBe(true);
+    expect(link.classList.contains('min-h-[312px]')).toBe(false);
     expect(link.classList.contains('h-full')).toBe(false);
     expect(link.textContent).toContain('Solidarité septembre');
     expect(link.textContent).toContain('12,4M GNF');
@@ -52,10 +52,17 @@ describe('FinancialCard', () => {
     expect(link.classList.contains('hover:-translate-y-0.5')).toBe(true);
     expect(link.classList.contains('focus-visible:ring-[3px]')).toBe(true);
     expect(
+      fixture.nativeElement
+        .querySelector('h2')
+        ?.classList.contains('group-focus-visible:text-gold'),
+    ).toBe(true);
+    expect(
       link.classList.contains(
         'hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))]',
       ),
     ).toBe(true);
+    expect(fixture.nativeElement.querySelector('.mt-\\[22px\\]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.mt-auto')).toBeNull();
   });
 
   it('renders the optional objective and bounded progress bar', () => {

@@ -1,6 +1,6 @@
 <a
   [routerLink]="routerLink()"
-  class="group flex min-h-[312px] cursor-pointer flex-col rounded-card border border-line bg-surface p-[21px] shadow-card outline-none transition-[border-color,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+  class="group flex cursor-pointer flex-col rounded-card border border-line bg-surface p-[21px] shadow-card outline-none transition-[border-color,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
 >
   <div class="flex items-start justify-between gap-3">
     <span class="font-data text-[9px] font-medium uppercase tracking-[0.13em] text-text-2">
@@ -24,13 +24,15 @@
     </span>
   </div>
 
-  <h2 class="mt-5 text-lg font-medium text-text transition-colors group-hover:text-gold">
+  <h2
+    class="mt-5 text-lg font-medium text-text transition-colors group-hover:text-gold group-focus-visible:text-gold"
+  >
     {{ title() }}
   </h2>
   <p class="mt-1 text-xs text-text-2">{{ subtitle() }}</p>
 
   @if (collectedAmount(); as collectedAmount) {
-    <div class="mt-auto pt-6">
+    <div class="mt-[22px]">
       @if (hasProgress(); as hasProgress) {
         @if (targetAmount(); as targetAmount) {
           <p class="font-display text-2xl leading-none text-text">
@@ -71,7 +73,7 @@
       }
     </div>
   } @else if (financialFallback(); as financialFallback) {
-    <div class="mt-auto border-t border-line pt-4 text-xs text-text-2">
+    <div class="mt-[22px] border-t border-line pt-4 text-xs text-text-2">
       {{ financialFallback }}
     </div>
   }

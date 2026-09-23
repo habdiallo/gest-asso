@@ -38,7 +38,7 @@ const demoCampaigns: CampaignSummary[] = [
     name: 'Rentrée associative',
     startDate: '2026-08-15',
     endDate: '2026-10-15',
-    status: CampaignStatus.Open,
+    status: CampaignStatus.Upcoming,
     memberCount: 62,
     financialSummary: {
       expectedAmount: 9_800_000,
@@ -127,8 +127,8 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
   '10700000-0000-4000-8000-000000000201': {
     ...demoCampaigns[1],
-    // Le détail conserve la valeur technique UPCOMING pour couvrir les règles
-    // d'édition du barème, sans exposer ce statut dans la liste Campagnes.
+    // Le statut technique UPCOMING reste nécessaire aux règles d'édition du
+    // barème. La liste Campagnes le présente toutefois comme « Ouverte ».
     status: CampaignStatus.Upcoming,
     description: 'Contribution exceptionnelle pour la rentrée scolaire des enfants de membres.',
     categoryAmounts: [
@@ -414,7 +414,14 @@ export const campaignsHandlers = [
     const query = url.searchParams.get('q')?.trim();
     const normalizedQuery = query ? normalizeForSearch(query) : null;
     const filtered = demoCampaigns.filter((campaign) => {
-      const matchesStatus = !status || campaign.status === status;
+      // La liste ne présente que les états Ouvertes et Clôturées. Son segment
+      // « Ouvertes » couvre donc les campagnes OPEN et UPCOMING, sans altérer
+      // le statut technique renvoyé par une ressource de détail.
+      const matchesStatus =
+        !status ||
+        (status === CampaignStatus.Open
+          ? campaign.status === CampaignStatus.Open || campaign.status === CampaignStatus.Upcoming
+          : campaign.status === status);
       const matchesQuery =
         !normalizedQuery || normalizeForSearch(campaign.name).includes(normalizedQuery);
       return matchesStatus && matchesQuery;
