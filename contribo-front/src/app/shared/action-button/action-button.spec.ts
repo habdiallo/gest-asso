@@ -13,6 +13,9 @@ import { ActionButton } from './action-button';
     >
       <span>Nouvelle campagne</span>
     </app-action-button>
+    <app-action-button [routerLink]="['/campagnes']" [disabled]="true">
+      <span>Navigation inactive</span>
+    </app-action-button>
     <app-action-button type="button" [disabled]="true">
       <span>Annuler</span>
     </app-action-button>
@@ -37,11 +40,14 @@ describe('ActionButton', () => {
     fixture.detectChanges();
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('a'));
-    expect(links).toHaveLength(1);
+    expect(links).toHaveLength(2);
     expect(links[0].getAttribute('href')).toBe('/campagnes?creer=1');
     expect(links[0].textContent).toContain('Nouvelle campagne');
     expect(links[0].getAttribute('aria-label')).toBe('Nouvelle campagne');
     expect(links[0].classList.contains('min-h-11')).toBe(true);
+    expect(links[1].getAttribute('aria-disabled')).toBe('true');
+    expect(links[1].getAttribute('tabindex')).toBe('-1');
+    expect(links[1].classList.contains('aria-disabled:opacity-[0.42]')).toBe(true);
   });
 
   it('renders local actions as native buttons with explicit types and disabled state', () => {
@@ -56,6 +62,7 @@ describe('ActionButton', () => {
     expect(buttons[0].textContent).toContain('Annuler');
     expect(buttons[1].classList.contains('border-line-strong')).toBe(true);
     expect(buttons[1].classList.contains('bg-surface')).toBe(true);
+    expect(buttons[0].getAttribute('aria-disabled')).toBe('true');
   });
 
   it('uses the design tokens for the danger variant', () => {
@@ -67,6 +74,25 @@ describe('ActionButton', () => {
     expect(dangerButton.classList.contains('bg-error-wash')).toBe(true);
     expect(dangerButton.classList.contains('text-error')).toBe(true);
     expect(dangerButton.className).toContain('border-[color:color-mix');
+  });
+
+  it('exposes the complete interaction state contract', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const primaryLink = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+
+    expect(primaryLink.classList.contains('cursor-pointer')).toBe(true);
+    expect(
+      primaryLink.classList.contains(
+        'transition-[background-color,border-color,box-shadow,color,transform]',
+      ),
+    ).toBe(true);
+    expect(primaryLink.classList.contains('duration-[180ms]')).toBe(true);
+    expect(primaryLink.classList.contains('focus-visible:ring-[3px]')).toBe(true);
+    expect(primaryLink.classList.contains('active:scale-[0.985]')).toBe(true);
+    expect(primaryLink.classList.contains('hover:-translate-y-px')).toBe(true);
+    expect(primaryLink.classList.contains('hover:shadow-[0_0_20px_var(--gold-wash)]')).toBe(true);
   });
 
   it('exposes loading as an accessible busy state and disables the action', () => {
