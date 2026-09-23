@@ -7,12 +7,13 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'danger';
 export type ActionButtonType = 'button' | 'submit' | 'reset';
 
 const ACTION_BUTTON_BASE_CLASSES =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] outline-none transition-colors focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:opacity-40';
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded border border-transparent px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] whitespace-nowrap outline-none transition-colors focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:opacity-40';
 
 const ACTION_BUTTON_VARIANT_CLASSES: Record<ActionButtonVariant, string> = {
   primary: 'bg-gold text-gold-ink hover:bg-gold-hover',
-  secondary: 'border border-line bg-surface-2 text-text hover:border-gold-hover',
-  danger: 'bg-error text-white hover:brightness-110',
+  secondary: 'border-line-strong bg-surface text-text hover:border-gold-hover',
+  danger:
+    'border-[color:color-mix(in_srgb,var(--error)_35%,transparent)] bg-error-wash text-error hover:border-[color:color-mix(in_srgb,var(--error)_55%,transparent)]',
 };
 
 @Component({

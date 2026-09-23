@@ -19,6 +19,9 @@ import { ActionButton } from './action-button';
     <app-action-button type="submit" variant="secondary" [loading]="true">
       <span>Enregistrer</span>
     </app-action-button>
+    <app-action-button variant="danger">
+      <span>Supprimer</span>
+    </app-action-button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -48,10 +51,22 @@ describe('ActionButton', () => {
     const buttons: HTMLButtonElement[] = Array.from(
       fixture.nativeElement.querySelectorAll('button'),
     );
-    expect(buttons.map((button) => button.type)).toEqual(['button', 'submit']);
+    expect(buttons.map((button) => button.type)).toEqual(['button', 'submit', 'button']);
     expect(buttons[0].disabled).toBe(true);
     expect(buttons[0].textContent).toContain('Annuler');
-    expect(buttons[1].classList.contains('border')).toBe(true);
+    expect(buttons[1].classList.contains('border-line-strong')).toBe(true);
+    expect(buttons[1].classList.contains('bg-surface')).toBe(true);
+  });
+
+  it('uses the design tokens for the danger variant', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const dangerButton = fixture.nativeElement.querySelectorAll('button')[2] as HTMLButtonElement;
+
+    expect(dangerButton.classList.contains('bg-error-wash')).toBe(true);
+    expect(dangerButton.classList.contains('text-error')).toBe(true);
+    expect(dangerButton.className).toContain('border-[color:color-mix');
   });
 
   it('exposes loading as an accessible busy state and disables the action', () => {
