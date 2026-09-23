@@ -23,7 +23,7 @@ thèmes.
 - [x] 3.2 [T-128] Migrer les actions principales des listes Membres, Campagnes, Cagnottes, Catégories et Rôles et utilisateurs vers le composant partagé, sans modifier les droits, routes ou paramètres.
 - [x] 3.3 [T-128] Migrer les actions des formulaires et détails concernés en conservant `type="button"` pour annuler ou déclencher une action locale et `type="submit"` pour valider, puis vérifier l'absence de double soumission.
 - [x] 3.4 [T-128] Conserver les composants spécialisés des onglets, filtres, selects, pagination et liens textuels lorsqu'ils ne correspondent pas au contrat d'action `.btn`.
-- [x] 3.5 [T-128] Aligner les en-têtes de toutes les pages métier sur le motif `.page-head` du prototype avec un composant partagé, le kicker, le titre et l'introduction.
+- [x] 3.5 [T-128] Aligner les en-têtes de toutes les pages métier sur le motif `.page-head` du prototype avec un composant partagé, le kicker, le titre, l'introduction et la largeur maximale de 1440 px.
 
 ## 4. Navigation et sidebar
 
