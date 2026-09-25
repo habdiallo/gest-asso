@@ -163,7 +163,7 @@ export class CampaignDetailPage {
     const campaign = this.campaign();
     const summary = campaign?.financialSummary;
     if (!campaign || !summary) return [];
-    const paidCount = summary.dueCounts.paid + summary.dueCounts.partiallyPaid;
+    const paidCount = summary.dueCounts.paid;
     return [
       {
         label: this.transloco.translate('campaigns.detail.metrics.expected'),
