@@ -62,7 +62,6 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly label = input<string>();
   readonly ariaLabel = input<string | null>(null);
   readonly compact = input(false);
-  readonly pill = input(false);
   readonly showFilterIcon = input(false);
   readonly placeholder = input('Sélectionner');
   readonly required = input(false);
@@ -83,21 +82,9 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly activeOptionIndex = signal(0);
   readonly touchedChange = output<void>();
 
-  readonly searchable = computed(() => this.options().length > 20);
-  readonly filterQuery = signal('');
-  readonly filterPlaceholder = input('Rechercher...');
-  readonly noOptionsMessage = input('Aucun résultat');
-
   readonly selectedOption = computed(
     () => this.options().find((option) => option.value === this.value()) ?? null,
   );
-  readonly filteredOptions = computed(() => {
-    const query = this.normalizeSearch(this.filterQuery());
-    if (!query) {
-      return this.options();
-    }
-    return this.options().filter((option) => this.normalizeSearch(option.label).includes(query));
-  });
 
   private readonly touchedFallback = signal(false);
   private readonly touchedFromControl = signal<boolean | null>(null);
@@ -105,7 +92,6 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly isDisabled = computed(() => this.disabled() || this.disabledInput());
 
   private readonly triggerRef = viewChild<ElementRef<HTMLButtonElement>>('trigger');
-  private readonly filterInputRef = viewChild<ElementRef<HTMLInputElement>>('filterInput');
   private readonly optionButtons = viewChildren<ElementRef<HTMLButtonElement>>('optionButton');
 
   private onChange: (value: string | null) => void = () => {};
@@ -156,9 +142,7 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
     const nextOpen = !this.open();
     this.open.set(nextOpen);
     if (nextOpen) {
-      this.filterQuery.set('');
       this.setActiveOptionIndex();
-      this.focusFilterOrOptionAfterOpen();
     }
   }
 
@@ -184,24 +168,8 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
     ) {
       event.preventDefault();
       this.open.set(true);
-      this.filterQuery.set('');
       this.setActiveOptionIndex();
-      this.focusFilterOrOptionAfterOpen();
-    }
-  }
-
-  handleFilterInput(event: Event): void {
-    this.filterQuery.set((event.target as HTMLInputElement).value);
-    this.activeOptionIndex.set(0);
-  }
-
-  handleFilterKeydown(event: KeyboardEvent): void {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      const buttons = this.optionButtons().map((ref) => ref.nativeElement);
-      if (buttons.length > 0) {
-        buttons[0].focus();
-      }
+      this.focusOptionAfterOpen();
     }
   }
 
@@ -268,37 +236,22 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
     }
   }
 
-  private focusFilterOrOptionAfterOpen(): void {
+  private focusOptionAfterOpen(): void {
     setTimeout(() => {
-      if (this.searchable()) {
-        this.filterInputRef()?.nativeElement.focus();
-        return;
-      }
       const buttons = this.optionButtons().map((ref) => ref.nativeElement);
       if (buttons.length === 0) {
         return;
       }
-      const selectedIndex = this.filteredOptions().findIndex(
-        (option) => option.value === this.value(),
-      );
+      const selectedIndex = this.options().findIndex((option) => option.value === this.value());
       const nextIndex = selectedIndex >= 0 ? selectedIndex : 0;
       this.activeOptionIndex.set(nextIndex);
-      buttons[nextIndex]?.focus();
+      buttons[nextIndex].focus();
     });
   }
 
   private setActiveOptionIndex(): void {
-    const selectedIndex = this.filteredOptions().findIndex(
-      (option) => option.value === this.value(),
-    );
+    const selectedIndex = this.options().findIndex((option) => option.value === this.value());
     this.activeOptionIndex.set(selectedIndex >= 0 ? selectedIndex : 0);
-  }
-
-  private normalizeSearch(value: string): string {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase();
   }
 
   private focusTrigger(): void {

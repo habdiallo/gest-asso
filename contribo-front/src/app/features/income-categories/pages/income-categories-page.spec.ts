@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CategoriesDeRevenuService } from '@core/api';
-import type { IncomeCategory } from '@core/api';
+import { CatgoriesDeRevenuService } from '@api';
+import type { IncomeCategory } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '@assets/i18n/fr.json';
+import fr from '../../../../assets/i18n/fr.json';
 import { IncomeCategoriesPage } from './income-categories-page';
 
 /*
@@ -52,10 +51,9 @@ async function createFixture(
       }),
     ],
     providers: [
-      provideTranslocoMessageformat({ locales: 'fr' }),
       {
-        provide: CategoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
+        provide: CatgoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
       },
     ],
   }).compileComponents();
@@ -111,8 +109,6 @@ describe('IncomeCategoriesPage', () => {
     expect(root.textContent).toContain('12');
     expect(root.textContent).toContain('Catégorie B');
     expect(root.textContent).toContain('31');
-    expect(root.querySelectorAll('tbody tr')[0]?.querySelector('td')?.textContent).toContain('A');
-    expect(root.querySelectorAll('tbody tr')[1]?.querySelector('td')?.textContent).toContain('B');
     const rows = root.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);
   });
@@ -142,16 +138,16 @@ describe('IncomeCategoriesPage', () => {
     expect(root.textContent).toContain('Page 2 sur 3');
   });
 
-  it('opens the create-category dialog when the create action is activated', async () => {
+  it('opens the create-category dialog when the "Ajouter" action is activated', async () => {
     const fixture = await createFixture(() => of([]));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
     const addButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
-      (button) => button.textContent?.includes('Créer une catégorie'),
+      (button) => button.textContent?.includes('Ajouter une catégorie'),
     );
     if (!addButton) {
-      throw new Error('Bouton "Créer une catégorie" introuvable.');
+      throw new Error('Bouton "Ajouter une catégorie" introuvable.');
     }
 
     addButton.click();
@@ -162,7 +158,7 @@ describe('IncomeCategoriesPage', () => {
       throw new Error('Dialogue introuvable.');
     }
 
-    expect(dialog.getAttribute('aria-label')).toBe('Catégorie de revenu');
+    expect(dialog.getAttribute('aria-label')).toBe('Nouvelle catégorie de revenu');
   });
 
   it('opens the edit-category dialog, pre-filled with the row label, when "Modifier" is activated', async () => {
@@ -182,8 +178,8 @@ describe('IncomeCategoriesPage', () => {
     fixture.detectChanges();
 
     const dialogs = root.querySelectorAll('dialog');
-    const editDialog = Array.from(dialogs).find((dialog) =>
-      dialog.querySelector('#income-category-edit-label'),
+    const editDialog = Array.from(dialogs).find(
+      (dialog) => dialog.getAttribute('aria-label') === 'Modifier la catégorie de revenu',
     );
     if (!editDialog) {
       throw new Error('Dialogue de modification introuvable.');

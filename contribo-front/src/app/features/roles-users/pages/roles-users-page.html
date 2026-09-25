@@ -1,41 +1,40 @@
-<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
   <app-page-header
     [kicker]="'rolesUsers.kicker' | transloco"
     [title]="'rolesUsers.title' | transloco"
     [intro]="'rolesUsers.subtitle' | transloco"
   />
 
-  <div
-    class="mb-3 mt-6 flex flex-col gap-2 sm:flex-row sm:items-center lg:sticky lg:top-[86px] lg:z-[9]"
-  >
-    <div class="min-w-0 flex-1">
+  <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-2 sm:max-w-xs sm:flex-1">
+      <label for="roles-users-search" class="text-sm font-medium text-text-2">
+        {{ 'rolesUsers.searchLabel' | transloco }}
+      </label>
       <input
         id="roles-users-search"
         type="search"
         (input)="onSearchInput($event)"
         [placeholder]="'rolesUsers.searchPlaceholder' | transloco"
-        [attr.aria-label]="'rolesUsers.searchLabel' | transloco"
-        class="app-form-control min-h-11 w-full rounded border border-line bg-surface px-4 text-text"
+        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
 
-    <div class="w-full sm:w-[118px] sm:shrink-0">
+    <div class="flex flex-col gap-2 sm:max-w-xs sm:flex-1">
+      <label for="roles-users-role-filter" class="text-sm font-medium text-text-2">
+        {{ 'rolesUsers.roleFilterLabel' | transloco }}
+      </label>
       <app-custom-select
         controlId="roles-users-role-filter"
         [options]="roleFilterSelectOptions"
         [value]="roleFilter()"
-        [placeholder]="'rolesUsers.roleFilterCompact' | transloco"
-        [ariaLabel]="'rolesUsers.roleFilterLabel' | transloco"
-        [showFilterIcon]="true"
-        [compact]="true"
-        [pill]="true"
+        [placeholder]="'rolesUsers.roleFilterAll' | transloco"
         (valueChange)="onRoleFilterChange($event)"
       />
     </div>
   </div>
 
   @if (loading() && !hasLoadedOnce()) {
-    <app-loading-skeleton variant="table" [rows]="5" [label]="'rolesUsers.loading' | transloco" />
+    <p class="mt-6 text-text-2" role="status">{{ 'rolesUsers.loading' | transloco }}</p>
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'rolesUsers.error' | transloco }}</p>
   } @else if (users().length === 0) {
@@ -51,101 +50,55 @@
         {{ 'rolesUsers.loading' | transloco }}
       }
     </p>
-    @if (loading()) {
-      <app-loading-skeleton
-        class="mt-4 block"
-        variant="inline"
-        [label]="'rolesUsers.loading' | transloco"
-      />
-    }
     <section
-      class="mt-5 hidden overflow-x-auto rounded-card border border-line bg-surface-glass tablet:block"
+      class="mt-6 overflow-x-auto rounded-card border border-line bg-surface-glass"
       [attr.aria-busy]="loading() ? 'true' : null"
     >
       <table class="w-full min-w-[640px] text-left">
         <thead>
-          <tr
-            class="responsive-label h-11 border-b border-line bg-surface-2 font-data font-medium uppercase tracking-[0.13em] text-text-3"
-          >
-            <th scope="col" class="px-4 py-0 font-medium">
+          <tr class="border-b border-line text-xs uppercase tracking-[0.08em] text-text-2">
+            <th scope="col" class="px-4 py-3 font-medium">
               {{ 'rolesUsers.columnUser' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-4 py-3 font-medium">
               {{ 'rolesUsers.columnRole' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-4 py-3 font-medium">
               {{ 'rolesUsers.columnOperatorAuthorization' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-4 py-3 font-medium">
               {{ 'rolesUsers.columnAccount' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-4 py-3 font-medium">
               <span class="sr-only">{{ 'rolesUsers.columnActions' | transloco }}</span>
             </th>
           </tr>
         </thead>
         <tbody>
           @for (account of users(); track account.id) {
-            <tr
-              class="responsive-body h-[72px] border-b border-line text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
-            >
-              <td class="px-4 py-2 font-normal text-text">
-                <span class="flex min-w-0 items-center gap-[11px]">
-                  <span
-                    class="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-[11px] font-semibold text-gold"
-                    aria-hidden="true"
-                  >
-                    {{ accountInitials(account) }}
-                  </span>
-                  <span class="min-w-0 truncate font-medium">{{ account.member.displayName }}</span>
-                </span>
+            <tr class="border-b border-line last:border-b-0">
+              <td class="px-4 py-3 font-medium text-text">{{ account.member.displayName }}</td>
+              <td class="px-4 py-3 text-text">{{ userRoleLabel(account.role) }}</td>
+              <td class="px-4 py-3 text-text-2">
+                {{ operatorAuthorizationLabel(account) ?? '—' }}
               </td>
-              <td class="px-4 py-2 text-text-2">{{ userRoleLabel(account.role) }}</td>
-              <td class="px-4 py-2">
-                @if (operatorAuthorizationLabel(account); as authorization) {
-                  <app-status-badge
-                    [label]="authorization"
-                    [tone]="authorization === 'Autorisé' ? 'success' : 'neutral'"
-                  />
-                } @else {
-                  <span class="text-text-3">&mdash;</span>
-                }
-              </td>
-              <td class="px-4 py-2">
+              <td class="px-4 py-3">
                 @if (account.active) {
-                  <app-status-badge
-                    [label]="'rolesUsers.accountActive' | transloco"
-                    tone="success"
-                  />
+                  <span class="text-success">{{ 'rolesUsers.accountActive' | transloco }}</span>
                 } @else {
-                  <app-status-badge
-                    [label]="'rolesUsers.accountInactive' | transloco"
-                    tone="neutral"
-                  />
+                  <span class="text-text-2">{{ 'rolesUsers.accountInactive' | transloco }}</span>
                 }
               </td>
-              <td class="px-4 py-2 text-right">
-                <button
-                  type="button"
-                  class="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-2 outline-none transition-colors hover:bg-surface-2 hover:text-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+              <td class="px-4 py-3 text-right">
+                <app-action-button
+                  variant="secondary"
                   (click)="openRoleDialog(account)"
-                  [attr.aria-label]="
+                  [ariaLabel]="
                     'rolesUsers.editRoleAction' | transloco: { name: account.member.displayName }
                   "
                 >
-                  <svg
-                    class="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m9 5 7 7-7 7" />
-                  </svg>
-                </button>
+                  {{ 'rolesUsers.editRoleLabel' | transloco }}
+                </app-action-button>
               </td>
             </tr>
           }
@@ -153,86 +106,9 @@
       </table>
     </section>
 
-    <section
-      class="mt-5 grid gap-2 tablet:hidden"
-      role="list"
-      [attr.aria-label]="'rolesUsers.title' | transloco"
-    >
-      @for (account of users(); track account.id) {
-        <article
-          role="listitem"
-          class="rounded-card border border-line bg-surface-glass p-4 shadow-card"
-        >
-          <div class="flex min-w-0 items-center gap-3">
-            <span
-              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-semibold text-gold"
-              aria-hidden="true"
-            >
-              {{ accountInitials(account) }}
-            </span>
-            <div class="min-w-0 flex-1">
-              <h3 class="responsive-body break-words font-medium text-text">
-                {{ account.member.displayName }}
-              </h3>
-              <p class="responsive-meta mt-1 text-text-3">{{ userRoleLabel(account.role) }}</p>
-            </div>
-            <button
-              type="button"
-              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text-2 transition-colors hover:bg-surface-2 hover:text-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
-              (click)="openRoleDialog(account)"
-              [attr.aria-label]="
-                'rolesUsers.editRoleAction' | transloco: { name: account.member.displayName }
-              "
-            >
-              <svg
-                class="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="m9 5 7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                {{ 'rolesUsers.columnAccount' | transloco }}
-              </dt>
-              <dd class="mt-1">
-                @if (account.active) {
-                  <app-status-badge
-                    [label]="'rolesUsers.accountActive' | transloco"
-                    tone="success"
-                  />
-                } @else {
-                  <app-status-badge
-                    [label]="'rolesUsers.accountInactive' | transloco"
-                    tone="neutral"
-                  />
-                }
-              </dd>
-            </div>
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                {{ 'rolesUsers.columnOperatorAuthorization' | transloco }}
-              </dt>
-              <dd class="responsive-body mt-1 text-text-2">
-                {{ operatorAuthorizationLabel(account) || '-' }}
-              </dd>
-            </div>
-          </dl>
-        </article>
-      }
-    </section>
-
     @if (pageMetadata(); as metadata) {
       @if (metadata.totalPages > 1) {
-        <div class="responsive-body mt-4 flex items-center justify-between gap-3 text-text-2">
+        <div class="mt-4 flex items-center justify-between text-sm text-text-2">
           <p>
             {{
               'rolesUsers.pageIndicator'
@@ -245,24 +121,18 @@
               [attr.aria-disabled]="previousDisabled() ? 'true' : null"
               [class.opacity-40]="previousDisabled()"
               (click)="goToPreviousPage()"
-              class="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text"
             >
-              <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
-              <span class="sr-only tablet:not-sr-only">{{
-                'rolesUsers.previousPage' | transloco
-              }}</span>
+              {{ 'rolesUsers.previousPage' | transloco }}
             </button>
             <button
               type="button"
               [attr.aria-disabled]="nextDisabled() ? 'true' : null"
               [class.opacity-40]="nextDisabled()"
               (click)="goToNextPage()"
-              class="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text"
             >
-              <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
-              <span class="sr-only tablet:not-sr-only">{{
-                'rolesUsers.nextPage' | transloco
-              }}</span>
+              {{ 'rolesUsers.nextPage' | transloco }}
             </button>
           </div>
         </div>
@@ -273,127 +143,38 @@
   @if (roleDialogAccount(); as account) {
     <app-form-dialog
       [open]="true"
-      [kicker]="'rolesUsers.roleDialogKicker' | transloco"
-      desktopWidth="720px"
       [dialogTitle]="'rolesUsers.roleDialogTitle' | transloco: { name: account.member.displayName }"
       [closeLabel]="'rolesUsers.roleDialogCancel' | transloco"
       (closed)="closeRoleDialog()"
     >
       <form (submit)="confirmRoleChange($event, account)">
-        <p class="responsive-page-intro text-text-2">
-          {{
-            (account.active
-              ? 'rolesUsers.roleDialogIdentityActive'
-              : 'rolesUsers.roleDialogIdentityInactive'
-            ) | transloco: { name: account.member.displayName }
-          }}
-        </p>
-
-        <section class="mt-6 border-t border-line pt-5">
-          <div class="flex items-center gap-3">
-            <span
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gold-wash font-data text-[10px] font-medium text-gold"
-              aria-hidden="true"
-            >
-              01
-            </span>
-            <h3 class="responsive-card-title font-sans font-medium text-text">
-              {{ 'rolesUsers.roleDialogSectionRole' | transloco }}
-            </h3>
-          </div>
-          <div class="mt-4">
-            <label
-              for="role-dialog-select"
-              class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-            >
-              {{ 'rolesUsers.roleDialogLabel' | transloco }}
-            </label>
-            <app-custom-select
-              controlId="role-dialog-select"
-              [value]="roleDraft()"
-              [options]="roleSelectOptions"
-              [placeholder]="'rolesUsers.roleDialogLabel' | transloco"
-              [required]="true"
-              (valueChange)="onRoleDraftChange($event)"
-            />
-          </div>
-        </section>
+        <div class="flex flex-col gap-2">
+          <label for="role-dialog-select" class="text-sm font-medium text-text-2">
+            {{ 'rolesUsers.roleDialogLabel' | transloco }}
+          </label>
+          <app-custom-select
+            controlId="role-dialog-select"
+            [value]="roleDraft()"
+            [options]="roleSelectOptions"
+            [placeholder]="'rolesUsers.roleDialogLabel' | transloco"
+            (valueChange)="onRoleDraftChange($event)"
+          />
+        </div>
 
         @if (roleDraft() === operatorRole) {
-          <section class="mt-6 border-t border-line pt-5">
-            <div class="flex items-center gap-3">
-              <span
-                class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gold-wash font-data text-[10px] font-medium text-gold"
-                aria-hidden="true"
-              >
-                02
-              </span>
-              <h3 class="responsive-card-title font-sans font-medium text-text">
-                {{ 'rolesUsers.operatorAuthorizationTitle' | transloco }}
-              </h3>
-            </div>
-            <label
-              for="operator-authorization-toggle"
-              class="mt-4 flex items-center justify-between gap-4 rounded-card border border-line bg-surface-2 px-4 py-3"
-            >
-              <span class="flex min-w-0 items-center gap-3">
-                <span class="responsive-body font-medium text-text">
-                  {{ 'rolesUsers.operatorAuthorizationToggleLabel' | transloco }}
-                </span>
-              </span>
-              <input
-                id="operator-authorization-toggle"
-                type="checkbox"
-                [checked]="operatorAuthorizationDraft()"
-                (change)="onOperatorAuthorizationDraftChange($event)"
-                class="app-form-control h-4 w-4 shrink-0 rounded border-line text-gold"
-              />
+          <div class="mt-4 flex items-center gap-2">
+            <input
+              id="operator-authorization-toggle"
+              type="checkbox"
+              [checked]="operatorAuthorizationDraft()"
+              (change)="onOperatorAuthorizationDraftChange($event)"
+              class="h-4 w-4 rounded border-line text-gold focus:ring-[3px] focus:ring-gold-wash"
+            />
+            <label for="operator-authorization-toggle" class="text-sm font-medium text-text-2">
+              {{ 'rolesUsers.operatorAuthorizationToggleLabel' | transloco }}
             </label>
-          </section>
+          </div>
         }
-
-        <p class="mt-6 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
-          {{ 'rolesUsers.operatorAuthorizationHint' | transloco }}
-        </p>
-
-        <section class="mt-6 border-t border-line pt-5">
-          <h3 class="responsive-card-title font-sans font-medium text-text">
-            {{ 'rolesUsers.credentialsTitle' | transloco }}
-          </h3>
-          <p class="mt-2 text-sm text-text-2">{{ 'rolesUsers.credentialsIntro' | transloco }}</p>
-          <app-action-button
-            type="button"
-            variant="secondary"
-            class="mt-4"
-            [loading]="resettingCredentials()"
-            [disabled]="resettingCredentials()"
-            (click)="resetCredentials(account)"
-          >
-            {{ 'rolesUsers.resetCredentials' | transloco }}
-          </app-action-button>
-          @if (resetCredentialsError()) {
-            <p class="mt-3 text-sm text-error" role="alert">
-              {{ 'rolesUsers.resetCredentialsError' | transloco }}
-            </p>
-          }
-          @if (resetCredentialsResult(); as result) {
-            <div class="mt-4 grid gap-2 rounded-card bg-success-wash px-4 py-3 text-sm text-success" role="status">
-              <p>{{ 'rolesUsers.resetCredentialsSuccess' | transloco }}</p>
-              <p class="text-text">
-                {{ 'rolesUsers.resetCredentialsPassword' | transloco }}
-                <code>{{ result.credentials.temporaryPassword }}</code>
-                <button
-                  type="button"
-                  class="ml-2 rounded border border-line-strong px-2 py-1 text-xs text-text"
-                  (click)="copyResetPassword()"
-                >
-                  {{ (result.copied ? 'rolesUsers.copied' : 'rolesUsers.copy') | transloco }}
-                </button>
-              </p>
-              <p class="text-text-2">{{ 'rolesUsers.resetCredentialsInstruction' | transloco }}</p>
-            </div>
-          }
-        </section>
 
         @if (roleSaveError()) {
           <p class="mt-3 text-sm text-error" role="alert">
@@ -401,7 +182,7 @@
           </p>
         }
 
-        <div class="form-dialog-actions mt-7 flex justify-end gap-2 border-t border-line pt-5">
+        <div class="mt-6 flex justify-end gap-2">
           <app-action-button type="button" variant="secondary" (click)="closeRoleDialog()">
             {{ 'rolesUsers.roleDialogCancel' | transloco }}
           </app-action-button>

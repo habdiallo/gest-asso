@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { CategoriesDeRevenuService } from '@core/api';
-import type { CurrentUser, IncomeCategory, LoginResponse } from '@core/api';
+import { CatgoriesDeRevenuService } from '@api';
+import type { CurrentUser, IncomeCategory, LoginResponse } from '@api';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-import fr from '@assets/i18n/fr.json';
+import fr from '../assets/i18n/fr.json';
 import { App } from './app';
 import { routes } from './app.routes';
 
@@ -52,10 +52,10 @@ describe('App', () => {
       providers: [
         provideRouter(routes),
         {
-          provide: CategoriesDeRevenuService,
+          provide: CatgoriesDeRevenuService,
           useValue: {
             listIncomeCategories: () => of([] as IncomeCategory[]),
-          } as unknown as CategoriesDeRevenuService,
+          } as unknown as CatgoriesDeRevenuService,
         },
       ],
     }).compileComponents();
@@ -103,36 +103,8 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('header app-logout-button')).toBeNull();
-    (fixture.nativeElement.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('header app-logout-button')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-logout-button')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-navigation-menu nav')).toBeTruthy();
-  });
-
-  it('presents the mobile account panel with identity and distinct account actions', () => {
-    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    const root: HTMLElement = fixture.nativeElement;
-    const profileButton = root.querySelector('.mobile-profile-button') as HTMLButtonElement;
-    profileButton.click();
-    fixture.detectChanges();
-
-    expect(profileButton.getAttribute('aria-expanded')).toBe('true');
-    expect(root.querySelector('.mobile-profile-summary strong')?.textContent).toContain(
-      'Awa Camara',
-    );
-    expect(root.querySelector('.mobile-profile-summary span')?.textContent).toContain(
-      'Administrateur',
-    );
-    expect(root.querySelector('.mobile-profile-account-action')?.textContent).toContain(
-      'Ouvrir mon accès',
-    );
-    expect(root.querySelector('.mobile-profile-logout .logout-button')?.textContent).toContain(
-      'Se déconnecter',
-    );
   });
 
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
@@ -144,8 +116,6 @@ describe('App', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
-      fixture.detectChanges();
       const logout = root.querySelector('header app-logout-button button') as HTMLButtonElement;
       expect(logout.textContent?.trim()).toBe('Se déconnecter');
       expect(logout.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
@@ -163,10 +133,10 @@ describe('App', () => {
     },
   );
 
-  it('redirects an unauthenticated visitor from the root to the login screen', async () => {
+  it('loads the home feature at the root route', async () => {
     const harness = await RouterTestingHarness.create('/');
-    expect(TestBed.inject(Router).url).toBe('/login');
-    expect(harness.routeNativeElement?.tagName).toBe('APP-LOGIN-PAGE');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
+    expect(harness.routeNativeElement?.querySelector('main')).toBeTruthy();
   });
 
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
@@ -186,9 +156,6 @@ describe('App', () => {
       expect(root.querySelector('header .sidebar-profile')).toBeNull();
       expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
       expect(root.querySelector('aside app-logout-button')).toBeNull();
-      expect(root.querySelector('header app-logout-button')).toBeNull();
-      (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
-      fixture.detectChanges();
       expect(root.querySelector('header app-logout-button button')?.textContent?.trim()).toBe(
         'Se déconnecter',
       );
@@ -202,29 +169,28 @@ describe('App', () => {
     },
   );
 
-  it.each<[CurrentUser['role'], string]>([
-    ['ADMINISTRATOR', '/mon-compte'],
-    ['TREASURER', '/mon-compte'],
-    ['OPERATOR', '/mon-compte'],
-    ['MEMBER', '/mon-espace'],
-  ])('opens the contextual personal destination for %s', async (role, expectedPath) => {
-    TestBed.inject(SessionService).setSession(buildLoginResponse(role));
+  it('opens the personal space from the desktop profile footer', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     (fixture.nativeElement.querySelector('aside .sidebar-profile') as HTMLButtonElement).click();
     await fixture.whenStable();
 
-    expect(TestBed.inject(Router).url).toBe(expectedPath);
+    expect(TestBed.inject(Router).url).toBe('/mon-espace');
   });
 
-  it('keeps the public shell while the cookie session is loading', () => {
+  it('keeps the sidebar profile control without a fabricated identity while the user is loading', () => {
+    TestBed.inject(SessionService).token.set('session-token-value');
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('aside .sidebar-profile')).toBeNull();
-    expect(root.querySelector('.fixed app-theme-toggle button')).toBeTruthy();
+    expect(root.querySelector('aside .sidebar-profile strong')).toBeNull();
+    expect(root.querySelector('aside .sidebar-avatar')).toBeNull();
+    expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
+    expect(root.querySelector('aside .sidebar-profile-chevron')).toBeTruthy();
+    expect(root.querySelector('aside app-logout-button')).toBeNull();
   });
 
   it('updates the desktop breadcrumb label as the route changes (T-117)', async () => {
@@ -232,7 +198,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
     fixture.detectChanges();
-    await router.navigateByUrl('/dashboard');
+    await router.navigateByUrl('/');
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
@@ -246,10 +212,9 @@ describe('App', () => {
     expect(root.querySelector('.desktop-breadcrumb strong')?.textContent?.trim()).toBe('Campagnes');
   });
 
-  it('redirects an unknown unauthenticated route to login', async () => {
+  it('redirects an unknown route to the home feature', async () => {
     const harness = await RouterTestingHarness.create('/unknown');
-    expect(TestBed.inject(Router).url).toBe('/login');
-    expect(harness.routeNativeElement?.tagName).toBe('APP-LOGIN-PAGE');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
   });
 
   it('loads the access-denied screen at /acces-refuse', async () => {
@@ -278,10 +243,10 @@ describe('App', () => {
 
   it('redirects an unauthenticated visitor away from the income categories route', async () => {
     // authenticatedMatch renvoie false sans rediriger : la route ne matche pas
-    // et Angular retombe sur le joker applicatif, qui redirige vers login.
+    // et Angular retombe sur le joker applicatif, qui redirige vers l'accueil.
     await RouterTestingHarness.create('/categories-de-revenu');
 
-    expect(TestBed.inject(Router).url).toBe('/login');
+    expect(TestBed.inject(Router).url).toBe('/');
   });
 
   // T-99 (RG-DATA-001) : un Membre ne consulte que ses propres données via

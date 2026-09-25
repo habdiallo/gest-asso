@@ -7,25 +7,23 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CategoriesDeRevenuService } from '@core/api';
-import type { IncomeCategory } from '@core/api';
+import { CatgoriesDeRevenuService } from '@api';
+import type { IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
-import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
 import { EditIncomeCategoryDialog } from '../components/edit-income-category-dialog/edit-income-category-dialog';
-import { formatCategoryUpdatedAt } from '../income-categories-dates';
 
 const PAGE_SIZE = 10;
 
 /**
  * Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
- * (US-REV-001). Appelle `GET /income-categories` (`@core/api`,
- * `CategoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
+ * (US-REV-001). Appelle `GET /income-categories` (`@api`,
+ * `CatgoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
  * triées par libellé par le serveur (pas de tri/filtre applicatif ici).
  *
  * La route applicative applique `roleGuard(UserRole.Administrator)` à la
@@ -41,8 +39,9 @@ const PAGE_SIZE = 10;
  * localement.
  *
  * Propose aussi la modification du libellé d'une catégorie existante (T-51,
- * `EditIncomeCategoryDialog`). Après modification, la liste est également
- * rechargée depuis l'API.
+ * `EditIncomeCategoryDialog`), avec un avertissement rappelant l'absence
+ * d'effet rétroactif sur les cotisations déjà établies (US-REV-002). Après
+ * modification, la liste est également rechargée depuis l'API.
  */
 @Component({
   selector: 'app-income-categories-page',
@@ -51,7 +50,6 @@ const PAGE_SIZE = 10;
     ActionButton,
     DataTable,
     EmptyState,
-    LoadingSkeleton,
     PageHeader,
     CreateIncomeCategoryDialog,
     EditIncomeCategoryDialog,
@@ -61,7 +59,7 @@ const PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IncomeCategoriesPage {
-  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
@@ -81,12 +79,6 @@ export class IncomeCategoriesPage {
   });
   readonly previousPageDisabled = computed(() => this.currentPage() === 0);
   readonly nextPageDisabled = computed(() => this.currentPage() + 1 >= this.totalPages());
-  readonly formatCategoryUpdatedAt = formatCategoryUpdatedAt;
-
-  getCategoryInitial(label: string): string {
-    const words = label.trim().split(/\s+/);
-    return words.at(-1)?.charAt(0).toUpperCase() ?? '';
-  }
 
   constructor() {
     this.loadCategories();

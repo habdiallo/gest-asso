@@ -8,17 +8,17 @@ import {
   ErrorCode,
   MemberStatus,
   PaymentMethod,
-  ReglementsService,
+  RglementsService,
   UserRole,
-} from '@core/api';
-import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@core/api';
+} from '@api';
+import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import fr from '@assets/i18n/fr.json';
+import fr from '../../../../../assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
 /*
@@ -138,7 +138,7 @@ async function createFixture(
     ) => Observable<PaymentCreationResponse>;
     user?: CurrentUser | null;
     role?: UserRole;
-    campaignOpenForPayments?: boolean;
+    campaignClosed?: boolean;
   } = {},
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
@@ -153,7 +153,7 @@ async function createFixture(
     providers: [
       { provide: CampagnesService, useValue: { listCampaignDues } },
       {
-        provide: ReglementsService,
+        provide: RglementsService,
         useValue: { createPayment: options.createPayment ?? (() => of(buildPaymentResponse())) },
       },
     ],
@@ -168,7 +168,9 @@ async function createFixture(
 
   const fixture = TestBed.createComponent(CampaignDuesTab);
   fixture.componentRef.setInput('campaignId', result.items[0].campaign.id);
-  fixture.componentRef.setInput('campaignOpenForPayments', options.campaignOpenForPayments ?? true);
+  if (options.campaignClosed !== undefined) {
+    fixture.componentRef.setInput('campaignClosed', options.campaignClosed);
+  }
   fixture.detectChanges();
   return fixture;
 }
@@ -180,10 +182,6 @@ describe('CampaignDuesTab', () => {
 
     expect(root.textContent).toContain('Amadou Diallo');
     expect(root.textContent).toContain('Partiellement payé');
-    const mobileCard = root.querySelector('[data-testid="campaign-dues-mobile-cards"] li');
-    expect(mobileCard?.textContent).toContain('Amadou Diallo');
-    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(100_000));
-    expect(mobileCard?.textContent).toContain('Partiellement payé');
   });
 
   it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {
@@ -234,7 +232,7 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('renders the record payment action inside the table for an authorized Treasurer', async () => {
+  it('does not repeat the record payment action inside the table for an authorized Treasurer', async () => {
     const fixture = await createFixture(undefined, { user: treasurer });
 
     const actionButtons = Array.from(
@@ -244,14 +242,11 @@ describe('CampaignDuesTab', () => {
       actionButtons.some((button) =>
         button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it('hides the record payment action when the campaign is not open, even for an authorized Treasurer (T-131)', async () => {
-    const fixture = await createFixture(undefined, {
-      user: treasurer,
-      campaignOpenForPayments: false,
-    });
+  it('hides the record payment action on a closed campaign, even for an authorized Treasurer (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
 
     expect(
       fixture.nativeElement.textContent.includes(
@@ -260,11 +255,8 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('renders the record payment action inside an open campaign table (T-131)', async () => {
-    const fixture = await createFixture(undefined, {
-      user: treasurer,
-      campaignOpenForPayments: true,
-    });
+  it('does not repeat the record payment action inside an open campaign table (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: false });
 
     const actionButtons = Array.from(
       fixture.nativeElement.querySelectorAll('button'),
@@ -273,7 +265,7 @@ describe('CampaignDuesTab', () => {
       actionButtons.some((button) =>
         button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('hides the record payment action for an already settled due (status Payé, T-76)', async () => {
@@ -310,32 +302,10 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
   });
 
-  it('ignores an attempt to open the record payment dialog when the campaign is not open (T-131)', async () => {
-    const fixture = await createFixture(undefined, {
-      user: treasurer,
-      campaignOpenForPayments: false,
-    });
+  it('ignores an attempt to open the record payment dialog on a closed campaign (T-81)', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
 
     fixture.componentInstance.openRecordPayment(result.items[0]);
-    fixture.detectChanges();
-
-    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
-  });
-
-  it('does not allow opening the record payment dialog for an upcoming campaign (T-131)', async () => {
-    const upcomingResult: DuePage = {
-      ...result,
-      items: result.items.map((item) => ({
-        ...item,
-        campaign: { ...item.campaign, status: CampaignStatus.Upcoming },
-      })),
-    };
-    const fixture = await createFixture(() => of(upcomingResult), {
-      user: treasurer,
-      campaignOpenForPayments: false,
-    });
-
-    fixture.componentInstance.openRecordPayment(upcomingResult.items[0]);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
@@ -360,7 +330,7 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('renders the record payment action for an authorized Opérateur (T-73, §2.3)', async () => {
+  it('does not repeat the record payment action for an authorized Opérateur (T-73, §2.3)', async () => {
     const fixture = await createFixture(undefined, {
       user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: true },
     });
@@ -372,7 +342,7 @@ describe('CampaignDuesTab', () => {
       actionButtons.some((button) =>
         button.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('records a payment and replaces the due with the state returned by the API', async () => {
@@ -399,22 +369,6 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
   });
 
-  it('opens the payment form with the wide contribution-style dialog layout', async () => {
-    const fixture = await createFixture(undefined, { user: treasurer });
-
-    fixture.componentInstance.openRecordPayment(result.items[0]);
-    fixture.detectChanges();
-
-    const dialog = fixture.nativeElement.querySelector('dialog[open]') as HTMLDialogElement;
-    expect(dialog.getAttribute('style')).toContain('--form-dialog-desktop-width: 920px');
-    expect(dialog.querySelector('.grid[class~="min-[821px]:grid-cols-2"]')).not.toBeNull();
-    expect(dialog.textContent).toContain(fr['campaigns.detail.cotisations.recordPayment.intro']);
-    expect(dialog.textContent).toContain(
-      fr['campaigns.detail.cotisations.recordPayment.summary.remaining'],
-    );
-    expect(dialog.textContent).toContain(formatGnfAmountDetailed(50_000));
-  });
-
   it('shows a specific error when the amount exceeds the remaining amount', async () => {
     const createPayment = () =>
       throwError(
@@ -436,34 +390,6 @@ describe('CampaignDuesTab', () => {
 
     expect(fixture.nativeElement.textContent).toContain(
       fr['campaigns.detail.cotisations.recordPayment.errorExceedsRemaining'],
-    );
-    expect(fixture.componentInstance.recordPaymentDue()).not.toBeNull();
-  });
-
-  it('shows a dedicated error when the campaign is no longer open server-side (T-131)', async () => {
-    const createPayment = () =>
-      throwError(
-        () =>
-          new HttpErrorResponse({
-            status: 409,
-            error: {
-              code: ErrorCode.CampaignNotOpen,
-              message: "La campagne n'est pas ouverte.",
-            },
-          }),
-      );
-    const fixture = await createFixture(undefined, { createPayment, user: treasurer });
-
-    fixture.componentInstance.openRecordPayment(result.items[0]);
-    fixture.componentInstance.handleRecordPayment({
-      amount: 25_000,
-      paymentDate: '2026-09-18',
-      method: PaymentMethod.Cash,
-    });
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain(
-      fr['campaigns.detail.cotisations.recordPayment.errorCampaignNotOpen'],
     );
     expect(fixture.componentInstance.recordPaymentDue()).not.toBeNull();
   });

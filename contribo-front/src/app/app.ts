@@ -1,14 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { ActivatedRouteSnapshot } from '@angular/router';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import type { CurrentUser } from '@api';
 import { ThemeToggle } from '@shared/theme-toggle/theme-toggle';
 import { LogoutButton } from '@shared/logout-button/logout-button';
 import { NavigationMenu } from '@shared/navigation-menu/navigation-menu';
-import { SIDEBAR_ROLE_LABEL_KEYS, sidebarProfilePath } from '@core/navigation/sidebar-profile';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
+
+const SIDEBAR_ROLE_LABELS: Record<CurrentUser['role'], string> = {
+  ADMINISTRATOR: 'Administrateur',
+  TREASURER: 'Trésorier',
+  OPERATOR: 'Opérateur',
+  MEMBER: 'Membre',
+};
 
 /**
  * Les titres de route suivent `Contribo <separateur> <libelle de la page>`
@@ -55,7 +63,6 @@ export class App {
   private readonly router = inject(Router);
 
   readonly isAuthenticated = this.sessionService.isAuthenticated;
-  readonly mobileProfileOpen = signal(false);
   /** Libellé du fil d'Ariane (T-117) : dérivé du titre de la route active, mis à jour à chaque navigation. */
   readonly breadcrumbLabel = toSignal(
     this.router.events.pipe(
@@ -79,18 +86,11 @@ export class App {
         .map((part) => part.charAt(0))
         .join('')
         .toLocaleUpperCase('fr'),
-      roleLabelKey: SIDEBAR_ROLE_LABEL_KEYS[user.role],
-      destinationLabelKey:
-        user.role === 'MEMBER' ? 'shell.sidebar.openMemberSpace' : 'shell.sidebar.openAccount',
+      role: SIDEBAR_ROLE_LABELS[user.role],
     };
   });
 
   openSidebarProfile(): void {
-    this.mobileProfileOpen.set(false);
-    void this.router.navigateByUrl(sidebarProfilePath(this.sessionService.user()?.role ?? null));
-  }
-
-  toggleMobileProfile(): void {
-    this.mobileProfileOpen.update((open) => !open);
+    void this.router.navigateByUrl(NAVIGATION_PATHS.memberSpace);
   }
 }

@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@core/api';
-import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@core/api';
+import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@api';
+import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { canRecordPayments } from '@core/session/payment-authorization';
@@ -21,12 +21,15 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { DataTable } from '@shared/data-table/data-table';
 import { DetailMetrics } from '@shared/detail-metrics/detail-metrics';
 import type { DetailMetric } from '@shared/detail-metrics/detail-metrics';
+import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
 import { DetailShell } from '@shared/detail-shell/detail-shell';
+import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
+import { progressBarWidth } from '../social-fund-progress';
 
 /** Taille de page utilisée pour `GET /social-funds/{socialFundId}/contributions`. */
 const CONTRIBUTIONS_PAGE_SIZE = 10;
@@ -65,10 +68,13 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
  * "accepts a supplementary contribution from a member who already
  * contributed..." de `social-fund-detail-page.spec.ts`.
  *
- * Situation de la cagnotte (T-92, US-CAG-003) : lorsque l'objectif est défini,
- * le hero affiche l'objectif et le reste à collecter (`remainingToTargetAmount`,
- * fourni par le contrat). Sans objectif, les métriques concernées affichent
- * une valeur de remplacement au lieu d'ajouter une barre de progression.
+ * Barre de progression objectif/reste à collecter (T-92, US-CAG-003) :
+ * lorsque `socialFund.targetAmount` est défini, la section "Situation"
+ * affiche en plus l'objectif, la même barre de progression que l'écran liste
+ * (`progressBarWidth`, `../social-fund-progress`, partagée avec T-85) et le
+ * reste à collecter (`remainingToTargetAmount`, fourni par le contrat,
+ * toujours borné à zéro si l'objectif est dépassé). Sans objectif, seul le
+ * montant collecté reste affiché, comme avant ce ticket.
  *
  * Les données de journalisation de chaque contribution restent disponibles
  * dans la réponse API, mais ne sont pas affichées dans le tableau MVP. La
@@ -86,6 +92,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
     DataTable,
     DetailMetrics,
     DetailShell,
+    DetailTabs,
     PaginationControls,
     ContributionCreateForm,
   ],
@@ -103,6 +110,14 @@ export class SocialFundDetailPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly socialFund = signal<SocialFund | null>(null);
+  readonly activeTab = signal<'contributions' | 'information'>('contributions');
+  readonly detailTabs = computed<readonly DetailTab[]>(() => [
+    {
+      id: 'contributions',
+      label: this.transloco.translate('socialFunds.detail.tabs.contributions'),
+    },
+    { id: 'information', label: this.transloco.translate('socialFunds.detail.tabs.information') },
+  ]);
   readonly metrics = computed<readonly DetailMetric[]>(() => {
     const fund = this.socialFund();
     if (!fund) return [];
@@ -203,27 +218,13 @@ export class SocialFundDetailPage {
   readonly socialFundStatusLabel = socialFundStatusLabel;
   readonly socialEventTypeLabel = socialEventTypeLabel;
   readonly contributionMethodLabel = contributionMethodLabel;
-  readonly contributionDisplayName = (contribution: Contribution): string => {
-    if (contribution.member) {
-      return contribution.member.displayName;
+  readonly progressBarWidth = progressBarWidth;
+
+  selectDetailTab(tab: string): void {
+    if (tab === 'contributions' || tab === 'information') {
+      this.activeTab.set(tab);
     }
-    if (contribution.externalContributor) {
-      return `${contribution.externalContributor.firstName} ${contribution.externalContributor.lastName}`;
-    }
-    return '-';
-  };
-  readonly contributionInitials = (contribution: Contribution): string => {
-    const displayName = this.contributionDisplayName(contribution).trim();
-    const parts = displayName.split(/\s+/).filter(Boolean);
-    if (parts.length === 0) return '?';
-    return parts
-      .slice(0, 2)
-      .map((part) => part.charAt(0))
-      .join('')
-      .toUpperCase();
-  };
-  readonly contributionIsExternal = (contribution: Contribution): boolean =>
-    contribution.member === null && contribution.externalContributor !== null;
+  }
 
   constructor() {
     const socialFundId = this.route.snapshot.paramMap.get('socialFundId');

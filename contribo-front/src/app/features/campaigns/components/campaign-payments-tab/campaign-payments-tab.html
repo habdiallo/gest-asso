@@ -1,21 +1,19 @@
 <section aria-labelledby="campaign-payments-title">
-  <div class="mb-3 flex min-h-16 flex-wrap items-center justify-between gap-5">
+  <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h2 id="campaign-payments-title" class="text-base font-medium text-text">
+      <h2 id="campaign-payments-title" class="font-display text-xl text-text">
         {{ 'campaigns.detail.payments.title' | transloco }}
       </h2>
-      <p class="mt-1 text-xs text-text-3">
+      <p class="mt-1 text-sm text-text-2">
         {{ 'campaigns.detail.payments.description' | transloco }}
       </p>
     </div>
   </div>
 
   @if (loading() && !paymentPage()) {
-    <app-loading-skeleton
-      variant="table"
-      [rows]="3"
-      [label]="'campaigns.detail.payments.loading' | transloco"
-    />
+    <p class="mt-5 text-text-2" role="status">
+      {{ 'campaigns.detail.payments.loading' | transloco }}
+    </p>
   } @else if (loadError() && !paymentPage()) {
     <p class="mt-5 text-error" role="alert">{{ 'campaigns.detail.payments.error' | transloco }}</p>
     <button
@@ -26,50 +24,31 @@
       {{ 'campaigns.detail.payments.retry' | transloco }}
     </button>
   } @else if (paymentPage(); as result) {
-    @if (loadError()) {
-      <p class="mt-5 text-error" role="alert">
-        {{ 'campaigns.detail.payments.error' | transloco }}
-      </p>
-      <button
-        type="button"
-        class="mt-3 min-h-11 rounded border border-line px-4 py-2 text-sm text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
-        (click)="retry()"
-      >
-        {{ 'campaigns.detail.payments.retry' | transloco }}
-      </button>
-    }
     @if (result.items.length === 0) {
       <app-empty-state
         class="mt-5 block"
         [message]="'campaigns.detail.payments.empty' | transloco"
       />
     } @else {
-      @if (loading()) {
-        <app-loading-skeleton
-          class="mt-4 block"
-          variant="inline"
-          [label]="'campaigns.detail.payments.loading' | transloco"
-        />
-      }
       <app-data-table
-        class="hidden tablet:block"
+        class="mt-5 block"
         [caption]="'campaigns.detail.payments.caption' | transloco"
         [busy]="loading()"
       >
         <thead>
           <tr
-            class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+            class="border-b border-line bg-surface-2 text-[10px] uppercase tracking-[0.12em] text-text-2"
           >
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-5 py-4 font-medium">
               {{ 'campaigns.detail.payments.columns.member' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-5 py-4 font-medium">
               {{ 'campaigns.detail.payments.columns.amount' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-5 py-4 font-medium">
               {{ 'campaigns.detail.payments.columns.method' | transloco }}
             </th>
-            <th scope="col" class="px-4 py-0 font-medium">
+            <th scope="col" class="px-5 py-4 font-medium">
               {{ 'campaigns.detail.payments.columns.date' | transloco }}
             </th>
           </tr>
@@ -77,60 +56,16 @@
         <tbody>
           @for (payment of result.items; track payment.id) {
             <tr
-              class="h-16 border-b border-line text-[13px] text-text transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
+              class="border-b border-line text-text transition-colors last:border-b-0 hover:bg-surface-2 focus-within:bg-surface-2"
             >
-              <th scope="row" class="px-4 py-[10px] text-[13px] font-medium text-text">
-                {{ payment.member.displayName }}
-              </th>
-              <td
-                class="whitespace-nowrap px-4 py-[10px] font-data text-[13px] tabular-nums text-success"
-              >
-                + {{ formatAmount(payment.amount) }}
-              </td>
-              <td class="px-4 py-[10px] text-[13px] text-text-2">
-                {{ methodLabel(payment.method) }}
-              </td>
-              <td class="px-4 py-[10px] text-[13px] text-text-2">
-                {{ formatDate(payment.paymentDate) }}
-              </td>
+              <th scope="row" class="px-5 py-4 font-medium">{{ payment.member.displayName }}</th>
+              <td class="px-5 py-4 font-mono text-success">+ {{ formatAmount(payment.amount) }}</td>
+              <td class="px-5 py-4 text-text-2">{{ methodLabel(payment.method) }}</td>
+              <td class="px-5 py-4 text-text-2">{{ payment.paymentDate }}</td>
             </tr>
           }
         </tbody>
       </app-data-table>
-      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="campaign-payments-mobile-cards">
-        @for (payment of result.items; track payment.id) {
-          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <p class="min-w-0 break-words font-medium text-text">
-                {{ payment.member.displayName }}
-              </p>
-              <p
-                class="shrink-0 text-right font-data text-sm font-medium tabular-nums text-success"
-              >
-                + {{ formatAmount(payment.amount) }}
-              </p>
-            </div>
-            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-              <div class="min-w-0">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.payments.columns.method' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words text-text-2">
-                  {{ methodLabel(payment.method) }}
-                </dd>
-              </div>
-              <div class="min-w-0 text-right">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.payments.columns.date' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words text-text-2">
-                  {{ formatDate(payment.paymentDate) }}
-                </dd>
-              </div>
-            </dl>
-          </li>
-        }
-      </ul>
     }
 
     @if (result.page.totalPages > 1) {
