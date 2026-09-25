@@ -15,7 +15,7 @@
         type="search"
         (input)="onSearchInput($event)"
         [placeholder]="'rolesUsers.searchPlaceholder' | transloco"
-        class="min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] rounded border border-line bg-surface-2 px-3 text-text"
       />
     </div>
 
@@ -168,7 +168,7 @@
               type="checkbox"
               [checked]="operatorAuthorizationDraft()"
               (change)="onOperatorAuthorizationDraftChange($event)"
-              class="h-4 w-4 rounded border-line text-gold focus:ring-[3px] focus:ring-gold-wash"
+              class="app-form-control h-4 w-4 rounded border-line text-gold"
             />
             <label for="operator-authorization-toggle" class="text-sm font-medium text-text-2">
               {{ 'rolesUsers.operatorAuthorizationToggleLabel' | transloco }}

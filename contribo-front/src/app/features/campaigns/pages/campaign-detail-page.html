@@ -19,34 +19,32 @@
     "
     [title]="campaign.name"
     [intro]="
-      'campaigns.detail.subtitle'
+      ('campaigns.detail.subtitle'
         | transloco
           : {
               status: campaignStatusLabel(campaign.status),
               start: formatCampaignDetailDate(campaign.startDate),
               end: formatCampaignDetailDate(campaign.endDate),
               count: campaign.memberCount,
-            }
+            }) + (campaign.description ? ' · ' + campaign.description : '')
     "
   >
-    @if (canRecordPaymentsNow()) {
-      <app-action-button detail-actions type="button" (click)="openPaymentTab()">
-        <svg
-          class="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <rect x="2" y="5" width="20" height="14" rx="2" />
-          <path d="M2 10h20M6 15h2" />
-        </svg>
-        {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
-      </app-action-button>
-    }
+    <app-action-button detail-actions type="button" (click)="openSituationTab()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M2 10h20M6 15h2" />
+      </svg>
+      {{ 'campaigns.detail.cotisations.viewSituation' | transloco }}
+    </app-action-button>
     @if (canCloseCampaignNow()) {
       <app-action-button
         detail-actions
