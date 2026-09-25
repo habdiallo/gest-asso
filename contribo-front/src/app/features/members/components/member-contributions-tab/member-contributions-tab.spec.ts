@@ -71,7 +71,7 @@ describe('MemberContributionsTab', () => {
     const fixture = await createFixture(listContributions);
     const root: HTMLElement = fixture.nativeElement;
 
-    expect(listContributions).toHaveBeenCalledWith(0, 20, undefined, memberId);
+    expect(listContributions).toHaveBeenCalledWith(0, 10, undefined, memberId);
     expect(root.textContent).toContain('Mariage de Fanta et Sekou');
     expect(root.textContent).toContain(formatGnfAmountDetailed(150_000));
     expect(root.textContent).toContain('Mobile Money');

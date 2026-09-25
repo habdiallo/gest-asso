@@ -206,7 +206,7 @@ describe('CampaignDuesTab', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain('Standard');
+      expect(root.textContent).toContain('Cat. D');
     },
   );
 
@@ -232,7 +232,7 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('shows the record payment action for an authorized Treasurer', async () => {
+  it('renders the record payment action inside the table for an authorized Treasurer', async () => {
     const fixture = await createFixture(undefined, { user: treasurer });
 
     const actionButtons = Array.from(
@@ -255,7 +255,7 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('keeps the record payment action visible on an open campaign for an authorized Treasurer (T-81)', async () => {
+  it('renders the record payment action inside an open campaign table (T-81)', async () => {
     const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: false });
 
     const actionButtons = Array.from(
@@ -330,7 +330,7 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('shows the record payment action for an Opérateur authorized via peut_enregistrer_paiements (T-73, §2.3)', async () => {
+  it('renders the record payment action for an authorized Opérateur (T-73, §2.3)', async () => {
     const fixture = await createFixture(undefined, {
       user: { ...buildCurrentUser(UserRole.Operator), operatorCanRecordPayments: true },
     });
@@ -519,7 +519,7 @@ describe('CampaignDuesTab', () => {
     expect(listCampaignDues).toHaveBeenCalledWith(
       result.items[0].campaign.id,
       0,
-      undefined,
+      10,
       undefined,
       DueStatus.Paid,
     );

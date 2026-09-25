@@ -81,12 +81,33 @@
 }
 
 .sidebar-profile {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 11px;
   min-height: 61px;
   padding: 12px 8px;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
   border-top: 1px solid var(--line);
+  border-radius: 0;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.sidebar-profile:hover {
+  background: color-mix(in srgb, var(--surface-2) 65%, transparent);
+}
+
+.sidebar-profile:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
 }
 
 .sidebar-avatar {
@@ -123,12 +144,11 @@
   font-size: 11px;
 }
 
-.sidebar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 0 8px 8px;
+.sidebar-profile-chevron {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--text);
 }
 
 .desktop-topbar {

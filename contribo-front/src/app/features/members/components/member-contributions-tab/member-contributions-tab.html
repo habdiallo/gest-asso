@@ -18,81 +18,70 @@
     @if (result.items.length === 0) {
       <app-empty-state [message]="'memberDetail.contributions.empty' | transloco" />
     } @else {
-      <div class="overflow-x-auto rounded-card border border-line bg-surface">
-        <table class="w-full text-left text-sm">
-          <caption class="sr-only">
-            {{
-              'memberDetail.contributions.caption' | transloco
-            }}
-          </caption>
-          <thead>
-            <tr class="border-b border-line text-xs uppercase tracking-wide text-text-2">
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'memberDetail.contributions.columns.socialFund' | transloco }}
+      <app-data-table
+        [caption]="'memberDetail.contributions.caption' | transloco"
+        [busy]="loading()"
+      >
+        <thead>
+          <tr
+            class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+          >
+            <th scope="col" class="px-4 py-0 font-medium">
+              {{ 'memberDetail.contributions.columns.socialFund' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-0 font-medium">
+              {{ 'memberDetail.contributions.columns.amount' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-0 font-medium">
+              {{ 'memberDetail.contributions.columns.date' | transloco }}
+            </th>
+            <th scope="col" class="px-4 py-0 font-medium">
+              {{ 'memberDetail.contributions.columns.method' | transloco }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (contribution of result.items; track contribution.id) {
+            <tr
+              class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
+            >
+              <th scope="row" class="px-4 py-2 font-normal text-text">
+                {{ contribution.socialFund.title }}
               </th>
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'memberDetail.contributions.columns.amount' | transloco }}
-              </th>
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'memberDetail.contributions.columns.date' | transloco }}
-              </th>
-              <th scope="col" class="px-4 py-3 font-medium">
-                {{ 'memberDetail.contributions.columns.method' | transloco }}
-              </th>
+              <td class="whitespace-nowrap px-4 py-2 font-data text-[13px] text-success">
+                + {{ formatAmount(contribution.amount) }}
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 text-[13px] text-text-2">
+                {{ formatDate(contribution.contributionDate) }}
+              </td>
+              <td class="px-4 py-2 text-[13px] text-text-2">
+                {{ methodLabel(contribution.method) }}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (contribution of result.items; track contribution.id) {
-              <tr class="border-b border-line text-text last:border-b-0">
-                <th scope="row" class="px-4 py-4 font-medium">
-                  {{ contribution.socialFund.title }}
-                </th>
-                <td class="whitespace-nowrap px-4 py-4 font-mono">
-                  {{ formatAmount(contribution.amount) }}
-                </td>
-                <td class="whitespace-nowrap px-4 py-4">
-                  {{ formatDate(contribution.contributionDate) }}
-                </td>
-                <td class="px-4 py-4">{{ methodLabel(contribution.method) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          }
+        </tbody>
+      </app-data-table>
     }
   }
 
   @if (result(); as result) {
     @if (result.page.totalPages > 1) {
-      <nav
-        class="mt-6 flex items-center justify-between gap-3 text-sm"
-        [attr.aria-label]="'memberDetail.contributions.pagination.nav' | transloco"
-      >
-        <button
-          type="button"
-          class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
-          [disabled]="previousPageDisabled()"
-          [attr.aria-disabled]="previousPageDisabled()"
-          (click)="previousPage()"
-        >
-          {{ 'memberDetail.contributions.pagination.previous' | transloco }}
-        </button>
-        <p class="text-text-2" role="status">
-          {{
-            'memberDetail.contributions.pagination.status'
-              | transloco: { current: result.page.number + 1, total: result.page.totalPages }
-          }}
-        </p>
-        <button
-          type="button"
-          class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
-          [disabled]="nextPageDisabled()"
-          [attr.aria-disabled]="nextPageDisabled()"
-          (click)="nextPage()"
-        >
-          {{ 'memberDetail.contributions.pagination.next' | transloco }}
-        </button>
-      </nav>
+      <app-pagination-controls
+        class="mt-5 block"
+        [currentPage]="result.page.number + 1"
+        [totalPages]="result.page.totalPages"
+        [previousDisabled]="previousPageDisabled()"
+        [nextDisabled]="nextPageDisabled()"
+        [navigationLabel]="'memberDetail.contributions.pagination.nav' | transloco"
+        [previousLabel]="'memberDetail.contributions.pagination.previous' | transloco"
+        [nextLabel]="'memberDetail.contributions.pagination.next' | transloco"
+        [statusLabel]="
+          'memberDetail.contributions.pagination.status'
+            | transloco: { current: result.page.number + 1, total: result.page.totalPages }
+        "
+        (previousPage)="previousPage()"
+        (nextPage)="nextPage()"
+      />
     }
   }
 </div>

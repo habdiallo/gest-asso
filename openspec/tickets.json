@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 129,
+  "nextTicketId": 130,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2532,6 +2532,43 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-harmonisation-actions-navigation-sidebar",
       "branchAfterInitialization": "front/fix-128-harmonisation-actions-navigation-sidebar"
+    },
+    {
+      "id": 129,
+      "title": "Aligner les détails de campagnes et cagnottes sur le prototype avec des tableaux réutilisables.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "details-campagnes-cagnottes",
+      "change": "harmoniser-details-campagnes-cagnottes",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-details-campagnes-cagnottes",
+      "branchAfterInitialization": "front/fix-129-details-campagnes-cagnottes"
     }
   ]
 }

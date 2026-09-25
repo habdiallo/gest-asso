@@ -45,7 +45,7 @@ describe('FinancialCard', () => {
 
     expect(link.getAttribute('href')).toBe('/campagnes/campaign-id');
     expect(link.classList.contains('min-h-[312px]')).toBe(false);
-    expect(link.classList.contains('h-full')).toBe(false);
+    expect(link.classList.contains('h-full')).toBe(true);
     expect(link.textContent).toContain('Solidarité septembre');
     expect(link.textContent).toContain('12,4M GNF');
     expect(link.textContent).toContain('18,5M GNF');

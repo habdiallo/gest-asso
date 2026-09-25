@@ -600,14 +600,14 @@ describe('MembersListPage', () => {
     const fixture = await createFixture(listMembers);
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined, undefined);
+    expect(listMembers).toHaveBeenCalledWith(0, 10, undefined, undefined);
     expect(fixture.nativeElement.textContent).not.toContain('MembreVingtEtUnieme');
 
     const nextButton = fixture.nativeElement.querySelectorAll('nav button')[1] as HTMLButtonElement;
     nextButton.click();
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenCalledWith(1, undefined, undefined, undefined);
+    expect(listMembers).toHaveBeenCalledWith(1, 10, undefined, undefined);
     expect(fixture.nativeElement.textContent).toContain('MembreVingtEtUnieme');
   });
 
@@ -882,7 +882,7 @@ describe('MembersListPage', () => {
       firstName: 'Mariama',
       incomeCategoryId: demoIncomeCategory.id,
     });
-    expect(listMembers).toHaveBeenCalledWith(0, undefined, undefined, undefined);
+    expect(listMembers).toHaveBeenCalledWith(0, 10, undefined, undefined);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
   });
 

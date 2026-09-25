@@ -24,7 +24,7 @@
         maxlength="100"
         [attr.aria-invalid]="labelInvalid() ? true : null"
         [attr.aria-describedby]="labelInvalid() ? 'income-category-edit-label-error' : null"
-        class="h-12 w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (labelInvalid()) {
         <p id="income-category-edit-label-error" class="mt-2 text-sm text-error" role="alert">

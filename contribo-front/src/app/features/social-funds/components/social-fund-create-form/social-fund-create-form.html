@@ -14,7 +14,7 @@
         required
         [attr.aria-invalid]="titleInvalid() ? true : null"
         [attr.aria-describedby]="titleInvalid() ? 'social-fund-create-title-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (titleInvalid()) {
         <p id="social-fund-create-title-error" class="mt-2 text-sm text-error" role="alert">
@@ -63,7 +63,7 @@
         [attr.aria-describedby]="
           beneficiaryInvalid() ? 'social-fund-create-beneficiary-error' : null
         "
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (beneficiaryInvalid()) {
         <p id="social-fund-create-beneficiary-error" class="mt-2 text-sm text-error" role="alert">
@@ -88,7 +88,7 @@
         [attr.aria-describedby]="
           descriptionInvalid() ? 'social-fund-create-description-error' : null
         "
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text"
       ></textarea>
       @if (descriptionInvalid()) {
         <p id="social-fund-create-description-error" class="mt-2 text-sm text-error" role="alert">
@@ -111,7 +111,7 @@
         required
         [attr.aria-invalid]="startDateInvalid() ? true : null"
         [attr.aria-describedby]="startDateInvalid() ? 'social-fund-create-start-date-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (startDateInvalid()) {
         <p id="social-fund-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -134,7 +134,7 @@
         required
         [attr.aria-invalid]="endDateInvalid() ? true : null"
         [attr.aria-describedby]="endDateInvalid() ? 'social-fund-create-end-date-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (endDateRequiredInvalid()) {
         <p id="social-fund-create-end-date-error" class="mt-2 text-sm text-error" role="alert">

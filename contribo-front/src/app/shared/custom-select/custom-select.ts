@@ -62,6 +62,7 @@ export class CustomSelect implements ControlValueAccessor, OnInit {
   readonly label = input<string>();
   readonly ariaLabel = input<string | null>(null);
   readonly compact = input(false);
+  readonly showFilterIcon = input(false);
   readonly placeholder = input('Sélectionner');
   readonly required = input(false);
   readonly showRequiredError = input(true);

@@ -67,7 +67,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'socialFunds.searchPlaceholder' | transloco"
-        class="min-h-12 w-full rounded-lg border border-line bg-surface-2 py-2 pl-12 pr-4 text-sm text-text outline-none transition-colors placeholder:text-text-2 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-12 w-full rounded-lg border border-line bg-surface-2 py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
       />
     </label>
 
@@ -125,7 +125,7 @@
       <app-empty-state class="mt-6 block" [message]="'socialFunds.empty' | transloco" />
     } @else {
       <ul
-        class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="pageActionPending() || loading() ? 'true' : null"
       >
         @for (socialFund of socialFunds(); track socialFund.id) {

@@ -1,0 +1,102 @@
+<section aria-labelledby="campaign-payments-title">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h2 id="campaign-payments-title" class="font-display text-xl text-text">
+        {{ 'campaigns.detail.payments.title' | transloco }}
+      </h2>
+      <p class="mt-1 text-sm text-text-2">
+        {{ 'campaigns.detail.payments.description' | transloco }}
+      </p>
+    </div>
+  </div>
+
+  @if (loading() && !paymentPage()) {
+    <p class="mt-5 text-text-2" role="status">
+      {{ 'campaigns.detail.payments.loading' | transloco }}
+    </p>
+  } @else if (loadError() && !paymentPage()) {
+    <p class="mt-5 text-error" role="alert">{{ 'campaigns.detail.payments.error' | transloco }}</p>
+    <button
+      type="button"
+      class="mt-3 min-h-11 rounded border border-line px-4 py-2 text-sm text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+      (click)="retry()"
+    >
+      {{ 'campaigns.detail.payments.retry' | transloco }}
+    </button>
+  } @else if (paymentPage(); as result) {
+    @if (loadError()) {
+      <p class="mt-5 text-error" role="alert">
+        {{ 'campaigns.detail.payments.error' | transloco }}
+      </p>
+      <button
+        type="button"
+        class="mt-3 min-h-11 rounded border border-line px-4 py-2 text-sm text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+        (click)="retry()"
+      >
+        {{ 'campaigns.detail.payments.retry' | transloco }}
+      </button>
+    }
+    @if (result.items.length === 0) {
+      <app-empty-state
+        class="mt-5 block"
+        [message]="'campaigns.detail.payments.empty' | transloco"
+      />
+    } @else {
+      <app-data-table
+        class="mt-5 block"
+        [caption]="'campaigns.detail.payments.caption' | transloco"
+        [busy]="loading()"
+      >
+        <thead>
+          <tr
+            class="border-b border-line bg-surface-2 text-[10px] uppercase tracking-[0.12em] text-text-2"
+          >
+            <th scope="col" class="px-5 py-4 font-medium">
+              {{ 'campaigns.detail.payments.columns.member' | transloco }}
+            </th>
+            <th scope="col" class="px-5 py-4 font-medium">
+              {{ 'campaigns.detail.payments.columns.amount' | transloco }}
+            </th>
+            <th scope="col" class="px-5 py-4 font-medium">
+              {{ 'campaigns.detail.payments.columns.method' | transloco }}
+            </th>
+            <th scope="col" class="px-5 py-4 font-medium">
+              {{ 'campaigns.detail.payments.columns.date' | transloco }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of result.items; track payment.id) {
+            <tr
+              class="border-b border-line text-text transition-colors last:border-b-0 hover:bg-surface-2 focus-within:bg-surface-2"
+            >
+              <th scope="row" class="px-5 py-4 font-medium">{{ payment.member.displayName }}</th>
+              <td class="px-5 py-4 font-mono text-success">+ {{ formatAmount(payment.amount) }}</td>
+              <td class="px-5 py-4 text-text-2">{{ methodLabel(payment.method) }}</td>
+              <td class="px-5 py-4 text-text-2">{{ formatDate(payment.paymentDate) }}</td>
+            </tr>
+          }
+        </tbody>
+      </app-data-table>
+    }
+
+    @if (result.page.totalPages > 1) {
+      <app-pagination-controls
+        class="mt-5 block"
+        [currentPage]="result.page.number + 1"
+        [totalPages]="result.page.totalPages"
+        [previousDisabled]="previousDisabled()"
+        [nextDisabled]="nextDisabled()"
+        [navigationLabel]="'campaigns.detail.payments.pagination.nav' | transloco"
+        [previousLabel]="'campaigns.detail.payments.pagination.previous' | transloco"
+        [nextLabel]="'campaigns.detail.payments.pagination.next' | transloco"
+        [statusLabel]="
+          'campaigns.detail.payments.pagination.status'
+            | transloco: { current: result.page.number + 1, total: result.page.totalPages }
+        "
+        (previousPage)="previousPage()"
+        (nextPage)="nextPage()"
+      />
+    }
+  }
+</section>

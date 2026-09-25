@@ -155,6 +155,12 @@ async function createFixture(
 }
 
 function findEditButton(root: HTMLElement): HTMLButtonElement | null {
+  const buttons = Array.from(root.querySelectorAll('button')) as HTMLButtonElement[];
+  const editButton = buttons.find((button) => button.textContent?.trim() === 'Modifier le barème');
+  if (editButton) {
+    return editButton;
+  }
+  buttons.find((button) => button.textContent?.includes('Montants par catégorie'))?.click();
   return (
     (Array.from(root.querySelectorAll('button')).find(
       (button) => button.textContent?.trim() === 'Modifier le barème',
@@ -162,11 +168,18 @@ function findEditButton(root: HTMLElement): HTMLButtonElement | null {
   );
 }
 
+function selectCategoriesTab(fixture: ComponentFixture<CampaignDetailPage>): void {
+  const root: HTMLElement = fixture.nativeElement;
+  root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
+  fixture.detectChanges();
+}
+
 function findButtonByText(root: HTMLElement, text: string): HTMLButtonElement | null {
+  const buttons = Array.from(root.querySelectorAll('button')) as HTMLButtonElement[];
   return (
-    (Array.from(root.querySelectorAll('button')).find(
-      (button) => button.textContent?.trim() === text,
-    ) as HTMLButtonElement | undefined) ?? null
+    buttons.find((button) => button.textContent?.trim() === text) ??
+    buttons.find((button) => button.textContent?.includes(text)) ??
+    null
   );
 }
 
@@ -198,29 +211,32 @@ describe('CampaignDetailPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Solidarité septembre');
     expect(root.textContent).toContain('Ouverte');
-    expect(root.textContent).toContain('1 septembre 2026');
+    expect(root.textContent).toContain('1er septembre 2026');
     expect(root.textContent).toContain('30 septembre 2026');
     expect(root.textContent).toContain('Campagne générale de soutien.');
   });
 
-  it('renders three tabs with the bareme tab active by default', async () => {
+  it('renders three tabs with the member situation tab active by default', async () => {
     const fixture = await createFixture(() => of(buildCampaign()));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
     const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual(['Barème', 'Cotisations', 'Bilan']);
+    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
+      'Situation des membres',
+      'Montants par catégorie',
+      'Règlements',
+    ]);
 
-    const baremeTab = tabs[0];
-    expect(baremeTab.getAttribute('aria-selected')).toBe('true');
-    expect(baremeTab.tabIndex).toBe(0);
+    const situationTab = tabs[0];
+    expect(situationTab.getAttribute('aria-selected')).toBe('true');
+    expect(situationTab.tabIndex).toBe(0);
     expect(tabs[1].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
 
-    expect(root.querySelector('#campaign-tabpanel-bareme')).not.toBeNull();
-    expect(root.querySelector('#campaign-tabpanel-cotisations')).toBeNull();
-    expect(root.textContent).toContain('Standard');
-    expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
+    expect(root.querySelector('#campaign-detail-panel-situation')).not.toBeNull();
+    expect(root.querySelector('#campaign-detail-panel-categories')).toBeNull();
+    expect(root.textContent).toContain('Aucune cotisation pour cette campagne.');
   });
 
   it('activates the cotisations tab at load from the onglet query param (T-127)', async () => {
@@ -231,8 +247,8 @@ describe('CampaignDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
-    expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    expect(root.querySelector('#campaign-detail-panel-situation')).not.toBeNull();
   });
 
   it('ignores an unrecognized onglet query param and keeps the default tab (T-127)', async () => {
@@ -246,7 +262,7 @@ describe('CampaignDetailPage', () => {
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
   });
 
-  it('switches to the cotisations tab without a full page reload', async () => {
+  it('switches to the categories tab without a full page reload', async () => {
     const fixture = await createFixture(() => of(buildCampaign()));
     fixture.detectChanges();
 
@@ -255,47 +271,36 @@ describe('CampaignDetailPage', () => {
     tabs[1].click();
     fixture.detectChanges();
 
-    expect(root.querySelector('#campaign-tabpanel-bareme')).toBeNull();
-    const cotisationsPanel = root.querySelector('#campaign-tabpanel-cotisations');
-    expect(cotisationsPanel).not.toBeNull();
-    expect(cotisationsPanel?.textContent).toContain('Aucune cotisation pour cette campagne.');
+    expect(root.querySelector('#campaign-detail-panel-situation')).toBeNull();
+    const categoriesPanel = root.querySelector('#campaign-detail-panel-categories');
+    expect(categoriesPanel).not.toBeNull();
+    expect(categoriesPanel?.textContent).toContain('Montants par catégorie');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
   });
 
-  it('switches to the bilan tab and shows the campaign financial summary', async () => {
+  it('shows the campaign financial summary in the hero metrics', async () => {
     const fixture = await createFixture(() => of(buildCampaign()));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    tabs[2].click();
-    fixture.detectChanges();
-
-    const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
-    expect(bilanPanel).not.toBeNull();
-    expect(bilanPanel?.textContent).toContain('Total attendu');
-    expect(bilanPanel?.textContent).toContain('6 000 000 GNF');
-    expect(bilanPanel?.textContent).toContain('Total encaissé');
-    expect(bilanPanel?.textContent).toContain('4 000 000 GNF');
-    expect(bilanPanel?.textContent).toContain('Reste à encaisser');
-    expect(bilanPanel?.textContent).toContain('2 000 000 GNF');
+    expect(root.textContent).toContain('Total attendu');
+    expect(root.textContent).toContain('6 000 000 GNF');
+    expect(root.textContent).toContain('Total encaissé');
+    expect(root.textContent).toContain('4 000 000 GNF');
+    expect(root.textContent).toContain('Reste à encaisser');
+    expect(root.textContent).toContain('2 000 000 GNF');
+    expect(root.textContent).toContain('40 / 60');
   });
 
-  it('shows the unauthorized message on the bilan tab when financialSummary is absent', async () => {
+  it('does not invent financial metrics when financialSummary is absent', async () => {
     const fixture = await createFixture(() => of(buildCampaign({ financialSummary: undefined })));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    tabs[2].click();
-    fixture.detectChanges();
-
-    const bilanPanel = root.querySelector('#campaign-tabpanel-bilan');
-    expect(bilanPanel?.textContent).toContain(
-      "Vous n'êtes pas autorisé à consulter le bilan financier de cette campagne.",
-    );
+    expect(root.textContent).not.toContain('Total attendu');
+    expect(root.textContent).not.toContain('Total encaissé');
   });
 
   describe('keyboard navigation between tabs (T-64)', () => {
@@ -318,8 +323,8 @@ describe('CampaignDetailPage', () => {
       const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
       expect(tabs[1].getAttribute('aria-selected')).toBe('true');
       expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
-      expect(root.querySelector('#campaign-tabpanel-cotisations')).not.toBeNull();
-      expect(root.querySelector('#campaign-tabpanel-bareme')).toBeNull();
+      expect(root.querySelector('#campaign-detail-panel-categories')).not.toBeNull();
+      expect(root.querySelector('#campaign-detail-panel-situation')).toBeNull();
       expect(document.activeElement).toBe(tabs[1]);
     });
 
@@ -388,6 +393,7 @@ describe('CampaignDetailPage', () => {
   it('shows the empty bareme message when there is no category amount', async () => {
     const fixture = await createFixture(() => of(buildCampaign({ categoryAmounts: [] })));
     fixture.detectChanges();
+    selectCategoriesTab(fixture);
 
     expect(fixture.nativeElement.textContent).toContain(
       'Aucune catégorie de revenu dans le barème.',
@@ -400,6 +406,7 @@ describe('CampaignDetailPage', () => {
         role: UserRole.Operator,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       expect(findEditButton(fixture.nativeElement)).toBeNull();
     });
@@ -409,6 +416,7 @@ describe('CampaignDetailPage', () => {
         role: UserRole.Administrator,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       expect(findEditButton(fixture.nativeElement)).toBeNull();
     });
@@ -418,6 +426,7 @@ describe('CampaignDetailPage', () => {
         role: UserRole.Administrator,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       expect(findEditButton(fixture.nativeElement)).not.toBeNull();
     });
@@ -427,6 +436,7 @@ describe('CampaignDetailPage', () => {
         role: UserRole.Treasurer,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       expect(findEditButton(fixture.nativeElement)).not.toBeNull();
     });
@@ -461,6 +471,7 @@ describe('CampaignDetailPage', () => {
         { role: UserRole.Administrator },
       );
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -499,6 +510,7 @@ describe('CampaignDetailPage', () => {
         },
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -532,6 +544,7 @@ describe('CampaignDetailPage', () => {
         },
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -568,6 +581,7 @@ describe('CampaignDetailPage', () => {
         updateCampaignCategoryAmounts,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -596,6 +610,7 @@ describe('CampaignDetailPage', () => {
         updateCampaignCategoryAmounts,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -633,6 +648,7 @@ describe('CampaignDetailPage', () => {
           ),
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -660,6 +676,7 @@ describe('CampaignDetailPage', () => {
         updateCampaignCategoryAmounts,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -689,6 +706,7 @@ describe('CampaignDetailPage', () => {
         updateCampaignCategoryAmounts,
       });
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
@@ -733,6 +751,8 @@ describe('CampaignDetailPage', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
+      root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
+      fixture.detectChanges();
       const rows = Array.from(root.querySelectorAll('tbody tr'));
       expect(rows).toHaveLength(2);
       expect(rows[0].textContent).toContain('Montant non configuré');
@@ -758,6 +778,8 @@ describe('CampaignDetailPage', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
+      root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
+      fixture.detectChanges();
       expect(root.textContent).not.toContain('Montant non configuré');
     });
 
@@ -767,11 +789,14 @@ describe('CampaignDetailPage', () => {
         { role: UserRole.Administrator },
       );
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
+      root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
+      fixture.detectChanges();
       const rows = Array.from(root.querySelectorAll('tbody tr'));
       expect(rows).toHaveLength(2);
       expect(rows[0].textContent).toContain('Montant non configuré');
@@ -784,11 +809,14 @@ describe('CampaignDetailPage', () => {
         { role: UserRole.Administrator },
       );
       fixture.detectChanges();
+      selectCategoriesTab(fixture);
 
       findEditButton(fixture.nativeElement)?.click();
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
+      root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
+      fixture.detectChanges();
       const inputs = Array.from(
         root.querySelectorAll('input[inputmode="numeric"]'),
       ) as HTMLInputElement[];

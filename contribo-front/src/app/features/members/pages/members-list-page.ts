@@ -25,6 +25,8 @@ import { CustomSelect } from '@shared/custom-select/custom-select';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 
+const MEMBERS_PAGE_SIZE = 10;
+
 /**
  * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
@@ -368,7 +370,7 @@ export class MembersListPage {
     this.lastRequestedQuery = query;
 
     this.membersService
-      .listMembers(page, undefined, query || undefined, this.statusFilter() || undefined)
+      .listMembers(page, MEMBERS_PAGE_SIZE, query || undefined, this.statusFilter() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (memberPage) => {

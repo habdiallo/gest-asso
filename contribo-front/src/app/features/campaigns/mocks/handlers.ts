@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
 import type {
   Campaign,
   CampaignCategoryAmountInput,
@@ -12,6 +12,7 @@ import type {
   ErrorResponse,
   Payment,
   PaymentCreationResponse,
+  PaymentPage,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
@@ -262,6 +263,35 @@ const demoCampaignDues: Record<string, Due[]> = {
   ],
 };
 
+const demoPaymentsByCampaignId: Record<string, Payment[]> = {
+  '10700000-0000-4000-8000-000000000200': [
+    {
+      id: '10700000-0000-4000-8000-000000000700',
+      dueId: '10700000-0000-4000-8000-000000000410',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: demoCampaigns[0],
+      amount: 50_000,
+      paymentDate: '2026-09-12',
+      method: PaymentMethod.MobileMoney,
+      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'Mamadou Sy' },
+      recordedAt: '2026-09-12T14:32:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+    {
+      id: '10700000-0000-4000-8000-000000000701',
+      dueId: '10700000-0000-4000-8000-000000000413',
+      member: { id: '10700000-0000-4000-8000-000000000503', displayName: 'Aissatou Sow' },
+      campaign: demoCampaigns[0],
+      amount: 100_000,
+      paymentDate: '2026-09-10',
+      method: PaymentMethod.Cash,
+      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'Mamadou Sy' },
+      recordedAt: '2026-09-10T09:10:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+};
+
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.AuthenticationRequired, message: 'Authentification requise.' },
@@ -400,6 +430,38 @@ function isUpdateCampaignCategoryAmountsRequest(
  * comparaison insensible à la casse et aux accents).
  */
 export const campaignsHandlers = [
+  /**
+   * Historique des règlements d'une campagne (T-129), filtré par
+   * `campaignId` afin que l'onglet Règlements soit exploitable en mode mock.
+   * Le handler laisse l'historique filtré par membre au handler de la feature
+   * Membres.
+   */
+  http.get('/api/v1/payments', async ({ request }): Promise<Response | undefined> => {
+    const url = new URL(request.url);
+    const campaignId = url.searchParams.get('campaignId');
+    if (!campaignId) {
+      return undefined;
+    }
+
+    await delay(300);
+    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    if (!account) {
+      return authenticationRequired();
+    }
+
+    const payments = demoPaymentsByCampaignId[campaignId] ?? [];
+    const size = Number(url.searchParams.get('size') ?? '20');
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const totalElements = payments.length;
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / size);
+    const items = payments.slice(pageNumber * size, (pageNumber + 1) * size);
+    const page: PaymentPage = {
+      items,
+      page: { number: pageNumber, size, totalElements, totalPages },
+    };
+    return HttpResponse.json<PaymentPage>(page);
+  }),
+
   http.get('/api/v1/campaigns', async ({ request }): Promise<Response> => {
     await delay(300);
     const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));

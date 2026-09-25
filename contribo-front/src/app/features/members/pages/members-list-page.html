@@ -72,7 +72,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text outline-none transition-colors placeholder:text-text-3 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
       />
     </div>
     @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
@@ -249,35 +249,37 @@
         </div>
       }
 
-      <nav
-        class="mt-6 flex items-center justify-between gap-4"
-        [attr.aria-label]="'members.pagination.nav' | transloco"
-      >
-        <button
-          type="button"
-          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
-          [class.opacity-40]="previousPageDisabled()"
-          [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
-          (click)="goToPreviousPage()"
+      @if (page.page.totalPages > 1) {
+        <nav
+          class="mt-6 flex items-center justify-between gap-4"
+          [attr.aria-label]="'members.pagination.nav' | transloco"
         >
-          {{ 'members.previousPage' | transloco }}
-        </button>
-        <p class="text-sm text-text-2" role="status">
-          {{
-            'members.pageStatus'
-              | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
-          }}
-        </p>
-        <button
-          type="button"
-          class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
-          [class.opacity-40]="nextPageDisabled()"
-          [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
-          (click)="goToNextPage()"
-        >
-          {{ 'members.nextPage' | transloco }}
-        </button>
-      </nav>
+          <button
+            type="button"
+            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            [class.opacity-40]="previousPageDisabled()"
+            [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
+            (click)="goToPreviousPage()"
+          >
+            {{ 'members.previousPage' | transloco }}
+          </button>
+          <p class="text-sm text-text-2" role="status">
+            {{
+              'members.pageStatus'
+                | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
+            }}
+          </p>
+          <button
+            type="button"
+            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            [class.opacity-40]="nextPageDisabled()"
+            [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
+            (click)="goToNextPage()"
+          >
+            {{ 'members.nextPage' | transloco }}
+          </button>
+        </nav>
+      }
     }
   }
 </main>

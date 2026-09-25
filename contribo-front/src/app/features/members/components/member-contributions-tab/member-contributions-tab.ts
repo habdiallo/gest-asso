@@ -13,9 +13,13 @@ import { ContributionsService } from '@api';
 import type { ContributionPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { formatMemberCalendarDate } from '../../members-dates';
 import { memberContributionMethodLabel } from '../../members-contribution-method-labels';
+
+const CONTRIBUTIONS_PAGE_SIZE = 10;
 
 /**
  * Onglet "Contributions aux cagnottes" de la fiche membre (T-30, tâche 4.10,
@@ -30,7 +34,7 @@ import { memberContributionMethodLabel } from '../../members-contribution-method
  */
 @Component({
   selector: 'app-member-contributions-tab',
-  imports: [TranslocoPipe, EmptyState],
+  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
   templateUrl: './member-contributions-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -89,7 +93,7 @@ export class MemberContributionsTab implements OnInit {
     this.loading.set(true);
     this.loadError.set(false);
     this.contributionsService
-      .listContributions(page, 20, undefined, this.memberId())
+      .listContributions(page, CONTRIBUTIONS_PAGE_SIZE, undefined, this.memberId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {

@@ -7,10 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@api';
 import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@api';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { canRecordPayments } from '@core/session/payment-authorization';
 import { SessionService } from '@core/session/session.service';
@@ -18,15 +18,21 @@ import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
-import { PageHeader } from '@shared/page-header/page-header';
+import { DataTable } from '@shared/data-table/data-table';
+import { DetailMetrics } from '@shared/detail-metrics/detail-metrics';
+import type { DetailMetric } from '@shared/detail-metrics/detail-metrics';
+import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
+import { DetailShell } from '@shared/detail-shell/detail-shell';
+import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
+import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
-import { formatSocialFundCalendarDate, formatSocialFundDateTime } from '../social-fund-dates';
+import { formatSocialFundCalendarDate } from '../social-fund-dates';
 import { contributionMethodLabel } from '../social-fund-payment-method-labels';
 import { socialEventTypeLabel, socialFundStatusLabel } from '../social-fund-labels';
 import { progressBarWidth } from '../social-fund-progress';
 
 /** Taille de page utilisée pour `GET /social-funds/{socialFundId}/contributions`. */
-const CONTRIBUTIONS_PAGE_SIZE = 20;
+const CONTRIBUTIONS_PAGE_SIZE = 10;
 
 /**
  * Écran suivi de cagnotte (T-91, `openapi:getSocialFund` +
@@ -70,22 +76,24 @@ const CONTRIBUTIONS_PAGE_SIZE = 20;
  * toujours borné à zéro si l'objectif est dépassé). Sans objectif, seul le
  * montant collecté reste affiché, comme avant ce ticket.
  *
- * Traçabilité de chaque contribution (T-90, RG-CAG-007) : le tableau affiche
- * l'utilisateur qui a enregistré la contribution (`recordedBy.displayName`)
- * et l'horodatage de la saisie (`recordedAt`), formaté par
- * `formatSocialFundDateTime` (`../social-fund-dates.ts`) dans le fuseau local
- * du navigateur (voir le commentaire de ce formateur pour le choix documenté).
+ * Les données de journalisation de chaque contribution restent disponibles
+ * dans la réponse API, mais ne sont pas affichées dans le tableau MVP. La
+ * liste conserve uniquement les données utiles au suivi métier : membre,
+ * montant, mode de règlement et date.
  */
 @Component({
   selector: 'app-social-fund-detail-page',
   imports: [
-    RouterLink,
     TranslocoPipe,
     ActionButton,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
-    PageHeader,
+    DataTable,
+    DetailMetrics,
+    DetailShell,
+    DetailTabs,
+    PaginationControls,
     ContributionCreateForm,
   ],
   templateUrl: './social-fund-detail-page.html',
@@ -97,10 +105,47 @@ export class SocialFundDetailPage {
   private readonly contributionsService = inject(ContributionsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly socialFund = signal<SocialFund | null>(null);
+  readonly activeTab = signal<'contributions' | 'information'>('contributions');
+  readonly detailTabs = computed<readonly DetailTab[]>(() => [
+    {
+      id: 'contributions',
+      label: this.transloco.translate('socialFunds.detail.tabs.contributions'),
+    },
+    { id: 'information', label: this.transloco.translate('socialFunds.detail.tabs.information') },
+  ]);
+  readonly metrics = computed<readonly DetailMetric[]>(() => {
+    const fund = this.socialFund();
+    if (!fund) return [];
+    return [
+      {
+        label: this.transloco.translate('socialFunds.detail.metrics.collected'),
+        value: this.formatCollectedAmount(fund.collectedAmount),
+        hint: this.transloco.translate('socialFunds.detail.metrics.collectedHint'),
+      },
+      {
+        label: this.transloco.translate('socialFunds.detail.metrics.target'),
+        value: fund.targetAmount ? this.formatCollectedAmount(fund.targetAmount) : '-',
+        hint: this.transloco.translate('socialFunds.detail.metrics.targetHint'),
+      },
+      {
+        label: this.transloco.translate('socialFunds.detail.metrics.remaining'),
+        value: fund.targetAmount
+          ? this.formatCollectedAmount(fund.remainingToTargetAmount ?? 0)
+          : '-',
+        hint: this.transloco.translate('socialFunds.detail.metrics.remainingHint'),
+      },
+      {
+        label: this.transloco.translate('socialFunds.detail.metrics.contributors'),
+        value: `${fund.contributorCount}`,
+        hint: this.transloco.translate('socialFunds.detail.metrics.contributorsHint'),
+      },
+    ];
+  });
 
   /** Réservée à l'Administrateur et au Trésorier (T-93, US-CAG-004). */
   private readonly canCloseSocialFundRole = computed(() => {
@@ -170,11 +215,16 @@ export class SocialFundDetailPage {
 
   readonly formatCollectedAmount = formatGnfAmountDetailed;
   readonly formatCalendarDate = formatSocialFundCalendarDate;
-  readonly formatDateTime = formatSocialFundDateTime;
   readonly socialFundStatusLabel = socialFundStatusLabel;
   readonly socialEventTypeLabel = socialEventTypeLabel;
   readonly contributionMethodLabel = contributionMethodLabel;
   readonly progressBarWidth = progressBarWidth;
+
+  selectDetailTab(tab: string): void {
+    if (tab === 'contributions' || tab === 'information') {
+      this.activeTab.set(tab);
+    }
+  }
 
   constructor() {
     const socialFundId = this.route.snapshot.paramMap.get('socialFundId');

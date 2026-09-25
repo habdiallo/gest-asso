@@ -1,277 +1,300 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
-  <a routerLink="/cagnottes" class="text-sm text-text-2 underline-offset-2 hover:underline">
-    {{ 'socialFunds.detail.backToList' | transloco }}
-  </a>
-
-  @if (loading() && !socialFund()) {
+@if (loading() && !socialFund()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <app-loading-skeleton
       variant="detail"
       [rows]="4"
       [label]="'socialFunds.detail.loading' | transloco"
     />
-  } @else if (loadError() && !socialFund()) {
+  </main>
+} @else if (loadError() && !socialFund()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.detail.error' | transloco }}</p>
-  } @else if (socialFund(); as socialFund) {
-    <app-page-header
-      [kicker]="socialEventTypeLabel(socialFund.eventType)"
-      [title]="socialFund.title"
-      [intro]="
-        'socialFunds.detail.subtitle'
-          | transloco
-            : {
-                beneficiary: socialFund.beneficiary,
-                start: formatCalendarDate(socialFund.startDate),
-                end: formatCalendarDate(socialFund.endDate),
-              }
-      "
-    >
-      <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-        {{ socialFundStatusLabel(socialFund.status) }}
-      </span>
-    </app-page-header>
-
-    @if (socialFund.description) {
-      <p class="mt-3 text-sm text-text">{{ socialFund.description }}</p>
-    }
-
-    <div class="mt-4 flex flex-wrap gap-3">
-      @if (canRecordContribution()) {
-        <app-action-button type="button" (click)="openRecordDialog()">
-          {{ 'socialFunds.recordContribution.button' | transloco }}
-        </app-action-button>
-      }
-
-      @if (canCloseSocialFund()) {
-        <app-action-button type="button" variant="secondary" (click)="openCloseDialog()">
-          {{ 'socialFunds.close.button' | transloco }}
-        </app-action-button>
-      }
-    </div>
-
-    <app-form-dialog
-      [open]="closeDialogOpen() && canCloseSocialFund()"
-      [dialogTitle]="'socialFunds.close.dialogTitle' | transloco"
-      [closeLabel]="'socialFunds.close.cancel' | transloco"
-      (closed)="closeCloseDialog()"
-    >
-      @if (closeDialogOpen() && canCloseSocialFund()) {
-        <p class="text-sm text-text">
-          {{ 'socialFunds.close.confirmMessage' | transloco: { title: socialFund.title } }}
-        </p>
-
-        @if (closeSocialFundError()) {
-          <p class="mt-3 text-sm text-error" role="alert">
-            {{ 'socialFunds.close.error' | transloco }}
-          </p>
-        }
-
-        <div class="mt-5 flex justify-end gap-3">
-          <app-action-button
-            type="button"
-            variant="secondary"
-            (click)="closeCloseDialog()"
-            [loading]="closingSocialFund()"
-          >
-            {{ 'socialFunds.close.cancel' | transloco }}
-          </app-action-button>
-          <app-action-button
-            type="button"
-            [loading]="closingSocialFund()"
-            (click)="confirmCloseSocialFund()"
-          >
-            {{
-              (closingSocialFund() ? 'socialFunds.close.confirming' : 'socialFunds.close.confirm')
-                | transloco
-            }}
-          </app-action-button>
-        </div>
-      }
-    </app-form-dialog>
-
+  </main>
+} @else if (socialFund(); as socialFund) {
+  <app-detail-shell
+    [backRouterLink]="['/cagnottes']"
+    [backLabel]="'socialFunds.detail.backToList' | transloco"
+    [kicker]="
+      socialEventTypeLabel(socialFund.eventType) + ' · ' + socialFundStatusLabel(socialFund.status)
+    "
+    [title]="socialFund.title"
+    [intro]="
+      'socialFunds.detail.subtitle'
+        | transloco
+          : {
+              beneficiary: socialFund.beneficiary,
+              start: formatCalendarDate(socialFund.startDate),
+              end: formatCalendarDate(socialFund.endDate),
+            }
+    "
+  >
     @if (canRecordContribution()) {
-      <app-form-dialog
-        [open]="recordDialogOpen()"
-        [dialogTitle]="'socialFunds.recordContribution.dialogTitle' | transloco"
-        [closeLabel]="'socialFunds.recordContribution.cancel' | transloco"
-        (closed)="closeRecordDialog()"
-      >
-        @if (recordDialogOpen()) {
-          @if (recordContributionError()) {
-            <p class="mb-4 text-sm text-error" role="alert">
-              {{ 'socialFunds.recordContribution.error' | transloco }}
-            </p>
-          }
-          <app-contribution-create-form
-            [socialFundTitle]="socialFund.title"
-            [submitting]="recordingContribution()"
-            (submitted)="handleRecordContribution($event)"
-            (cancelled)="closeRecordDialog()"
-          />
-        }
-      </app-form-dialog>
+      <app-action-button detail-actions type="button" (click)="openRecordDialog()">
+        {{ 'socialFunds.recordContribution.button' | transloco }}
+      </app-action-button>
     }
+    @if (canCloseSocialFund()) {
+      <app-action-button
+        detail-actions
+        type="button"
+        variant="secondary"
+        (click)="openCloseDialog()"
+      >
+        {{ 'socialFunds.close.button' | transloco }}
+      </app-action-button>
+    }
+    <app-detail-metrics detail-metrics [items]="metrics()" />
+    <app-detail-tabs
+      detail-tabs
+      [tabs]="detailTabs()"
+      [activeId]="activeTab()"
+      idPrefix="social-fund-detail"
+      [ariaLabel]="'socialFunds.detail.tablist' | transloco"
+      (activeIdChange)="selectDetailTab($event)"
+    />
 
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'socialFunds.detail.summaryTitle' | transloco }}
-      </h2>
-
-      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.08em] text-text-2">
-            {{ 'socialFunds.detail.collectedAmount' | transloco }}
-          </p>
-          <p class="mt-1 font-display text-2xl text-text">
-            {{ formatCollectedAmount(socialFund.collectedAmount) }}
-          </p>
-
-          @if (socialFund.targetAmount; as targetAmount) {
-            <p class="mt-1 text-sm text-text-2">
-              {{
-                'socialFunds.detail.targetAmount'
-                  | transloco: { amount: formatCollectedAmount(targetAmount) }
-              }}
+    @if (activeTab() === 'contributions') {
+      <section
+        id="social-fund-detail-panel-contributions"
+        role="tabpanel"
+        aria-labelledby="social-fund-detail-tab-contributions"
+        tabindex="0"
+        class="mt-8"
+      >
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 class="font-display text-xl text-text">
+              {{ 'socialFunds.detail.contributionsTitle' | transloco }}
+            </h2>
+            <p class="mt-1 text-sm text-text-3">
+              {{ 'socialFunds.detail.contributionsDescription' | transloco }}
             </p>
-            <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
-              <span
-                data-testid="social-fund-detail-progress-bar"
-                class="block h-full rounded-full bg-gold"
-                [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
-              ></span>
-            </div>
-            <p class="mt-2 text-sm text-text-2">
-              {{
-                'socialFunds.detail.remainingAmount'
-                  | transloco
-                    : { amount: formatCollectedAmount(socialFund.remainingToTargetAmount ?? 0) }
-              }}
-            </p>
-          }
+          </div>
         </div>
-
-        <div class="rounded-card border border-line bg-surface-glass p-5">
-          <p class="text-xs uppercase tracking-[0.08em] text-text-2">
-            {{
-              'socialFunds.detail.contributorCount'
-                | transloco: { count: socialFund.contributorCount }
-            }}
+        @if (contributionsLoading() && contributions().length === 0) {
+          <p class="mt-5 text-text-2" role="status">
+            {{ 'socialFunds.detail.contributionsLoading' | transloco }}
           </p>
-          <p class="mt-1 font-display text-2xl text-text">{{ socialFund.contributorCount }}</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="mt-8">
-      <h2 class="font-display text-xl uppercase tracking-wide text-text">
-        {{ 'socialFunds.detail.contributionsTitle' | transloco }}
-      </h2>
-
-      @if (contributionsLoading() && contributions().length === 0) {
-        <p class="mt-4 text-text-2" role="status">
-          {{ 'socialFunds.detail.contributionsLoading' | transloco }}
-        </p>
-      } @else if (contributionsLoadError() && contributions().length === 0) {
-        <p class="mt-4 text-error" role="alert">
-          {{ 'socialFunds.detail.contributionsError' | transloco }}
-        </p>
-      } @else if (contributions().length === 0) {
-        <app-empty-state
-          class="mt-4 block"
-          [message]="'socialFunds.detail.contributionsEmpty' | transloco"
-        />
-      } @else {
-        <div
-          class="mt-4 overflow-x-auto rounded-card"
-          [attr.aria-busy]="contributionsPageActionPending() ? 'true' : null"
-        >
-          <table class="w-full text-left text-sm">
+        } @else if (contributionsLoadError() && contributions().length === 0) {
+          <p class="mt-5 text-error" role="alert">
+            {{ 'socialFunds.detail.contributionsError' | transloco }}
+          </p>
+        } @else if (contributions().length === 0) {
+          <app-empty-state
+            class="mt-5 block"
+            [message]="'socialFunds.detail.contributionsEmpty' | transloco"
+          />
+        } @else {
+          <app-data-table
+            class="mt-5 block"
+            [caption]="'socialFunds.detail.contributionsCaption' | transloco"
+            [busy]="contributionsPageActionPending()"
+          >
             <thead>
-              <tr class="border-b border-line text-text-2">
-                <th scope="col" class="py-2 pr-4 font-medium">
+              <tr
+                class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+              >
+                <th scope="col" class="px-4 py-0 font-medium">
                   {{ 'socialFunds.detail.columns.member' | transloco }}
                 </th>
-                <th scope="col" class="py-2 pr-4 font-medium">
+                <th scope="col" class="px-4 py-0 font-medium">
                   {{ 'socialFunds.detail.columns.amount' | transloco }}
                 </th>
-                <th scope="col" class="py-2 pr-4 font-medium">
-                  {{ 'socialFunds.detail.columns.date' | transloco }}
-                </th>
-                <th scope="col" class="py-2 pr-4 font-medium">
+                <th scope="col" class="px-4 py-0 font-medium">
                   {{ 'socialFunds.detail.columns.method' | transloco }}
                 </th>
-                <th scope="col" class="py-2 pr-4 font-medium">
-                  {{ 'socialFunds.detail.columns.recordedBy' | transloco }}
-                </th>
-                <th scope="col" class="py-2 font-medium">
-                  {{ 'socialFunds.detail.columns.recordedAt' | transloco }}
+                <th scope="col" class="px-4 py-0 font-medium">
+                  {{ 'socialFunds.detail.columns.date' | transloco }}
                 </th>
               </tr>
             </thead>
             <tbody>
               @for (contribution of contributions(); track contribution.id) {
-                <tr class="border-b border-line">
-                  <td class="py-2 pr-4 text-text">{{ contribution.member.displayName }}</td>
-                  <td class="py-2 pr-4 text-text">
-                    {{ formatCollectedAmount(contribution.amount) }}
+                <tr
+                  class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
+                >
+                  <td class="px-4 py-2 font-normal text-text">
+                    {{ contribution.member.displayName }}
                   </td>
-                  <td class="py-2 pr-4 text-text">
-                    {{ formatCalendarDate(contribution.contributionDate) }}
+                  <td class="px-4 py-2 font-data text-[13px] font-normal tabular-nums text-success">
+                    + {{ formatCollectedAmount(contribution.amount) }}
                   </td>
-                  <td class="py-2 pr-4 text-text">
+                  <td class="px-4 py-2 text-[13px] text-text-2">
                     {{ contributionMethodLabel(contribution.method) }}
                   </td>
-                  <td class="py-2 pr-4 text-text">{{ contribution.recordedBy.displayName }}</td>
-                  <td class="py-2 text-text">{{ formatDateTime(contribution.recordedAt) }}</td>
+                  <td class="px-4 py-2 text-[13px] text-text-2">
+                    {{ formatCalendarDate(contribution.contributionDate) }}
+                  </td>
                 </tr>
               }
             </tbody>
-          </table>
-        </div>
-
-        @if (contributionsTotalPages() > 1) {
-          <nav
-            class="mt-4 flex flex-wrap items-center justify-between gap-3"
-            [attr.aria-label]="'socialFunds.detail.pagination.nav' | transloco"
-          >
-            <button
-              type="button"
-              class="rounded-full border border-line px-4 py-2 text-sm text-text"
-              [class.opacity-50]="contributionsPreviousPageDisabled()"
-              [attr.aria-disabled]="contributionsPreviousPageDisabled() ? 'true' : null"
-              (click)="goToPreviousContributionsPage()"
-            >
-              {{ 'socialFunds.detail.pagination.previous' | transloco }}
-            </button>
-
-            <p class="text-sm text-text-2" role="status">
-              {{
+          </app-data-table>
+          @if (contributionsTotalPages() > 1) {
+            <app-pagination-controls
+              class="mt-5 block"
+              [currentPage]="contributionsCurrentPageNumber()"
+              [totalPages]="contributionsTotalPages()"
+              [previousDisabled]="contributionsPreviousPageDisabled()"
+              [nextDisabled]="contributionsNextPageDisabled()"
+              [navigationLabel]="'socialFunds.detail.pagination.nav' | transloco"
+              [previousLabel]="'socialFunds.detail.pagination.previous' | transloco"
+              [nextLabel]="'socialFunds.detail.pagination.next' | transloco"
+              [statusLabel]="
                 'socialFunds.detail.pagination.status'
                   | transloco
                     : {
                         current: contributionsCurrentPageNumber(),
                         total: contributionsTotalPages(),
                       }
-              }}
-            </p>
-
-            <button
-              type="button"
-              class="rounded-full border border-line px-4 py-2 text-sm text-text"
-              [class.opacity-50]="contributionsNextPageDisabled()"
-              [attr.aria-disabled]="contributionsNextPageDisabled() ? 'true' : null"
-              (click)="goToNextContributionsPage()"
-            >
-              {{ 'socialFunds.detail.pagination.next' | transloco }}
-            </button>
-          </nav>
-
+              "
+              (previousPage)="goToPreviousContributionsPage()"
+              (nextPage)="goToNextContributionsPage()"
+            />
+          }
           @if (contributionsPageActionError()) {
             <p class="mt-3 text-sm text-error" role="alert">
               {{ 'socialFunds.detail.contributionsError' | transloco }}
             </p>
           }
         }
+      </section>
+    }
+
+    @if (activeTab() === 'information') {
+      <section
+        id="social-fund-detail-panel-information"
+        role="tabpanel"
+        aria-labelledby="social-fund-detail-tab-information"
+        tabindex="0"
+        class="mt-8"
+      >
+        <h2 class="font-display text-xl text-text">
+          {{ 'socialFunds.detail.informationTitle' | transloco }}
+        </h2>
+        <div class="mt-5 rounded-card border border-line bg-surface p-5 text-sm text-text-2">
+          <dl class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.title' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFund.title }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.eventType' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialEventTypeLabel(socialFund.eventType) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.beneficiary' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFund.beneficiary }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.period' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ formatCalendarDate(socialFund.startDate) }}
+                {{ 'socialFunds.detail.information.periodSeparator' | transloco }}
+                {{ formatCalendarDate(socialFund.endDate) }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.target' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{
+                  socialFund.targetAmount
+                    ? formatCollectedAmount(socialFund.targetAmount)
+                    : ('socialFunds.detail.information.targetMissing' | transloco)
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.status' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFundStatusLabel(socialFund.status) }}</dd>
+            </div>
+          </dl>
+          <div class="mt-6 border-t border-line pt-5">
+            <p>
+              {{ socialFund.description || ('socialFunds.detail.informationEmpty' | transloco) }}
+            </p>
+          </div>
+          @if (socialFund.targetAmount) {
+            <div class="mt-5 h-2 overflow-hidden rounded-full bg-surface-2">
+              <span
+                data-testid="social-fund-detail-progress-bar"
+                class="block h-full rounded-full bg-gold transition-[width] duration-300"
+                [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
+              ></span>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </app-detail-shell>
+
+  <app-form-dialog
+    [open]="closeDialogOpen() && canCloseSocialFund()"
+    [dialogTitle]="'socialFunds.close.dialogTitle' | transloco"
+    [closeLabel]="'socialFunds.close.cancel' | transloco"
+    (closed)="closeCloseDialog()"
+  >
+    @if (closeDialogOpen() && canCloseSocialFund()) {
+      <p class="text-sm text-text">
+        {{ 'socialFunds.close.confirmMessage' | transloco: { title: socialFund.title } }}
+      </p>
+      @if (closeSocialFundError()) {
+        <p class="mt-3 text-sm text-error" role="alert">
+          {{ 'socialFunds.close.error' | transloco }}
+        </p>
       }
-    </section>
+      <div class="mt-5 flex justify-end gap-3">
+        <app-action-button
+          type="button"
+          variant="secondary"
+          [disabled]="closingSocialFund()"
+          (click)="closeCloseDialog()"
+          >{{ 'socialFunds.close.cancel' | transloco }}</app-action-button
+        >
+        <app-action-button
+          type="button"
+          [loading]="closingSocialFund()"
+          (click)="confirmCloseSocialFund()"
+          >{{
+            (closingSocialFund() ? 'socialFunds.close.confirming' : 'socialFunds.close.confirm')
+              | transloco
+          }}</app-action-button
+        >
+      </div>
+    }
+  </app-form-dialog>
+
+  @if (canRecordContribution()) {
+    <app-form-dialog
+      [open]="recordDialogOpen()"
+      [dialogTitle]="'socialFunds.recordContribution.dialogTitle' | transloco"
+      [closeLabel]="'socialFunds.recordContribution.cancel' | transloco"
+      (closed)="closeRecordDialog()"
+    >
+      @if (recordDialogOpen()) {
+        @if (recordContributionError()) {
+          <p class="mb-4 text-sm text-error" role="alert">
+            {{ 'socialFunds.recordContribution.error' | transloco }}
+          </p>
+        }
+        <app-contribution-create-form
+          [socialFundTitle]="socialFund.title"
+          [submitting]="recordingContribution()"
+          (submitted)="handleRecordContribution($event)"
+          (cancelled)="closeRecordDialog()"
+        />
+      }
+    </app-form-dialog>
   }
-</main>
+}

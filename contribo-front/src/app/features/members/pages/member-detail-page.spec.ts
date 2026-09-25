@@ -414,7 +414,7 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).toContain('Règlements');
     expect(listPayments).toHaveBeenCalledWith(
       0,
-      20,
+      10,
       undefined,
       'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
     );
@@ -1226,7 +1226,7 @@ describe('MemberDetailPage', () => {
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
-      expect(root.textContent).toContain('Mamadou Sy');
+      expect(root.textContent).toContain('12 septembre 2026');
 
       findTab('Contributions aux cagnottes').click();
       fixture.detectChanges();
@@ -1309,7 +1309,7 @@ describe('MemberDetailPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(listMemberDues).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', 0);
+    expect(listMemberDues).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', 0, 10);
     expect(root.textContent).toContain('Solidarité septembre');
     expect(root.textContent).toContain('Partiellement payé');
   });

@@ -29,47 +29,64 @@
   } @else if (categories().length === 0) {
     <app-empty-state class="mt-6 block" [message]="'incomeCategories.empty' | transloco" />
   } @else {
-    <div class="mt-6 overflow-x-auto rounded-card border border-line">
-      <table class="w-full text-left">
-        <thead>
+    <app-data-table
+      class="mt-6 block"
+      [caption]="'incomeCategories.caption' | transloco"
+      [busy]="loading()"
+    >
+      <thead>
+        <tr
+          class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+        >
+          <th scope="col" class="px-4 py-0 font-medium">
+            {{ 'incomeCategories.columns.label' | transloco }}
+          </th>
+          <th scope="col" class="px-4 py-0 font-medium">
+            {{ 'incomeCategories.columns.memberCount' | transloco }}
+          </th>
+          <th scope="col" class="px-4 py-0 text-right font-medium">
+            <span class="sr-only">{{ 'incomeCategories.columns.actions' | transloco }}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of visibleCategories(); track category.id) {
           <tr
-            class="border-b border-line bg-surface-glass text-xs uppercase tracking-[0.08em] text-text-2"
+            class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
           >
-            <th scope="col" class="px-4 py-3 font-medium">
-              {{ 'incomeCategories.columns.label' | transloco }}
-            </th>
-            <th scope="col" class="px-4 py-3 font-medium">
-              {{ 'incomeCategories.columns.memberCount' | transloco }}
-            </th>
-            <th scope="col" class="px-4 py-3 font-medium">
-              {{ 'incomeCategories.columns.updatedAt' | transloco }}
-            </th>
-            <th scope="col" class="px-4 py-3 font-medium">
-              <span class="sr-only">{{ 'incomeCategories.columns.actions' | transloco }}</span>
-            </th>
+            <th scope="row" class="px-4 py-2 font-normal text-text">{{ category.label }}</th>
+            <td class="px-4 py-2 text-[13px] text-text-2">{{ category.memberCount }}</td>
+            <td class="px-4 py-2 text-right">
+              <app-action-button
+                variant="secondary"
+                (click)="openEditDialog(category)"
+                [ariaLabel]="'incomeCategories.actions.edit' | transloco: { label: category.label }"
+              >
+                {{ 'incomeCategories.actions.editButton' | transloco }}
+              </app-action-button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          @for (category of categories(); track category.id) {
-            <tr class="border-b border-line last:border-b-0">
-              <td class="px-4 py-3 font-medium text-text">{{ category.label }}</td>
-              <td class="px-4 py-3 text-text-2">{{ category.memberCount }}</td>
-              <td class="px-4 py-3 text-text-2">{{ formatInstant(category.updatedAt) }}</td>
-              <td class="px-4 py-3 text-right">
-                <app-action-button
-                  variant="secondary"
-                  (click)="openEditDialog(category)"
-                  [ariaLabel]="
-                    'incomeCategories.actions.edit' | transloco: { label: category.label }
-                  "
-                >
-                  {{ 'incomeCategories.actions.editButton' | transloco }}
-                </app-action-button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+        }
+      </tbody>
+    </app-data-table>
+
+    @if (totalPages() > 1) {
+      <app-pagination-controls
+        class="mt-6 block"
+        [currentPage]="currentPage() + 1"
+        [totalPages]="totalPages()"
+        [previousDisabled]="previousPageDisabled()"
+        [nextDisabled]="nextPageDisabled()"
+        [navigationLabel]="'incomeCategories.pagination.nav' | transloco"
+        [previousLabel]="'incomeCategories.pagination.previous' | transloco"
+        [nextLabel]="'incomeCategories.pagination.next' | transloco"
+        [statusLabel]="
+          'incomeCategories.pagination.status'
+            | transloco: { current: currentPage() + 1, total: totalPages() }
+        "
+        (previousPage)="previousPage()"
+        (nextPage)="nextPage()"
+      />
+    }
   }
 </main>

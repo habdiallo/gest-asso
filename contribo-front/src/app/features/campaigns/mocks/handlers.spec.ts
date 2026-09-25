@@ -1,6 +1,6 @@
 import { setupServer } from 'msw/node';
 import { ErrorCode, UserRole } from '@api';
-import type { Campaign, CampaignPage, ErrorResponse } from '@api';
+import type { Campaign, CampaignPage, ErrorResponse, PaymentPage } from '@api';
 import { demoAccounts } from '../../../../mocks/demo-accounts';
 import { campaignsHandlers } from './handlers';
 
@@ -62,6 +62,24 @@ describe('GET /api/v1/campaigns (mock)', () => {
     expect(page.items.find((campaign) => campaign.name === 'Rentrée associative')?.status).toBe(
       'UPCOMING',
     );
+  });
+});
+
+describe('GET /api/v1/payments?campaignId=... (mock, T-129)', () => {
+  it('returns the campaign payment history for the detail tab', async () => {
+    const response = await fetch(
+      '/api/v1/payments?campaignId=10700000-0000-4000-8000-000000000200&size=10',
+      { headers: headersFor(UserRole.Treasurer) },
+    );
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as PaymentPage;
+    expect(page.items).toHaveLength(2);
+    expect(page.items[0]).toMatchObject({
+      member: { displayName: 'Amadou Diallo' },
+      paymentDate: '2026-09-12',
+    });
+    expect(page.page).toMatchObject({ number: 0, size: 10, totalElements: 2, totalPages: 1 });
   });
 });
 

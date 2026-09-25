@@ -1,0 +1,24 @@
+<nav
+  class="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm"
+  [attr.aria-label]="navigationLabel()"
+>
+  <button
+    type="button"
+    class="min-h-11 rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong hover:bg-surface-2 focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42]"
+    [disabled]="previousDisabled()"
+    [attr.aria-disabled]="previousDisabled() ? 'true' : null"
+    (click)="previousPage.emit()"
+  >
+    {{ previousLabel() }}
+  </button>
+  <p class="text-text-2" role="status">{{ statusLabel() }}</p>
+  <button
+    type="button"
+    class="min-h-11 rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong hover:bg-surface-2 focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42]"
+    [disabled]="nextDisabled()"
+    [attr.aria-disabled]="nextDisabled() ? 'true' : null"
+    (click)="nextPage.emit()"
+  >
+    {{ nextLabel() }}
+  </button>
+</nav>

@@ -1,14 +1,24 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CatgoriesDeRevenuService } from '@api';
 import type { IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { PageHeader } from '@shared/page-header/page-header';
+import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
 import { EditIncomeCategoryDialog } from '../components/edit-income-category-dialog/edit-income-category-dialog';
-import { formatInstant } from '../income-categories-dates';
+
+const PAGE_SIZE = 10;
 
 /**
  * Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
@@ -38,10 +48,12 @@ import { formatInstant } from '../income-categories-dates';
   imports: [
     TranslocoPipe,
     ActionButton,
+    DataTable,
     EmptyState,
     PageHeader,
     CreateIncomeCategoryDialog,
     EditIncomeCategoryDialog,
+    PaginationControls,
   ],
   templateUrl: './income-categories-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,11 +65,20 @@ export class IncomeCategoriesPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly categories = signal<IncomeCategory[]>([]);
+  readonly currentPage = signal(0);
   readonly createDialogOpen = signal(false);
   readonly editDialogOpen = signal(false);
   readonly editingCategory = signal<IncomeCategory | null>(null);
 
-  readonly formatInstant = formatInstant;
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.categories().length / PAGE_SIZE)),
+  );
+  readonly visibleCategories = computed(() => {
+    const start = this.currentPage() * PAGE_SIZE;
+    return this.categories().slice(start, start + PAGE_SIZE);
+  });
+  readonly previousPageDisabled = computed(() => this.currentPage() === 0);
+  readonly nextPageDisabled = computed(() => this.currentPage() + 1 >= this.totalPages());
 
   constructor() {
     this.loadCategories();
@@ -89,6 +110,7 @@ export class IncomeCategoriesPage {
   }
 
   private loadCategories(): void {
+    this.currentPage.set(0);
     this.loading.set(true);
     this.loadError.set(false);
     this.incomeCategoriesService
@@ -104,5 +126,17 @@ export class IncomeCategoriesPage {
           this.loading.set(false);
         },
       });
+  }
+
+  previousPage(): void {
+    if (!this.previousPageDisabled()) {
+      this.currentPage.update((page) => page - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (!this.nextPageDisabled()) {
+      this.currentPage.update((page) => page + 1);
+    }
   }
 }

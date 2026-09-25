@@ -151,10 +151,12 @@ describe('App', () => {
       const profile = root.querySelector('aside .sidebar-profile');
       expect(profile?.querySelector('strong')?.textContent).toBe('Awa Camara');
       expect(profile?.querySelector('.sidebar-avatar')?.textContent).toBe('AC');
-      expect(profile?.querySelector('a, button')).toBeNull();
+      expect(profile?.tagName).toBe('BUTTON');
+      expect(profile?.querySelector('.sidebar-profile-chevron')).toBeTruthy();
       expect(root.querySelector('header .sidebar-profile')).toBeNull();
       expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
-      expect(root.querySelector('aside app-logout-button button')?.textContent?.trim()).toBe(
+      expect(root.querySelector('aside app-logout-button')).toBeNull();
+      expect(root.querySelector('header app-logout-button button')?.textContent?.trim()).toBe(
         'Se déconnecter',
       );
 
@@ -167,7 +169,18 @@ describe('App', () => {
     },
   );
 
-  it('keeps sidebar actions without a fabricated identity while the user is loading', () => {
+  it('opens the personal space from the desktop profile footer', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('aside .sidebar-profile') as HTMLButtonElement).click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/mon-espace');
+  });
+
+  it('keeps the sidebar profile control without a fabricated identity while the user is loading', () => {
     TestBed.inject(SessionService).token.set('session-token-value');
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -176,7 +189,8 @@ describe('App', () => {
     expect(root.querySelector('aside .sidebar-profile strong')).toBeNull();
     expect(root.querySelector('aside .sidebar-avatar')).toBeNull();
     expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
-    expect(root.querySelector('aside app-logout-button button')).toBeTruthy();
+    expect(root.querySelector('aside .sidebar-profile-chevron')).toBeTruthy();
+    expect(root.querySelector('aside app-logout-button')).toBeNull();
   });
 
   it('updates the desktop breadcrumb label as the route changes (T-117)', async () => {

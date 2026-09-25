@@ -15,7 +15,7 @@
         [attr.aria-describedby]="
           fieldInvalid('preferredName') ? 'member-edit-operator-preferred-name-error' : null
         "
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (fieldInvalid('preferredName')) {
         <p
@@ -41,7 +41,7 @@
         formControlName="phone"
         [attr.aria-invalid]="phoneInvalid() ? true : null"
         [attr.aria-describedby]="phoneInvalid() ? 'member-edit-operator-phone-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (phoneInvalid()) {
         <p id="member-edit-operator-phone-error" class="mt-2 text-sm text-error" role="alert">
@@ -65,7 +65,7 @@
         [attr.aria-describedby]="
           fieldInvalid('country') ? 'member-edit-operator-country-error' : null
         "
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (fieldInvalid('country')) {
         <p id="member-edit-operator-country-error" class="mt-2 text-sm text-error" role="alert">
@@ -87,7 +87,7 @@
         formControlName="city"
         [attr.aria-invalid]="fieldInvalid('city') ? true : null"
         [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-operator-city-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (fieldInvalid('city')) {
         <p id="member-edit-operator-city-error" class="mt-2 text-sm text-error" role="alert">
