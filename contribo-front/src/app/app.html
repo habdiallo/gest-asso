@@ -24,7 +24,12 @@
     </div>
     <app-navigation-menu orientation="vertical" class="sidebar-navigation" />
     <div class="sidebar-footer">
-      <div class="sidebar-profile">
+      <button
+        type="button"
+        class="sidebar-profile"
+        aria-label="Ouvrir mon espace"
+        (click)="openSidebarProfile()"
+      >
         @if (sidebarProfile(); as profile) {
           <div class="sidebar-avatar" aria-hidden="true">{{ profile.initials }}</div>
           <div class="sidebar-profile-copy">
@@ -32,10 +37,20 @@
             <span>{{ profile.role }}</span>
           </div>
         }
-      </div>
-      <div class="sidebar-actions">
-        <app-logout-button class="min-w-0 max-w-full" />
-      </div>
+        <svg
+          class="sidebar-profile-chevron"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
     </div>
   </aside>
 

@@ -1,180 +1,171 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
-  @if (loading() && !campaign()) {
+@if (loading() && !campaign()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <app-loading-skeleton
       variant="detail"
       [rows]="4"
       [label]="'campaigns.detail.loading' | transloco"
     />
-  } @else if (loadError() && !campaign()) {
+  </main>
+} @else if (loadError() && !campaign()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <p class="mt-6 text-error" role="alert">{{ 'campaigns.detail.error' | transloco }}</p>
-  } @else if (campaign(); as campaign) {
-    <app-page-header
-      [kicker]="'campaigns.detail.kicker' | transloco"
-      [title]="campaign.name"
-      [intro]="
-        'campaigns.detail.period'
-          | transloco
-            : {
-                start: formatCalendarDate(campaign.startDate),
-                end: formatCalendarDate(campaign.endDate),
-              }
-      "
-    >
-      <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-        {{ campaignStatusLabel(campaign.status) }}
-      </span>
-    </app-page-header>
-
-    @if (campaign.description) {
-      <p class="mt-3 text-sm text-text">{{ campaign.description }}</p>
-    }
-
-    @if (canCloseCampaignNow()) {
-      <div class="mt-4 flex justify-end">
-        <app-action-button type="button" variant="secondary" (click)="openCloseCampaignDialog()">
-          {{ 'campaigns.detail.close.action' | transloco }}
-        </app-action-button>
-      </div>
-
-      <app-form-dialog
-        [open]="closeCampaignDialogOpen()"
-        [dialogTitle]="'campaigns.detail.close.dialogTitle' | transloco"
-        (closed)="cancelCloseCampaignDialog()"
-      >
-        @if (closeCampaignDialogOpen()) {
-          <p class="text-sm text-text">{{ 'campaigns.detail.close.confirmMessage' | transloco }}</p>
-
-          @if (closeCampaignErrorMessage(); as errorKey) {
-            <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
-          }
-
-          <div class="mt-6 flex items-center justify-end gap-3">
-            <app-action-button
-              type="button"
-              variant="secondary"
-              [disabled]="closingCampaign()"
-              (click)="cancelCloseCampaignDialog()"
-            >
-              {{ 'campaigns.detail.close.cancel' | transloco }}
-            </app-action-button>
-            <app-action-button
-              type="button"
-              [disabled]="closingCampaign()"
-              (click)="confirmCloseCampaign()"
-            >
-              {{
-                (closingCampaign()
-                  ? 'campaigns.detail.close.confirming'
-                  : 'campaigns.detail.close.confirm'
-                ) | transloco
-              }}
-            </app-action-button>
-          </div>
-        }
-      </app-form-dialog>
-    }
-
-    <div
-      class="mt-6 flex gap-2 border-b border-line"
-      role="tablist"
-      [attr.aria-label]="'campaigns.detail.tablist' | transloco"
-    >
-      @for (tab of tabs; track tab) {
-        <button
-          #tabButton
-          type="button"
-          [id]="'campaign-tab-' + tab"
-          role="tab"
-          [attr.aria-selected]="isActiveTab(tab) ? 'true' : 'false'"
-          [attr.aria-controls]="'campaign-tabpanel-' + tab"
-          [tabIndex]="isActiveTab(tab) ? 0 : -1"
-          class="border-b-2 px-4 py-2 text-sm font-medium"
-          [class.border-gold-hover]="isActiveTab(tab)"
-          [class.text-gold-hover]="isActiveTab(tab)"
-          [class.border-transparent]="!isActiveTab(tab)"
-          [class.text-text-2]="!isActiveTab(tab)"
-          (click)="selectTab(tab)"
-          (keydown)="onTabsKeydown($event)"
+  </main>
+} @else if (campaign(); as campaign) {
+  <app-detail-shell
+    [backRouterLink]="['/campagnes']"
+    [backLabel]="'campaigns.detail.backToList' | transloco"
+    [kicker]="
+      'campaigns.detail.kicker' | transloco: { status: campaignStatusLabel(campaign.status) }
+    "
+    [title]="campaign.name"
+    [intro]="
+      'campaigns.detail.subtitle'
+        | transloco
+          : {
+              status: campaignStatusLabel(campaign.status),
+              start: formatCampaignDetailDate(campaign.startDate),
+              end: formatCampaignDetailDate(campaign.endDate),
+              count: campaign.memberCount,
+            }
+    "
+  >
+    @if (canRecordPaymentsNow()) {
+      <app-action-button detail-actions type="button" (click)="openPaymentTab()">
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
         >
-          {{ 'campaigns.detail.tabs.' + tab | transloco }}
-        </button>
-      }
-    </div>
-
-    @if (isActiveTab('bareme')) {
-      <section
-        id="campaign-tabpanel-bareme"
-        role="tabpanel"
-        aria-labelledby="campaign-tab-bareme"
-        tabindex="0"
-        class="mt-6"
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <path d="M2 10h20M6 15h2" />
+        </svg>
+        {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+      </app-action-button>
+    }
+    @if (canCloseCampaignNow()) {
+      <app-action-button
+        detail-actions
+        type="button"
+        variant="secondary"
+        (click)="openCloseCampaignDialog()"
       >
-        @if (categoryAmounts().length === 0) {
-          <p class="text-text-2">{{ 'campaigns.detail.bareme.empty' | transloco }}</p>
-        } @else if (editingBareme()) {
-          <form [formGroup]="baremeForm" (ngSubmit)="submitBareme()">
-            <div class="overflow-x-auto rounded-card">
-              <table class="w-full text-left text-sm">
-                <thead>
-                  <tr class="border-b border-line text-text-2">
-                    <th scope="col" class="py-2 pr-4 font-medium">
-                      {{ 'campaigns.detail.bareme.category' | transloco }}
-                    </th>
-                    <th scope="col" class="py-2 pr-4 font-medium">
-                      {{ 'campaigns.detail.bareme.amount' | transloco }}
-                    </th>
-                    <th scope="col" class="py-2 font-medium">
-                      {{ 'campaigns.detail.bareme.memberCount' | transloco }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody formArrayName="amounts">
-                  @for (
-                    categoryAmount of categoryAmounts();
-                    track categoryAmount.incomeCategory.id;
-                    let i = $index
-                  ) {
-                    <tr class="border-b border-line">
-                      <td class="py-2 pr-4 text-text">
-                        <span class="inline-flex items-center gap-2">
-                          {{ categoryAmount.incomeCategory.label }}
-                          @if (categoryAmountUnconfigured(baremeAmounts.at(i).value ?? 0)) {
-                            <span
-                              class="inline-flex items-center gap-1 rounded-full border border-warning px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-warning"
-                            >
-                              <svg
-                                class="h-3 w-3"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z"
-                                />
-                              </svg>
-                              {{ 'campaigns.detail.bareme.notConfigured' | transloco }}
-                            </span>
-                          }
-                        </span>
-                      </td>
-                      <td class="py-2 pr-4">
-                        <app-amount-input
-                          [formControlName]="i"
-                          [label]="categoryAmount.incomeCategory.label"
-                          [required]="true"
-                        />
-                      </td>
-                      <td class="py-2 text-text">{{ categoryAmount.memberCount }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="4" y="10" width="16" height="11" rx="2" />
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        </svg>
+        <span aria-hidden="true">{{ 'campaigns.detail.close.actionVisible' | transloco }}</span>
+        <span class="sr-only">{{ 'campaigns.detail.close.action' | transloco }}</span>
+      </app-action-button>
+    }
+    <app-detail-metrics detail-metrics [items]="metrics()" />
+    <app-detail-tabs
+      detail-tabs
+      [tabs]="detailTabs()"
+      [activeId]="activeTab()"
+      idPrefix="campaign-detail"
+      [ariaLabel]="'campaigns.detail.tablist' | transloco"
+      (activeIdChange)="selectDetailTab($event)"
+    />
 
+    @if (isActiveTab('situation')) {
+      <section
+        id="campaign-detail-panel-situation"
+        role="tabpanel"
+        aria-labelledby="campaign-detail-tab-situation"
+        tabindex="0"
+        class="mt-8"
+      >
+        <app-campaign-dues-tab [campaignId]="campaign.id" [campaignClosed]="campaignClosed()" />
+      </section>
+    }
+
+    @if (isActiveTab('categories')) {
+      <section
+        id="campaign-detail-panel-categories"
+        role="tabpanel"
+        aria-labelledby="campaign-detail-tab-categories"
+        tabindex="0"
+        class="mt-8"
+      >
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 class="font-display text-xl text-text">
+              {{ 'campaigns.detail.bareme.title' | transloco }}
+            </h2>
+            <p class="mt-1 text-sm text-text-2">
+              {{ 'campaigns.detail.bareme.description' | transloco }}
+            </p>
+          </div>
+          @if (canEditBaremeNow() && !editingBareme()) {
+            <app-action-button type="button" variant="secondary" (click)="startEditingBareme()">
+              {{ 'campaigns.detail.bareme.edit' | transloco }}
+            </app-action-button>
+          }
+        </div>
+        @if (categoryAmounts().length === 0) {
+          <p class="mt-5 text-text-2">{{ 'campaigns.detail.bareme.empty' | transloco }}</p>
+        } @else if (editingBareme()) {
+          <form class="mt-5" [formGroup]="baremeForm" (ngSubmit)="submitBareme()">
+            <app-data-table [caption]="'campaigns.detail.bareme.caption' | transloco">
+              <thead>
+                <tr
+                  class="border-b border-line bg-surface-2 text-[10px] uppercase tracking-[0.12em] text-text-2"
+                >
+                  <th scope="col" class="px-5 py-4 font-medium">
+                    {{ 'campaigns.detail.bareme.category' | transloco }}
+                  </th>
+                  <th scope="col" class="px-5 py-4 font-medium">
+                    {{ 'campaigns.detail.bareme.amount' | transloco }}
+                  </th>
+                  <th scope="col" class="px-5 py-4 font-medium">
+                    {{ 'campaigns.detail.bareme.memberCount' | transloco }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody formArrayName="amounts">
+                @for (
+                  categoryAmount of categoryAmounts();
+                  track categoryAmount.incomeCategory.id;
+                  let i = $index
+                ) {
+                  <tr class="border-b border-line text-text last:border-b-0 hover:bg-surface-2">
+                    <th scope="row" class="px-5 py-4 font-medium">
+                      <span class="inline-flex flex-wrap items-center gap-2">
+                        {{ categoryAmount.incomeCategory.label }}
+                        @if (categoryAmountUnconfigured(baremeAmounts.at(i).value ?? 0)) {
+                          <span
+                            class="rounded-full border border-warning px-2 py-0.5 text-[10px] uppercase tracking-[0.06em] text-warning"
+                            >{{ 'campaigns.detail.bareme.notConfigured' | transloco }}</span
+                          >
+                        }
+                      </span>
+                    </th>
+                    <td class="px-5 py-4">
+                      <app-amount-input
+                        [formControlName]="i"
+                        [label]="categoryAmount.incomeCategory.label"
+                        [required]="true"
+                      />
+                    </td>
+                    <td class="px-5 py-4 text-text-2">{{ categoryAmount.memberCount }}</td>
+                  </tr>
+                }
+              </tbody>
+            </app-data-table>
             @if (baremeErrorMessage(); as errorKey) {
               <app-api-error-retry
                 [message]="errorKey | transloco"
@@ -182,122 +173,125 @@
                 (retry)="submitBareme()"
               />
             }
-
-            <div class="mt-4 flex items-center justify-end gap-3">
+            <div class="mt-4 flex justify-end gap-3">
               <app-action-button
                 type="button"
                 variant="secondary"
                 [disabled]="submittingBareme()"
                 (click)="cancelEditingBareme()"
+                >{{ 'campaigns.detail.bareme.cancel' | transloco }}</app-action-button
               >
-                {{ 'campaigns.detail.bareme.cancel' | transloco }}
-              </app-action-button>
-              <app-action-button type="submit" [disabled]="submittingBareme()">
-                {{
-                  (submittingBareme()
-                    ? 'campaigns.detail.bareme.submitting'
-                    : 'campaigns.detail.bareme.submit'
-                  ) | transloco
-                }}
-              </app-action-button>
+              <app-action-button type="submit" [disabled]="submittingBareme()">{{
+                (submittingBareme()
+                  ? 'campaigns.detail.bareme.submitting'
+                  : 'campaigns.detail.bareme.submit'
+                ) | transloco
+              }}</app-action-button>
             </div>
           </form>
         } @else {
-          <div class="overflow-x-auto rounded-card">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="border-b border-line text-text-2">
-                  <th scope="col" class="py-2 pr-4 font-medium">
-                    {{ 'campaigns.detail.bareme.category' | transloco }}
+          <app-data-table
+            class="mt-5 block"
+            [caption]="'campaigns.detail.bareme.caption' | transloco"
+          >
+            <thead>
+              <tr
+                class="border-b border-line bg-surface-2 text-[10px] uppercase tracking-[0.12em] text-text-2"
+              >
+                <th scope="col" class="px-5 py-4 font-medium">
+                  {{ 'campaigns.detail.bareme.category' | transloco }}
+                </th>
+                <th scope="col" class="px-5 py-4 font-medium">
+                  {{ 'campaigns.detail.bareme.amount' | transloco }}
+                </th>
+                <th scope="col" class="px-5 py-4 font-medium">
+                  {{ 'campaigns.detail.bareme.memberCount' | transloco }}
+                </th>
+                <th scope="col" class="px-5 py-4 font-medium">
+                  {{ 'campaigns.detail.bareme.expectedAmount' | transloco }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (categoryAmount of categoryAmounts(); track categoryAmount.incomeCategory.id) {
+                <tr
+                  class="border-b border-line text-text last:border-b-0 transition-colors hover:bg-surface-2"
+                >
+                  <th scope="row" class="px-5 py-4 font-medium">
+                    {{ categoryAmount.incomeCategory.label }}
                   </th>
-                  <th scope="col" class="py-2 pr-4 font-medium">
-                    {{ 'campaigns.detail.bareme.amount' | transloco }}
-                  </th>
-                  <th scope="col" class="py-2 pr-4 font-medium">
-                    {{ 'campaigns.detail.bareme.memberCount' | transloco }}
-                  </th>
-                  <th scope="col" class="py-2 font-medium">
-                    {{ 'campaigns.detail.bareme.expectedAmount' | transloco }}
-                  </th>
+                  <td class="px-5 py-4">
+                    <span
+                      [class.text-warning]="categoryAmountUnconfigured(categoryAmount.amount)"
+                      >{{ formatGnfAmountDetailed(categoryAmount.amount) }}</span
+                    >
+                    @if (categoryAmountUnconfigured(categoryAmount.amount)) {
+                      <span
+                        class="ml-2 rounded-full border border-warning px-2 py-0.5 text-[10px] uppercase tracking-[0.06em] text-warning"
+                        >{{ 'campaigns.detail.bareme.notConfigured' | transloco }}</span
+                      >
+                    }
+                  </td>
+                  <td class="px-5 py-4 text-text-2">{{ categoryAmount.memberCount }}</td>
+                  <td class="px-5 py-4 text-text-2">
+                    {{ formatGnfAmountDetailed(categoryAmount.expectedAmount) }}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                @for (categoryAmount of categoryAmounts(); track categoryAmount.incomeCategory.id) {
-                  <tr class="border-b border-line">
-                    <td class="py-2 pr-4 text-text">{{ categoryAmount.incomeCategory.label }}</td>
-                    <td class="py-2 pr-4 text-text">
-                      <span class="inline-flex items-center gap-2">
-                        <span
-                          [class.text-warning]="categoryAmountUnconfigured(categoryAmount.amount)"
-                        >
-                          {{ formatGnfAmountDetailed(categoryAmount.amount) }}
-                        </span>
-                        @if (categoryAmountUnconfigured(categoryAmount.amount)) {
-                          <span
-                            class="inline-flex items-center gap-1 rounded-full border border-warning px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-warning"
-                          >
-                            <svg
-                              class="h-3 w-3"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path
-                                d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z"
-                              />
-                            </svg>
-                            {{ 'campaigns.detail.bareme.notConfigured' | transloco }}
-                          </span>
-                        }
-                      </span>
-                    </td>
-                    <td class="py-2 pr-4 text-text">{{ categoryAmount.memberCount }}</td>
-                    <td class="py-2 text-text">
-                      {{ formatGnfAmountDetailed(categoryAmount.expectedAmount) }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          @if (canEditBaremeNow()) {
-            <div class="mt-4 flex justify-end">
-              <app-action-button type="button" variant="secondary" (click)="startEditingBareme()">
-                {{ 'campaigns.detail.bareme.edit' | transloco }}
-              </app-action-button>
-            </div>
-          }
+              }
+            </tbody>
+          </app-data-table>
+          <p
+            class="mt-4 rounded border border-[color:color-mix(in_srgb,var(--info)_30%,transparent)] bg-info-wash px-4 py-3 text-sm text-text-2"
+          >
+            {{ 'campaigns.detail.bareme.info' | transloco: { name: campaign.name } }}
+          </p>
         }
       </section>
     }
 
-    @if (isActiveTab('cotisations')) {
+    @if (isActiveTab('payments')) {
       <section
-        id="campaign-tabpanel-cotisations"
+        id="campaign-detail-panel-payments"
         role="tabpanel"
-        aria-labelledby="campaign-tab-cotisations"
+        aria-labelledby="campaign-detail-tab-payments"
         tabindex="0"
-        class="mt-6"
+        class="mt-8"
       >
-        <app-campaign-dues-tab [campaignId]="campaign.id" [campaignClosed]="campaignClosed()" />
+        <app-campaign-payments-tab [campaignId]="campaign.id" />
       </section>
     }
+  </app-detail-shell>
 
-    @if (isActiveTab('bilan')) {
-      <section
-        id="campaign-tabpanel-bilan"
-        role="tabpanel"
-        aria-labelledby="campaign-tab-bilan"
-        tabindex="0"
-        class="mt-6"
-      >
-        <app-campaign-bilan-tab [financialSummary]="campaign.financialSummary" />
-      </section>
+  <app-form-dialog
+    [open]="closeCampaignDialogOpen()"
+    [dialogTitle]="'campaigns.detail.close.dialogTitle' | transloco"
+    (closed)="cancelCloseCampaignDialog()"
+  >
+    @if (closeCampaignDialogOpen()) {
+      <p class="text-sm text-text">{{ 'campaigns.detail.close.confirmMessage' | transloco }}</p>
+      @if (closeCampaignErrorMessage(); as errorKey) {
+        <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <app-action-button
+          type="button"
+          variant="secondary"
+          [disabled]="closingCampaign()"
+          (click)="cancelCloseCampaignDialog()"
+          >{{ 'campaigns.detail.close.cancel' | transloco }}</app-action-button
+        >
+        <app-action-button
+          type="button"
+          [disabled]="closingCampaign()"
+          (click)="confirmCloseCampaign()"
+          >{{
+            (closingCampaign()
+              ? 'campaigns.detail.close.confirming'
+              : 'campaigns.detail.close.confirm'
+            ) | transloco
+          }}</app-action-button
+        >
+      </div>
     }
-  }
-</main>
+  </app-form-dialog>
+}

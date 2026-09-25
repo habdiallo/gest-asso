@@ -107,34 +107,36 @@
     </section>
 
     @if (pageMetadata(); as metadata) {
-      <div class="mt-4 flex items-center justify-between text-sm text-text-2">
-        <p>
-          {{
-            'rolesUsers.pageIndicator'
-              | transloco: { current: metadata.number + 1, total: metadata.totalPages || 1 }
-          }}
-        </p>
-        <div class="flex gap-2">
-          <button
-            type="button"
-            [attr.aria-disabled]="previousDisabled() ? 'true' : null"
-            [class.opacity-40]="previousDisabled()"
-            (click)="goToPreviousPage()"
-            class="min-h-11 rounded border border-line px-3 py-2 text-text"
-          >
-            {{ 'rolesUsers.previousPage' | transloco }}
-          </button>
-          <button
-            type="button"
-            [attr.aria-disabled]="nextDisabled() ? 'true' : null"
-            [class.opacity-40]="nextDisabled()"
-            (click)="goToNextPage()"
-            class="min-h-11 rounded border border-line px-3 py-2 text-text"
-          >
-            {{ 'rolesUsers.nextPage' | transloco }}
-          </button>
+      @if (metadata.totalPages > 1) {
+        <div class="mt-4 flex items-center justify-between text-sm text-text-2">
+          <p>
+            {{
+              'rolesUsers.pageIndicator'
+                | transloco: { current: metadata.number + 1, total: metadata.totalPages }
+            }}
+          </p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              [attr.aria-disabled]="previousDisabled() ? 'true' : null"
+              [class.opacity-40]="previousDisabled()"
+              (click)="goToPreviousPage()"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text"
+            >
+              {{ 'rolesUsers.previousPage' | transloco }}
+            </button>
+            <button
+              type="button"
+              [attr.aria-disabled]="nextDisabled() ? 'true' : null"
+              [class.opacity-40]="nextDisabled()"
+              (click)="goToNextPage()"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text"
+            >
+              {{ 'rolesUsers.nextPage' | transloco }}
+            </button>
+          </div>
         </div>
-      </div>
+      }
     }
   }
 

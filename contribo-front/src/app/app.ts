@@ -6,6 +6,7 @@ import type { CurrentUser } from '@api';
 import { ThemeToggle } from '@shared/theme-toggle/theme-toggle';
 import { LogoutButton } from '@shared/logout-button/logout-button';
 import { NavigationMenu } from '@shared/navigation-menu/navigation-menu';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
@@ -88,4 +89,8 @@ export class App {
       role: SIDEBAR_ROLE_LABELS[user.role],
     };
   });
+
+  openSidebarProfile(): void {
+    void this.router.navigateByUrl(NAVIGATION_PATHS.memberSpace);
+  }
 }

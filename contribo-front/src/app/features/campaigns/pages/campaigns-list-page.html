@@ -114,7 +114,7 @@
       <app-empty-state class="mt-6 block" [message]="'campaigns.list.empty' | transloco" />
     } @else {
       <ul
-        class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="loading() ? 'true' : null"
       >
         @for (campaign of campaignPage.items; track campaign.id) {

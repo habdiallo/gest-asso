@@ -1,4 +1,3 @@
-import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,7 +5,6 @@ import {
   computed,
   inject,
   signal,
-  viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -20,7 +18,7 @@ import type {
   ErrorResponse,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
@@ -29,19 +27,27 @@ import { AmountInput } from '@shared/amount-input/amount-input';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
-import { PageHeader } from '@shared/page-header/page-header';
+import { DataTable } from '@shared/data-table/data-table';
+import { DetailMetrics } from '@shared/detail-metrics/detail-metrics';
+import type { DetailMetric } from '@shared/detail-metrics/detail-metrics';
+import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
+import { DetailShell } from '@shared/detail-shell/detail-shell';
+import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
-import { CampaignBilanTab } from '../components/campaign-bilan-tab/campaign-bilan-tab';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
+import { CampaignPaymentsTab } from '../components/campaign-payments-tab/campaign-payments-tab';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
-export type CampaignDetailTab = 'bareme' | 'cotisations' | 'bilan';
+export type CampaignDetailTab = 'situation' | 'categories' | 'payments';
 
-const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['bareme', 'cotisations', 'bilan'];
+const CAMPAIGN_DETAIL_TABS: readonly CampaignDetailTab[] = ['situation', 'categories', 'payments'];
 
 /** Un onglet valide reconnu dans le paramètre de requête `onglet` (T-127), sinon `undefined`. */
 function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
+  if (value === 'cotisations') return 'situation';
+  if (value === 'bareme') return 'categories';
+  if (value === 'bilan') return 'payments';
   return CAMPAIGN_DETAIL_TABS.find((tab) => tab === value);
 }
 
@@ -116,10 +122,13 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
     AmountInput,
     ApiErrorRetry,
     CampaignDuesTab,
-    CampaignBilanTab,
+    CampaignPaymentsTab,
     FormDialog,
     LoadingSkeleton,
-    PageHeader,
+    DataTable,
+    DetailMetrics,
+    DetailShell,
+    DetailTabs,
   ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,6 +139,7 @@ export class CampaignDetailPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -137,12 +147,52 @@ export class CampaignDetailPage {
   readonly activeTab = signal<CampaignDetailTab>(CAMPAIGN_DETAIL_TABS[0]);
 
   readonly formatCalendarDate = formatCalendarDate;
+  formatCampaignDetailDate(value: string): string {
+    return this.formatCalendarDate(value).replace(/^1 /, '1er ');
+  }
   readonly formatGnfAmountDetailed = formatGnfAmountDetailed;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly tabs = CAMPAIGN_DETAIL_TABS;
+  readonly detailTabs = computed<readonly DetailTab[]>(() => [
+    { id: 'situation', label: this.transloco.translate('campaigns.detail.tabs.situation') },
+    { id: 'categories', label: this.transloco.translate('campaigns.detail.tabs.categories') },
+    { id: 'payments', label: this.transloco.translate('campaigns.detail.tabs.payments') },
+  ]);
 
-  /** Boutons d'onglets, dans l'ordre du DOM (T-64 : focus programmatique flèches gauche/droite). */
-  private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
+  readonly metrics = computed<readonly DetailMetric[]>(() => {
+    const campaign = this.campaign();
+    const summary = campaign?.financialSummary;
+    if (!campaign || !summary) return [];
+    const paidCount = summary.dueCounts.paid + summary.dueCounts.partiallyPaid;
+    return [
+      {
+        label: this.transloco.translate('campaigns.detail.metrics.expected'),
+        value: this.formatGnfAmountDetailed(summary.expectedAmount),
+        hint: this.transloco.translate('campaigns.detail.metrics.members', {
+          count: campaign.memberCount,
+        }),
+      },
+      {
+        label: this.transloco.translate('campaigns.detail.metrics.collected'),
+        value: this.formatGnfAmountDetailed(summary.collectedAmount),
+        hint: this.transloco.translate('campaigns.detail.metrics.rate', {
+          rate: summary.collectionRate,
+        }),
+      },
+      {
+        label: this.transloco.translate('campaigns.detail.metrics.remaining'),
+        value: this.formatGnfAmountDetailed(summary.remainingAmount),
+        hint: this.transloco.translate('campaigns.detail.metrics.remainingHint'),
+      },
+      {
+        label: this.transloco.translate('campaigns.detail.metrics.payments'),
+        value: `${paidCount} / ${summary.dueCounts.total}`,
+        hint: this.transloco.translate('campaigns.detail.metrics.partial', {
+          count: summary.dueCounts.partiallyPaid,
+        }),
+      },
+    ];
+  });
 
   readonly categoryAmounts = computed(() => this.campaign()?.categoryAmounts ?? []);
 
@@ -193,6 +243,10 @@ export class CampaignDetailPage {
     () => this.canCloseCampaign() && this.campaign()?.status !== CampaignStatus.Closed,
   );
 
+  readonly canRecordPaymentsNow = computed(
+    () => this.sessionService.canRecordPayments() && !this.campaignClosed(),
+  );
+
   readonly closeCampaignDialogOpen = signal(false);
   readonly closingCampaign = signal(false);
   readonly closeCampaignErrorMessage = signal<TranslationKey | null>(null);
@@ -222,28 +276,20 @@ export class CampaignDetailPage {
     this.activeTab.set(tab);
   }
 
+  selectDetailTab(tab: string): void {
+    if (CAMPAIGN_DETAIL_TABS.includes(tab as CampaignDetailTab)) {
+      this.selectTab(tab as CampaignDetailTab);
+    }
+  }
+
   isActiveTab(tab: CampaignDetailTab): boolean {
     return this.activeTab() === tab;
   }
 
-  /**
-   * Navigation clavier flèches gauche/droite entre onglets (T-64) : déplace
-   * l'onglet actif et le focus sans rechargement de page, avec retour au
-   * premier onglet après le dernier et inversement (comportement "roving
-   * tabindex" du motif ARIA `tab`, cf. WAI-ARIA Authoring Practices).
-   */
-  onTabsKeydown(event: KeyboardEvent): void {
-    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-    if (delta === 0) {
-      return;
+  openPaymentTab(): void {
+    if (this.canRecordPaymentsNow()) {
+      this.selectTab('situation');
     }
-
-    event.preventDefault();
-    const currentIndex = this.tabs.indexOf(this.activeTab());
-    const nextIndex = (currentIndex + delta + this.tabs.length) % this.tabs.length;
-    const nextTab = this.tabs[nextIndex];
-    this.selectTab(nextTab);
-    this.tabButtons()[nextIndex]?.nativeElement.focus();
   }
 
   startEditingBareme(): void {

@@ -19,7 +19,7 @@ import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, catchError, of, switchMap } from 'rxjs';
 import { operatorAuthorizationLabel, userRoleLabel } from '../roles-users-labels';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
 
 /**

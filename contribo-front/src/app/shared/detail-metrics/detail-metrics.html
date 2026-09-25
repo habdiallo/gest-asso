@@ -1,0 +1,13 @@
+<dl class="grid grid-cols-1 gap-6 min-[661px]:grid-cols-4 min-[661px]:gap-6">
+  @for (item of items(); track item.label) {
+    <div class="min-w-0">
+      <dt class="font-data text-[8px] font-medium uppercase tracking-[0.11em] text-text-3">
+        {{ item.label }}
+      </dt>
+      <dd class="mt-2 font-display text-[25px] leading-none tracking-[0.04em] text-text">
+        {{ item.value }}
+      </dd>
+      <dd class="mt-2 text-[10px] text-text-3">{{ item.hint }}</dd>
+    </div>
+  }
+</dl>

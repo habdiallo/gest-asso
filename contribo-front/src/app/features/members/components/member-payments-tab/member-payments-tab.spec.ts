@@ -107,31 +107,24 @@ describe('MemberPaymentsTab', () => {
     expect(root.textContent).toContain(formatGnfAmountDetailed(50000));
     expect(root.textContent).toContain('12 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
+    expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 
-  it('shows the author and the timestamp of each payment (RG-PAY-008, T-74)', async () => {
+  it('does not render audit metadata in the payment table MVP', async () => {
     const fixture = await createFixture(() => of(buildPaymentPage()));
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    // L'horodatage attendu est calculé avec le même fuseau local que
-    // l'implémentation (`formatMemberPaymentDateTime`, sans `timeZone`
-    // explicite) : l'assertion reste correcte quel que soit le fuseau
-    // d'exécution du test.
-    const expectedRecordedAt = new Date('2026-09-12T14:32:00Z');
-    const hours = expectedRecordedAt.getHours().toString().padStart(2, '0');
-    const minutes = expectedRecordedAt.getMinutes().toString().padStart(2, '0');
-
-    expect(root.textContent).toContain('Mamadou Sy');
-    expect(root.textContent).toContain('12/09/2026');
-    expect(root.textContent).toContain(`${hours}:${minutes}`);
+    expect(root.textContent).not.toContain('Enregistré par');
+    expect(root.textContent).not.toContain('Horodatage');
+    expect(root.textContent).not.toContain('Mamadou Sy');
   });
 
   it('requests the history filtered by the given member', async () => {
     const listPayments = vi.fn(() => of(buildPaymentPage()));
     await createFixture(listPayments);
 
-    expect(listPayments).toHaveBeenCalledWith(0, 20, undefined, MEMBER_ID);
+    expect(listPayments).toHaveBeenCalledWith(0, 10, undefined, MEMBER_ID);
   });
 
   describe('pagination', () => {
@@ -169,7 +162,7 @@ describe('MemberPaymentsTab', () => {
       nextButton.click();
       fixture.detectChanges();
 
-      expect(listPayments).toHaveBeenCalledWith(1, 20, undefined, MEMBER_ID);
+      expect(listPayments).toHaveBeenCalledWith(1, 10, undefined, MEMBER_ID);
       expect(root.textContent).toContain('Page 2 sur 2');
     });
 

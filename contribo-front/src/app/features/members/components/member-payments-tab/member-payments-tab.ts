@@ -13,15 +13,14 @@ import { RglementsService } from '@api';
 import type { Payment, PaymentPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
-import {
-  formatMemberPaymentCalendarDate,
-  formatMemberPaymentDateTime,
-} from '../../member-payment-dates';
+import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
+import { formatMemberPaymentCalendarDate } from '../../member-payment-dates';
 import { memberPaymentMethodLabel } from '../../member-payment-method-labels';
 
 /** Taille de page utilisée pour `GET /payments?memberId=...`. */
-const PAYMENTS_PAGE_SIZE = 20;
+const PAYMENTS_PAGE_SIZE = 10;
 
 /**
  * Onglet historique des règlements d'une fiche membre (T-29,
@@ -29,8 +28,8 @@ const PAYMENTS_PAGE_SIZE = 20;
  * règlements d'un membre toutes campagnes confondues (US-MEM-003), avec
  * pagination sur le même modèle que le suivi de cagnotte (T-91). Chaque
  * règlement affiche également l'utilisateur qui l'a enregistré
- * (`recordedBy.displayName`) et l'horodatage de la saisie (`recordedAt`,
- * T-74, RG-PAY-008).
+ * Les données de journalisation restent disponibles dans la réponse API,
+ * mais ne sont pas affichées dans le tableau MVP.
  *
  * Limite connue : le formulaire d'enregistrement d'un règlement (T-71 à
  * T-76) n'est pas traité ici ; cet onglet reste une consultation en lecture
@@ -38,7 +37,7 @@ const PAYMENTS_PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-member-payments-tab',
-  imports: [TranslocoPipe, EmptyState],
+  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
   templateUrl: './member-payments-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -71,7 +70,6 @@ export class MemberPaymentsTab {
 
   readonly formatAmount = formatGnfAmountDetailed;
   readonly formatCalendarDate = formatMemberPaymentCalendarDate;
-  readonly formatDateTime = formatMemberPaymentDateTime;
   readonly paymentMethodLabel = memberPaymentMethodLabel;
 
   /** Invalide toute réponse encore en vol si l'écran change de membre affiché. */

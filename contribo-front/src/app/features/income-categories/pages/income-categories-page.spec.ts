@@ -113,6 +113,31 @@ describe('IncomeCategoriesPage', () => {
     expect(rows.length).toBe(2);
   });
 
+  it('limits the table to 20 rows and exposes pagination for additional categories', async () => {
+    const categories = Array.from({ length: 21 }, (_, index) =>
+      buildCategory({
+        id: `category-${index}`,
+        label: `Catégorie ${index + 1}`,
+      }),
+    );
+    const fixture = await createFixture(() => of(categories));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelectorAll('tbody tr').length).toBe(10);
+    expect(root.textContent).toContain('Page 1 sur 3');
+
+    const nextButton = Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Suivant'),
+    );
+    expect(nextButton).toBeTruthy();
+    nextButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelectorAll('tbody tr').length).toBe(10);
+    expect(root.textContent).toContain('Page 2 sur 3');
+  });
+
   it('opens the create-category dialog when the "Ajouter" action is activated', async () => {
     const fixture = await createFixture(() => of([]));
     fixture.detectChanges();

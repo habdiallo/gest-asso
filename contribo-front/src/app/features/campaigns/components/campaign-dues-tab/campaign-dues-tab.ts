@@ -17,11 +17,16 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { ActionButton } from '@shared/action-button/action-button';
+import { DataTable } from '@shared/data-table/data-table';
+import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
+
+const DUES_PAGE_SIZE = 10;
 
 /**
  * Onglet cotisations d'une campagne (T-61, US-COT-003, US-COT-004).
@@ -48,7 +53,16 @@ import { RecordPaymentForm } from '../record-payment-form/record-payment-form';
  */
 @Component({
   selector: 'app-campaign-dues-tab',
-  imports: [TranslocoPipe, EmptyState, FormDialog, RecordPaymentForm, CustomSelect],
+  imports: [
+    TranslocoPipe,
+    EmptyState,
+    FormDialog,
+    RecordPaymentForm,
+    CustomSelect,
+    ActionButton,
+    DataTable,
+    PaginationControls,
+  ],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -96,6 +110,7 @@ export class CampaignDuesTab implements OnInit {
     DueStatus.Overdue,
   ];
   readonly statusFilter = signal<DueStatus | ''>('');
+  readonly searchQuery = signal('');
   readonly statusSelectOptions: readonly CustomSelectOption[] = [
     { value: '', label: '', translationKey: 'campaigns.detail.cotisations.filter.all' },
     ...this.statusOptions.map((status) => ({
@@ -134,6 +149,25 @@ export class CampaignDuesTab implements OnInit {
     this.loadPage(0);
   }
 
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
+    this.loadPage(0);
+  }
+
+  memberInitials(displayName: string): string {
+    return displayName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  categoryShortLabel(label: string): string {
+    const categoryLetter = label.match(/[A-D](?!.*[A-D])/i)?.[0];
+    return categoryLetter ? `Cat. ${categoryLetter.toUpperCase()}` : label;
+  }
+
   previousPage(): void {
     const result = this.duePage();
     if (result && !this.previousPageDisabled()) {
@@ -163,8 +197,8 @@ export class CampaignDuesTab implements OnInit {
       .listCampaignDues(
         this.campaignId(),
         page,
-        undefined,
-        undefined,
+        DUES_PAGE_SIZE,
+        this.searchQuery().trim() || undefined,
         this.statusFilter() || undefined,
       )
       .pipe(takeUntilDestroyed(this.destroyRef))

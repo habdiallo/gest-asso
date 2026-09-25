@@ -1,0 +1,27 @@
+<div
+  class="mt-8 flex gap-2 overflow-x-auto border-b border-line"
+  role="tablist"
+  [attr.aria-label]="ariaLabel()"
+>
+  @for (tab of tabs(); track tab.id) {
+    <button
+      #tabButton
+      type="button"
+      role="tab"
+      class="min-h-11 shrink-0 border-b-2 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+      [id]="tabId(tab)"
+      [attr.aria-selected]="isActive(tab) ? 'true' : 'false'"
+      [attr.aria-controls]="panelId(tab)"
+      [tabIndex]="isActive(tab) ? 0 : -1"
+      [class.border-gold-hover]="isActive(tab)"
+      [class.text-gold-hover]="isActive(tab)"
+      [class.border-transparent]="!isActive(tab)"
+      [class.text-text-2]="!isActive(tab)"
+      [class.hover:text-gold-hover]="!isActive(tab)"
+      (click)="select(tab)"
+      (keydown)="onKeydown($event)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>

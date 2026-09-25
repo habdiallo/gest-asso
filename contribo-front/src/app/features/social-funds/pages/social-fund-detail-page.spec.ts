@@ -208,6 +208,14 @@ async function createFixture(options: {
 }
 
 describe('SocialFundDetailPage', () => {
+  function selectInformationTab(fixture: ComponentFixture<SocialFundDetailPage>): void {
+    const informationTab = fixture.nativeElement.querySelector(
+      '#social-fund-detail-tab-information',
+    ) as HTMLButtonElement | null;
+    informationTab?.click();
+    fixture.detectChanges();
+  }
+
   it('shows a loading state while the social fund request is pending', async () => {
     const pending = new Subject<SocialFund>();
     const fixture = await createFixture({
@@ -246,9 +254,11 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain('Mariage');
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('Famille Camara');
+    selectInformationTab(fixture);
     expect(root.textContent).toContain("Collecte de soutien à l'occasion du mariage.");
     expect(root.textContent).toContain(formatGnfAmountDetailed(4750000));
-    expect(root.textContent).toContain('43 contributeur(s)');
+    expect(root.textContent).toContain('43');
+    expect(root.textContent).toContain('Membres contributeurs');
   });
 
   it('shows a loading state while the contributions request is pending', async () => {
@@ -299,9 +309,10 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain(formatGnfAmountDetailed(250000));
     expect(root.textContent).toContain('14 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
+    expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 
-  it('renders the author and the recording timestamp of each contribution (T-90, RG-CAG-007)', async () => {
+  it('does not render audit metadata in the contribution table MVP', async () => {
     const fixture = await createFixture({
       getSocialFund: () => of(buildSocialFund()),
       listSocialFundContributions: () => of(buildContributionPage()),
@@ -309,18 +320,9 @@ describe('SocialFundDetailPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    // Fixture `buildContribution()` : `recordedBy.displayName` = 'Mamadou Sy',
-    // `recordedAt` = '2026-09-14T09:05:00Z'. L'attendu est calculé avec le même
-    // fuseau local que `formatSocialFundDateTime` (T-90), sans reproduire son
-    // formatage, pour rester correct quel que soit le fuseau d'exécution.
-    expect(root.textContent).toContain('Mamadou Sy');
-    const recordedAt = new Date('2026-09-14T09:05:00Z');
-    const day = recordedAt.getDate().toString().padStart(2, '0');
-    const month = (recordedAt.getMonth() + 1).toString().padStart(2, '0');
-    const hours = recordedAt.getHours().toString().padStart(2, '0');
-    const minutes = recordedAt.getMinutes().toString().padStart(2, '0');
-    expect(root.textContent).toContain(`${day}/${month}/${recordedAt.getFullYear()}`);
-    expect(root.textContent).toContain(`${hours}:${minutes}`);
+    expect(root.textContent).not.toContain('Enregistré par');
+    expect(root.textContent).not.toContain('Horodatage');
+    expect(root.textContent).not.toContain('Mamadou Sy');
   });
 
   describe('progression objectif / reste à collecter (T-92, US-CAG-003)', () => {
@@ -342,18 +344,17 @@ describe('SocialFundDetailPage', () => {
         listSocialFundContributions: () => of(buildContributionPage()),
       });
       fixture.detectChanges();
+      selectInformationTab(fixture);
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain(`Objectif : ${formatGnfAmountDetailed(7000000)}`);
-      expect(root.textContent).toContain(
-        `Reste à collecter : ${formatGnfAmountDetailed(2250000)}`,
-      );
+      expect(root.textContent).toContain(formatGnfAmountDetailed(7000000));
+      expect(root.textContent).toContain(formatGnfAmountDetailed(2250000));
       const bar = progressBar(root);
       expect(bar).not.toBeNull();
       expect(bar?.style.width).toBe('67.9%');
     });
 
-    it('hides the objective, the progress bar and the remaining amount when no target is defined', async () => {
+    it('hides the progress bar when no target is defined', async () => {
       const fixture = await createFixture({
         getSocialFund: () =>
           of(
@@ -366,10 +367,9 @@ describe('SocialFundDetailPage', () => {
         listSocialFundContributions: () => of(buildContributionPage()),
       });
       fixture.detectChanges();
+      selectInformationTab(fixture);
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).not.toContain('Objectif :');
-      expect(root.textContent).not.toContain('Reste à collecter :');
       expect(progressBar(root)).toBeNull();
     });
 
@@ -387,9 +387,10 @@ describe('SocialFundDetailPage', () => {
         listSocialFundContributions: () => of(buildContributionPage()),
       });
       fixture.detectChanges();
+      selectInformationTab(fixture);
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain(`Reste à collecter : ${formatGnfAmountDetailed(0)}`);
+      expect(root.textContent).toContain(formatGnfAmountDetailed(0));
       expect(progressBar(root)?.style.width).toBe('100%');
     });
   });
@@ -436,7 +437,7 @@ describe('SocialFundDetailPage', () => {
       nextButton.click();
       fixture.detectChanges();
 
-      expect(listSocialFundContributions).toHaveBeenCalledWith(SOCIAL_FUND_ID, 1, 20);
+      expect(listSocialFundContributions).toHaveBeenCalledWith(SOCIAL_FUND_ID, 1, 10);
       expect(root.textContent).toContain('Page 2 sur 2');
     });
 
@@ -783,7 +784,9 @@ describe('SocialFundDetailPage', () => {
       const updatedSocialFund = buildSocialFund({ collectedAmount: 5000000, contributorCount: 44 });
       const createContribution = vi.fn((socialFundId: string) =>
         of({
-          contribution: buildContribution({ socialFund: { ...buildSocialFund(), id: socialFundId } }),
+          contribution: buildContribution({
+            socialFund: { ...buildSocialFund(), id: socialFundId },
+          }),
           socialFund: updatedSocialFund,
         }),
       );
@@ -818,7 +821,7 @@ describe('SocialFundDetailPage', () => {
       });
       expect(recordDialog(root)?.open).toBe(false);
       expect(root.textContent).toContain(formatGnfAmountDetailed(5000000));
-      expect(listSocialFundContributions).toHaveBeenCalledWith(SOCIAL_FUND_ID, 0, 20);
+      expect(listSocialFundContributions).toHaveBeenCalledWith(SOCIAL_FUND_ID, 0, 10);
     });
 
     it('shows an error and keeps the dialog open when the record request fails', async () => {
@@ -878,12 +881,17 @@ describe('SocialFundDetailPage', () => {
     });
 
     it(
-      "accepts a supplementary contribution from a member who already contributed to " +
+      'accepts a supplementary contribution from a member who already contributed to ' +
         'the same social fund, without any count or minimum-amount restriction (T-88, RG-CAG-005)',
       async () => {
         const memberId = '10700000-0000-4000-8000-000000000200';
-        const existingContribution = buildContribution({ member: { id: memberId, displayName: 'Aïcha Bah' } });
-        const updatedSocialFund = buildSocialFund({ collectedAmount: 4750001, contributorCount: 43 });
+        const existingContribution = buildContribution({
+          member: { id: memberId, displayName: 'Aïcha Bah' },
+        });
+        const updatedSocialFund = buildSocialFund({
+          collectedAmount: 4750001,
+          contributorCount: 43,
+        });
         const createContribution = vi.fn((socialFundId: string) =>
           of({
             contribution: buildContribution({
@@ -937,7 +945,7 @@ describe('SocialFundDetailPage', () => {
     );
   });
 
-  describe('masquage de l\'enregistrement de contribution sur cagnotte cloturee (T-94)', () => {
+  describe("masquage de l'enregistrement de contribution sur cagnotte cloturee (T-94)", () => {
     function recordButton(root: HTMLElement): HTMLButtonElement | null {
       return (
         Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((button) =>
@@ -966,9 +974,9 @@ describe('SocialFundDetailPage', () => {
         const dialogTitles = Array.from(root.querySelectorAll('dialog')).map((dialog) =>
           dialog.textContent?.trim(),
         );
-        expect(
-          dialogTitles.some((text) => text?.includes('Enregistrer une contribution')),
-        ).toBe(false);
+        expect(dialogTitles.some((text) => text?.includes('Enregistrer une contribution'))).toBe(
+          false,
+        );
       },
     );
 
