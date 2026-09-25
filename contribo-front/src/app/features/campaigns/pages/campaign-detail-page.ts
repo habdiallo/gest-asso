@@ -243,10 +243,6 @@ export class CampaignDetailPage {
     () => this.canCloseCampaign() && this.campaign()?.status !== CampaignStatus.Closed,
   );
 
-  readonly canRecordPaymentsNow = computed(
-    () => this.sessionService.canRecordPayments() && !this.campaignClosed(),
-  );
-
   readonly closeCampaignDialogOpen = signal(false);
   readonly closingCampaign = signal(false);
   readonly closeCampaignErrorMessage = signal<TranslationKey | null>(null);
@@ -286,10 +282,8 @@ export class CampaignDetailPage {
     return this.activeTab() === tab;
   }
 
-  openPaymentTab(): void {
-    if (this.canRecordPaymentsNow()) {
-      this.selectTab('situation');
-    }
+  openSituationTab(): void {
+    this.selectTab('situation');
   }
 
   startEditingBareme(): void {

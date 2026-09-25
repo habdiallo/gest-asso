@@ -34,6 +34,6 @@
 ## 6. Validation et livraison
 
 - [x] 6.1 [T-129] Ajouter les tests des primitives partagées pour le rendu, les rôles ARIA, le clavier, les états hover/focus, les états de chargement et la variante responsive.
-- [ ] 6.2 [T-129] Mettre à jour les tests des pages Campagnes et Cagnottes pour les quatre vues de campagne, les deux vues de cagnotte, les permissions, les clics et la pagination.
+- [x] 6.2 [T-129] Mettre à jour les tests des pages Campagnes et Cagnottes pour les quatre vues de campagne, les deux vues de cagnotte, les permissions, les clics et la pagination.
 - [ ] 6.3 [T-129] Comparer les écrans aux quatre vues du prototype aux largeurs desktop et mobile, corriger les écarts visuels et documenter les vérifications réalisées.
-- [ ] 6.4 [T-129] Exécuter les tests frontend, le build, le lint, la validation API et les contrôles de tickets, puis préparer une PR ciblée vers `main` avec la documentation OpenSpec à jour.
+- [x] 6.4 [T-129] Exécuter les tests frontend, le build, le lint, la validation API et les contrôles de tickets, puis préparer une PR ciblée vers `main` avec la documentation OpenSpec à jour.

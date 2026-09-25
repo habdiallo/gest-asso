@@ -3,7 +3,7 @@
     <div>
       <label
         for="social-fund-create-title"
-        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.title' | transloco }}
       </label>
@@ -26,7 +26,7 @@
     <div>
       <label
         for="social-fund-create-event-type"
-        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.eventType' | transloco }}
       </label>
@@ -50,7 +50,7 @@
     <div class="sm:col-span-2">
       <label
         for="social-fund-create-beneficiary"
-        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.beneficiary' | transloco }}
       </label>
@@ -100,16 +100,18 @@
     <div>
       <label
         for="social-fund-create-start-date"
-        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.startDate' | transloco }}
       </label>
-      <app-date-input
-        controlId="social-fund-create-start-date"
+      <input
+        id="social-fund-create-start-date"
+        type="date"
         formControlName="startDate"
-        [required]="true"
-        [ariaInvalid]="startDateInvalid()"
-        [ariaDescribedBy]="startDateInvalid() ? 'social-fund-create-start-date-error' : null"
+        required
+        [attr.aria-invalid]="startDateInvalid() ? true : null"
+        [attr.aria-describedby]="startDateInvalid() ? 'social-fund-create-start-date-error' : null"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (startDateInvalid()) {
         <p id="social-fund-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -121,16 +123,18 @@
     <div>
       <label
         for="social-fund-create-end-date"
-        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.endDate' | transloco }}
       </label>
-      <app-date-input
-        controlId="social-fund-create-end-date"
+      <input
+        id="social-fund-create-end-date"
+        type="date"
         formControlName="endDate"
-        [required]="true"
-        [ariaInvalid]="endDateInvalid()"
-        [ariaDescribedBy]="endDateInvalid() ? 'social-fund-create-end-date-error' : null"
+        required
+        [attr.aria-invalid]="endDateInvalid() ? true : null"
+        [attr.aria-describedby]="endDateInvalid() ? 'social-fund-create-end-date-error' : null"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (endDateRequiredInvalid()) {
         <p id="social-fund-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -151,7 +155,7 @@
     </div>
   </div>
 
-  <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
+  <div class="mt-6 flex items-center justify-end gap-3">
     <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'socialFunds.create.cancel' | transloco }}
     </app-action-button>
