@@ -72,7 +72,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text outline-none transition-colors placeholder:text-text-3 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
       />
     </div>
     @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {

@@ -16,6 +16,7 @@ import { EmptyState } from '@shared/empty-state/empty-state';
 import { DataTable } from '@shared/data-table/data-table';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
+import { formatCalendarDate } from '../../campaign-dates';
 
 const PAYMENTS_PAGE_SIZE = 10;
 
@@ -36,6 +37,7 @@ export class CampaignPaymentsTab implements OnInit {
   readonly loadError = signal(false);
   readonly paymentPage = signal<PaymentPage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
+  readonly formatDate = formatCalendarDate;
 
   readonly previousDisabled = signal(true);
   readonly nextDisabled = signal(true);

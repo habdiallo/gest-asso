@@ -325,6 +325,31 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).not.toContain('Mamadou Sy');
   });
 
+  it('renders the complete information panel with a replacement for a missing target', async () => {
+    const fixture = await createFixture({
+      getSocialFund: () =>
+        of(
+          buildSocialFund({
+            targetAmount: undefined,
+            remainingToTargetAmount: undefined,
+            progressRate: undefined,
+          }),
+        ),
+      listSocialFundContributions: () => of(buildContributionPage()),
+    });
+    fixture.detectChanges();
+    selectInformationTab(fixture);
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Mariage de Fanta et Sékou');
+    expect(root.textContent).toContain('Mariage');
+    expect(root.textContent).toContain('Famille Camara');
+    expect(root.textContent).toContain('5 septembre 2026');
+    expect(root.textContent).toContain('28 septembre 2026');
+    expect(root.textContent).toContain('Non défini');
+    expect(root.textContent).toContain('Ouverte');
+  });
+
   describe('progression objectif / reste à collecter (T-92, US-CAG-003)', () => {
     function progressBar(root: HTMLElement): HTMLElement | null {
       return root.querySelector('[data-testid="social-fund-detail-progress-bar"]');

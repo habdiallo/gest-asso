@@ -15,7 +15,7 @@
     [attr.aria-describedby]="
       ariaDescribedBy() || (touched() && required() && !value() ? errorId() : null)
     "
-    class="flex w-full items-center justify-between gap-3 border border-line px-3 text-left text-text outline-none transition-colors hover:border-line-strong focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:opacity-40"
+    class="app-form-control flex w-full items-center justify-between gap-3 border border-line px-3 text-left text-text disabled:pointer-events-none disabled:opacity-40"
     [class.min-h-11]="compact()"
     [class.min-h-12]="!compact()"
     [class.rounded-lg]="compact()"

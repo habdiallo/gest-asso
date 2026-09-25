@@ -26,7 +26,7 @@
         [value]="membersQuery()"
         (input)="onMembersQueryInput($event)"
         [placeholder]="'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco"
-        class="mb-2 min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control mb-2 min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
 
       <label
@@ -105,7 +105,7 @@
         [attr.aria-describedby]="
           contributionDateInvalid() ? 'contribution-create-date-error' : null
         "
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (contributionDateInvalid()) {
         <p id="contribution-create-date-error" class="mt-2 text-sm text-error" role="alert">

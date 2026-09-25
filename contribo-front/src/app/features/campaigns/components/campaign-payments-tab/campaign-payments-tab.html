@@ -24,6 +24,18 @@
       {{ 'campaigns.detail.payments.retry' | transloco }}
     </button>
   } @else if (paymentPage(); as result) {
+    @if (loadError()) {
+      <p class="mt-5 text-error" role="alert">
+        {{ 'campaigns.detail.payments.error' | transloco }}
+      </p>
+      <button
+        type="button"
+        class="mt-3 min-h-11 rounded border border-line px-4 py-2 text-sm text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+        (click)="retry()"
+      >
+        {{ 'campaigns.detail.payments.retry' | transloco }}
+      </button>
+    }
     @if (result.items.length === 0) {
       <app-empty-state
         class="mt-5 block"
@@ -61,7 +73,7 @@
               <th scope="row" class="px-5 py-4 font-medium">{{ payment.member.displayName }}</th>
               <td class="px-5 py-4 font-mono text-success">+ {{ formatAmount(payment.amount) }}</td>
               <td class="px-5 py-4 text-text-2">{{ methodLabel(payment.method) }}</td>
-              <td class="px-5 py-4 text-text-2">{{ payment.paymentDate }}</td>
+              <td class="px-5 py-4 text-text-2">{{ formatDate(payment.paymentDate) }}</td>
             </tr>
           }
         </tbody>

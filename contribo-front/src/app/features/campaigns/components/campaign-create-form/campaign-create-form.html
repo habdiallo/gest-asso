@@ -24,7 +24,7 @@
         required
         [attr.aria-invalid]="nameInvalid() ? true : null"
         [attr.aria-describedby]="nameInvalid() ? 'campaign-create-name-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (nameInvalid()) {
         <p id="campaign-create-name-error" class="mt-2 text-sm text-error" role="alert">
@@ -47,7 +47,7 @@
         maxlength="1000"
         [attr.aria-invalid]="descriptionInvalid() ? true : null"
         [attr.aria-describedby]="descriptionInvalid() ? 'campaign-create-description-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 py-2 text-text"
       ></textarea>
       @if (descriptionInvalid()) {
         <p id="campaign-create-description-error" class="mt-2 text-sm text-error" role="alert">
@@ -70,7 +70,7 @@
         required
         [attr.aria-invalid]="startDateInvalid() ? true : null"
         [attr.aria-describedby]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (startDateInvalid()) {
         <p id="campaign-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -93,7 +93,7 @@
         required
         [attr.aria-invalid]="endDateInvalid() ? true : null"
         [attr.aria-describedby]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
-        class="min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (endDateRequiredInvalid()) {
         <p id="campaign-create-end-date-error" class="mt-2 text-sm text-error" role="alert">

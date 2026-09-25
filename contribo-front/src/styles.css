@@ -137,3 +137,30 @@ body {
   outline: 2px solid var(--gold-hover);
   outline-offset: 3px;
 }
+
+/* Contrôle de formulaire partagé : le design utilise un changement de bordure
+   plutôt qu'un halo autour des champs. Le contour reste visible au clavier
+   pour conserver un indicateur de focus conforme à l'accessibilité. */
+.app-form-control {
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.app-form-control:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+.app-form-control:focus {
+  border-color: var(--gold);
+}
+
+.app-form-control:not([type='checkbox']):not([type='radio']):focus {
+  box-shadow: 0 0 0 3px var(--gold-wash);
+}
+
+.app-form-control:focus-visible {
+  outline: none;
+}

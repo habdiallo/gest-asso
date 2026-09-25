@@ -172,7 +172,59 @@
           {{ 'socialFunds.detail.informationTitle' | transloco }}
         </h2>
         <div class="mt-5 rounded-card border border-line bg-surface p-5 text-sm text-text-2">
-          <p>{{ socialFund.description || ('socialFunds.detail.informationEmpty' | transloco) }}</p>
+          <dl class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.title' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFund.title }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.eventType' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialEventTypeLabel(socialFund.eventType) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.beneficiary' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFund.beneficiary }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.period' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{ formatCalendarDate(socialFund.startDate) }}
+                {{ 'socialFunds.detail.information.periodSeparator' | transloco }}
+                {{ formatCalendarDate(socialFund.endDate) }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.target' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">
+                {{
+                  socialFund.targetAmount
+                    ? formatCollectedAmount(socialFund.targetAmount)
+                    : ('socialFunds.detail.information.targetMissing' | transloco)
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.1em] text-text-3">
+                {{ 'socialFunds.detail.information.fields.status' | transloco }}
+              </dt>
+              <dd class="mt-1 text-text">{{ socialFundStatusLabel(socialFund.status) }}</dd>
+            </div>
+          </dl>
+          <div class="mt-6 border-t border-line pt-5">
+            <p>
+              {{ socialFund.description || ('socialFunds.detail.informationEmpty' | transloco) }}
+            </p>
+          </div>
           @if (socialFund.targetAmount) {
             <div class="mt-5 h-2 overflow-hidden rounded-full bg-surface-2">
               <span

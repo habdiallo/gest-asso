@@ -9,7 +9,7 @@
         type="search"
         [value]="searchQuery()"
         [placeholder]="'campaigns.detail.cotisations.searchPlaceholder' | transloco"
-        class="h-11 w-full rounded-[9px] border border-line bg-surface px-[15px] pl-[42px] text-[13px] text-text outline-none transition-colors placeholder:text-text-3 hover:border-line-strong focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+        class="app-form-control h-11 w-full rounded-[9px] border border-line bg-surface px-[15px] pl-[42px] text-[13px] text-text placeholder:text-text-3"
         (input)="onSearchInput($any($event.target).value)"
       />
       <svg
@@ -83,6 +83,13 @@
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'campaigns.detail.cotisations.columns.status' | transloco }}
             </th>
+            @if (canRecordPaymentsNow()) {
+              <th scope="col" class="px-4 py-0 font-medium">
+                <span class="sr-only">
+                  {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                </span>
+              </th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -132,6 +139,19 @@
                   {{ statusLabels[due.status] | transloco }}
                 </span>
               </td>
+              @if (canRecordPaymentsNow()) {
+                <td class="whitespace-nowrap px-4 py-2 text-right">
+                  @if (due.status !== paidStatus) {
+                    <button
+                      type="button"
+                      class="min-h-11 rounded border border-line px-3 py-2 text-xs text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+                      (click)="openRecordPayment(due)"
+                    >
+                      {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                    </button>
+                  }
+                </td>
+              }
             </tr>
           }
         </tbody>

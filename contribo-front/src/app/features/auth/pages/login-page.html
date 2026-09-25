@@ -95,7 +95,7 @@
           required
           [attr.aria-invalid]="identifierInvalid() ? true : null"
           [attr.aria-describedby]="identifierInvalid() ? 'identifier-error' : null"
-          class="h-12 w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+          class="app-form-control h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
         />
         @if (identifierInvalid()) {
           <p id="identifier-error" class="mt-2 text-sm text-error" role="alert">
@@ -119,7 +119,7 @@
           required
           [attr.aria-invalid]="passwordInvalid() ? true : null"
           [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
-          class="h-12 w-full rounded border border-line bg-surface-2 px-3 text-text outline-none focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
+          class="app-form-control h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
         />
         @if (passwordInvalid()) {
           <p id="password-error" class="mt-2 text-sm text-error" role="alert">
