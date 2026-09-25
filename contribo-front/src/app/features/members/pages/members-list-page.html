@@ -1,4 +1,4 @@
-<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
   @let summary = memberPage()?.summary;
   <app-page-header
     [kicker]="'members.kicker' | transloco"
@@ -41,54 +41,16 @@
   }
 
   @if (createdConfirmation(); as confirmation) {
-    <section class="mt-4 grid gap-3 rounded-card bg-success-wash px-4 py-4 text-sm text-success" role="status">
-      <p>
-        {{
-          'members.create.success'
-            | transloco: { name: confirmation.name, status: confirmation.statusLabel }
-        }}
-      </p>
-      <p>{{ 'members.create.credentialsInstruction' | transloco }}</p>
-      <dl class="grid gap-2 text-text">
-        <div class="flex flex-wrap items-center gap-2">
-          <dt class="font-medium">{{ 'members.create.identifier' | transloco }}</dt>
-          <dd><code>{{ confirmation.credentials.identifier }}</code></dd>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <dt class="font-medium">{{ 'members.create.temporaryPassword' | transloco }}</dt>
-          <dd><code>{{ confirmation.credentials.temporaryPassword }}</code></dd>
-          <button
-            type="button"
-            class="rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-surface"
-            (click)="copyTemporaryPassword()"
-          >
-            {{ (confirmation.copied ? 'members.create.copied' : 'members.create.copy') | transloco }}
-          </button>
-        </div>
-      </dl>
-      <p>{{ 'members.create.firstSessionInstruction' | transloco }}</p>
-      <button
-        type="button"
-        class="justify-self-start rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-surface"
-        (click)="dismissCreatedConfirmation()"
-      >
-        {{ 'members.create.dismiss' | transloco }}
-      </button>
-    </section>
-  }
-
-  @if (confirmationDismissed()) {
-    <p class="mt-4 rounded-card bg-surface-2 px-4 py-3 text-sm text-text-2" role="status">
-      {{ 'members.create.dismissed' | transloco }}
+    <p class="mt-4 rounded-card bg-success-wash px-4 py-3 text-sm text-success" role="status">
+      {{
+        'members.create.success'
+          | transloco: { name: confirmation.name, status: confirmation.statusLabel }
+      }}
     </p>
   }
 
-  <div
-    class="min-[821px]:sticky min-[821px]:top-[78px] min-[821px]:z-10 -mx-2 mb-3 {{
-      createdConfirmation() ? 'mt-6' : 'mt-3 min-[821px]:mt-[-8px]'
-    }} flex flex-col items-stretch gap-2.5 rounded-card bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl sm:flex-row sm:flex-wrap sm:items-center"
-  >
-    <div class="relative min-w-0 w-full flex-1 sm:min-w-[240px]">
+  <div class="mt-6 flex flex-wrap items-center gap-3">
+    <div class="relative min-w-[240px] flex-1">
       <label for="members-search" class="sr-only">
         {{ 'members.searchLabel' | transloco }}
       </label>
@@ -110,78 +72,44 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="app-form-control responsive-body min-h-11 w-full rounded border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
+        class="min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text outline-none transition-colors placeholder:text-text-3 focus:border-gold focus:ring-[3px] focus:ring-gold-wash"
       />
     </div>
-    @if (
-      showFinancialDetail() &&
-      incomeCategoryOptions().length > 0 &&
-      countrySelectOptions().length > 1
-    ) {
-      <div
-        data-testid="members-secondary-filters"
-        class="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:contents"
-      >
-        <div class="w-full min-w-0 shrink-0 sm:w-[190px]">
-          <app-custom-select
-            controlId="member-income-category-filter"
-            [options]="incomeCategorySelectOptions()"
-            [value]="selectedIncomeCategoryId() ?? ''"
-            [placeholder]="'members.filters.incomeCategoryShort' | transloco"
-            [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
-            [compact]="true"
-            (valueChange)="onIncomeCategoryFilterChange($event)"
-          />
-        </div>
-        <div class="w-full min-w-0 shrink-0 sm:w-[160px]">
-          <app-custom-select
-            controlId="member-country-filter"
-            [options]="countrySelectOptions()"
-            [value]="selectedCountry() ?? ''"
-            [placeholder]="'members.filters.countryShort' | transloco"
-            [ariaLabel]="'members.filters.countryLabel' | transloco"
-            [compact]="true"
-            (valueChange)="onCountryFilterChange($event)"
-          />
-        </div>
+    @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
+      <div class="w-full shrink-0 sm:w-[190px]">
+        <app-custom-select
+          controlId="member-income-category-filter"
+          [options]="incomeCategorySelectOptions()"
+          [value]="selectedIncomeCategoryId() ?? ''"
+          [placeholder]="'members.filters.incomeCategoryShort' | transloco"
+          [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
+          [compact]="true"
+          (valueChange)="onIncomeCategoryFilterChange($event)"
+        />
       </div>
-    } @else {
-      @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
-        <div class="w-full shrink-0 sm:w-[190px]">
-          <app-custom-select
-            controlId="member-income-category-filter"
-            [options]="incomeCategorySelectOptions()"
-            [value]="selectedIncomeCategoryId() ?? ''"
-            [placeholder]="'members.filters.incomeCategoryShort' | transloco"
-            [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
-            [compact]="true"
-            (valueChange)="onIncomeCategoryFilterChange($event)"
-          />
-        </div>
-      }
-      @if (countrySelectOptions().length > 1) {
-        <div class="w-full shrink-0 sm:w-[160px]">
-          <app-custom-select
-            controlId="member-country-filter"
-            [options]="countrySelectOptions()"
-            [value]="selectedCountry() ?? ''"
-            [placeholder]="'members.filters.countryShort' | transloco"
-            [ariaLabel]="'members.filters.countryLabel' | transloco"
-            [compact]="true"
-            (valueChange)="onCountryFilterChange($event)"
-          />
-        </div>
-      }
+    }
+    @if (countrySelectOptions().length > 1) {
+      <div class="w-full shrink-0 sm:w-[160px]">
+        <app-custom-select
+          controlId="member-country-filter"
+          [options]="countrySelectOptions()"
+          [value]="selectedCountry() ?? ''"
+          [placeholder]="'members.filters.countryShort' | transloco"
+          [ariaLabel]="'members.filters.countryLabel' | transloco"
+          [compact]="true"
+          (valueChange)="onCountryFilterChange($event)"
+        />
+      </div>
     }
     <div
-      class="flex w-full shrink-0 rounded border border-line bg-surface-2 p-1 sm:w-auto"
+      class="flex shrink-0 rounded-lg border border-line bg-surface-2 p-1"
       role="group"
       [attr.aria-label]="'members.statusFilterLabel' | transloco"
     >
       @for (filter of statusFilterOptions; track filter.value) {
         <button
           type="button"
-          class="responsive-label min-h-9 flex-1 rounded px-3 font-normal uppercase tracking-[0.08em] transition-colors sm:flex-none"
+          class="min-h-9 rounded-md px-3 text-[9px] font-medium uppercase tracking-[0.08em] transition-colors"
           [class.bg-surface]="statusFilter() === filter.value"
           [class.text-text]="statusFilter() === filter.value"
           [class.text-text-3]="statusFilter() !== filter.value"
@@ -212,14 +140,12 @@
         <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {
         <div
-          class="mt-3 hidden overflow-x-auto rounded-card border border-line bg-surface shadow-card tablet:block"
+          class="mt-6 overflow-x-auto rounded-card border border-line bg-surface shadow-card"
           [attr.aria-busy]="loading() ? 'true' : null"
         >
-          <table class="responsive-body w-full min-w-[980px] text-left">
+          <table class="w-full min-w-[980px] text-left text-sm">
             <thead>
-              <tr
-                class="responsive-label bg-surface-2 font-data font-medium uppercase tracking-[0.13em] text-text-3"
-              >
+              <tr class="bg-surface-2 text-[9px] uppercase tracking-[0.13em] text-text-3">
                 <th scope="col" class="h-11 px-4">{{ 'members.columns.member' | transloco }}</th>
                 <th scope="col" class="h-11 px-4">{{ 'members.columns.phone' | transloco }}</th>
                 @if (showFinancialDetail()) {
@@ -240,18 +166,18 @@
                   class="group border-t border-line text-text-2 transition-colors hover:bg-gold-wash"
                 >
                   <td class="h-16 px-4">
-                    <div class="flex min-w-0 items-center gap-[11px]">
+                    <div class="flex min-w-0 items-center gap-3">
                       <span
-                        class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
                         aria-hidden="true"
                       >
                         {{ memberInitials(member) }}
                       </span>
                       <div class="min-w-0">
-                        <strong class="responsive-body block truncate font-medium text-text">{{
+                        <strong class="block truncate font-medium text-text">{{
                           member.displayName
                         }}</strong>
-                        <span class="responsive-meta mt-[3px] block text-text-3">
+                        <span class="mt-1 block text-xs text-text-3">
                           @if (member.city || member.country) {
                             {{ member.city || ('members.valueMissing' | transloco) }}
                             @if (member.city && member.country) {
@@ -279,10 +205,21 @@
                     {{ member.associationFunction || ('members.valueMissing' | transloco) }}
                   </td>
                   <td class="h-16 px-4">
-                    <app-status-badge
-                      [label]="memberStatusLabel(member.status)"
-                      [tone]="memberIsActive(member.status) ? 'success' : 'neutral'"
-                    />
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[9px] font-data font-medium uppercase tracking-[0.11em]"
+                      [class.bg-success-wash]="memberIsActive(member.status)"
+                      [class.text-success]="memberIsActive(member.status)"
+                      [class.bg-surface-2]="!memberIsActive(member.status)"
+                      [class.text-text-2]="!memberIsActive(member.status)"
+                    >
+                      <span
+                        class="h-1.5 w-1.5 rounded-full"
+                        [class.bg-success]="memberIsActive(member.status)"
+                        [class.bg-text-3]="!memberIsActive(member.status)"
+                        aria-hidden="true"
+                      ></span>
+                      {{ memberStatusLabel(member.status) }}
+                    </span>
                   </td>
                   <td class="h-16 px-4 text-right">
                     <a
@@ -310,132 +247,36 @@
             </tbody>
           </table>
         </div>
-
-        <div class="mt-3 grid gap-2 tablet:hidden" role="list">
-          @for (member of filteredItems(); track member.id) {
-            <a
-              [routerLink]="[member.id]"
-              role="listitem"
-              class="block rounded-card border border-line bg-surface p-4 shadow-card transition-colors hover:bg-gold-wash focus-visible:bg-gold-wash"
-              [attr.aria-label]="('members.viewDetail' | transloco) + ' : ' + member.displayName"
-            >
-              <div class="flex min-w-0 items-center gap-3">
-                <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
-                  aria-hidden="true"
-                >
-                  {{ memberInitials(member) }}
-                </span>
-                <div class="min-w-0 flex-1">
-                  <strong class="responsive-body block break-words font-medium text-text">{{
-                    member.displayName
-                  }}</strong>
-                  <span class="responsive-meta mt-1 block text-text-3">
-                    @if (member.city || member.country) {
-                      {{ member.city || ('members.valueMissing' | transloco) }}
-                      @if (member.city && member.country) {
-                        <span aria-hidden="true">, </span>
-                      }
-                      {{ member.country || ('members.valueMissing' | transloco) }}
-                    } @else {
-                      {{ 'members.valueMissing' | transloco }}
-                    }
-                  </span>
-                </div>
-                <svg
-                  class="h-4 w-4 shrink-0 text-text-3"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  aria-hidden="true"
-                >
-                  <path d="m9 18 6-6-6-6"></path>
-                </svg>
-              </div>
-              <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-                <div class="min-w-0">
-                  <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                    {{ 'members.columns.phone' | transloco }}
-                  </dt>
-                  <dd class="responsive-body mt-1 break-words text-text-2">
-                    {{ member.phone || ('members.valueMissing' | transloco) }}
-                  </dd>
-                </div>
-                <div class="min-w-0">
-                  <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                    {{ 'members.columns.status' | transloco }}
-                  </dt>
-                  <dd class="mt-1">
-                    <app-status-badge
-                      [label]="memberStatusLabel(member.status)"
-                      [tone]="memberIsActive(member.status) ? 'success' : 'neutral'"
-                    />
-                  </dd>
-                </div>
-                @if (showFinancialDetail()) {
-                  <div class="min-w-0">
-                    <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                      {{ 'members.columns.incomeCategory' | transloco }}
-                    </dt>
-                    <dd class="responsive-body mt-1 break-words text-text-2">
-                      {{ member.incomeCategory.label }}
-                    </dd>
-                  </div>
-                }
-                <div class="min-w-0">
-                  <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                    {{ 'members.columns.function' | transloco }}
-                  </dt>
-                  <dd class="responsive-body mt-1 break-words text-text-2">
-                    {{ member.associationFunction || ('members.valueMissing' | transloco) }}
-                  </dd>
-                </div>
-              </dl>
-            </a>
-          }
-        </div>
       }
 
       @if (page.page.totalPages > 1) {
         <nav
-          class="responsive-body mt-6 flex items-center justify-between gap-3"
+          class="mt-6 flex items-center justify-between gap-4"
           [attr.aria-label]="'members.pagination.nav' | transloco"
         >
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
+            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
             [class.opacity-40]="previousPageDisabled()"
             [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
             (click)="goToPreviousPage()"
           >
-            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
-            <span class="sr-only tablet:not-sr-only">{{
-              'members.previousPage' | transloco
-            }}</span>
+            {{ 'members.previousPage' | transloco }}
           </button>
-          <p class="min-w-12 text-center text-text-2" role="status">
-            <span class="tablet:hidden" aria-hidden="true"
-              >{{ page.page.number + 1 }}/{{ page.page.totalPages }}</span
-            >
-            <span class="sr-only tablet:not-sr-only">
-              {{
-                'members.pageStatus'
-                  | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
-              }}
-            </span>
+          <p class="text-sm text-text-2" role="status">
+            {{
+              'members.pageStatus'
+                | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
+            }}
           </p>
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
+            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
             [class.opacity-40]="nextPageDisabled()"
             [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
             (click)="goToNextPage()"
           >
-            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
-            <span class="sr-only tablet:not-sr-only">{{
-              'members.nextPage' | transloco
-            }}</span>
+            {{ 'members.nextPage' | transloco }}
           </button>
         </nav>
       }

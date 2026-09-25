@@ -39,7 +39,7 @@ describe('DetailShell', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('main')?.className).toContain('max-w-shell');
+    expect(root.querySelector('main')?.className).toContain('max-w-[1440px]');
     expect(root.querySelector('a')?.textContent).toContain('Retour aux campagnes');
     expect(root.querySelector('h1')?.textContent).toContain('Solidarité septembre');
     expect(root.querySelector('app-detail-metrics')).toBeTruthy();

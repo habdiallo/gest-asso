@@ -10,8 +10,8 @@ import {
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CampagnesService, DueStatus, ErrorCode, ReglementsService } from '@core/api';
-import type { CreatePaymentRequest, Due, DuePage, ErrorResponse } from '@core/api';
+import { CampagnesService, DueStatus, ErrorCode, RglementsService } from '@api';
+import type { CreatePaymentRequest, Due, DuePage, ErrorResponse } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
@@ -20,8 +20,6 @@ import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
-import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
-import { StatusBadge } from '@shared/status-badge/status-badge';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
@@ -42,9 +40,9 @@ const DUES_PAGE_SIZE = 10;
  * règlement lorsqu'il y est autorisé). Les autres rôles (Administrateur,
  * Trésorier) et l'absence de rôle conservent la colonne inchangée.
  *
- * L'enregistrement d'un nouveau règlement est proposé uniquement sur une
- * campagne Ouverte (T-131, RG-PAY-010), quel que soit le rôle par ailleurs
- * autorisé : voir l'entrée positive `campaignOpenForPayments`, transmise par
+ * L'enregistrement d'un nouveau règlement est également masqué sur une
+ * campagne clôturée (T-81, RG-COT), quel que soit le rôle par ailleurs
+ * autorisé : voir l'entrée `campaignClosed`, transmise par
  * `CampaignDetailPage` à partir du statut de la campagne.
  *
  * L'action est enfin masquée ligne par ligne sur une cotisation déjà soldée
@@ -64,15 +62,13 @@ const DUES_PAGE_SIZE = 10;
     ActionButton,
     DataTable,
     PaginationControls,
-    LoadingSkeleton,
-    StatusBadge,
   ],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignDuesTab implements OnInit {
   private readonly campaignsService = inject(CampagnesService);
-  private readonly paymentsService = inject(ReglementsService);
+  private readonly paymentsService = inject(RglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private requestedPage = 0;
@@ -81,8 +77,8 @@ export class CampaignDuesTab implements OnInit {
   private loadRequestId = 0;
 
   readonly campaignId = input.required<string>();
-  /** Campagne Ouverte : autorise l'enregistrement d'un nouveau règlement, sous réserve du rôle. */
-  readonly campaignOpenForPayments = input<boolean>(false);
+  /** Campagne clôturée (T-81) : masque l'enregistrement d'un nouveau règlement, quel que soit le rôle par ailleurs autorisé. */
+  readonly campaignClosed = input<boolean>(false);
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly duePage = signal<DuePage | null>(null);
@@ -95,12 +91,12 @@ export class CampaignDuesTab implements OnInit {
   readonly canRecordPayments = this.sessionService.canRecordPayments;
 
   /**
-   * Action proposée uniquement sur une campagne Ouverte, quel que soit le
-   * rôle par ailleurs autorisé. Ce contrôle IHM ne remplace pas
-   * l'autorisation serveur (voir `api-client.md`).
+   * Action masquée sur une campagne clôturée (T-81), quel que soit le rôle
+   * par ailleurs autorisé. Ce contrôle IHM ne remplace pas l'autorisation
+   * serveur (voir `api-client.md`).
    */
   readonly canRecordPaymentsNow = computed(
-    () => this.canRecordPayments() && this.campaignOpenForPayments(),
+    () => this.canRecordPayments() && !this.campaignClosed(),
   );
 
   readonly recordPaymentDue = signal<Due | null>(null);
@@ -249,7 +245,7 @@ export class CampaignDuesTab implements OnInit {
 
   /**
    * Confirme l'enregistrement (US-COT-005) : appelle `POST /dues/{dueId}/payments`
-   * (`ReglementsService.createPayment`, openapi:`createPayment`), puis remplace la
+   * (`RglementsService.createPayment`, openapi:`createPayment`), puis remplace la
    * cotisation affichée par l'état renvoyé (montant payé, reste à payer, statut
    * recalculés côté serveur), sans recalcul local. L'application de cet état est
    * indépendante de la session de dialogue : fermer/rouvrir le formulaire (Échap,
@@ -308,8 +304,6 @@ export class CampaignDuesTab implements OnInit {
       switch (body?.code) {
         case ErrorCode.PaymentExceedsRemainingAmount:
           return 'campaigns.detail.cotisations.recordPayment.errorExceedsRemaining';
-        case ErrorCode.CampaignNotOpen:
-          return 'campaigns.detail.cotisations.recordPayment.errorCampaignNotOpen';
         case ErrorCode.DueAlreadyPaid:
           return 'campaigns.detail.cotisations.recordPayment.errorAlreadyPaid';
         case ErrorCode.ValidationError:

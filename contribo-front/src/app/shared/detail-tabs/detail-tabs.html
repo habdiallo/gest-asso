@@ -1,8 +1,5 @@
 <div
-  class="detail-tabs-list mt-7 grid gap-x-2 border-b border-line sm:mt-8 tablet:flex tablet:gap-2 tablet:overflow-x-auto tablet:overscroll-x-contain tablet:rounded-none tablet:border-x-0 tablet:border-t-0 tablet:border-b tablet:border-line tablet:bg-transparent tablet:p-0"
-  [class.grid-cols-1]="mobileColumnCount() === 1"
-  [class.grid-cols-2]="mobileColumnCount() === 2"
-  [class.grid-cols-3]="mobileColumnCount() === 3"
+  class="mt-8 flex gap-2 overflow-x-auto border-b border-line"
   role="tablist"
   [attr.aria-label]="ariaLabel()"
 >
@@ -11,24 +8,20 @@
       #tabButton
       type="button"
       role="tab"
-      class="detail-tab-button min-h-11 min-w-0 w-full break-words border-b-2 px-1.5 py-2 text-center text-control font-medium uppercase leading-tight tracking-control outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash tablet:w-auto tablet:shrink-0 tablet:whitespace-nowrap tablet:px-4"
+      class="min-h-11 shrink-0 border-b-2 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
       [id]="tabId(tab)"
-      [attr.aria-label]="tab.mobileLabel ? null : tab.label"
       [attr.aria-selected]="isActive(tab) ? 'true' : 'false'"
       [attr.aria-controls]="panelId(tab)"
       [tabIndex]="isActive(tab) ? 0 : -1"
       [class.border-gold-hover]="isActive(tab)"
       [class.text-gold-hover]="isActive(tab)"
-      [class.bg-gold-wash]="isActive(tab)"
-      [class.font-semibold]="isActive(tab)"
       [class.border-transparent]="!isActive(tab)"
       [class.text-text-2]="!isActive(tab)"
       [class.hover:text-gold-hover]="!isActive(tab)"
       (click)="select(tab)"
       (keydown)="onKeydown($event)"
     >
-      <span class="tablet:hidden">{{ tab.mobileLabel || tab.label }}</span>
-      <span class="hidden tablet:inline">{{ tab.label }}</span>
+      {{ tab.label }}
     </button>
   }
 </div>

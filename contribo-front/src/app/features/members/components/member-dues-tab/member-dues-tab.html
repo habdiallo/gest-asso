@@ -1,10 +1,8 @@
 <div [attr.aria-busy]="loading()">
   @if (loading()) {
-    <app-loading-skeleton
-      variant="table"
-      [rows]="3"
-      [label]="'memberDetail.cotisations.loading' | transloco"
-    />
+    <p class="text-text-2" role="status">
+      {{ 'memberDetail.cotisations.loading' | transloco }}
+    </p>
   } @else if (loadError()) {
     <p class="text-error" role="alert">
       {{ 'memberDetail.cotisations.error' | transloco }}
@@ -20,11 +18,7 @@
     @if (result.items.length === 0) {
       <app-empty-state [message]="'memberDetail.cotisations.empty' | transloco" />
     } @else {
-      <app-data-table
-        class="hidden tablet:block"
-        [caption]="'memberDetail.cotisations.caption' | transloco"
-        [busy]="loading()"
-      >
+      <app-data-table [caption]="'memberDetail.cotisations.caption' | transloco" [busy]="loading()">
         <thead>
           <tr
             class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
@@ -32,6 +26,11 @@
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'memberDetail.cotisations.columns.campaign' | transloco }}
             </th>
+            @if (showIncomeCategory()) {
+              <th scope="col" class="px-4 py-0 font-medium">
+                {{ 'memberDetail.cotisations.columns.incomeCategory' | transloco }}
+              </th>
+            }
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'memberDetail.cotisations.columns.dueAmount' | transloco }}
             </th>
@@ -64,6 +63,11 @@
                   }}
                 </span>
               </th>
+              @if (showIncomeCategory()) {
+                <td class="px-4 py-2 text-[13px] text-text-2">
+                  {{ due.incomeCategorySnapshot.label }}
+                </td>
+              }
               <td class="whitespace-nowrap px-4 py-2 font-data text-[13px] text-text-2">
                 {{ formatAmount(due.dueAmount) }}
               </td>
@@ -86,61 +90,6 @@
           }
         </tbody>
       </app-data-table>
-      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="member-dues-mobile-cards">
-        @for (due of result.items; track due.id) {
-          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="break-words font-medium text-text">{{ due.campaign.name }}</h3>
-                <p class="responsive-meta mt-1 text-text-3">
-                  {{
-                    'memberDetail.cotisations.columns.period'
-                      | transloco
-                        : {
-                            start: formatDate(due.campaign.startDate),
-                            end: formatDate(due.campaign.endDate),
-                          }
-                  }}
-                </p>
-              </div>
-              <span
-                class="shrink-0 whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-xs"
-                [class.text-success]="due.status === paidStatus"
-                [class.text-error]="due.status === overdueStatus"
-                [class.text-warning]="due.status !== paidStatus && due.status !== overdueStatus"
-              >
-                {{ statusLabels[due.status] | transloco }}
-              </span>
-            </div>
-            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-              <div>
-                <dt class="responsive-label text-text-3">
-                  {{ 'memberDetail.cotisations.columns.dueAmount' | transloco }}
-                </dt>
-                <dd class="responsive-meta mt-1 font-data text-text-2">
-                  {{ formatAmount(due.dueAmount) }}
-                </dd>
-              </div>
-              <div>
-                <dt class="responsive-label text-text-3">
-                  {{ 'memberDetail.cotisations.columns.paidAmount' | transloco }}
-                </dt>
-                <dd class="responsive-meta mt-1 font-data text-text-2">
-                  {{ formatAmount(due.paidAmount) }}
-                </dd>
-              </div>
-              <div>
-                <dt class="responsive-label text-text-3">
-                  {{ 'memberDetail.cotisations.columns.remainingAmount' | transloco }}
-                </dt>
-                <dd class="responsive-meta mt-1 font-data text-text-2">
-                  {{ formatAmount(due.remainingAmount) }}
-                </dd>
-              </div>
-            </dl>
-          </li>
-        }
-      </ul>
     }
   }
 

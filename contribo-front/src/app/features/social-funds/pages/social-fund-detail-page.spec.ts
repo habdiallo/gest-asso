@@ -10,7 +10,7 @@ import {
   PaymentMethod,
   SocialEventType,
   UserRole,
-} from '@core/api';
+} from '@api';
 import type {
   Contribution,
   ContributionCreationResponse,
@@ -18,12 +18,11 @@ import type {
   CurrentUser,
   MemberPage,
   SocialFund,
-} from '@core/api';
+} from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '@assets/i18n/fr.json';
+import fr from '../../../../assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import { SocialFundDetailPage } from './social-fund-detail-page';
@@ -75,7 +74,6 @@ function buildContribution(overrides: Partial<Contribution> = {}): Contribution 
   return {
     id: '10700000-0000-4000-8000-000000000600',
     member: { id: '10700000-0000-4000-8000-000000000200', displayName: 'Aïcha Bah' },
-    externalContributor: null,
     socialFund: {
       id: SOCIAL_FUND_ID,
       title: 'Mariage de Fanta et Sékou',
@@ -173,7 +171,6 @@ async function createFixture(options: {
       }),
     ],
     providers: [
-      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CagnottesService,
@@ -211,6 +208,14 @@ async function createFixture(options: {
 }
 
 describe('SocialFundDetailPage', () => {
+  function selectInformationTab(fixture: ComponentFixture<SocialFundDetailPage>): void {
+    const informationTab = fixture.nativeElement.querySelector(
+      '#social-fund-detail-tab-information',
+    ) as HTMLButtonElement | null;
+    informationTab?.click();
+    fixture.detectChanges();
+  }
+
   it('shows a loading state while the social fund request is pending', async () => {
     const pending = new Subject<SocialFund>();
     const fixture = await createFixture({
@@ -237,7 +242,7 @@ describe('SocialFundDetailPage', () => {
     );
   });
 
-  it('renders the social fund context, metrics and contributor count', async () => {
+  it('renders the social fund title, period, status, description, total collected and contributor count', async () => {
     const fixture = await createFixture({
       getSocialFund: () => of(buildSocialFund()),
       listSocialFundContributions: () => of(buildContributionPage()),
@@ -249,36 +254,11 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain('Mariage');
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('Famille Camara');
+    selectInformationTab(fixture);
+    expect(root.textContent).toContain("Collecte de soutien à l'occasion du mariage.");
     expect(root.textContent).toContain(formatGnfAmountDetailed(4750000));
-    expect(root.textContent).toContain(formatGnfAmountDetailed(7000000));
-    expect(root.textContent).toContain(formatGnfAmountDetailed(2250000));
     expect(root.textContent).toContain('43');
     expect(root.textContent).toContain('Membres contributeurs');
-  });
-
-  it('does not render the redundant information tab or panel', async () => {
-    const fixture = await createFixture({
-      getSocialFund: () => of(buildSocialFund()),
-      listSocialFundContributions: () => of(buildContributionPage()),
-    });
-    fixture.detectChanges();
-
-    const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('#social-fund-detail-tab-information')).toBeNull();
-    expect(root.querySelector('#social-fund-detail-panel-information')).toBeNull();
-    expect(root.querySelector('[role="tablist"]')).toBeNull();
-  });
-
-  it('does not render a redundant progress bar in the hero', async () => {
-    const fixture = await createFixture({
-      getSocialFund: () => of(buildSocialFund()),
-      listSocialFundContributions: () => of(buildContributionPage()),
-    });
-    fixture.detectChanges();
-
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="social-fund-detail-progress-bar"]'),
-    ).toBeNull();
   });
 
   it('shows a loading state while the contributions request is pending', async () => {
@@ -332,27 +312,6 @@ describe('SocialFundDetailPage', () => {
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 
-  it('renders an external contributor without exposing a member identity', async () => {
-    const fixture = await createFixture({
-      getSocialFund: () => of(buildSocialFund()),
-      listSocialFundContributions: () =>
-        of(
-          buildContributionPage({
-            items: [
-              buildContribution({
-                member: null,
-                externalContributor: { firstName: 'Mamadou', lastName: 'Camara' },
-              }),
-            ],
-          }),
-        ),
-    });
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('Mamadou Camara');
-    expect(fixture.nativeElement.textContent).toContain('Externe');
-  });
-
   it('does not render audit metadata in the contribution table MVP', async () => {
     const fixture = await createFixture({
       getSocialFund: () => of(buildSocialFund()),
@@ -364,6 +323,76 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).not.toContain('Enregistré par');
     expect(root.textContent).not.toContain('Horodatage');
     expect(root.textContent).not.toContain('Mamadou Sy');
+  });
+
+  describe('progression objectif / reste à collecter (T-92, US-CAG-003)', () => {
+    function progressBar(root: HTMLElement): HTMLElement | null {
+      return root.querySelector('[data-testid="social-fund-detail-progress-bar"]');
+    }
+
+    it('shows the objective, the progress bar and the remaining amount when a target is defined', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: 7000000,
+              collectedAmount: 4750000,
+              remainingToTargetAmount: 2250000,
+              progressRate: 67.9,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+      selectInformationTab(fixture);
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain(formatGnfAmountDetailed(7000000));
+      expect(root.textContent).toContain(formatGnfAmountDetailed(2250000));
+      const bar = progressBar(root);
+      expect(bar).not.toBeNull();
+      expect(bar?.style.width).toBe('67.9%');
+    });
+
+    it('hides the progress bar when no target is defined', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: undefined,
+              remainingToTargetAmount: undefined,
+              progressRate: undefined,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+      selectInformationTab(fixture);
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(progressBar(root)).toBeNull();
+    });
+
+    it('bounds the progress bar width to 100 when the target is exceeded', async () => {
+      const fixture = await createFixture({
+        getSocialFund: () =>
+          of(
+            buildSocialFund({
+              targetAmount: 1000000,
+              collectedAmount: 1500000,
+              remainingToTargetAmount: 0,
+              progressRate: 150,
+            }),
+          ),
+        listSocialFundContributions: () => of(buildContributionPage()),
+      });
+      fixture.detectChanges();
+      selectInformationTab(fixture);
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain(formatGnfAmountDetailed(0));
+      expect(progressBar(root)?.style.width).toBe('100%');
+    });
   });
 
   describe('contributions pagination', () => {
@@ -748,13 +777,6 @@ describe('SocialFundDetailPage', () => {
       fixture.detectChanges();
 
       expect(recordDialog(root)?.open).toBe(true);
-      expect(recordDialog(root)?.getAttribute('style')).toContain(
-        '--form-dialog-desktop-width: 920px',
-      );
-      expect(recordDialog(root)?.textContent).toContain('Détail cagnotte');
-      expect(
-        recordDialog(root)?.querySelector('.grid[class~="min-[821px]:grid-cols-2"]'),
-      ).not.toBeNull();
       expect(createContribution).not.toHaveBeenCalled();
     });
 

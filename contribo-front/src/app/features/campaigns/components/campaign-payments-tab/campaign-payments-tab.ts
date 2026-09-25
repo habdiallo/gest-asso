@@ -8,27 +8,25 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReglementsService } from '@core/api';
-import type { PaymentPage } from '@core/api';
+import { RglementsService } from '@api';
+import type { PaymentPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { DataTable } from '@shared/data-table/data-table';
-import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
-import { formatCalendarDate } from '../../campaign-dates';
 
 const PAYMENTS_PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-campaign-payments-tab',
-  imports: [TranslocoPipe, EmptyState, DataTable, LoadingSkeleton, PaginationControls],
+  imports: [TranslocoPipe, EmptyState, DataTable, PaginationControls],
   templateUrl: './campaign-payments-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignPaymentsTab implements OnInit {
-  private readonly paymentsService = inject(ReglementsService);
+  private readonly paymentsService = inject(RglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private requestId = 0;
   private requestedPage = 0;
@@ -38,7 +36,6 @@ export class CampaignPaymentsTab implements OnInit {
   readonly loadError = signal(false);
   readonly paymentPage = signal<PaymentPage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
-  readonly formatDate = formatCalendarDate;
 
   readonly previousDisabled = signal(true);
   readonly nextDisabled = signal(true);

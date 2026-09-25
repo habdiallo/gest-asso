@@ -1,7 +1,5 @@
 @if (isAuthenticated()) {
-  @let sidebarProfileLabelKey =
-    sidebarProfile()?.destinationLabelKey ?? 'shell.sidebar.openMemberSpace';
-  <!-- Barre latérale desktop (>= 1181px), cf. design/styles.css .sidebar. -->
+  <!-- Barre latérale desktop/tablette (>= 821px), cf. design/styles.css .sidebar. -->
   <aside class="desktop-sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-mark">
@@ -29,14 +27,14 @@
       <button
         type="button"
         class="sidebar-profile"
-        [attr.aria-label]="sidebarProfileLabelKey | transloco"
+        aria-label="Ouvrir mon espace"
         (click)="openSidebarProfile()"
       >
         @if (sidebarProfile(); as profile) {
           <div class="sidebar-avatar" aria-hidden="true">{{ profile.initials }}</div>
           <div class="sidebar-profile-copy">
             <strong [title]="profile.name">{{ profile.name }}</strong>
-            <span>{{ profile.roleLabelKey | transloco }}</span>
+            <span>{{ profile.role }}</span>
           </div>
         }
         <svg
@@ -56,116 +54,25 @@
     </div>
   </aside>
 
-  <!-- Barre supérieure mobile/tablette (< 1181px), remplace la barre latérale masquée. -->
+  <!-- Barre supérieure mobile (< 821px), remplace la barre latérale masquée. -->
   <header
-    class="mobile-header fixed inset-x-0 top-0 z-20 flex min-h-14 flex-wrap items-center justify-between gap-2 border-b border-line bg-surface px-4 py-2 min-[1181px]:hidden"
+    class="sticky top-0 z-20 flex min-h-14 flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-glass px-4 py-2 min-[821px]:hidden"
   >
-    <div class="mobile-brand">
-      <span class="mobile-brand-mark" aria-hidden="true">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M5 18V6l7 12V6l7 12V6" />
-          <path d="M3 3h18M3 21h18" />
-        </svg>
-      </span>
-      <span class="mobile-brand-name">Contribo</span>
-    </div>
-    <div class="mobile-header-actions">
-      <app-theme-toggle />
-      <button
-        type="button"
-        class="mobile-profile-button"
-        [attr.aria-label]="sidebarProfileLabelKey | transloco"
-        [attr.aria-expanded]="mobileProfileOpen()"
-        aria-controls="mobile-profile-menu"
-        (click)="toggleMobileProfile()"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 21a8 8 0 0 1 16 0" />
-        </svg>
-      </button>
-      @if (mobileProfileOpen()) {
-        <div id="mobile-profile-menu" class="mobile-profile-menu">
-          @if (sidebarProfile(); as profile) {
-            <div class="mobile-profile-summary">
-              <div class="mobile-profile-avatar" aria-hidden="true">{{ profile.initials }}</div>
-              <div class="mobile-profile-summary-copy">
-                <strong [title]="profile.name">{{ profile.name }}</strong>
-                <span>{{ profile.roleLabelKey | transloco }}</span>
-              </div>
-            </div>
-          }
-          <div class="mobile-profile-actions">
-            <button
-              type="button"
-              class="mobile-profile-action mobile-profile-account-action"
-              (click)="openSidebarProfile()"
-            >
-              <span class="mobile-profile-action-icon" aria-hidden="true">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21a8 8 0 0 1 16 0" />
-                </svg>
-              </span>
-              <span class="mobile-profile-action-label">{{
-                sidebarProfileLabelKey | transloco
-              }}</span>
-              <svg
-                class="mobile-profile-action-arrow"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-            <app-logout-button class="mobile-profile-logout" />
-          </div>
-        </div>
-      }
-    </div>
+    <span class="font-display text-lg uppercase tracking-wide text-gold-hover">Contribo</span>
+    <app-theme-toggle class="ml-auto shrink-0" />
+    <app-logout-button class="ml-auto min-w-0 max-w-full" />
   </header>
 
-  <!-- Navigation basse mobile/tablette (< 1181px), équivalent de la barre latérale à cette taille. -->
+  <!-- Navigation basse mobile (< 821px), équivalent de la barre latérale à cette taille. -->
   <div
-    class="mobile-bottom-nav fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface min-[1181px]:hidden"
+    class="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface-glass min-[821px]:hidden"
   >
     <app-navigation-menu orientation="horizontal" />
   </div>
 
-  <div
-    id="contenu-principal"
-    class="app-content responsive-body pt-16 pb-16 min-[1181px]:pt-0 min-[1181px]:pb-0 min-[1181px]:pl-64"
-  >
-    <!-- Barre supérieure desktop (>= 1181px), cf. design/styles.css .topbar. -->
-    <header class="desktop-topbar hidden min-[1181px]:flex">
+  <div id="contenu-principal" class="pb-16 min-[821px]:pb-0 min-[821px]:pl-64">
+    <!-- Barre supérieure desktop/tablette (>= 821px), cf. design/styles.css .topbar. -->
+    <header class="desktop-topbar hidden min-[821px]:flex">
       <nav aria-label="Fil d'Ariane" class="desktop-breadcrumb">
         <span>{{ 'shell.breadcrumb.root' | transloco }}</span>
         <svg
