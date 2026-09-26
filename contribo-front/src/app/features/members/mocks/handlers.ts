@@ -176,7 +176,7 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
     },
     {
       id: '10700000-0000-4000-8000-000000000701',
-      dueId: '10700000-0000-0000-0000-000000000430',
+      dueId: '10700000-0000-4000-8000-000000000430',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[1],
       amount: 150_000,

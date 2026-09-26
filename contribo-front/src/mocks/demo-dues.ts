@@ -114,7 +114,7 @@ export const demoCampaignDues: Record<string, Due[]> = {
   [campaignReferences.rentrée.id]: buildUpcomingCampaignDues(),
   [campaignReferences.june.id]: [
     {
-      id: '10700000-0000-0000-0000-000000000430',
+      id: '10700000-0000-4000-8000-000000000430',
       member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
       campaign: campaignReferences.june,
       incomeCategorySnapshot: standardCategory,

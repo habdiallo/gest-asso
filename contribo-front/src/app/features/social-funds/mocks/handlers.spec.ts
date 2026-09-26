@@ -155,6 +155,33 @@ describe('POST /api/v1/social-funds/{socialFundId}/contributions (mocks MSW, T-1
     expect(body.socialFund.collectedAmount).toBe(8325000);
     expect(body.socialFund.contributorCount).toBe(68);
     expect(body.socialFund.contributionCount).toBe(81);
+
+    const repeatedResponse = await runRequest(
+      new Request(
+        'http://localhost/api/v1/social-funds/10700000-0000-4000-8000-000000000502/contributions',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${account.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            externalContributor: { firstName: 'Aminátá', lastName: '  CAMARA ' },
+            amount: 125000,
+            contributionDate: '2026-09-16',
+            method: 'CASH',
+          }),
+        },
+      ),
+    );
+
+    expect(repeatedResponse.status).toBe(201);
+    const repeatedBody = (await repeatedResponse.json()) as {
+      socialFund: SocialFund;
+    };
+    expect(repeatedBody.socialFund.collectedAmount).toBe(8450000);
+    expect(repeatedBody.socialFund.contributorCount).toBe(68);
+    expect(repeatedBody.socialFund.contributionCount).toBe(82);
   });
 });
 

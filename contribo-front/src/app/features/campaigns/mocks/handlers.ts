@@ -242,7 +242,7 @@ const demoPaymentsByCampaignId: Record<string, Payment[]> = {
   '10700000-0000-4000-8000-000000000202': [
     {
       id: '10700000-0000-4000-8000-000000000702',
-      dueId: '10700000-0000-0000-0000-000000000430',
+      dueId: '10700000-0000-4000-8000-000000000430',
       member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
       campaign: demoCampaigns[2],
       amount: 50_000,

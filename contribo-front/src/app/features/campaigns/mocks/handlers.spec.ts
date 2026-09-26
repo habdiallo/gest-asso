@@ -9,7 +9,7 @@ const upcomingCampaignId = '10700000-0000-4000-8000-000000000201';
 const closedCampaignId = '10700000-0000-4000-8000-000000000202';
 const categoryId = '10700000-0000-4000-8000-000000000101';
 const upcomingDueId = '10700000-0000-4000-8000-000000000420';
-const closedDueId = '10700000-0000-0000-0000-000000000430';
+const closedDueId = '10700000-0000-4000-8000-000000000430';
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());

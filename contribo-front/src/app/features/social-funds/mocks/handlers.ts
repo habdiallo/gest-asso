@@ -97,6 +97,19 @@ const demoContributionMethods = [
 
 const demoContributionAmountCycle = [250000, 150000, 100000, 200000, 50000, 300000, 75000, 125000];
 
+function normalizeContributorIdentity(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('fr-FR');
+}
+
+function externalContributorKey(contributor: { firstName: string; lastName: string }): string {
+  return `${normalizeContributorIdentity(contributor.firstName)}|${normalizeContributorIdentity(contributor.lastName)}`;
+}
+
 /**
  * Génère l'historique de démonstration d'une cagnotte à partir de ses propres
  * agrégats (`contributionCount`, `contributorCount`, `collectedAmount`) pour
@@ -465,9 +478,14 @@ export const socialFundsHandlers = [
       };
       demoContributionsBySocialFundId[socialFundId] = [contribution, ...existingContributions];
 
-      const memberAlreadyCounted = !isExternal
-        ? existingContributions.some((item) => item.member?.id === body.memberId)
-        : false;
+      const contributorAlreadyCounted = isExternal
+        ? existingContributions.some(
+            (item) =>
+              item.externalContributor !== null &&
+              externalContributorKey(item.externalContributor) ===
+                externalContributorKey(body.externalContributor),
+          )
+        : existingContributions.some((item) => item.member?.id === body.memberId);
       const updatedSummary: SocialFundSummary = {
         ...summary,
         collectedAmount: (summary.collectedAmount ?? 0) + body.amount,
@@ -480,7 +498,7 @@ export const socialFundsHandlers = [
             ? undefined
             : Math.min(((summary.collectedAmount ?? 0) + body.amount) / summary.targetAmount, 1) *
               100,
-        contributorCount: (summary.contributorCount ?? 0) + (memberAlreadyCounted ? 0 : 1),
+        contributorCount: (summary.contributorCount ?? 0) + (contributorAlreadyCounted ? 0 : 1),
         contributionCount: (summary.contributionCount ?? 0) + 1,
       };
       demoSocialFunds[summaryIndex] = updatedSummary;
