@@ -14,6 +14,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { DataTable } from '@shared/data-table/data-table';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
 import { formatCalendarDate } from '../../campaign-dates';
@@ -22,7 +23,7 @@ const PAYMENTS_PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-campaign-payments-tab',
-  imports: [TranslocoPipe, EmptyState, DataTable, PaginationControls],
+  imports: [TranslocoPipe, EmptyState, DataTable, LoadingSkeleton, PaginationControls],
   templateUrl: './campaign-payments-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

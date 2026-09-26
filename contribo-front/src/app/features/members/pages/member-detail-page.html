@@ -463,9 +463,23 @@
       }
 
       @if (payableDuesLoading()) {
-        <p class="mt-4 text-sm text-text-2" role="status">
-          {{ 'members.recordPayment.loadingDues' | transloco }}
-        </p>
+        <app-loading-skeleton
+          variant="dialog"
+          [rows]="4"
+          [label]="'members.recordPayment.loadingDues' | transloco"
+          [dialogSummaryLabels]="[
+            'members.recordPayment.summary.due' | transloco,
+            'members.recordPayment.summary.paid' | transloco,
+            'members.recordPayment.summary.remaining' | transloco,
+          ]"
+          [dialogFieldLabels]="[
+            'members.recordPayment.fields.member' | transloco,
+            'members.recordPayment.fields.campaign' | transloco,
+            'members.recordPayment.fields.amount' | transloco,
+            'members.recordPayment.fields.paymentDate' | transloco,
+            'members.recordPayment.fields.method' | transloco,
+          ]"
+        />
       } @else if (payableDuesError()) {
         <app-api-error-retry
           class="mt-4 block"

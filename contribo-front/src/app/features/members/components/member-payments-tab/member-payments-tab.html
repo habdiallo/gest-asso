@@ -1,10 +1,21 @@
 @if (loading() && payments().length === 0) {
-  <p class="text-text-2" role="status">{{ 'memberDetail.payments.loading' | transloco }}</p>
+  <app-loading-skeleton
+    variant="table"
+    [rows]="3"
+    [label]="'memberDetail.payments.loading' | transloco"
+  />
 } @else if (loadError() && payments().length === 0) {
   <p class="text-error" role="alert">{{ 'memberDetail.payments.error' | transloco }}</p>
 } @else if (payments().length === 0) {
   <app-empty-state [message]="'memberDetail.payments.empty' | transloco" />
 } @else {
+  @if (pageActionPending()) {
+    <app-loading-skeleton
+      class="mb-4 block"
+      variant="inline"
+      [label]="'memberDetail.payments.loading' | transloco"
+    />
+  }
   <app-data-table
     [caption]="'memberDetail.payments.caption' | transloco"
     [busy]="pageActionPending()"

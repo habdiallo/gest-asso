@@ -16,6 +16,7 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { formatCalendarDate } from '../../member-dates';
 
@@ -36,7 +37,7 @@ const DUES_PAGE_SIZE = 10;
  */
 @Component({
   selector: 'app-member-dues-tab',
-  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
+  imports: [TranslocoPipe, DataTable, EmptyState, LoadingSkeleton, PaginationControls],
   templateUrl: './member-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

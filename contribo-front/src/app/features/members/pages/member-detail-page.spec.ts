@@ -1503,6 +1503,25 @@ describe('MemberDetailPage', () => {
       expect(findRecordPaymentButton(fixture.nativeElement)).toBeUndefined();
     });
 
+    it('keeps the payment dialog on a form-shaped loading state while dues are pending', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () => new Observable<DuePage>(),
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+
+      const dialog = fixture.nativeElement.querySelector('dialog[open]') as HTMLElement;
+      expect(dialog.querySelector('app-loading-skeleton')).not.toBeNull();
+      expect(dialog.querySelector('[role="status"]')?.textContent).toContain(
+        'Chargement des cotisations',
+      );
+      expect(dialog.textContent).toContain('Montant dû');
+      expect(dialog.textContent).toContain('Membre');
+      expect(dialog.textContent).toContain('Mode de règlement');
+    });
+
     it('loads the payable dues, excludes the already-paid one, and preselects the single remaining campaign', async () => {
       const listMemberDues = vi.fn(() =>
         of({

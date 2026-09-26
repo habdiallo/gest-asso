@@ -17,10 +17,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-member-edit-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect, LoadingSkeleton],
   templateUrl: './member-edit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

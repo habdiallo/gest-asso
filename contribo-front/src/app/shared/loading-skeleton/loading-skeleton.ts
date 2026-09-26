@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 /** Forme visuelle du squelette, alignée sur la mise en page réelle de l'écran qui charge. */
-export type LoadingSkeletonVariant = 'table' | 'list' | 'grid' | 'detail';
+export type LoadingSkeletonVariant = 'table' | 'list' | 'grid' | 'detail' | 'dialog' | 'inline';
 
 /**
  * État de chargement visuel (T-100, squelette/spinner) pour les listes et fiches
@@ -21,7 +21,7 @@ export type LoadingSkeletonVariant = 'table' | 'list' | 'grid' | 'detail';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingSkeleton {
-  /** Mise en page à imiter : tableau, liste de lignes, grille de cartes ou fiche détaillée. */
+  /** Mise en page à imiter : tableau, liste, grille, fiche détaillée ou dialogue de formulaire. */
   readonly variant = input.required<LoadingSkeletonVariant>();
 
   /** Nombre de lignes/cartes de silhouette pour les variantes `table`, `list` et `grid`. */
@@ -32,4 +32,13 @@ export class LoadingSkeleton {
 
   /** Indices des lignes/cartes de silhouette à afficher, dérivés de `rows`. */
   readonly rowIndexes = computed(() => Array.from({ length: this.rows() }, (_, index) => index));
+
+  /** Trois blocs de synthèse affichés dans la variante dialogue. */
+  readonly dialogSummaryIndexes = [0, 1, 2] as const;
+
+  /** Libellés métier affichés dans les blocs de synthèse du dialogue en attente. */
+  readonly dialogSummaryLabels = input<ReadonlyArray<string>>([]);
+
+  /** Libellés métier affichés dans les champs du dialogue en attente. */
+  readonly dialogFieldLabels = input<ReadonlyArray<string>>([]);
 }

@@ -13,6 +13,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
@@ -50,6 +51,7 @@ const PAGE_SIZE = 10;
     ActionButton,
     DataTable,
     EmptyState,
+    LoadingSkeleton,
     PageHeader,
     CreateIncomeCategoryDialog,
     EditIncomeCategoryDialog,

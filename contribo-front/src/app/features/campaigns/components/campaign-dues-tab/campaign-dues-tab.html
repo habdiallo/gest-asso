@@ -41,9 +41,11 @@
   </div>
 
   @if (loading()) {
-    <p class="text-text-2" role="status">
-      {{ 'campaigns.detail.cotisations.loading' | transloco }}
-    </p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="3"
+      [label]="'campaigns.detail.cotisations.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="text-error" role="alert">
       {{ 'campaigns.detail.cotisations.error' | transloco }}

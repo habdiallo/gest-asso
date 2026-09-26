@@ -120,10 +120,17 @@
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.error' | transloco }}</p>
   } @else {
     @if (pageActionPending() && socialFunds().length === 0) {
-      <p class="mt-6 text-text-2" role="status">{{ 'socialFunds.loading' | transloco }}</p>
+      <app-loading-skeleton variant="grid" [rows]="3" [label]="'socialFunds.loading' | transloco" />
     } @else if (socialFunds().length === 0) {
       <app-empty-state class="mt-6 block" [message]="'socialFunds.empty' | transloco" />
     } @else {
+      @if (pageActionPending()) {
+        <app-loading-skeleton
+          class="mt-4 block"
+          variant="inline"
+          [label]="'socialFunds.loading' | transloco"
+        />
+      }
       <ul
         class="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="pageActionPending() || loading() ? 'true' : null"

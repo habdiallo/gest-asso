@@ -1,9 +1,11 @@
 <p class="mb-5 text-sm text-text-2">{{ 'memberSpace.contributions.intro' | transloco }}</p>
 
 @if (loading()) {
-  <p role="status" class="mb-4 text-text-2">
-    {{ 'memberSpace.contributions.loading' | transloco }}
-  </p>
+  <app-loading-skeleton
+    variant="list"
+    [rows]="3"
+    [label]="'memberSpace.contributions.loading' | transloco"
+  />
 }
 @if (loadError()) {
   <div class="mb-4 flex flex-wrap items-center gap-3">

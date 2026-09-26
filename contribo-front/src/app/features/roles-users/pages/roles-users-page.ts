@@ -14,6 +14,7 @@ import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { PageHeader } from '@shared/page-header/page-header';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, catchError, of, switchMap } from 'rxjs';
@@ -60,7 +61,15 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 @Component({
   selector: 'app-roles-users-page',
-  imports: [TranslocoPipe, ActionButton, EmptyState, PageHeader, FormDialog, CustomSelect],
+  imports: [
+    TranslocoPipe,
+    ActionButton,
+    EmptyState,
+    PageHeader,
+    FormDialog,
+    LoadingSkeleton,
+    CustomSelect,
+  ],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

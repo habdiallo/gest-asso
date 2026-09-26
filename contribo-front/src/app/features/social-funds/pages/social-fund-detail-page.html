@@ -72,9 +72,11 @@
           </div>
         </div>
         @if (contributionsLoading() && contributions().length === 0) {
-          <p class="mt-5 text-text-2" role="status">
-            {{ 'socialFunds.detail.contributionsLoading' | transloco }}
-          </p>
+          <app-loading-skeleton
+            variant="table"
+            [rows]="3"
+            [label]="'socialFunds.detail.contributionsLoading' | transloco"
+          />
         } @else if (contributionsLoadError() && contributions().length === 0) {
           <p class="mt-5 text-error" role="alert">
             {{ 'socialFunds.detail.contributionsError' | transloco }}
@@ -85,6 +87,13 @@
             [message]="'socialFunds.detail.contributionsEmpty' | transloco"
           />
         } @else {
+          @if (contributionsLoading()) {
+            <app-loading-skeleton
+              class="mb-4 block"
+              variant="inline"
+              [label]="'socialFunds.detail.contributionsLoading' | transloco"
+            />
+          }
           <app-data-table
             class="mt-5 block"
             [caption]="'socialFunds.detail.contributionsCaption' | transloco"

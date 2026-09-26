@@ -23,7 +23,11 @@
   />
 
   @if (loading()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'incomeCategories.loading' | transloco }}</p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="5"
+      [label]="'incomeCategories.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'incomeCategories.error' | transloco }}</p>
   } @else if (categories().length === 0) {

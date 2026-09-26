@@ -15,6 +15,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { formatMemberCalendarDate } from '../../members-dates';
 import { memberContributionMethodLabel } from '../../members-contribution-method-labels';
@@ -34,7 +35,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
  */
 @Component({
   selector: 'app-member-contributions-tab',
-  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
+  imports: [TranslocoPipe, DataTable, EmptyState, LoadingSkeleton, PaginationControls],
   templateUrl: './member-contributions-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

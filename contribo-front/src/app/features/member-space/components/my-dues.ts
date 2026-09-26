@@ -7,11 +7,12 @@ import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { formatCalendarDate } from '../member-space-dates';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 /** Cotisations personnelles, issues exclusivement de GET /me/dues (T-96). */
 @Component({
   selector: 'app-my-dues',
-  imports: [TranslocoPipe, EmptyState],
+  imports: [TranslocoPipe, EmptyState, LoadingSkeleton],
   templateUrl: './my-dues.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -324,6 +324,7 @@
   "campaigns.create.fields.memberSelectionAllActive": "Tous les membres actifs",
   "campaigns.create.fields.memberSelectionHint": "Le MVP concerne automatiquement tous les membres actifs à la date de création ; les membres inactifs sont exclus.",
   "campaigns.create.fields.categoriesError": "Impossible de charger les catégories de revenu. Réessayez plus tard.",
+  "campaigns.create.fields.categoriesLoading": "Chargement des catégories…",
   "campaigns.create.fields.noEligibleCategories": "Aucune catégorie de revenu n'est portée par un membre actif : aucune campagne ne peut être créée pour le moment.",
   "campaigns.detail.loading": "Chargement de la campagne…",
   "campaigns.detail.error": "Impossible de charger la campagne. Réessayez plus tard.",
