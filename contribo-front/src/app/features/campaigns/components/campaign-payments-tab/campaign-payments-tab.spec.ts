@@ -85,6 +85,27 @@ describe('CampaignPaymentsTab', () => {
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 
+  it('matches the target typography without changing the payment columns', async () => {
+    const fixture = await createFixture(() => of(buildPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const title = root.querySelector('#campaign-payments-title');
+    const headerRow = root.querySelector('thead tr');
+    const firstRow = root.querySelector('tbody tr');
+    const amountCell = root.querySelector('tbody td');
+
+    expect(title?.classList.contains('font-medium')).toBe(true);
+    expect(title?.classList.contains('font-display')).toBe(false);
+    expect(headerRow?.classList.contains('font-data')).toBe(true);
+    expect(headerRow?.classList.contains('text-[8px]')).toBe(true);
+    expect(firstRow?.classList.contains('h-16')).toBe(true);
+    expect(firstRow?.classList.contains('text-[13px]')).toBe(true);
+    expect(amountCell?.classList.contains('font-data')).toBe(true);
+    expect(amountCell?.classList.contains('text-success')).toBe(true);
+    expect(root.querySelectorAll('thead th')).toHaveLength(4);
+  });
+
   it('does not render payment audit metadata in the MVP table', async () => {
     const fixture = await createFixture(() => of(buildPage()));
     fixture.detectChanges();

@@ -311,10 +311,6 @@ export class CampaignDetailPage {
     return this.activeTab() === tab;
   }
 
-  openSituationTab(): void {
-    this.selectTab('situation');
-  }
-
   startEditingBareme(): void {
     if (!this.canEditBaremeNow()) {
       return;
