@@ -3,20 +3,20 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   input,
   signal,
 } from '@angular/core';
-import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DueStatus, MembresService } from '@api';
 import type { DuePage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import { SessionService } from '@core/session/session.service';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { formatCalendarDate } from '../../member-dates';
 
@@ -28,28 +28,27 @@ const DUES_PAGE_SIZE = 10;
  * affiche, campagne par campagne, le montant dû, le montant payé, le reste à
  * payer et le statut de la cotisation du membre, avec pagination.
  *
- * Vue restreinte de l'Opérateur (RG-MEM-008), par cohérence avec l'onglet
- * cotisations d'une campagne (T-62) : la colonne Catégorie de revenu, qui
- * porte un détail financier, est masquée pour ce rôle. Les montants dû/payé/
- * reste et le statut restent affichés, nécessaires à l'Opérateur pour ses
- * opérations courantes.
+ * Colonnes réduites à l'ensemble métier de la maquette (T-130, RG-MEM) :
+ * Campagne, Dû, Payé, Reste, Statut, quel que soit le rôle. La colonne
+ * Catégorie de revenu, affichée avant T-130, a été retirée de ce tableau.
  *
  * Limite connue : l'historique des règlements (T-29) et les contributions aux
  * cagnottes (T-30) relèvent de tickets dédiés et ne sont pas affichés ici.
  */
 @Component({
   selector: 'app-member-dues-tab',
-  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
+  imports: [TranslocoPipe, DataTable, EmptyState, LoadingSkeleton, PaginationControls],
   templateUrl: './member-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MemberDuesTab implements OnInit {
+export class MemberDuesTab {
   private readonly membersService = inject(MembresService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly sessionService = inject(SessionService);
   private requestedPage = 0;
 
   readonly memberId = input.required<string>();
+  /** Incrémenté par la fiche membre après un règlement pour recharger la première page (T-130). */
+  readonly refreshToken = input(0);
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly duePage = signal<DuePage | null>(null);
@@ -58,8 +57,6 @@ export class MemberDuesTab implements OnInit {
   readonly statusLabels = DUE_STATUS_TRANSLATION_KEYS;
   readonly paidStatus = DueStatus.Paid;
   readonly overdueStatus = DueStatus.Overdue;
-
-  readonly showIncomeCategory = computed(() => this.sessionService.user()?.role !== 'OPERATOR');
 
   readonly previousPageDisabled = computed(
     () => this.loading() || this.loadError() || (this.duePage()?.page.number ?? 0) === 0,
@@ -74,8 +71,11 @@ export class MemberDuesTab implements OnInit {
     );
   });
 
-  ngOnInit(): void {
-    this.loadPage(0);
+  constructor() {
+    effect(() => {
+      this.refreshToken();
+      this.loadPage(0);
+    });
   }
 
   retry(): void {

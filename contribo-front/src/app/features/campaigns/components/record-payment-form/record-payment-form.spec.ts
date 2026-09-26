@@ -60,6 +60,22 @@ describe('RecordPaymentForm', () => {
     expect(text).toContain('Cotisation annuelle 2026');
   });
 
+  it('uses the contribution-style two-column layout for amount and date', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const amountAndDateGrid = Array.from(
+      root.querySelectorAll('form > .grid > .grid.sm\\:grid-cols-2'),
+    ).find((grid) => grid.querySelector('app-amount-input'));
+    expect(amountAndDateGrid).toBeDefined();
+    expect(amountAndDateGrid?.querySelector('#record-payment-date')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.traceabilityNote'],
+    );
+  });
+
   it('blocks submission and shows validation errors when required fields are empty', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();

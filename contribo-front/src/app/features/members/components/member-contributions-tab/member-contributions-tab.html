@@ -1,8 +1,10 @@
 <div [attr.aria-busy]="loading()">
   @if (loading()) {
-    <p class="text-text-2" role="status">
-      {{ 'memberDetail.contributions.loading' | transloco }}
-    </p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="3"
+      [label]="'memberDetail.contributions.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="text-error" role="alert">
       {{ 'memberDetail.contributions.error' | transloco }}
@@ -33,10 +35,10 @@
               {{ 'memberDetail.contributions.columns.amount' | transloco }}
             </th>
             <th scope="col" class="px-4 py-0 font-medium">
-              {{ 'memberDetail.contributions.columns.date' | transloco }}
+              {{ 'memberDetail.contributions.columns.method' | transloco }}
             </th>
             <th scope="col" class="px-4 py-0 font-medium">
-              {{ 'memberDetail.contributions.columns.method' | transloco }}
+              {{ 'memberDetail.contributions.columns.date' | transloco }}
             </th>
           </tr>
         </thead>
@@ -51,11 +53,11 @@
               <td class="whitespace-nowrap px-4 py-2 font-data text-[13px] text-success">
                 + {{ formatAmount(contribution.amount) }}
               </td>
-              <td class="whitespace-nowrap px-4 py-2 text-[13px] text-text-2">
-                {{ formatDate(contribution.contributionDate) }}
-              </td>
               <td class="px-4 py-2 text-[13px] text-text-2">
                 {{ methodLabel(contribution.method) }}
+              </td>
+              <td class="whitespace-nowrap px-4 py-2 text-[13px] text-text-2">
+                {{ formatDate(contribution.contributionDate) }}
               </td>
             </tr>
           }

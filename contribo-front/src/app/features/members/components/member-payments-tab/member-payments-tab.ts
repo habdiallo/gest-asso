@@ -15,6 +15,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { formatMemberPaymentCalendarDate } from '../../member-payment-dates';
 import { memberPaymentMethodLabel } from '../../member-payment-method-labels';
@@ -37,7 +38,7 @@ const PAYMENTS_PAGE_SIZE = 10;
  */
 @Component({
   selector: 'app-member-payments-tab',
-  imports: [TranslocoPipe, DataTable, EmptyState, PaginationControls],
+  imports: [TranslocoPipe, DataTable, EmptyState, LoadingSkeleton, PaginationControls],
   templateUrl: './member-payments-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,6 +47,8 @@ export class MemberPaymentsTab {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly memberId = input.required<string>();
+  /** Incrémenté par la fiche membre après un règlement pour recharger la première page (T-130). */
+  readonly refreshToken = input(0);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -78,6 +81,7 @@ export class MemberPaymentsTab {
   constructor() {
     effect(() => {
       const memberId = this.memberId();
+      this.refreshToken();
       this.paymentsPage.set(null);
       this.fetchPage(memberId, 0, { isInitialLoad: true });
     });

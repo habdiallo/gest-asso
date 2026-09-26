@@ -1,44 +1,28 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
-  <a routerLink="/membres" class="text-sm text-text-2 underline-offset-2 hover:underline">
-    {{ 'memberDetail.backToList' | transloco }}
-  </a>
-
-  @if (loading() && !member()) {
+@if (loading() && !member()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <app-loading-skeleton
       variant="detail"
       [rows]="6"
       [label]="'memberDetail.loading' | transloco"
     />
-  } @else if (loadError()) {
+  </main>
+} @else if (loadError() && !member()) {
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
     <p class="mt-6 text-error" role="alert">
       {{ (notFound() ? 'memberDetail.notFound' : 'memberDetail.error') | transloco }}
     </p>
-  } @else if (member(); as member) {
-    <app-page-header [kicker]="'members.kicker' | transloco" [title]="member.displayName">
-      <span class="text-xs uppercase tracking-[0.08em] text-text-2">
-        {{ memberStatusLabel(member.status) }}
-      </span>
-    </app-page-header>
-
-    <div class="flex flex-wrap gap-3">
-      @if (canEdit()) {
-        <app-action-button type="button" (click)="openEditDialog()">
-          {{ 'members.edit.button' | transloco }}
-        </app-action-button>
-      }
-      @if (canDeactivate()) {
-        <app-action-button type="button" variant="danger" (click)="openDeactivateDialog()">
-          {{ 'members.deactivate.button' | transloco }}
-        </app-action-button>
-      }
-      @if (canReactivate()) {
-        <app-action-button type="button" variant="secondary" (click)="openReactivateDialog()">
-          {{ 'members.reactivate.button' | transloco }}
-        </app-action-button>
-      }
-    </div>
+  </main>
+} @else if (member(); as member) {
+  <app-detail-shell
+    [backRouterLink]="['/membres']"
+    [backLabel]="'memberDetail.backToList' | transloco"
+    [kicker]="'memberDetail.hero.kicker' | transloco"
+    [title]="member.displayName"
+    [intro]="heroIntro(member)"
+    [showHero]="false"
+  >
     @if (!canRecordPayments()) {
-      <p class="mt-4 text-xs uppercase tracking-[0.08em] text-text-2" role="status">
+      <p class="mt-3 text-xs uppercase tracking-[0.08em] text-text-2" role="status">
         {{ 'memberDetail.readOnlyPayments' | transloco }}
       </p>
     }
@@ -52,29 +36,335 @@
         {{ 'members.deactivate.success' | transloco }}
       </p>
     }
-    @if (deactivateError()) {
-      <p class="mt-4 text-sm text-error" role="alert">
-        {{ 'members.deactivate.error' | transloco }}
-      </p>
-    }
     @if (reactivateSuccess()) {
       <p class="mt-4 text-sm text-success" role="status">
         {{ 'members.reactivate.success' | transloco }}
       </p>
     }
-    <app-form-dialog
-      [open]="editOpen() && canEdit()"
-      [dialogTitle]="'members.edit.dialogTitle' | transloco"
-      (closed)="closeEditDialog()"
-    >
-      @if (editOpen() && canEdit()) {
-        @if (editError()) {
-          <app-api-error-retry
-            [message]="'members.edit.error' | transloco"
-            [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
-            (retry)="retryEdit()"
-          />
+
+    <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
+      <section
+        class="relative overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-6 lg:col-start-1 lg:row-start-1"
+      >
+        <div
+          class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="relative z-10 flex flex-col items-start justify-between gap-6 min-[661px]:flex-row"
+        >
+          <div class="flex min-w-0 items-center gap-4">
+            <span
+              class="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-[15px] font-medium text-gold"
+              aria-hidden="true"
+            >
+              {{ memberInitials(member) }}
+            </span>
+            <div class="min-w-0">
+              <h1 class="font-sans text-2xl font-medium leading-tight text-text">
+                {{ member.displayName }}
+              </h1>
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs text-text-3">
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[9px] font-data font-medium uppercase tracking-[0.11em]"
+                  [class.bg-success-wash]="memberIsActive(member.status)"
+                  [class.text-success]="memberIsActive(member.status)"
+                  [class.bg-surface-2]="!memberIsActive(member.status)"
+                  [class.text-text-2]="!memberIsActive(member.status)"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full"
+                    [class.bg-success]="memberIsActive(member.status)"
+                    [class.bg-text-3]="!memberIsActive(member.status)"
+                    aria-hidden="true"
+                  ></span>
+                  {{ memberStatusLabel(member.status) }}
+                </span>
+                <span>{{ member.incomeCategory.label }}</span>
+                @if (member.associationFunction) {
+                  <span>{{ member.associationFunction }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="flex w-full flex-wrap gap-2.5 min-[661px]:w-auto">
+            @if (canEdit()) {
+              <app-action-button variant="secondary" type="button" (click)="openEditDialog()">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                </svg>
+                {{ 'members.edit.button' | transloco }}
+              </app-action-button>
+            }
+            @if (canDeactivate()) {
+              <app-action-button variant="secondary" type="button" (click)="openDeactivateDialog()">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="4" y="10" width="16" height="11" rx="2" />
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg>
+                {{ 'members.deactivate.button' | transloco }}
+              </app-action-button>
+            }
+            @if (canReactivate()) {
+              <app-action-button variant="secondary" type="button" (click)="openReactivateDialog()">
+                {{ 'members.reactivate.button' | transloco }}
+              </app-action-button>
+            }
+            @if (canRecordPayments()) {
+              <app-action-button type="button" (click)="openRecordPaymentDialog()">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20M6 15h2" />
+                </svg>
+                {{ 'members.recordPayment.button' | transloco }}
+              </app-action-button>
+            }
+          </div>
+        </div>
+
+        <dl class="relative z-10 mt-6 grid grid-cols-1 gap-x-8 border-t border-line sm:grid-cols-2">
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.lastName' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">{{ member.lastName }}</dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.firstName' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">{{ member.firstName }}</dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.preferredName' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">
+              {{ member.preferredName || ('memberDetail.notProvided' | transloco) }}
+            </dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.phone' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">
+              {{ member.phone || ('memberDetail.notProvided' | transloco) }}
+            </dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.country' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">
+              {{ member.country || ('memberDetail.notProvided' | transloco) }}
+            </dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.city' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">
+              {{ member.city || ('memberDetail.notProvided' | transloco) }}
+            </dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.incomeCategory' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">{{ member.incomeCategory.label }}</dd>
+          </div>
+          <div class="border-b border-line py-3">
+            <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+              {{ 'memberDetail.associationFunction' | transloco }}
+            </dt>
+            <dd class="mt-1 text-[13px] text-text">
+              {{ member.associationFunction || ('memberDetail.notProvided' | transloco) }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <aside class="flex flex-col gap-4 lg:col-start-2 lg:row-start-1 lg:justify-start">
+        <section class="rounded-card border border-line bg-surface p-5 shadow-card">
+          <h2 class="text-base font-medium text-text">
+            {{ 'memberDetail.financial.title' | transloco }}
+          </h2>
+          <p class="mt-3 font-display text-4xl leading-none tracking-wide text-text">
+            {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
+          </p>
+          <p class="mt-1.5 text-xs text-text-3">
+            {{ 'memberDetail.financial.remaining' | transloco }}
+          </p>
+          <dl class="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-3">
+            <div>
+              <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+                {{ 'memberDetail.financial.due' | transloco }}
+              </dt>
+              <dd class="mt-1 font-data text-sm text-text">
+                {{ formatAmount(member.financialSummary.totalDueAmount) }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
+                {{ 'memberDetail.financial.paid' | transloco }}
+              </dt>
+              <dd class="mt-1 font-data text-sm text-text">
+                {{ formatAmount(member.financialSummary.totalPaidAmount) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="rounded-card border border-line bg-surface p-5 shadow-card">
+          <h2 class="text-base font-medium text-text">
+            {{ 'memberDetail.account.title' | transloco }}
+          </h2>
+          <div class="mt-4 flex items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
+              aria-hidden="true"
+            >
+              {{ memberInitials(member) }}
+            </span>
+            <div class="min-w-0">
+              <span class="sr-only">{{ member.displayName }}</span>
+              <p class="text-[13px] font-medium text-text">
+                {{
+                  (member.account.active
+                    ? 'memberDetail.account.active'
+                    : 'memberDetail.account.inactive'
+                  ) | transloco
+                }}
+              </p>
+              <p class="mt-1 text-[11px] text-text-3">
+                {{ 'memberDetail.account.role' | transloco }} ·
+                {{ memberAccountRoleLabel(member.account.role) }}
+              </p>
+            </div>
+          </div>
+          @if (member.associationFunction) {
+            <p
+              class="mt-3 flex gap-2 rounded-lg bg-info-wash px-3.5 py-2.5 text-[11px] leading-relaxed text-info"
+            >
+              <svg
+                class="mt-0.5 h-4 w-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 11v5M12 8h.01" />
+              </svg>
+              <span>
+                {{
+                  'memberDetail.account.functionNote'
+                    | transloco: { function: member.associationFunction }
+                }}
+              </span>
+            </p>
+          }
+        </section>
+      </aside>
+
+      <div class="min-w-0 lg:col-start-1 lg:row-start-2">
+        <app-detail-tabs
+          [tabs]="detailTabs()"
+          [activeId]="activeTab()"
+          idPrefix="member-detail"
+          [ariaLabel]="'memberDetail.tablist' | transloco"
+          (activeIdChange)="selectDetailTab($event)"
+        />
+
+        @if (isActiveTab('cotisations')) {
+          <section
+            id="member-detail-panel-cotisations"
+            role="tabpanel"
+            aria-labelledby="member-detail-tab-cotisations"
+            tabindex="0"
+            class="mt-8"
+          >
+            <app-member-dues-tab [memberId]="member.id" [refreshToken]="dataRefreshToken()" />
+          </section>
         }
+
+        @if (isActiveTab('reglements')) {
+          <section
+            id="member-detail-panel-reglements"
+            role="tabpanel"
+            aria-labelledby="member-detail-tab-reglements"
+            tabindex="0"
+            class="mt-8"
+          >
+            <app-member-payments-tab [memberId]="member.id" [refreshToken]="dataRefreshToken()" />
+          </section>
+        }
+
+        @if (isActiveTab('contributions')) {
+          <section
+            id="member-detail-panel-contributions"
+            role="tabpanel"
+            aria-labelledby="member-detail-tab-contributions"
+            tabindex="0"
+            class="mt-8"
+          >
+            <app-member-contributions-tab [memberId]="member.id" />
+          </section>
+        }
+      </div>
+    </div>
+  </app-detail-shell>
+
+  <app-form-dialog
+    [open]="editOpen() && canEdit()"
+    [dialogTitle]="'members.edit.dialogTitle' | transloco"
+    [kicker]="'memberDetail.hero.kicker' | transloco"
+    desktopWidth="1060px"
+    (closed)="closeEditDialog()"
+  >
+    @if (editOpen() && canEdit()) {
+      <p class="mt-2 text-sm text-text-2">{{ 'members.edit.intro' | transloco }}</p>
+      @if (editError()) {
+        <app-api-error-retry
+          class="mt-4 block"
+          [message]="'members.edit.error' | transloco"
+          [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+          (retry)="retryEdit()"
+        />
+      }
+      <div class="mt-4">
         @if (canEditFull()) {
           <app-member-edit-form
             #editFormFull
@@ -92,225 +382,273 @@
             (cancelled)="closeEditDialog()"
           />
         }
-      }
-    </app-form-dialog>
+      </div>
+    }
+  </app-form-dialog>
 
-    <app-form-dialog
-      [open]="deactivateOpen() && canDeactivate()"
-      [dialogTitle]="'members.deactivate.dialogTitle' | transloco"
-      (closed)="closeDeactivateDialog()"
-    >
-      @if (deactivateOpen() && canDeactivate()) {
-        @if (deactivateError()) {
-          <p class="mb-4 text-sm text-error" role="alert">
-            {{ 'members.deactivate.error' | transloco }}
-          </p>
-        }
-        <p class="text-sm text-text">{{ 'members.deactivate.confirmMessage' | transloco }}</p>
-        <div class="mt-6 flex justify-end gap-3">
-          <app-action-button
-            type="button"
-            variant="secondary"
-            (click)="closeDeactivateDialog()"
-            [disabled]="deactivating()"
-          >
-            {{ 'members.deactivate.cancel' | transloco }}
-          </app-action-button>
-          <app-action-button
-            type="button"
-            variant="danger"
-            (click)="confirmDeactivate()"
-            [disabled]="deactivating()"
-          >
-            {{
-              (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.confirm')
-                | transloco
-            }}
-          </app-action-button>
-        </div>
+  <app-form-dialog
+    [open]="deactivateOpen() && canDeactivate()"
+    [dialogTitle]="'members.deactivate.dialogTitle' | transloco"
+    (closed)="closeDeactivateDialog()"
+  >
+    @if (deactivateOpen() && canDeactivate()) {
+      @if (deactivateError()) {
+        <p class="mb-4 text-sm text-error" role="alert">
+          {{ 'members.deactivate.error' | transloco }}
+        </p>
       }
-    </app-form-dialog>
-
-    <app-form-dialog
-      [open]="reactivateOpen() && canReactivate()"
-      [dialogTitle]="'members.reactivate.dialogTitle' | transloco"
-      (closed)="closeReactivateDialog()"
-    >
-      @if (reactivateOpen() && canReactivate()) {
-        @if (reactivateError()) {
-          <p class="mb-4 text-sm text-error" role="alert">
-            {{ 'members.reactivate.error' | transloco }}
-          </p>
-        }
-        <p class="text-sm text-text">{{ 'members.reactivate.confirmMessage' | transloco }}</p>
-        <div class="mt-6 flex justify-end gap-3">
-          <app-action-button type="button" variant="secondary" (click)="closeReactivateDialog()">
-            {{ 'members.reactivate.cancel' | transloco }}
-          </app-action-button>
-          <app-action-button
-            type="button"
-            (click)="confirmReactivate()"
-            [disabled]="reactivating()"
-          >
-            {{
-              (reactivating() ? 'members.reactivate.confirming' : 'members.reactivate.confirm')
-                | transloco
-            }}
-          </app-action-button>
-        </div>
-      }
-    </app-form-dialog>
-
-    <div
-      class="mt-8 flex gap-2 border-b border-line"
-      role="tablist"
-      [attr.aria-label]="'memberDetail.tablist' | transloco"
-    >
-      @for (tab of tabs; track tab) {
-        <button
-          #tabButton
+      <p class="text-sm text-text">{{ 'members.deactivate.confirmMessage' | transloco }}</p>
+      <div class="mt-6 flex justify-end gap-3">
+        <app-action-button
           type="button"
-          [id]="'member-tab-' + tab"
-          role="tab"
-          [attr.aria-selected]="isActiveTab(tab) ? 'true' : 'false'"
-          [attr.aria-controls]="'member-tabpanel-' + tab"
-          [tabIndex]="isActiveTab(tab) ? 0 : -1"
-          class="border-b-2 px-4 py-2 text-sm font-medium"
-          [class.border-gold-hover]="isActiveTab(tab)"
-          [class.text-gold-hover]="isActiveTab(tab)"
-          [class.border-transparent]="!isActiveTab(tab)"
-          [class.text-text-2]="!isActiveTab(tab)"
-          (click)="selectTab(tab)"
-          (keydown)="onTabsKeydown($event)"
+          variant="secondary"
+          (click)="closeDeactivateDialog()"
+          [disabled]="deactivating()"
         >
-          {{ 'memberDetail.tabs.' + tab | transloco }}
-        </button>
+          {{ 'members.deactivate.cancel' | transloco }}
+        </app-action-button>
+        <app-action-button
+          type="button"
+          variant="danger"
+          (click)="confirmDeactivate()"
+          [disabled]="deactivating()"
+        >
+          {{
+            (deactivating() ? 'members.deactivate.submitting' : 'members.deactivate.confirm')
+              | transloco
+          }}
+        </app-action-button>
+      </div>
+    }
+  </app-form-dialog>
+
+  <app-form-dialog
+    [open]="reactivateOpen() && canReactivate()"
+    [dialogTitle]="'members.reactivate.dialogTitle' | transloco"
+    (closed)="closeReactivateDialog()"
+  >
+    @if (reactivateOpen() && canReactivate()) {
+      @if (reactivateError()) {
+        <p class="mb-4 text-sm text-error" role="alert">
+          {{ 'members.reactivate.error' | transloco }}
+        </p>
       }
-    </div>
-
-    @if (isActiveTab('informations')) {
-      <section
-        id="member-tabpanel-informations"
-        role="tabpanel"
-        aria-labelledby="member-tab-informations"
-        tabindex="0"
-      >
-        <section class="mt-6">
-          <h2 class="font-display text-xl uppercase tracking-wide text-text">
-            {{ 'memberDetail.personalInfoTitle' | transloco }}
-          </h2>
-          <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.lastName' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">{{ member.lastName }}</dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.firstName' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">{{ member.firstName }}</dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.preferredName' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">
-                {{ member.preferredName || ('memberDetail.notProvided' | transloco) }}
-              </dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.phone' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">
-                {{ member.phone || ('memberDetail.notProvided' | transloco) }}
-              </dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.country' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">
-                {{ member.country || ('memberDetail.notProvided' | transloco) }}
-              </dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.city' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">
-                {{ member.city || ('memberDetail.notProvided' | transloco) }}
-              </dd>
-            </div>
-          </dl>
-        </section>
-
-        <section class="mt-8">
-          <h2 class="font-display text-xl uppercase tracking-wide text-text">
-            {{ 'memberDetail.associationInfoTitle' | transloco }}
-          </h2>
-          <dl class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.incomeCategory' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">{{ member.incomeCategory.label }}</dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.associationFunction' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">
-                {{ member.associationFunction || ('memberDetail.notProvided' | transloco) }}
-              </dd>
-            </div>
-            <div class="rounded-card border border-line bg-surface p-4">
-              <dt class="text-xs uppercase tracking-[0.1em] text-text-2">
-                {{ 'memberDetail.status' | transloco }}
-              </dt>
-              <dd class="mt-1 text-text">{{ memberStatusLabel(member.status) }}</dd>
-            </div>
-          </dl>
-        </section>
-      </section>
+      <p class="text-sm text-text">{{ 'members.reactivate.confirmMessage' | transloco }}</p>
+      <div class="mt-6 flex justify-end gap-3">
+        <app-action-button type="button" variant="secondary" (click)="closeReactivateDialog()">
+          {{ 'members.reactivate.cancel' | transloco }}
+        </app-action-button>
+        <app-action-button type="button" (click)="confirmReactivate()" [disabled]="reactivating()">
+          {{
+            (reactivating() ? 'members.reactivate.confirming' : 'members.reactivate.confirm')
+              | transloco
+          }}
+        </app-action-button>
+      </div>
     }
+  </app-form-dialog>
 
-    @if (isActiveTab('cotisations')) {
-      <section
-        id="member-tabpanel-cotisations"
-        role="tabpanel"
-        aria-labelledby="member-tab-cotisations"
-        tabindex="0"
-        class="mt-6"
-      >
-        <app-member-dues-tab [memberId]="member.id" />
-      </section>
-    }
+  <app-form-dialog
+    [open]="recordPaymentOpen() && canRecordPayments()"
+    [dialogTitle]="'members.recordPayment.dialogTitle' | transloco"
+    [kicker]="'memberDetail.hero.kicker' | transloco"
+    desktopWidth="800px"
+    (closed)="closeRecordPaymentDialog()"
+  >
+    @if (recordPaymentOpen() && canRecordPayments()) {
+      <p class="mt-2 text-sm text-text-2">{{ 'members.recordPayment.intro' | transloco }}</p>
 
-    @if (isActiveTab('reglements')) {
-      <section
-        id="member-tabpanel-reglements"
-        role="tabpanel"
-        aria-labelledby="member-tab-reglements"
-        tabindex="0"
-        class="mt-6"
-      >
-        <app-member-payments-tab [memberId]="member.id" />
-      </section>
-    }
+      @if (recordPaymentError(); as errorKey) {
+        <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
+      }
 
-    @if (isActiveTab('contributions')) {
-      <section
-        id="member-tabpanel-contributions"
-        role="tabpanel"
-        aria-labelledby="member-tab-contributions"
-        tabindex="0"
-        class="mt-6"
-      >
-        <app-member-contributions-tab [memberId]="member.id" />
-      </section>
+      @if (payableDuesLoading()) {
+        <app-loading-skeleton
+          variant="dialog"
+          [rows]="4"
+          [label]="'members.recordPayment.loadingDues' | transloco"
+          [dialogSummaryLabels]="[
+            'members.recordPayment.summary.due' | transloco,
+            'members.recordPayment.summary.paid' | transloco,
+            'members.recordPayment.summary.remaining' | transloco,
+          ]"
+          [dialogFieldLabels]="[
+            'members.recordPayment.fields.member' | transloco,
+            'members.recordPayment.fields.campaign' | transloco,
+            'members.recordPayment.fields.amount' | transloco,
+            'members.recordPayment.fields.paymentDate' | transloco,
+            'members.recordPayment.fields.method' | transloco,
+          ]"
+        />
+      } @else if (payableDuesError()) {
+        <app-api-error-retry
+          class="mt-4 block"
+          [message]="'members.recordPayment.loadErrorDues' | transloco"
+          [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
+          (retry)="retryLoadPayableDues()"
+        />
+      } @else if (payableDues(); as dues) {
+        @if (dues.length === 0) {
+          <p class="mt-4 text-sm text-text-2">
+            {{ 'members.recordPayment.noPayableDue' | transloco }}
+          </p>
+        } @else {
+          <div
+            class="mt-5 grid grid-cols-3 gap-3 rounded border border-line bg-surface-2 p-4 text-center"
+          >
+            <div>
+              <p class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+                {{ 'members.recordPayment.summary.due' | transloco }}
+              </p>
+              <p class="mt-1 font-data text-sm text-text">
+                {{ selectedDue() ? formatAmount(selectedDue()!.dueAmount) : '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+                {{ 'members.recordPayment.summary.paid' | transloco }}
+              </p>
+              <p class="mt-1 font-data text-sm text-text">
+                {{ selectedDue() ? formatAmount(selectedDue()!.paidAmount) : '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+                {{ 'members.recordPayment.summary.remaining' | transloco }}
+              </p>
+              <p class="mt-1 font-data text-sm text-gold">
+                {{ selectedDue() ? formatAmount(selectedDue()!.remainingAmount) : '—' }}
+              </p>
+            </div>
+          </div>
+
+          <form class="mt-5" [formGroup]="recordPaymentForm" (ngSubmit)="submitRecordPayment()">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <span
+                  class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+                >
+                  {{ 'members.recordPayment.fields.member' | transloco }}
+                </span>
+                <app-custom-select
+                  controlId="record-payment-member"
+                  [options]="memberSelectOptions()"
+                  [value]="member.id"
+                  [disabledInput]="true"
+                  [ariaLabel]="'members.recordPayment.fields.member' | transloco"
+                />
+              </div>
+              <div>
+                <label
+                  for="record-payment-campaign"
+                  class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+                >
+                  {{ 'members.recordPayment.fields.campaign' | transloco }}
+                </label>
+                <app-custom-select
+                  controlId="record-payment-campaign"
+                  formControlName="dueId"
+                  [options]="dueSelectOptions()"
+                  [placeholder]="'members.recordPayment.fields.campaignPlaceholder' | transloco"
+                  [required]="true"
+                  [showRequiredError]="false"
+                  (valueChange)="onDueSelected($event)"
+                />
+              </div>
+            </div>
+
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+              <app-amount-input
+                formControlName="amount"
+                [label]="'members.recordPayment.fields.amount' | transloco"
+                [required]="true"
+              />
+              <div>
+                <label
+                  for="record-payment-date"
+                  class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+                >
+                  {{ 'members.recordPayment.fields.paymentDate' | transloco }}
+                </label>
+                <input
+                  id="record-payment-date"
+                  type="date"
+                  formControlName="paymentDate"
+                  required
+                  [attr.aria-invalid]="paymentDateInvalid() ? true : null"
+                  [attr.aria-describedby]="
+                    paymentDateInvalid() ? 'record-payment-date-error' : null
+                  "
+                  class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+                />
+                @if (paymentDateInvalid()) {
+                  <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">
+                    {{ 'members.recordPayment.fields.paymentDateRequired' | transloco }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <app-payment-method-select
+                formControlName="method"
+                [label]="'members.recordPayment.fields.method' | transloco"
+                [required]="true"
+              />
+            </div>
+
+            <p
+              class="mt-4 rounded border border-[color:color-mix(in_srgb,var(--info)_30%,transparent)] bg-info-wash px-4 py-3 text-sm text-text-2"
+            >
+              {{ 'members.recordPayment.traceabilityNote' | transloco }}
+            </p>
+
+            <div
+              class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+            >
+              <app-action-button
+                type="button"
+                variant="secondary"
+                (click)="closeRecordPaymentDialog()"
+              >
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                {{ 'members.recordPayment.cancel' | transloco }}
+              </app-action-button>
+              <app-action-button type="submit" [disabled]="recordPaymentSubmitting()">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+                {{
+                  (recordPaymentSubmitting()
+                    ? 'members.recordPayment.submitting'
+                    : 'members.recordPayment.submit'
+                  ) | transloco
+                }}
+              </app-action-button>
+            </div>
+          </form>
+        }
+      }
     }
-  }
-</main>
+  </app-form-dialog>
+}

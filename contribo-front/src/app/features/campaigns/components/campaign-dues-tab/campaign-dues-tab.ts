@@ -20,6 +20,7 @@ import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
@@ -62,6 +63,7 @@ const DUES_PAGE_SIZE = 10;
     ActionButton,
     DataTable,
     PaginationControls,
+    LoadingSkeleton,
   ],
   templateUrl: './campaign-dues-tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -34,7 +34,7 @@
   </div>
 
   @if (loading() && !hasLoadedOnce()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'rolesUsers.loading' | transloco }}</p>
+    <app-loading-skeleton variant="table" [rows]="5" [label]="'rolesUsers.loading' | transloco" />
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'rolesUsers.error' | transloco }}</p>
   } @else if (users().length === 0) {
@@ -50,6 +50,13 @@
         {{ 'rolesUsers.loading' | transloco }}
       }
     </p>
+    @if (loading()) {
+      <app-loading-skeleton
+        class="mt-4 block"
+        variant="inline"
+        [label]="'rolesUsers.loading' | transloco"
+      />
+    }
     <section
       class="mt-6 overflow-x-auto rounded-card border border-line bg-surface-glass"
       [attr.aria-busy]="loading() ? 'true' : null"

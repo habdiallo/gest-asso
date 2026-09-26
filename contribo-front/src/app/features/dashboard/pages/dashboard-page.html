@@ -33,7 +33,7 @@
   </app-page-header>
 
   @if (loading()) {
-    <p class="mt-6 text-text-2" role="status">{{ 'dashboard.loading' | transloco }}</p>
+    <app-loading-skeleton variant="grid" [rows]="4" [label]="'dashboard.loading' | transloco" />
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
   } @else {

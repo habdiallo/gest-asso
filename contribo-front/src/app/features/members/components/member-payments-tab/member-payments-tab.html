@@ -1,10 +1,21 @@
 @if (loading() && payments().length === 0) {
-  <p class="text-text-2" role="status">{{ 'memberDetail.payments.loading' | transloco }}</p>
+  <app-loading-skeleton
+    variant="table"
+    [rows]="3"
+    [label]="'memberDetail.payments.loading' | transloco"
+  />
 } @else if (loadError() && payments().length === 0) {
   <p class="text-error" role="alert">{{ 'memberDetail.payments.error' | transloco }}</p>
 } @else if (payments().length === 0) {
   <app-empty-state [message]="'memberDetail.payments.empty' | transloco" />
 } @else {
+  @if (pageActionPending()) {
+    <app-loading-skeleton
+      class="mb-4 block"
+      variant="inline"
+      [label]="'memberDetail.payments.loading' | transloco"
+    />
+  }
   <app-data-table
     [caption]="'memberDetail.payments.caption' | transloco"
     [busy]="pageActionPending()"
@@ -14,13 +25,13 @@
         class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
       >
         <th scope="col" class="px-4 py-0 font-medium">
+          {{ 'memberDetail.payments.columns.date' | transloco }}
+        </th>
+        <th scope="col" class="px-4 py-0 font-medium">
           {{ 'memberDetail.payments.columns.campaign' | transloco }}
         </th>
         <th scope="col" class="px-4 py-0 font-medium">
           {{ 'memberDetail.payments.columns.amount' | transloco }}
-        </th>
-        <th scope="col" class="px-4 py-0 font-medium">
-          {{ 'memberDetail.payments.columns.date' | transloco }}
         </th>
         <th scope="col" class="px-4 py-0 font-medium">
           {{ 'memberDetail.payments.columns.method' | transloco }}
@@ -32,14 +43,14 @@
         <tr
           class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
         >
-          <th scope="row" class="px-4 py-2 font-normal text-text">
-            {{ payment.campaign.name }}
+          <th scope="row" class="whitespace-nowrap px-4 py-2 font-normal text-text">
+            {{ formatCalendarDate(payment.paymentDate) }}
           </th>
+          <td class="px-4 py-2 text-[13px] text-text-2">
+            {{ payment.campaign.name }}
+          </td>
           <td class="whitespace-nowrap px-4 py-2 font-data text-[13px] text-success">
             + {{ formatAmount(payment.amount) }}
-          </td>
-          <td class="whitespace-nowrap px-4 py-2 text-[13px] text-text-2">
-            {{ formatCalendarDate(payment.paymentDate) }}
           </td>
           <td class="px-4 py-2 text-[13px] text-text-2">
             {{ paymentMethodLabel(payment.method) }}

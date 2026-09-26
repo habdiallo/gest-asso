@@ -77,6 +77,17 @@ describe('MemberContributionsTab', () => {
     expect(root.textContent).toContain('Mobile Money');
   });
 
+  it('shows exactly the business columns Cagnotte, Montant, Mode, Date, in this order (T-130)', async () => {
+    const fixture = await createFixture(() => of(result));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const headers = Array.from(root.querySelectorAll('thead th')).map((th) =>
+      th.textContent?.trim(),
+    );
+    expect(headers).toEqual(['Cagnotte', 'Montant', 'Mode de règlement', 'Date']);
+  });
+
   it('shows an empty state when the member has no contribution', async () => {
     const fixture = await createFixture(() =>
       of({ items: [], page: { number: 0, size: 20, totalElements: 0, totalPages: 0 } }),

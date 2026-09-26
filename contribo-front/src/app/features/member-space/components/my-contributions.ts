@@ -5,12 +5,13 @@ import type { ContributionPage } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { formatCalendarDate } from '../member-space-dates';
 
 /** Contributions personnelles aux cagnottes, issues exclusivement de GET /me/contributions (T-98). */
 @Component({
   selector: 'app-my-contributions',
-  imports: [TranslocoPipe, EmptyState],
+  imports: [TranslocoPipe, EmptyState, LoadingSkeleton],
   templateUrl: './my-contributions.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

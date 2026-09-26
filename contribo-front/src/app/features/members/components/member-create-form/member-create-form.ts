@@ -16,6 +16,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 /**
  * Formulaire de création de membre (T-33, US-MEM-001) : Nom, Prénom, Nom
@@ -34,7 +35,7 @@ import { CustomSelect } from '@shared/custom-select/custom-select';
  */
 @Component({
   selector: 'app-member-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect, LoadingSkeleton],
   templateUrl: './member-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

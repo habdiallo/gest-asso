@@ -136,9 +136,11 @@
         </p>
       }
       @if (categoriesLoading()) {
-        <p class="mt-2 text-sm text-text-2" role="status">
-          {{ 'members.create.categoriesLoading' | transloco }}
-        </p>
+        <app-loading-skeleton
+          class="mt-2 block text-sm text-text-2"
+          variant="inline"
+          [label]="'members.create.categoriesLoading' | transloco"
+        />
       } @else if (categoriesError()) {
         <p class="mt-2 text-sm text-error" role="alert">
           {{ 'members.create.categoriesError' | transloco }}

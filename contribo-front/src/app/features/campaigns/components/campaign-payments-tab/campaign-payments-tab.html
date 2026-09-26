@@ -11,9 +11,11 @@
   </div>
 
   @if (loading() && !paymentPage()) {
-    <p class="mt-5 text-text-2" role="status">
-      {{ 'campaigns.detail.payments.loading' | transloco }}
-    </p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="3"
+      [label]="'campaigns.detail.payments.loading' | transloco"
+    />
   } @else if (loadError() && !paymentPage()) {
     <p class="mt-5 text-error" role="alert">{{ 'campaigns.detail.payments.error' | transloco }}</p>
     <button
@@ -42,6 +44,13 @@
         [message]="'campaigns.detail.payments.empty' | transloco"
       />
     } @else {
+      @if (loading()) {
+        <app-loading-skeleton
+          class="mt-4 block"
+          variant="inline"
+          [label]="'campaigns.detail.payments.loading' | transloco"
+        />
+      }
       <app-data-table
         class="mt-5 block"
         [caption]="'campaigns.detail.payments.caption' | transloco"

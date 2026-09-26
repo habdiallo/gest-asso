@@ -15,47 +15,98 @@
       </div>
     </div>
 
-    <app-amount-input
-      formControlName="amount"
-      [label]="'campaigns.detail.cotisations.recordPayment.fields.amount' | transloco"
-      [required]="true"
-    />
-
-    <div>
-      <label
-        for="record-payment-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDate' | transloco }}
-      </label>
-      <input
-        id="record-payment-date"
-        type="date"
-        formControlName="paymentDate"
-        required
-        [attr.aria-invalid]="paymentDateInvalid() ? true : null"
-        [attr.aria-describedby]="paymentDateInvalid() ? 'record-payment-date-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+    <div class="grid gap-4 sm:grid-cols-2">
+      <app-amount-input
+        formControlName="amount"
+        [label]="'campaigns.detail.cotisations.recordPayment.fields.amount' | transloco"
+        [required]="true"
       />
-      @if (paymentDateInvalid()) {
-        <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDateRequired' | transloco }}
-        </p>
-      }
+
+      <div>
+        <label
+          for="record-payment-date"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDate' | transloco }}
+        </label>
+        <input
+          id="record-payment-date"
+          type="date"
+          formControlName="paymentDate"
+          required
+          [attr.aria-invalid]="paymentDateInvalid() ? true : null"
+          [attr.aria-describedby]="paymentDateInvalid() ? 'record-payment-date-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (paymentDateInvalid()) {
+          <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">
+            {{
+              'campaigns.detail.cotisations.recordPayment.fields.paymentDateRequired' | transloco
+            }}
+          </p>
+        }
+      </div>
     </div>
 
-    <app-payment-method-select
-      formControlName="method"
-      [label]="'campaigns.detail.cotisations.recordPayment.fields.method' | transloco"
-      [required]="true"
-    />
+    <div>
+      <app-payment-method-select
+        formControlName="method"
+        [label]="'campaigns.detail.cotisations.recordPayment.fields.method' | transloco"
+        [required]="true"
+      />
+    </div>
   </div>
 
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <p
+    class="mt-4 flex items-center gap-3 rounded border border-[color:color-mix(in_srgb,var(--info)_30%,transparent)] bg-info-wash px-4 py-3 text-sm text-text-2"
+  >
+    <svg
+      class="h-4 w-4 shrink-0 text-info"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3 5 6v5c0 4.6 2.9 8.1 7 10 4.1-1.9 7-5.4 7-10V6l-7-3Z" />
+      <path d="m9.5 12 1.7 1.7 3.5-3.5" />
+    </svg>
+    <span>{{ 'campaigns.detail.cotisations.recordPayment.traceabilityNote' | transloco }}</span>
+  </p>
+
+  <div
+    class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+  >
     <app-action-button type="button" variant="secondary" (click)="cancel()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
       {{ 'campaigns.detail.cotisations.recordPayment.cancel' | transloco }}
     </app-action-button>
     <app-action-button type="submit" [disabled]="submitting()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m5 12 4 4L19 6" />
+      </svg>
       {{
         (submitting()
           ? 'campaigns.detail.cotisations.recordPayment.submitting'

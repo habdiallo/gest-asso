@@ -41,9 +41,11 @@
   </div>
 
   @if (loading()) {
-    <p class="text-text-2" role="status">
-      {{ 'campaigns.detail.cotisations.loading' | transloco }}
-    </p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="3"
+      [label]="'campaigns.detail.cotisations.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="text-error" role="alert">
       {{ 'campaigns.detail.cotisations.error' | transloco }}
@@ -183,12 +185,17 @@
   <app-form-dialog
     [open]="recordPaymentDue() !== null"
     [dialogTitle]="'campaigns.detail.cotisations.recordPayment.dialogTitle' | transloco"
+    [kicker]="'campaigns.detail.cotisations.recordPayment.kicker' | transloco"
+    desktopWidth="920px"
     (closed)="closeRecordPayment()"
   >
     @if (recordPaymentDue(); as due) {
       @if (recordPaymentError(); as errorKey) {
         <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
       }
+      <p class="mb-6 text-base leading-6 text-text-2">
+        {{ 'campaigns.detail.cotisations.recordPayment.intro' | transloco }}
+      </p>
       <app-record-payment-form
         [due]="due"
         [submitting]="recordPaymentSubmitting()"

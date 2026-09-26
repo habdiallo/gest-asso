@@ -1,207 +1,264 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
-  <div class="grid gap-4 sm:grid-cols-2">
-    <div>
-      <label
-        for="member-edit-last-name"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+  <section>
+    <div class="flex items-center gap-3">
+      <span
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-wash font-data text-[9px] font-medium text-gold"
+        aria-hidden="true"
       >
-        {{ 'members.create.fields.lastName' | transloco }}
-      </label>
-      <input
-        id="member-edit-last-name"
-        type="text"
-        formControlName="lastName"
-        required
-        [attr.aria-invalid]="lastNameInvalid() ? true : null"
-        [attr.aria-describedby]="lastNameInvalid() ? 'member-edit-last-name-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (lastNameInvalid()) {
-        <p id="member-edit-last-name-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.create.fields.lastNameRequired' | transloco }}
-        </p>
-      }
+        01
+      </span>
+      <h3 class="text-base font-medium text-text">
+        {{ 'members.edit.sections.identity' | transloco }}
+      </h3>
     </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div>
+        <label
+          for="member-edit-last-name"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.lastName' | transloco }}
+        </label>
+        <input
+          id="member-edit-last-name"
+          type="text"
+          formControlName="lastName"
+          required
+          [attr.aria-invalid]="lastNameInvalid() ? true : null"
+          [attr.aria-describedby]="lastNameInvalid() ? 'member-edit-last-name-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (lastNameInvalid()) {
+          <p id="member-edit-last-name-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.create.fields.lastNameRequired' | transloco }}
+          </p>
+        }
+      </div>
 
-    <div>
-      <label
-        for="member-edit-first-name"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      <div>
+        <label
+          for="member-edit-first-name"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.firstName' | transloco }}
+        </label>
+        <input
+          id="member-edit-first-name"
+          type="text"
+          formControlName="firstName"
+          required
+          [attr.aria-invalid]="firstNameInvalid() ? true : null"
+          [attr.aria-describedby]="firstNameInvalid() ? 'member-edit-first-name-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (firstNameInvalid()) {
+          <p id="member-edit-first-name-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.create.fields.firstNameRequired' | transloco }}
+          </p>
+        }
+      </div>
+
+      <div>
+        <label
+          for="member-edit-preferred-name"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.preferredName' | transloco }}
+        </label>
+        <input
+          id="member-edit-preferred-name"
+          type="text"
+          formControlName="preferredName"
+          [attr.aria-invalid]="fieldInvalid('preferredName') ? true : null"
+          [attr.aria-describedby]="
+            fieldInvalid('preferredName') ? 'member-edit-preferred-name-error' : null
+          "
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (fieldInvalid('preferredName')) {
+          <p id="member-edit-preferred-name-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.edit.fields.valueInvalid' | transloco }}
+          </p>
+        }
+      </div>
+
+      <div>
+        <label
+          for="member-edit-phone"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.phone' | transloco }}
+        </label>
+        <input
+          id="member-edit-phone"
+          type="tel"
+          formControlName="phone"
+          [attr.aria-invalid]="phoneInvalid() ? true : null"
+          [attr.aria-describedby]="phoneInvalid() ? 'member-edit-phone-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (phoneInvalid()) {
+          <p id="member-edit-phone-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.create.fields.phoneInvalid' | transloco }}
+          </p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 border-t border-line pt-6">
+    <div class="flex items-center gap-3">
+      <span
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-wash font-data text-[9px] font-medium text-gold"
+        aria-hidden="true"
       >
-        {{ 'members.create.fields.firstName' | transloco }}
-      </label>
-      <input
-        id="member-edit-first-name"
-        type="text"
-        formControlName="firstName"
-        required
-        [attr.aria-invalid]="firstNameInvalid() ? true : null"
-        [attr.aria-describedby]="firstNameInvalid() ? 'member-edit-first-name-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (firstNameInvalid()) {
-        <p id="member-edit-first-name-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.create.fields.firstNameRequired' | transloco }}
-        </p>
-      }
+        02
+      </span>
+      <h3 class="text-base font-medium text-text">
+        {{ 'members.edit.sections.location' | transloco }}
+      </h3>
     </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div>
+        <label
+          for="member-edit-country"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.country' | transloco }}
+        </label>
+        <input
+          id="member-edit-country"
+          type="text"
+          formControlName="country"
+          [attr.aria-invalid]="fieldInvalid('country') ? true : null"
+          [attr.aria-describedby]="fieldInvalid('country') ? 'member-edit-country-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (fieldInvalid('country')) {
+          <p id="member-edit-country-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.edit.fields.valueInvalid' | transloco }}
+          </p>
+        }
+      </div>
 
-    <div>
-      <label
-        for="member-edit-preferred-name"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.preferredName' | transloco }}
-      </label>
-      <input
-        id="member-edit-preferred-name"
-        type="text"
-        formControlName="preferredName"
-        [attr.aria-invalid]="fieldInvalid('preferredName') ? true : null"
-        [attr.aria-describedby]="
-          fieldInvalid('preferredName') ? 'member-edit-preferred-name-error' : null
-        "
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (fieldInvalid('preferredName')) {
-        <p id="member-edit-preferred-name-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
-        </p>
-      }
+      <div>
+        <label
+          for="member-edit-city"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.city' | transloco }}
+        </label>
+        <input
+          id="member-edit-city"
+          type="text"
+          formControlName="city"
+          [attr.aria-invalid]="fieldInvalid('city') ? true : null"
+          [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-city-error' : null"
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (fieldInvalid('city')) {
+          <p id="member-edit-city-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.edit.fields.valueInvalid' | transloco }}
+          </p>
+        }
+      </div>
+
+      <div>
+        <label
+          for="member-edit-income-category"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.incomeCategory' | transloco }}
+        </label>
+        <app-custom-select
+          controlId="member-edit-income-category"
+          formControlName="incomeCategoryId"
+          [options]="categorySelectOptions()"
+          [placeholder]="'members.create.fields.incomeCategoryPlaceholder' | transloco"
+          [required]="true"
+          [showRequiredError]="false"
+          [ariaInvalid]="incomeCategoryInvalid()"
+          [ariaDescribedBy]="incomeCategoryInvalid() ? 'member-edit-income-category-error' : null"
+        />
+        @if (incomeCategoryInvalid()) {
+          <p id="member-edit-income-category-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.create.fields.incomeCategoryRequired' | transloco }}
+          </p>
+        }
+        @if (categoriesLoading() && categorySelectOptions().length === 0) {
+          <app-loading-skeleton
+            class="mt-2 block text-sm text-text-2"
+            variant="inline"
+            [label]="'members.create.categoriesLoading' | transloco"
+          />
+        } @else if (categoriesError() && categorySelectOptions().length === 0) {
+          <p class="mt-2 text-sm text-error" role="alert">
+            {{ 'members.create.categoriesError' | transloco }}
+          </p>
+        }
+      </div>
+
+      <div>
+        <label
+          for="member-edit-association-function"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'members.create.fields.associationFunction' | transloco }}
+        </label>
+        <input
+          id="member-edit-association-function"
+          type="text"
+          formControlName="associationFunction"
+          [attr.aria-invalid]="fieldInvalid('associationFunction') ? true : null"
+          [attr.aria-describedby]="
+            fieldInvalid('associationFunction') ? 'member-edit-association-function-error' : null
+          "
+          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (fieldInvalid('associationFunction')) {
+          <p
+            id="member-edit-association-function-error"
+            class="mt-2 text-sm text-error"
+            role="alert"
+          >
+            {{ 'members.edit.fields.valueInvalid' | transloco }}
+          </p>
+        }
+      </div>
     </div>
+  </section>
 
-    <div>
-      <label
-        for="member-edit-phone"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.phone' | transloco }}
-      </label>
-      <input
-        id="member-edit-phone"
-        type="tel"
-        formControlName="phone"
-        [attr.aria-invalid]="phoneInvalid() ? true : null"
-        [attr.aria-describedby]="phoneInvalid() ? 'member-edit-phone-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (phoneInvalid()) {
-        <p id="member-edit-phone-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.create.fields.phoneInvalid' | transloco }}
-        </p>
-      }
-    </div>
-
-    <div>
-      <label
-        for="member-edit-country"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.country' | transloco }}
-      </label>
-      <input
-        id="member-edit-country"
-        type="text"
-        formControlName="country"
-        [attr.aria-invalid]="fieldInvalid('country') ? true : null"
-        [attr.aria-describedby]="fieldInvalid('country') ? 'member-edit-country-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (fieldInvalid('country')) {
-        <p id="member-edit-country-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
-        </p>
-      }
-    </div>
-
-    <div>
-      <label
-        for="member-edit-city"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.city' | transloco }}
-      </label>
-      <input
-        id="member-edit-city"
-        type="text"
-        formControlName="city"
-        [attr.aria-invalid]="fieldInvalid('city') ? true : null"
-        [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-city-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (fieldInvalid('city')) {
-        <p id="member-edit-city-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
-        </p>
-      }
-    </div>
-
-    <div>
-      <label
-        for="member-edit-income-category"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.incomeCategory' | transloco }}
-      </label>
-      <app-custom-select
-        controlId="member-edit-income-category"
-        formControlName="incomeCategoryId"
-        [options]="categorySelectOptions()"
-        [placeholder]="'members.create.fields.incomeCategoryPlaceholder' | transloco"
-        [required]="true"
-        [showRequiredError]="false"
-        [ariaInvalid]="incomeCategoryInvalid()"
-        [ariaDescribedBy]="incomeCategoryInvalid() ? 'member-edit-income-category-error' : null"
-      />
-      @if (incomeCategoryInvalid()) {
-        <p id="member-edit-income-category-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.create.fields.incomeCategoryRequired' | transloco }}
-        </p>
-      }
-      @if (categoriesLoading()) {
-        <p class="mt-2 text-sm text-text-2" role="status">
-          {{ 'members.create.categoriesLoading' | transloco }}
-        </p>
-      } @else if (categoriesError()) {
-        <p class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.create.categoriesError' | transloco }}
-        </p>
-      }
-    </div>
-
-    <div>
-      <label
-        for="member-edit-association-function"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'members.create.fields.associationFunction' | transloco }}
-      </label>
-      <input
-        id="member-edit-association-function"
-        type="text"
-        formControlName="associationFunction"
-        [attr.aria-invalid]="fieldInvalid('associationFunction') ? true : null"
-        [attr.aria-describedby]="
-          fieldInvalid('associationFunction') ? 'member-edit-association-function-error' : null
-        "
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (fieldInvalid('associationFunction')) {
-        <p id="member-edit-association-function-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
-        </p>
-      }
-    </div>
-  </div>
-
-  <p class="mt-4 text-sm text-text-2">
-    {{ 'members.edit.categoryNote' | transloco }}
-  </p>
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div
+    class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+  >
     <app-action-button type="button" variant="secondary" (click)="cancel()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
       {{ 'members.create.cancel' | transloco }}
     </app-action-button>
     <app-action-button type="submit" [disabled]="submitting() || !hasChanges()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m5 12 4 4L19 6" />
+      </svg>
       {{ (submitting() ? 'members.edit.submitting' : 'members.edit.submit') | transloco }}
     </app-action-button>
   </div>

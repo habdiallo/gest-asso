@@ -17,10 +17,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-member-edit-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
+  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect, LoadingSkeleton],
   templateUrl: './member-edit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -38,7 +39,12 @@ export class MemberEditForm implements OnInit {
   readonly categoriesLoading = signal(true);
   readonly categoriesError = signal(false);
   readonly categorySelectOptions = computed<readonly CustomSelectOption[]>(() =>
-    this.categories().map((category) => ({ value: category.id, label: category.label })),
+    [this.member().incomeCategory, ...this.categories()]
+      .filter(
+        (category, index, categories) =>
+          categories.findIndex((candidate) => candidate.id === category.id) === index,
+      )
+      .map((category) => ({ value: category.id, label: category.label })),
   );
 
   readonly form = this.formBuilder.nonNullable.group({

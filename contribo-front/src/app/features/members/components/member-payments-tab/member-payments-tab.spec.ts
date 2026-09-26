@@ -110,6 +110,29 @@ describe('MemberPaymentsTab', () => {
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 
+  it('shows exactly the business columns Date, Campagne, Montant, Mode, in this order (T-130)', async () => {
+    const fixture = await createFixture(() => of(buildPaymentPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const headers = Array.from(root.querySelectorAll('thead th')).map((th) =>
+      th.textContent?.trim(),
+    );
+    expect(headers).toEqual(['Date', 'Campagne', 'Montant', 'Mode de règlement']);
+  });
+
+  it('reloads the first page when refreshToken changes (T-130)', async () => {
+    const listPayments = vi.fn(() => of(buildPaymentPage()));
+    const fixture = await createFixture(listPayments);
+    expect(listPayments).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('refreshToken', 1);
+    fixture.detectChanges();
+
+    expect(listPayments).toHaveBeenCalledTimes(2);
+    expect(listPayments).toHaveBeenNthCalledWith(2, 0, 10, undefined, MEMBER_ID);
+  });
+
   it('does not render audit metadata in the payment table MVP', async () => {
     const fixture = await createFixture(() => of(buildPaymentPage()));
     fixture.detectChanges();

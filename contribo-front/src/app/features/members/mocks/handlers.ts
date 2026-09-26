@@ -39,7 +39,6 @@ const demoMembers: MemberSummary[] = [
     id: '10700000-0000-4000-8000-000000000500',
     firstName: 'Amadou',
     lastName: 'Diallo',
-    preferredName: 'Bah',
     displayName: 'Amadou Diallo',
     country: 'Guinée',
     city: 'Conakry',
@@ -88,9 +87,8 @@ const demoIncomeCategoryLabelsById: Readonly<Record<string, string>> = {
 /**
  * Détails de fiche de démonstration pour `GET /api/v1/members/{memberId}`
  * (T-27). `account` et `financialSummary` complètent le contrat
- * `MemberDetails` ; ils ne sont pas affichés par cet écran, dont le
- * périmètre se limite au bloc informations personnelles, catégorie,
- * fonction et statut (US-MEM-003, cf. `member-detail-page.ts`).
+ * `MemberDetails` pour alimenter les cartes de compte et de situation
+ * financière de la fiche membre.
  */
 const demoMemberDetails: Map<string, MemberDetails> = new Map(
   demoMembers.map((member, index) => [
@@ -104,9 +102,9 @@ const demoMemberDetails: Map<string, MemberDetails> = new Map(
         active: member.status === MemberStatus.Active,
       },
       financialSummary: {
-        totalDueAmount: 0,
-        totalPaidAmount: 0,
-        totalRemainingAmount: 0,
+        totalDueAmount: index === 0 ? 250_000 : 0,
+        totalPaidAmount: index === 0 ? 200_000 : 0,
+        totalRemainingAmount: index === 0 ? 50_000 : 0,
         currency: CurrencyCode.Gnf,
       },
     },
@@ -166,11 +164,11 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
       dueId: '10700000-0000-4000-8000-000000000801',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[1],
-      amount: 100_000,
-      paymentDate: '2026-06-05',
-      method: PaymentMethod.Cash,
+      amount: 150_000,
+      paymentDate: '2026-06-18',
+      method: PaymentMethod.MobileMoney,
       recordedBy: demoRecordedBy,
-      recordedAt: '2026-06-05T09:10:00Z',
+      recordedAt: '2026-06-18T09:10:00Z',
       currency: CurrencyCode.Gnf,
     },
   ],
@@ -207,15 +205,15 @@ const demoMemberDues: Record<string, Due[]> = {
       id: '10700000-0000-4000-8000-000000000421',
       member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
       campaign: {
-        id: '10700000-0000-4000-8000-000000000201',
-        name: 'Rentrée solidaire',
-        startDate: '2026-01-01',
-        endDate: '2026-01-31',
+        id: '10700000-0000-4000-8000-000000000202',
+        name: 'Soutien juin 2026',
+        startDate: '2026-06-01',
+        endDate: '2026-06-30',
         status: CampaignStatus.Closed,
       },
       incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 80_000,
-      paidAmount: 80_000,
+      dueAmount: 150_000,
+      paidAmount: 150_000,
       remainingAmount: 0,
       status: DueStatus.Paid,
       paymentCount: 1,

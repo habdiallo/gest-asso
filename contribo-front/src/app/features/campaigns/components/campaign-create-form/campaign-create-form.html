@@ -3,6 +3,12 @@
     <p class="mb-4 text-sm text-error" role="alert">
       {{ 'campaigns.create.fields.categoriesError' | transloco }}
     </p>
+  } @else if (categoriesLoading()) {
+    <app-loading-skeleton
+      class="mb-4 block"
+      variant="inline"
+      [label]="'campaigns.create.fields.categoriesLoading' | transloco"
+    />
   } @else if (noEligibleCategories()) {
     <p class="mb-4 text-sm text-error" role="alert">
       {{ 'campaigns.create.fields.noEligibleCategories' | transloco }}

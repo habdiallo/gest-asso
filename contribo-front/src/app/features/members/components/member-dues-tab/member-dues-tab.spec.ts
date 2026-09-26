@@ -93,31 +93,40 @@ describe('MemberDuesTab', () => {
     expect(root.textContent).toContain('Partiellement payé');
   });
 
-  it('hides the income category column for an Opérateur (RG-MEM-008)', async () => {
-    const fixture = await createFixture(() => of(result), { role: 'OPERATOR' });
-    fixture.detectChanges();
-
-    const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).not.toContain('Standard');
-    expect(
-      Array.from(root.querySelectorAll('thead th')).some((th) =>
-        th.textContent?.includes('Catégorie'),
-      ),
-    ).toBe(false);
-    const row = root.querySelector('tbody tr');
-    expect(row?.querySelectorAll('td').length).toBe(4);
-  });
-
-  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
-    'keeps the income category column visible for %s',
+  it.each(['ADMINISTRATOR', 'TREASURER', 'OPERATOR'] as const)(
+    'shows exactly the business columns Campagne, Dû, Payé, Reste, Statut for %s, without an income category column (T-130)',
     async (role) => {
       const fixture = await createFixture(() => of(result), { role });
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain('Standard');
+      expect(root.textContent).not.toContain('Standard');
+      const headers = Array.from(root.querySelectorAll('thead th')).map((th) =>
+        th.textContent?.trim(),
+      );
+      expect(headers).toEqual([
+        'Campagne',
+        'Montant dû',
+        'Montant payé',
+        'Reste à payer',
+        'Statut',
+      ]);
+      const row = root.querySelector('tbody tr');
+      expect(row?.querySelectorAll('td').length).toBe(4);
     },
   );
+
+  it('reloads the first page when refreshToken changes (T-130)', async () => {
+    const listMemberDues = vi.fn(() => of(result));
+    const fixture = await createFixture(listMemberDues);
+    expect(listMemberDues).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('refreshToken', 1);
+    fixture.detectChanges();
+
+    expect(listMemberDues).toHaveBeenCalledTimes(2);
+    expect(listMemberDues).toHaveBeenNthCalledWith(2, memberId, 0, 10);
+  });
 
   it('shows an empty state when the member has no due', async () => {
     const emptyPage: DuePage = {
