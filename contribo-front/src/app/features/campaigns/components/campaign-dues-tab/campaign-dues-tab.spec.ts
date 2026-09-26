@@ -403,7 +403,7 @@ describe('CampaignDuesTab', () => {
 
     const dialog = fixture.nativeElement.querySelector('dialog[open]') as HTMLDialogElement;
     expect(dialog.getAttribute('style')).toContain('--form-dialog-desktop-width: 920px');
-    expect(dialog.querySelector('.grid.sm\\:grid-cols-2')).not.toBeNull();
+    expect(dialog.querySelector('.grid[class~="min-[821px]:grid-cols-2"]')).not.toBeNull();
     expect(dialog.textContent).toContain(fr['campaigns.detail.cotisations.recordPayment.intro']);
   });
 

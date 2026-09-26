@@ -74,6 +74,7 @@ function buildContribution(overrides: Partial<Contribution> = {}): Contribution 
   return {
     id: '10700000-0000-4000-8000-000000000600',
     member: { id: '10700000-0000-4000-8000-000000000200', displayName: 'Aïcha Bah' },
+    externalContributor: null,
     socialFund: {
       id: SOCIAL_FUND_ID,
       title: 'Mariage de Fanta et Sékou',
@@ -327,6 +328,27 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain('14 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
+  });
+
+  it('renders an external contributor without exposing a member identity', async () => {
+    const fixture = await createFixture({
+      getSocialFund: () => of(buildSocialFund()),
+      listSocialFundContributions: () =>
+        of(
+          buildContributionPage({
+            items: [
+              buildContribution({
+                member: null,
+                externalContributor: { firstName: 'Mamadou', lastName: 'Camara' },
+              }),
+            ],
+          }),
+        ),
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Mamadou Camara');
+    expect(fixture.nativeElement.textContent).toContain('Externe');
   });
 
   it('does not render audit metadata in the contribution table MVP', async () => {
@@ -724,6 +746,13 @@ describe('SocialFundDetailPage', () => {
       fixture.detectChanges();
 
       expect(recordDialog(root)?.open).toBe(true);
+      expect(recordDialog(root)?.getAttribute('style')).toContain(
+        '--form-dialog-desktop-width: 920px',
+      );
+      expect(recordDialog(root)?.textContent).toContain('Détail cagnotte');
+      expect(
+        recordDialog(root)?.querySelector('.grid[class~="min-[821px]:grid-cols-2"]'),
+      ).not.toBeNull();
       expect(createContribution).not.toHaveBeenCalled();
     });
 

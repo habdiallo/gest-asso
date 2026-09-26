@@ -253,6 +253,7 @@ const demoContributionsByMemberId: Readonly<Record<string, Contribution[]>> = {
     {
       id: '10700000-0000-4000-8000-000000000710',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000300',
         title: 'Mariage de Fanta et Sekou',
@@ -269,6 +270,7 @@ const demoContributionsByMemberId: Readonly<Record<string, Contribution[]>> = {
     {
       id: '10700000-0000-4000-8000-000000000711',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000301',
         title: 'Naissance chez les Camara',

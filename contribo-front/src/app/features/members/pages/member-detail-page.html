@@ -452,7 +452,7 @@
     [open]="recordPaymentOpen() && canRecordPayments()"
     [dialogTitle]="'members.recordPayment.dialogTitle' | transloco"
     [kicker]="'memberDetail.hero.kicker' | transloco"
-    desktopWidth="800px"
+    desktopWidth="920px"
     (closed)="closeRecordPaymentDialog()"
   >
     @if (recordPaymentOpen() && canRecordPayments()) {
@@ -494,7 +494,7 @@
           </p>
         } @else {
           <div
-            class="mt-5 grid grid-cols-3 gap-3 rounded border border-line bg-surface-2 p-4 text-center"
+            class="mt-5 grid grid-cols-1 gap-3 rounded border border-line bg-surface-2 p-4 text-center min-[821px]:grid-cols-3"
           >
             <div>
               <p class="text-[9px] uppercase tracking-[0.1em] text-text-3">
@@ -523,7 +523,7 @@
           </div>
 
           <form class="mt-5" [formGroup]="recordPaymentForm" (ngSubmit)="submitRecordPayment()">
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 min-[821px]:grid-cols-2">
               <div>
                 <span
                   class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
@@ -557,7 +557,7 @@
               </div>
             </div>
 
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div class="mt-4 grid gap-4 min-[821px]:grid-cols-2">
               <app-amount-input
                 formControlName="amount"
                 [label]="'members.recordPayment.fields.amount' | transloco"
@@ -604,7 +604,7 @@
             </p>
 
             <div
-              class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+              class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7 min-[821px]:py-5"
             >
               <app-action-button
                 type="button"

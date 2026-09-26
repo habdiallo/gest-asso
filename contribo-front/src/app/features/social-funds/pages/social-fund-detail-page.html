@@ -110,7 +110,12 @@
                 class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
               >
                 <td class="px-4 py-2 font-normal text-text">
-                  {{ contribution.member.displayName }}
+                  <span>{{ contributionDisplayName(contribution) }}</span>
+                  @if (contributionIsExternal(contribution)) {
+                    <span class="ml-2 text-[10px] uppercase tracking-[0.08em] text-text-3">
+                      {{ 'socialFunds.detail.columns.externalContributor' | transloco }}
+                    </span>
+                  }
                 </td>
                 <td class="px-4 py-2 font-data text-[13px] font-normal tabular-nums text-success">
                   + {{ formatCollectedAmount(contribution.amount) }}
@@ -196,7 +201,9 @@
     <app-form-dialog
       [open]="recordDialogOpen()"
       [dialogTitle]="'socialFunds.recordContribution.dialogTitle' | transloco"
+      [kicker]="'socialFunds.recordContribution.kicker' | transloco"
       [closeLabel]="'socialFunds.recordContribution.cancel' | transloco"
+      desktopWidth="920px"
       (closed)="closeRecordDialog()"
     >
       @if (recordDialogOpen()) {

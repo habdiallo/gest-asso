@@ -1,94 +1,203 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
-  <div class="mb-4">
-    <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
-      {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
-    </span>
-    <p class="text-text">{{ socialFundTitle() }}</p>
+  <p class="mb-5 text-sm text-text-2">
+    {{ 'socialFunds.recordContribution.intro' | transloco }}
+  </p>
+
+  <div class="mb-5 flex items-center gap-3">
+    <input
+      id="contribution-create-external"
+      type="checkbox"
+      [checked]="contributorMode() === 'external'"
+      (change)="onExternalContributorChange($event)"
+      class="h-4 w-4 accent-gold"
+    />
+    <label for="contribution-create-external" class="text-sm text-text">
+      {{ 'socialFunds.recordContribution.fields.externalCheckbox' | transloco }}
+    </label>
   </div>
 
-  @if (membersError()) {
-    <p class="mb-4 text-sm text-error" role="alert">
-      {{ 'socialFunds.recordContribution.membersError' | transloco }}
-    </p>
-  }
+  @if (contributorMode() === 'member') {
+    @if (membersError()) {
+      <p class="mb-4 text-sm text-error" role="alert">
+        {{ 'socialFunds.recordContribution.membersError' | transloco }}
+      </p>
+    }
 
-  <div class="grid gap-4 sm:grid-cols-2">
-    <div>
-      <label
-        for="contribution-create-member-search"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'socialFunds.recordContribution.fields.memberSearchLabel' | transloco }}
-      </label>
-      <input
-        id="contribution-create-member-search"
-        type="search"
-        [value]="membersQuery()"
-        (input)="onMembersQueryInput($event)"
-        [placeholder]="'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco"
-        class="app-form-control mb-2 min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-
-      <label
-        for="contribution-create-member"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'socialFunds.recordContribution.fields.member' | transloco }}
-      </label>
-      <app-custom-select
-        controlId="contribution-create-member"
-        formControlName="memberId"
-        [options]="memberSelectOptions()"
-        [placeholder]="
-          (membersLoading()
-            ? 'socialFunds.recordContribution.fields.memberLoading'
-            : 'socialFunds.recordContribution.fields.memberPlaceholder'
-          ) | transloco
-        "
-        [required]="true"
-        [showRequiredError]="false"
-        [ariaInvalid]="memberIdInvalid()"
-        [ariaDescribedBy]="memberIdInvalid() ? 'contribution-create-member-error' : null"
-      />
-      @if (memberIdInvalid()) {
-        <p id="contribution-create-member-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'socialFunds.recordContribution.fields.memberRequired' | transloco }}
-        </p>
-      }
-
-      @if (memberPageStatus(); as status) {
-        <nav
-          class="mt-2 flex items-center justify-between gap-3 text-sm"
-          [attr.aria-label]="'socialFunds.recordContribution.membersPagination.nav' | transloco"
+    <div class="grid gap-4 min-[821px]:grid-cols-2">
+      <div>
+        <label
+          for="contribution-create-member-search"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
-          <button
-            type="button"
-            class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
-            [disabled]="membersPreviousPageDisabled()"
-            [attr.aria-disabled]="membersPreviousPageDisabled()"
-            (click)="membersPreviousPage()"
-          >
-            {{ 'socialFunds.recordContribution.membersPagination.previous' | transloco }}
-          </button>
-          <p class="text-text-2" role="status">
-            {{
-              'socialFunds.recordContribution.membersPagination.status'
-                | transloco: { current: status.current, total: status.total }
-            }}
+          {{ 'socialFunds.recordContribution.fields.memberSearchLabel' | transloco }}
+        </label>
+        <input
+          id="contribution-create-member-search"
+          type="search"
+          [value]="membersQuery()"
+          (input)="onMembersQueryInput($event)"
+          [placeholder]="
+            'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco
+          "
+          class="app-form-control mb-2 min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+      </div>
+
+      <div>
+        <label
+          for="contribution-create-member"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'socialFunds.recordContribution.fields.member' | transloco }}
+        </label>
+        <app-custom-select
+          controlId="contribution-create-member"
+          formControlName="memberId"
+          [options]="memberSelectOptions()"
+          [placeholder]="
+            (membersLoading()
+              ? 'socialFunds.recordContribution.fields.memberLoading'
+              : 'socialFunds.recordContribution.fields.memberPlaceholder'
+            ) | transloco
+          "
+          [required]="true"
+          [showRequiredError]="false"
+          [ariaInvalid]="memberIdInvalid()"
+          [ariaDescribedBy]="memberIdInvalid() ? 'contribution-create-member-error' : null"
+        />
+        @if (memberIdInvalid()) {
+          <p id="contribution-create-member-error" class="mt-2 text-sm text-error" role="alert">
+            {{ 'socialFunds.recordContribution.fields.memberRequired' | transloco }}
           </p>
-          <button
-            type="button"
-            class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
-            [disabled]="membersNextPageDisabled()"
-            [attr.aria-disabled]="membersNextPageDisabled()"
-            (click)="membersNextPage()"
+        }
+
+        @if (memberPageStatus(); as status) {
+          <nav
+            class="mt-2 flex items-center justify-between gap-3 text-sm"
+            [attr.aria-label]="'socialFunds.recordContribution.membersPagination.nav' | transloco"
           >
-            {{ 'socialFunds.recordContribution.membersPagination.next' | transloco }}
-          </button>
-        </nav>
-      }
+            <button
+              type="button"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+              [disabled]="membersPreviousPageDisabled()"
+              [attr.aria-disabled]="membersPreviousPageDisabled()"
+              (click)="membersPreviousPage()"
+            >
+              {{ 'socialFunds.recordContribution.membersPagination.previous' | transloco }}
+            </button>
+            <p class="text-text-2" role="status">
+              {{
+                'socialFunds.recordContribution.membersPagination.status'
+                  | transloco: { current: status.current, total: status.total }
+              }}
+            </p>
+            <button
+              type="button"
+              class="min-h-11 rounded border border-line px-3 py-2 text-text aria-disabled:opacity-50"
+              [disabled]="membersNextPageDisabled()"
+              [attr.aria-disabled]="membersNextPageDisabled()"
+              (click)="membersNextPage()"
+            >
+              {{ 'socialFunds.recordContribution.membersPagination.next' | transloco }}
+            </button>
+          </nav>
+        }
+      </div>
     </div>
 
+    <div class="mt-4">
+      <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+        {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
+      </span>
+      <div
+        class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
+        aria-readonly="true"
+      >
+        {{ socialFundTitle() }}
+      </div>
+    </div>
+  } @else {
+    <div [formGroup]="externalForm" class="grid gap-4 min-[821px]:grid-cols-2">
+      <div>
+        <label
+          for="contribution-create-external-first-name"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'socialFunds.recordContribution.fields.firstName' | transloco }}
+        </label>
+        <input
+          id="contribution-create-external-first-name"
+          type="text"
+          formControlName="firstName"
+          autocomplete="given-name"
+          [placeholder]="'socialFunds.recordContribution.fields.firstNamePlaceholder' | transloco"
+          [attr.aria-invalid]="externalFirstNameInvalid() ? true : null"
+          [attr.aria-describedby]="
+            externalFirstNameInvalid() ? 'contribution-create-external-first-name-error' : null
+          "
+          class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (externalFirstNameInvalid()) {
+          <p
+            id="contribution-create-external-first-name-error"
+            class="mt-2 text-sm text-error"
+            role="alert"
+          >
+            {{ 'socialFunds.recordContribution.fields.externalNameRequired' | transloco }}
+          </p>
+        }
+      </div>
+      <div>
+        <label
+          for="contribution-create-external-last-name"
+          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        >
+          {{ 'socialFunds.recordContribution.fields.lastName' | transloco }}
+        </label>
+        <input
+          id="contribution-create-external-last-name"
+          type="text"
+          formControlName="lastName"
+          autocomplete="family-name"
+          [placeholder]="'socialFunds.recordContribution.fields.lastNamePlaceholder' | transloco"
+          [attr.aria-invalid]="externalLastNameInvalid() ? true : null"
+          [attr.aria-describedby]="
+            externalLastNameInvalid() ? 'contribution-create-external-last-name-error' : null
+          "
+          class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+        />
+        @if (externalLastNameInvalid()) {
+          <p
+            id="contribution-create-external-last-name-error"
+            class="mt-2 text-sm text-error"
+            role="alert"
+          >
+            {{ 'socialFunds.recordContribution.fields.externalNameRequired' | transloco }}
+          </p>
+        }
+      </div>
+    </div>
+    <div class="mt-4">
+      <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+        {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
+      </span>
+      <div
+        class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
+        aria-readonly="true"
+      >
+        {{ socialFundTitle() }}
+      </div>
+    </div>
+  }
+
+  <div class="mt-5 grid gap-4 min-[821px]:grid-cols-2">
+    <div>
+      <app-amount-input
+        formControlName="amount"
+        [required]="true"
+        [label]="'socialFunds.recordContribution.fields.amount' | transloco"
+      />
+    </div>
     <div>
       <label
         for="contribution-create-date"
@@ -105,7 +214,7 @@
         [attr.aria-describedby]="
           contributionDateInvalid() ? 'contribution-create-date-error' : null
         "
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (contributionDateInvalid()) {
         <p id="contribution-create-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -113,25 +222,36 @@
         </p>
       }
     </div>
-
-    <div>
-      <app-amount-input
-        formControlName="amount"
-        [required]="true"
-        [label]="'socialFunds.recordContribution.fields.amount' | transloco"
-      />
-    </div>
-
-    <div>
-      <app-payment-method-select
-        formControlName="method"
-        [required]="true"
-        [label]="'socialFunds.recordContribution.fields.method' | transloco"
-      />
-    </div>
   </div>
 
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div class="mt-4">
+    <app-payment-method-select
+      formControlName="method"
+      [required]="true"
+      [label]="'socialFunds.recordContribution.fields.method' | transloco"
+    />
+  </div>
+
+  <div
+    class="mt-5 flex items-center gap-3 rounded border border-[color:color-mix(in_srgb,var(--info)_30%,transparent)] bg-info-wash px-4 py-3 text-sm text-text-2"
+  >
+    <svg
+      class="h-4 w-4 shrink-0 text-info"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      aria-hidden="true"
+    >
+      <path d="M12 3 5 6v5c0 4.5 2.9 7.8 7 10 4.1-2.2 7-5.5 7-10V6l-7-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+    <span>{{ 'socialFunds.recordContribution.traceabilityNote' | transloco }}</span>
+  </div>
+
+  <div
+    class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7 min-[821px]:py-5"
+  >
     <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'socialFunds.recordContribution.cancel' | transloco }}
     </app-action-button>

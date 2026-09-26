@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 134,
+  "nextTicketId": 135,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2674,6 +2674,35 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-fidelite-typographie-tableau-reglements",
       "branchAfterInitialization": "front/fix-133-fidelite-typographie-tableau-reglements"
+    },
+    {
+      "id": 134,
+      "title": "Permettre l'enregistrement d'une contribution par un membre ou un contributeur externe, avec un dialogue de saisie aere et un contrat API explicite.",
+      "priority": "P1",
+      "scope": "fullstack",
+      "type": "feat",
+      "slug": "contributeur-externe-cagnotte",
+      "change": "enregistrer-contributeurs-externes-cagnotte",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "1.7",
+        "1.8",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "fullstack/feat-000-contributeur-externe-cagnotte",
+      "branchAfterInitialization": "fullstack/feat-134-contributeur-externe-cagnotte"
     }
   ]
 }

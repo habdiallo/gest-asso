@@ -203,6 +203,17 @@ export class SocialFundDetailPage {
   readonly socialFundStatusLabel = socialFundStatusLabel;
   readonly socialEventTypeLabel = socialEventTypeLabel;
   readonly contributionMethodLabel = contributionMethodLabel;
+  readonly contributionDisplayName = (contribution: Contribution): string => {
+    if (contribution.member) {
+      return contribution.member.displayName;
+    }
+    if (contribution.externalContributor) {
+      return `${contribution.externalContributor.firstName} ${contribution.externalContributor.lastName}`;
+    }
+    return '-';
+  };
+  readonly contributionIsExternal = (contribution: Contribution): boolean =>
+    contribution.member === null && contribution.externalContributor !== null;
 
   constructor() {
     const socialFundId = this.route.snapshot.paramMap.get('socialFundId');
