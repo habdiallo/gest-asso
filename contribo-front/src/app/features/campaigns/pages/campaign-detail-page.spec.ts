@@ -1031,6 +1031,20 @@ describe('CampaignDetailPage', () => {
       expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).not.toBeNull();
     });
 
+    it('keeps consultation secondary and makes closure primary on an open campaign', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root = fixture.nativeElement as HTMLElement;
+      const situationButton = findButtonByText(root, 'Voir la situation des membres');
+      const closeButton = findButtonByText(root, 'Clôturer la campagne');
+
+      expect(situationButton?.classList.contains('bg-gold')).toBe(false);
+      expect(closeButton?.classList.contains('bg-gold')).toBe(true);
+    });
+
     it('does not show the close action for a Treasurer on an upcoming campaign', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
         role: UserRole.Treasurer,
