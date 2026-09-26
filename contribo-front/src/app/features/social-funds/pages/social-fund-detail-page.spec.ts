@@ -234,7 +234,7 @@ describe('SocialFundDetailPage', () => {
     );
   });
 
-  it('renders the social fund title, period, status, description, total collected and contributor count', async () => {
+  it('renders the social fund context, metrics and contributor count', async () => {
     const fixture = await createFixture({
       getSocialFund: () => of(buildSocialFund()),
       listSocialFundContributions: () => of(buildContributionPage()),
@@ -246,7 +246,6 @@ describe('SocialFundDetailPage', () => {
     expect(root.textContent).toContain('Mariage');
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('Famille Camara');
-    expect(root.textContent).toContain("Collecte de soutien à l'occasion du mariage.");
     expect(root.textContent).toContain(formatGnfAmountDetailed(4750000));
     expect(root.textContent).toContain(formatGnfAmountDetailed(7000000));
     expect(root.textContent).toContain(formatGnfAmountDetailed(2250000));
@@ -267,69 +266,16 @@ describe('SocialFundDetailPage', () => {
     expect(root.querySelector('[role="tablist"]')).toBeNull();
   });
 
-  describe('progression objectif / reste à collecter (T-92, US-CAG-003)', () => {
-    function progressBar(root: HTMLElement): HTMLElement | null {
-      return root.querySelector('[data-testid="social-fund-detail-progress-bar"]');
-    }
-
-    it('shows the objective, the progress bar and the remaining amount in the hero', async () => {
-      const fixture = await createFixture({
-        getSocialFund: () =>
-          of(
-            buildSocialFund({
-              targetAmount: 7000000,
-              collectedAmount: 4750000,
-              remainingToTargetAmount: 2250000,
-              progressRate: 67.9,
-            }),
-          ),
-        listSocialFundContributions: () => of(buildContributionPage()),
-      });
-      fixture.detectChanges();
-
-      const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain(formatGnfAmountDetailed(7000000));
-      expect(root.textContent).toContain(formatGnfAmountDetailed(2250000));
-      expect(progressBar(root)).not.toBeNull();
-      expect(progressBar(root)?.style.width).toBe('67.9%');
+  it('does not render a redundant progress bar in the hero', async () => {
+    const fixture = await createFixture({
+      getSocialFund: () => of(buildSocialFund()),
+      listSocialFundContributions: () => of(buildContributionPage()),
     });
+    fixture.detectChanges();
 
-    it('hides the progress bar when no target is defined', async () => {
-      const fixture = await createFixture({
-        getSocialFund: () =>
-          of(
-            buildSocialFund({
-              targetAmount: undefined,
-              remainingToTargetAmount: undefined,
-              progressRate: undefined,
-            }),
-          ),
-        listSocialFundContributions: () => of(buildContributionPage()),
-      });
-      fixture.detectChanges();
-
-      expect(progressBar(fixture.nativeElement)).toBeNull();
-    });
-
-    it('bounds the progress bar width to 100 when the target is exceeded', async () => {
-      const fixture = await createFixture({
-        getSocialFund: () =>
-          of(
-            buildSocialFund({
-              targetAmount: 1000000,
-              collectedAmount: 1500000,
-              remainingToTargetAmount: 0,
-              progressRate: 150,
-            }),
-          ),
-        listSocialFundContributions: () => of(buildContributionPage()),
-      });
-      fixture.detectChanges();
-
-      const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain(formatGnfAmountDetailed(0));
-      expect(progressBar(root)?.style.width).toBe('100%');
-    });
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="social-fund-detail-progress-bar"]'),
+    ).toBeNull();
   });
 
   it('shows a loading state while the contributions request is pending', async () => {

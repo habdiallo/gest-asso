@@ -45,20 +45,6 @@
     }
     <div detail-metrics>
       <app-detail-metrics [items]="metrics()" />
-      @if (socialFund.description) {
-        <p class="mt-5 border-t border-line pt-5 text-sm text-text-2">
-          {{ socialFund.description }}
-        </p>
-      }
-      @if (socialFund.targetAmount) {
-        <div class="mt-5 h-2 overflow-hidden rounded-full bg-surface-2">
-          <span
-            data-testid="social-fund-detail-progress-bar"
-            class="block h-full rounded-full bg-gold transition-[width] duration-300"
-            [style.width.%]="progressBarWidth(socialFund.progressRate ?? 0)"
-          ></span>
-        </div>
-      }
     </div>
 
     <section id="social-fund-detail-panel-contributions" class="mt-8">
