@@ -43,11 +43,11 @@ const demoCampaigns: CampaignSummary[] = [
     status: CampaignStatus.Upcoming,
     memberCount: 62,
     financialSummary: {
-      expectedAmount: 9_800_000,
-      collectedAmount: 4_200_000,
-      remainingAmount: 5_600_000,
-      collectionRate: 43,
-      dueCounts: { total: 62, paid: 27, partiallyPaid: 6, unpaid: 29 },
+      expectedAmount: 4_650_000,
+      collectedAmount: 0,
+      remainingAmount: 4_650_000,
+      collectionRate: 0,
+      dueCounts: { total: 62, paid: 0, partiallyPaid: 0, unpaid: 62 },
       currency: CurrencyCode.Gnf,
     },
   },
@@ -129,25 +129,25 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
   '10700000-0000-4000-8000-000000000201': {
     ...demoCampaigns[1],
-    // Le statut technique UPCOMING reste nécessaire aux règles d'édition du
-    // barème. La liste Campagnes conserve désormais le libellé « À venir ».
+    // Le statut technique UPCOMING reste nécessaire aux règles de préparation
+    // et d'ouverture explicite du brouillon.
     status: CampaignStatus.Upcoming,
     description: 'Contribution exceptionnelle pour la rentrée scolaire des enfants de membres.',
     categoryAmounts: [
       {
         incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
         amount: 75_000,
-        memberCount: 91,
-        expectedAmount: 6_825_000,
+        memberCount: 62,
+        expectedAmount: 4_650_000,
         currency: CurrencyCode.Gnf,
       },
     ],
     financialSummary: {
-      expectedAmount: 6_825_000,
+      expectedAmount: 4_650_000,
       collectedAmount: 0,
-      remainingAmount: 6_825_000,
+      remainingAmount: 4_650_000,
       collectionRate: 0,
-      dueCounts: { total: 91, paid: 0, partiallyPaid: 0, unpaid: 91 },
+      dueCounts: { total: 62, paid: 0, partiallyPaid: 0, unpaid: 62 },
       currency: CurrencyCode.Gnf,
     },
   },
@@ -211,6 +211,31 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
 };
 
+function buildUpcomingCampaignDues(): Due[] {
+  return Array.from({ length: 62 }, (_, index) => {
+    const dueId = (0x420 + index).toString(16).padStart(12, '0');
+    const memberId = (0x500 + index).toString(16).padStart(12, '0');
+    return {
+      id: `10700000-0000-4000-8000-${dueId}`,
+      member: {
+        id: `10700000-0000-4000-8000-${memberId}`,
+        displayName: index === 0 ? 'Amadou Diallo' : `Membre ${String(index + 1).padStart(2, '0')}`,
+      },
+      campaign: demoCampaigns[1],
+      incomeCategorySnapshot: {
+        id: '10700000-0000-4000-8000-000000000101',
+        label: 'Standard',
+      },
+      dueAmount: 75_000,
+      paidAmount: 0,
+      remainingAmount: 75_000,
+      status: DueStatus.Due,
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    } satisfies Due;
+  });
+}
+
 const demoCampaignDues: Record<string, Due[]> = {
   '10700000-0000-4000-8000-000000000200': [
     {
@@ -262,20 +287,7 @@ const demoCampaignDues: Record<string, Due[]> = {
       currency: CurrencyCode.Gnf,
     },
   ],
-  '10700000-0000-4000-8000-000000000201': [
-    {
-      id: '10700000-0000-4000-8000-000000000420',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: demoCampaigns[1],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-      dueAmount: 75_000,
-      paidAmount: 0,
-      remainingAmount: 75_000,
-      status: 'DUE',
-      paymentCount: 0,
-      currency: CurrencyCode.Gnf,
-    },
-  ],
+  '10700000-0000-4000-8000-000000000201': buildUpcomingCampaignDues(),
   '10700000-0000-4000-8000-000000000202': [
     {
       id: '10700000-0000-0000-0000-000000000430',
@@ -742,7 +754,7 @@ export const campaignsHandlers = [
   /**
    * Handler MSW de démonstration pour `PUT /api/v1/campaigns/{campaignId}/category-amounts`
    * (T-68, `updateCampaignCategoryAmounts`) : réservé à l'Administrateur et
-   * au Trésorier, et uniquement tant que la campagne est à venir (simulant la
+   * au Trésorier, et uniquement tant que la campagne est en brouillon (simulant la
    * contrainte contractuelle « avant la date de début et sans règlement
    * existant » ; ce mock ne suit pas de règlements, donc seul le statut est
    * vérifié). Recalcule `expectedAmount` par catégorie et le bilan financier

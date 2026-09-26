@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 132,
+  "nextTicketId": 133,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2626,6 +2626,32 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/fix-000-bareme-campagne",
       "branchAfterInitialization": "front/fix-131-bareme-campagne"
+    },
+    {
+      "id": 132,
+      "title": "Rendre cohérentes les actions et les données affichées selon l'état de la campagne.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "fix",
+      "slug": "coherence-cycle-vie-campagne",
+      "change": "coherer-cycle-vie-campagne",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "3.1",
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "dependencies": [131],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-coherence-cycle-vie-campagne",
+      "branchAfterInitialization": "front/fix-132-coherence-cycle-vie-campagne"
     }
   ]
 }

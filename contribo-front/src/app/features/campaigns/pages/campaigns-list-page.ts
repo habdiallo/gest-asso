@@ -34,7 +34,7 @@ const PAGE_SIZE = 6;
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
  * restreint déjà l'accès par rôle via `roleGuard`). Le filtre par statut
  * (T-58, paramètre contractuel `status`) restreint la liste aux campagnes
- * ouvertes, à venir ou clôturées. Les segments correspondent aux statuts
+ * ouvertes, en brouillon ou clôturées. Les segments correspondent aux statuts
  * techniques du contrat et chaque carte affiche le statut métier réel afin de
  * rendre le brouillon configurable identifiable.
  *

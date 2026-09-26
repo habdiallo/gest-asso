@@ -339,7 +339,7 @@ describe('CampaignDetailPage', () => {
       fixture.nativeElement.querySelector('dialog[aria-label="Montants de campagne"][open]'),
     ).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Configuration propre à cette campagne.');
-    expect(fixture.nativeElement.textContent).toContain('À venir');
+    expect(fixture.nativeElement.textContent).toContain('Brouillon');
     expect(fixture.nativeElement.textContent).toContain('Enregistrer');
   });
 
@@ -916,6 +916,9 @@ describe('CampaignDetailPage', () => {
 
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelector('[data-testid="campaign-opening-readiness"]')).not.toBeNull();
+      expect(
+        root.querySelector('[detail-metrics-slot] [data-testid="campaign-opening-readiness"]'),
+      ).not.toBeNull();
       expect(root.textContent).toContain('Préparation incomplète');
       expect(root.textContent).toContain('Le barème doit être complété.');
       expect(findButtonByText(root, 'Ouvrir la campagne')).toBeNull();
@@ -1028,13 +1031,28 @@ describe('CampaignDetailPage', () => {
       expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).not.toBeNull();
     });
 
-    it('shows the close action for a Treasurer on an upcoming campaign', async () => {
+    it('keeps consultation secondary and makes closure primary on an open campaign', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+
+      const root = fixture.nativeElement as HTMLElement;
+      const situationButton = findButtonByText(root, 'Voir la situation des membres');
+      const closeButton = findButtonByText(root, 'Clôturer la campagne');
+
+      expect(situationButton?.classList.contains('bg-gold')).toBe(false);
+      expect(closeButton?.classList.contains('bg-gold')).toBe(true);
+    });
+
+    it('does not show the close action for a Treasurer on an upcoming campaign', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
         role: UserRole.Treasurer,
       });
       fixture.detectChanges();
 
-      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).not.toBeNull();
+      expect(findButtonByText(fixture.nativeElement, 'Clôturer la campagne')).toBeNull();
+      expect(fixture.componentInstance.canCloseCampaignNow()).toBe(false);
     });
 
     it('does not show the close action for an Administrator once the campaign is already closed', async () => {

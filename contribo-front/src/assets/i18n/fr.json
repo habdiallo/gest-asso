@@ -280,7 +280,7 @@
   "campaigns.list.searchPlaceholder": "Rechercher une campagne…",
   "campaigns.list.statusFilterLabel": "Statut",
   "campaigns.list.statusFilterAll": "Toutes",
-  "campaigns.list.statusFilterUpcoming": "À venir",
+  "campaigns.list.statusFilterUpcoming": "Brouillons",
   "campaigns.list.statusFilterOpen": "Ouvertes",
   "campaigns.list.statusFilterClosed": "Clôturées",
   "campaigns.list.members": "membres",
