@@ -369,6 +369,18 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.duePage()?.items[0].remainingAmount).toBe(25_000);
   });
 
+  it('opens the payment form with the wide contribution-style dialog layout', async () => {
+    const fixture = await createFixture(undefined, { user: treasurer });
+
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('dialog[open]') as HTMLDialogElement;
+    expect(dialog.getAttribute('style')).toContain('--form-dialog-desktop-width: 920px');
+    expect(dialog.querySelector('.grid.sm\\:grid-cols-2')).not.toBeNull();
+    expect(dialog.textContent).toContain(fr['campaigns.detail.cotisations.recordPayment.intro']);
+  });
+
   it('shows a specific error when the amount exceeds the remaining amount', async () => {
     const createPayment = () =>
       throwError(
