@@ -3,6 +3,9 @@ import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole }
 import type {
   Contribution,
   ContributionPage,
+  ContributionCreationResponse,
+  CreateContributionRequest,
+  CreateExternalContributionRequest,
   CreateSocialFundRequest,
   ErrorResponse,
   SocialFund,
@@ -122,19 +125,28 @@ function buildDemoContributions(
   amounts[amounts.length - 1] += totalAmount - generatedSum;
 
   const latestDate = new Date(`${summary.endDate ?? summary.startDate}T00:00:00Z`);
+  const hasExternalDemoContribution = summary.id === '10700000-0000-4000-8000-000000000500';
+  const memberContributorCount = Math.max(
+    contributorCount - (hasExternalDemoContribution ? 1 : 0),
+    1,
+  );
 
   return amounts.map((amount, index) => {
-    const memberIndex = index % contributorCount;
+    const isExternal = hasExternalDemoContribution && index === 0;
+    const memberIndex = index % memberContributorCount;
     const contributionDate = new Date(latestDate);
     contributionDate.setUTCDate(contributionDate.getUTCDate() - index);
     const isoDate = contributionDate.toISOString().slice(0, 10);
 
     return {
       id: `${summary.id}-contrib-${String(index + 1).padStart(3, '0')}`,
-      member: {
-        id: `${summary.id}-member-${String(memberIndex + 1).padStart(3, '0')}`,
-        displayName: demoContributorNames[memberIndex % demoContributorNames.length],
-      },
+      member: isExternal
+        ? null
+        : {
+            id: `${summary.id}-member-${String(memberIndex + 1).padStart(3, '0')}`,
+            displayName: demoContributorNames[memberIndex % demoContributorNames.length],
+          },
+      externalContributor: isExternal ? { firstName: 'Mamadou', lastName: 'Camara' } : null,
       socialFund: {
         id: summary.id,
         title: summary.title,
@@ -190,6 +202,32 @@ function socialFundAlreadyClosed(): Response {
   return HttpResponse.json<ErrorResponse>(
     { code: ErrorCode.SocialFundAlreadyClosed, message: 'Cette cagnotte est déjà clôturée.' },
     { status: 409 },
+  );
+}
+
+function contributionValidationError(message: string): Response {
+  return HttpResponse.json<ErrorResponse>(
+    { code: ErrorCode.ValidationError, message },
+    { status: 400 },
+  );
+}
+
+function isExternalContributionRequest(
+  request: CreateContributionRequest,
+): request is CreateExternalContributionRequest {
+  return 'externalContributor' in request;
+}
+
+function canRecordContribution(
+  account: ReturnType<typeof findDemoAccountByAuthorization>,
+): boolean {
+  if (!account) {
+    return false;
+  }
+  return (
+    account.user.role === UserRole.Administrator ||
+    account.user.role === UserRole.Treasurer ||
+    (account.user.role === UserRole.Operator && account.user.operatorCanRecordPayments)
   );
 }
 
@@ -352,6 +390,106 @@ export const socialFundsHandlers = [
         },
       };
       return HttpResponse.json<ContributionPage>(page);
+    },
+  ),
+
+  /**
+   * Enregistre une contribution membre ou externe (T-134). Le mock conserve
+   * la contribution dans l'historique et met à jour les agrégats pour rendre
+   * observable le rafraîchissement de la fiche après la saisie.
+   */
+  http.post(
+    '/api/v1/social-funds/:socialFundId/contributions',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (!canRecordContribution(account)) {
+        return accessDenied();
+      }
+
+      const socialFundId = params['socialFundId'] as string;
+      const summaryIndex = demoSocialFunds.findIndex((item) => item.id === socialFundId);
+      if (summaryIndex === -1) {
+        return socialFundNotFound();
+      }
+      if (demoSocialFunds[summaryIndex].status === SocialFundStatus.Closed) {
+        return socialFundAlreadyClosed();
+      }
+
+      const body = (await request.json()) as CreateContributionRequest;
+      const isExternal = isExternalContributionRequest(body);
+      const hasMember = 'memberId' in body;
+      if (isExternal === hasMember) {
+        return contributionValidationError(
+          'Une contribution doit être rattachée à un membre ou à un contributeur externe.',
+        );
+      }
+      if (!body.amount || body.amount < 1 || !body.contributionDate || !body.method) {
+        return contributionValidationError('Les informations de contribution sont invalides.');
+      }
+      if (
+        isExternal &&
+        (!body.externalContributor.firstName.trim() || !body.externalContributor.lastName.trim())
+      ) {
+        return contributionValidationError("L'identité du contributeur externe est obligatoire.");
+      }
+      if (!isExternal && !body.memberId) {
+        return contributionValidationError('Le membre est obligatoire.');
+      }
+
+      const summary = demoSocialFunds[summaryIndex];
+      const existingContributions = demoContributionsBySocialFundId[socialFundId] ?? [];
+      const contributionDate = body.contributionDate;
+      const contribution: Contribution = {
+        id: crypto.randomUUID(),
+        member: isExternal ? null : { id: body.memberId, displayName: 'Membre sélectionné' },
+        externalContributor: isExternal ? body.externalContributor : null,
+        socialFund: {
+          id: summary.id,
+          title: summary.title,
+          eventType: summary.eventType,
+          status: summary.status,
+        },
+        amount: body.amount,
+        contributionDate,
+        method: body.method,
+        recordedBy: {
+          userId: account.user.userId,
+          displayName: account.user.member.displayName,
+        },
+        recordedAt: new Date().toISOString(),
+        currency: 'GNF',
+      };
+      demoContributionsBySocialFundId[socialFundId] = [contribution, ...existingContributions];
+
+      const memberAlreadyCounted = !isExternal
+        ? existingContributions.some((item) => item.member?.id === body.memberId)
+        : false;
+      const updatedSummary: SocialFundSummary = {
+        ...summary,
+        collectedAmount: (summary.collectedAmount ?? 0) + body.amount,
+        remainingToTargetAmount:
+          summary.targetAmount === undefined
+            ? undefined
+            : Math.max(summary.targetAmount - ((summary.collectedAmount ?? 0) + body.amount), 0),
+        progressRate:
+          summary.targetAmount === undefined
+            ? undefined
+            : Math.min(((summary.collectedAmount ?? 0) + body.amount) / summary.targetAmount, 1) *
+              100,
+        contributorCount: (summary.contributorCount ?? 0) + (memberAlreadyCounted ? 0 : 1),
+        contributionCount: (summary.contributionCount ?? 0) + 1,
+      };
+      demoSocialFunds[summaryIndex] = updatedSummary;
+
+      const response: ContributionCreationResponse = {
+        contribution,
+        socialFund: buildDemoSocialFund(updatedSummary),
+      };
+      return HttpResponse.json<ContributionCreationResponse>(response, { status: 201 });
     },
   ),
 

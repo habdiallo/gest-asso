@@ -11,7 +11,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MembresService } from '@api';
-import type { CreateContributionRequest, MemberPage, PaymentMethod } from '@api';
+import type {
+  CreateContributionRequest,
+  CreateExternalContributionRequest,
+  CreateMemberContributionRequest,
+  MemberPage,
+  PaymentMethod,
+} from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -25,8 +31,8 @@ const MEMBERS_PAGE_SIZE = 20;
 
 /**
  * Formulaire d'enregistrement d'une contribution à une cagnotte (T-87,
- * US-CAG-002) : Membre, Cagnotte (contexte), Montant, Date, Mode de
- * règlement. Construit la requête `CreateContributionRequest`
+ * US-CAG-002) : contributeur membre ou externe, Cagnotte (contexte), Montant,
+ * Date, Mode de règlement. Construit la requête `CreateContributionRequest`
  * (openapi:`createContribution`, `POST /social-funds/{socialFundId}/contributions`)
  * et l'émet via `submitted` ; n'appelle pas l'API lui-même, l'appel API et le
  * rafraîchissement de la cagnotte/des contributions restent à la charge du
@@ -78,6 +84,7 @@ export class ContributionCreateForm {
   readonly submitting = input(false);
   readonly submitted = output<CreateContributionRequest>();
   readonly cancelled = output<void>();
+  readonly contributorMode = signal<'member' | 'external'>('member');
 
   readonly membersLoading = signal(true);
   readonly membersError = signal(false);
@@ -113,6 +120,19 @@ export class ContributionCreateForm {
     method: this.formBuilder.control<PaymentMethod | null>(null, Validators.required),
   });
 
+  readonly externalForm = this.formBuilder.group({
+    firstName: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      Validators.maxLength(100),
+      Validators.pattern(/\S/),
+    ]),
+    lastName: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      Validators.maxLength(100),
+      Validators.pattern(/\S/),
+    ]),
+  });
+
   constructor() {
     this.membersQueryInput
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
@@ -125,6 +145,27 @@ export class ContributionCreateForm {
     const value = (event.target as HTMLInputElement).value;
     this.membersQuery.set(value);
     this.membersQueryInput.next(value.trim());
+  }
+
+  setContributorMode(mode: 'member' | 'external'): void {
+    if (this.contributorMode() === mode) {
+      return;
+    }
+
+    this.contributorMode.set(mode);
+    if (mode === 'member') {
+      this.form.controls.memberId.setValidators(Validators.required);
+      this.form.controls.memberId.updateValueAndValidity();
+      this.externalForm.reset();
+    } else {
+      this.form.controls.memberId.clearValidators();
+      this.form.controls.memberId.updateValueAndValidity();
+      this.form.controls.memberId.reset();
+    }
+  }
+
+  onExternalContributorChange(event: Event): void {
+    this.setContributorMode((event.target as HTMLInputElement).checked ? 'external' : 'member');
   }
 
   membersPreviousPage(): void {
@@ -176,28 +217,53 @@ export class ContributionCreateForm {
     return control.invalid && control.touched;
   }
 
+  externalFirstNameInvalid(): boolean {
+    const control = this.externalForm.controls.firstName;
+    return control.invalid && control.touched;
+  }
+
+  externalLastNameInvalid(): boolean {
+    const control = this.externalForm.controls.lastName;
+    return control.invalid && control.touched;
+  }
+
   contributionDateInvalid(): boolean {
     const control = this.form.controls.contributionDate;
     return control.invalid && control.touched;
   }
 
   submit(): void {
-    if (this.submitting() || this.membersLoading() || this.membersError()) {
+    if (
+      this.submitting() ||
+      (this.contributorMode() === 'member' && (this.membersLoading() || this.membersError()))
+    ) {
       return;
     }
 
-    if (this.form.invalid) {
+    if (this.form.invalid || (this.contributorMode() === 'external' && this.externalForm.invalid)) {
       this.form.markAllAsTouched();
+      if (this.contributorMode() === 'external') {
+        this.externalForm.markAllAsTouched();
+      }
       return;
     }
 
     const raw = this.form.getRawValue();
-    const request: CreateContributionRequest = {
-      memberId: raw.memberId,
+    const common = {
       amount: raw.amount as number,
       contributionDate: raw.contributionDate,
       method: raw.method as PaymentMethod,
     };
+    const request: CreateContributionRequest =
+      this.contributorMode() === 'member'
+        ? ({ memberId: raw.memberId, ...common } satisfies CreateMemberContributionRequest)
+        : ({
+            externalContributor: {
+              firstName: this.externalForm.controls.firstName.value.trim(),
+              lastName: this.externalForm.controls.lastName.value.trim(),
+            },
+            ...common,
+          } satisfies CreateExternalContributionRequest);
     this.submitted.emit(request);
   }
 

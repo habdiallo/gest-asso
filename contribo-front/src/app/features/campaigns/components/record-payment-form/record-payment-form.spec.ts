@@ -67,7 +67,7 @@ describe('RecordPaymentForm', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const amountAndDateGrid = Array.from(
-      root.querySelectorAll('form > .grid > .grid.sm\\:grid-cols-2'),
+      root.querySelectorAll('form > .grid > .grid[class~="min-[821px]:grid-cols-2"]'),
     ).find((grid) => grid.querySelector('app-amount-input'));
     expect(amountAndDateGrid).toBeDefined();
     expect(amountAndDateGrid?.querySelector('#record-payment-date')).not.toBeNull();

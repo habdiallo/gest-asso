@@ -101,12 +101,60 @@ describe('GET /api/v1/social-funds/{socialFundId}/contributions (mocks MSW, T-91
       expect(contributionPage.page.totalElements).toBe(socialFund.contributionCount);
       expect(contributionPage.items).toHaveLength(socialFund.contributionCount ?? 0);
 
-      const distinctContributors = new Set(contributionPage.items.map((item) => item.member.id));
+      const distinctContributors = new Set(
+        contributionPage.items.map((item) =>
+          item.member
+            ? `member:${item.member.id}`
+            : `external:${item.externalContributor?.firstName}:${item.externalContributor?.lastName}`,
+        ),
+      );
       expect(distinctContributors.size).toBe(socialFund.contributorCount);
 
       const totalCollected = contributionPage.items.reduce((sum, item) => sum + item.amount, 0);
       expect(totalCollected).toBe(socialFund.collectedAmount);
     }
+  });
+});
+
+describe('POST /api/v1/social-funds/{socialFundId}/contributions (mocks MSW, T-134)', () => {
+  it('records an external contributor and returns updated aggregates', async () => {
+    const account = demoAccounts.find((demoAccount) => demoAccount.identifier === 'admin.demo');
+    if (!account) {
+      throw new Error('Missing demo account admin.demo');
+    }
+
+    const response = await runRequest(
+      new Request(
+        'http://localhost/api/v1/social-funds/10700000-0000-4000-8000-000000000502/contributions',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${account.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            externalContributor: { firstName: 'Aminata', lastName: 'Camara' },
+            amount: 125000,
+            contributionDate: '2026-09-15',
+            method: 'CASH',
+          }),
+        },
+      ),
+    );
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as {
+      contribution: ContributionPage['items'][number];
+      socialFund: SocialFund;
+    };
+    expect(body.contribution.member).toBeNull();
+    expect(body.contribution.externalContributor).toEqual({
+      firstName: 'Aminata',
+      lastName: 'Camara',
+    });
+    expect(body.socialFund.collectedAmount).toBe(8325000);
+    expect(body.socialFund.contributorCount).toBe(68);
+    expect(body.socialFund.contributionCount).toBe(81);
   });
 });
 

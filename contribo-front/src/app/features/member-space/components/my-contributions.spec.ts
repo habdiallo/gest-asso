@@ -20,6 +20,7 @@ const result: ContributionPage = {
     {
       id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
       member: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', displayName: 'Mariama Diallo' },
+      externalContributor: null,
       socialFund: {
         id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
         title: 'Mariage de Fanta et Sekou',

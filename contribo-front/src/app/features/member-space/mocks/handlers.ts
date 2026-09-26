@@ -61,6 +61,7 @@ export const memberSpaceHandlers = [
     const contribution: Contribution = {
       id: `10700000-0000-4000-8000-${member.id.slice(-4)}20`,
       member: { id: member.id, displayName: member.displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000300',
         title: 'Mariage de Fanta et Sekou',

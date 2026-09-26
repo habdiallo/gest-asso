@@ -213,7 +213,11 @@ describe('GET /api/v1/contributions (mocks MSW, T-30)', () => {
 
     expect(response.status).toBe(200);
     expect(contributionPage.items.length).toBeGreaterThan(0);
-    expect(contributionPage.items.every((item) => item.member.id === memberId)).toBe(true);
+    expect(
+      contributionPage.items.every(
+        (item) => item.member?.id === memberId && item.externalContributor === null,
+      ),
+    ).toBe(true);
   });
 
   it('returns an empty page for a member without any contribution', async () => {
