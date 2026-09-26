@@ -8,7 +8,7 @@
 - [x] 1.5 [T-134] Reconcevoir `ContributionCreateForm` pour afficher un dialogue aéré et accessible, conserver la cagnotte en lecture seule depuis sa fiche et proposer le choix exclusif « Membre de l'association » ou « Contributeur externe » avec les validations et états d'erreur associés.
 - [x] 1.6 [T-134] Adapter `SocialFundDetailPage` et les vues d'historique pour afficher le membre ou le contributeur externe, préserver l'autorisation, le rafraîchissement après succès, la traçabilité et l'exclusion des externes de l'espace personnel.
 - [x] 1.7 [T-134] Ajouter ou ajuster les tests de formulaire, de page, de client/mock et d'agrégats pour couvrir les deux variantes, le changement de mode, les erreurs, les droits, la clôture et la conservation de la saisie, puis vérifier le dialogue au clavier, le focus, les messages associés, les thèmes et le responsive.
-- [ ] 1.8 [T-134] Exécuter la validation OpenAPI, les tests frontend, le lint, le build, le formatage, `node scripts/tickets.mjs check`, `node scripts/tickets.mjs verify T-134` et préparer une PR ciblée vers `main` sans fusion ni push direct vers `main`.
+- [x] 1.8 [T-134] Exécuter la validation OpenAPI, les tests frontend, le lint, le build, le formatage, `node scripts/tickets.mjs check`, `node scripts/tickets.mjs verify T-134` et préparer une PR ciblée vers `main` sans fusion ni push direct vers `main`.
 
 ## 2. Harmonisation des dialogues d'enregistrement
 
