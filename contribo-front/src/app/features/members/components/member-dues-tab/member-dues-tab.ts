@@ -47,7 +47,7 @@ export class MemberDuesTab {
   private requestedPage = 0;
 
   readonly memberId = input.required<string>();
-  /** Incrémenté par la fiche membre après un règlement pour recharger la page courante (T-130). */
+  /** Incrémenté par la fiche membre après un règlement pour recharger la première page (T-130). */
   readonly refreshToken = input(0);
   readonly loading = signal(true);
   readonly loadError = signal(false);

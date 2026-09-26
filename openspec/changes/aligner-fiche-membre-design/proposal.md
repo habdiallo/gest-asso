@@ -28,6 +28,7 @@ La fiche membre actuelle présente les informations et les historiques dans une 
 ## Impact
 
 - Frontend Angular : `features/members/pages/member-detail-page` et ses composants d'onglets et de formulaires, ainsi que `features/social-funds/pages/social-fund-detail-page` pour la suppression de l'onglet redondant.
+- États de chargement frontend : `features/campaigns` (création, cotisations, règlements), `features/dashboard`, `features/income-categories`, `features/member-space`, `features/roles-users`, `features/social-funds` et `shared/loading-skeleton` pour rendre les libellés visibles pendant les chargements.
 - Composants partagés : réutilisation du shell de détail, des boutons d'action, des tableaux, des onglets et des primitives de situation financière déjà présentes.
 - Mocks et tests frontend : adaptation des fixtures et couverture des rôles, des interactions et des états de données.
 - API et contrat OpenAPI : aucun changement prévu. Les données affichées proviennent de `GET /api/v1/members/{memberId}` et des opérations paginées déjà consommées par la fiche membre.
