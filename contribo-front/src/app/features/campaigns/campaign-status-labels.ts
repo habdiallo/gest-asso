@@ -15,10 +15,10 @@ export function campaignStatusLabel(status: CampaignStatus): string {
   return CAMPAIGN_STATUS_LABELS[status];
 }
 
-export type CampaignStatusTone = 'success' | 'neutral';
+export type CampaignStatusTone = 'success' | 'info' | 'neutral';
 
 const CAMPAIGN_STATUS_TONES: Record<CampaignStatus, CampaignStatusTone> = {
-  [CampaignStatus.Upcoming]: 'success',
+  [CampaignStatus.Upcoming]: 'info',
   [CampaignStatus.Open]: 'success',
   [CampaignStatus.Closed]: 'neutral',
 };

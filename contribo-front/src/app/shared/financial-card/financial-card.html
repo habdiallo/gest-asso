@@ -10,6 +10,8 @@
       class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-data text-[9px] font-medium uppercase tracking-[0.1em]"
       [class.bg-success-wash]="statusTone() === 'success'"
       [class.text-success]="statusTone() === 'success'"
+      [class.bg-info-wash]="statusTone() === 'info'"
+      [class.text-info]="statusTone() === 'info'"
       [class.bg-surface-2]="statusTone() === 'neutral'"
       [class.text-text-2]="statusTone() === 'neutral'"
     >
@@ -17,6 +19,7 @@
         data-testid="financial-card-status-dot"
         class="h-1.5 w-1.5 rounded-full"
         [class.bg-success]="statusTone() === 'success'"
+        [class.bg-info]="statusTone() === 'info'"
         [class.bg-text-3]="statusTone() === 'neutral'"
         aria-hidden="true"
       ></span>

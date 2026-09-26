@@ -6,7 +6,7 @@ export interface FinancialCardAmount {
   readonly fullText: string;
 }
 
-export type FinancialCardStatusTone = 'success' | 'neutral';
+export type FinancialCardStatusTone = 'success' | 'info' | 'neutral';
 
 /** Carte financière partagée par les listes Campagnes et Cagnottes. */
 @Component({
