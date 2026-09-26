@@ -156,14 +156,16 @@ async function createFixture(
 
 function findEditButton(root: HTMLElement): HTMLButtonElement | null {
   const buttons = Array.from(root.querySelectorAll('button')) as HTMLButtonElement[];
-  const editButton = buttons.find((button) => button.textContent?.trim() === 'Modifier le barème');
+  const editButton = buttons.find(
+    (button) => button.textContent?.trim() === 'Modifier les montants',
+  );
   if (editButton) {
     return editButton;
   }
   buttons.find((button) => button.textContent?.includes('Montants par catégorie'))?.click();
   return (
     (Array.from(root.querySelectorAll('button')).find(
-      (button) => button.textContent?.trim() === 'Modifier le barème',
+      (button) => button.textContent?.trim() === 'Modifier les montants',
     ) as HTMLButtonElement | undefined) ?? null
   );
 }
@@ -274,10 +276,53 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-detail-panel-situation')).toBeNull();
     const categoriesPanel = root.querySelector('#campaign-detail-panel-categories');
     expect(categoriesPanel).not.toBeNull();
-    expect(categoriesPanel?.textContent).toContain('Montants par catégorie');
+    expect(categoriesPanel?.textContent).toContain('Barème de la campagne');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+  });
+
+  it('renders the target bareme columns, category badges and member units', async () => {
+    const fixture = await createFixture(() => of(buildCampaign()));
+    fixture.detectChanges();
+    selectCategoriesTab(fixture);
+
+    const root: HTMLElement = fixture.nativeElement;
+    const table = root.querySelector('#campaign-detail-panel-categories app-data-table table');
+    const headers = Array.from(table?.querySelectorAll('thead th') ?? []).map((header) =>
+      header.textContent?.trim(),
+    );
+
+    expect(headers).toEqual([
+      'Catégorie',
+      'Montant de cette campagne',
+      'Membres concernés',
+      'Total attendu',
+    ]);
+    expect(table?.textContent).toContain('Standard');
+    expect(table?.textContent).toContain('60 membres');
+    expect(table?.textContent).toContain('6\u202f000\u202f000 GNF');
+    expect(root.querySelector('[data-testid="campaign-bareme-mobile-cards"]')).not.toBeNull();
+  });
+
+  it('opens the bareme editor from the visible edit action', async () => {
+    const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
+      role: UserRole.Administrator,
+    });
+    fixture.detectChanges();
+    selectCategoriesTab(fixture);
+
+    const editButton = findEditButton(fixture.nativeElement);
+    expect(editButton).not.toBeNull();
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('dialog[aria-label="Montants de campagne"][open]'),
+    ).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Configuration propre à cette campagne.');
+    expect(fixture.nativeElement.textContent).toContain('Ouverte');
+    expect(fixture.nativeElement.textContent).toContain('Enregistrer');
   });
 
   it('shows the campaign financial summary in the hero metrics', async () => {
@@ -411,14 +456,14 @@ describe('CampaignDetailPage', () => {
       expect(findEditButton(fixture.nativeElement)).toBeNull();
     });
 
-    it('does not show the edit action for an Administrator once the campaign is open', async () => {
+    it('shows the edit action for an Administrator while the campaign is open', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
         role: UserRole.Administrator,
       });
       fixture.detectChanges();
       selectCategoriesTab(fixture);
 
-      expect(findEditButton(fixture.nativeElement)).toBeNull();
+      expect(findEditButton(fixture.nativeElement)).not.toBeNull();
     });
 
     it('shows the edit action for an Administrator on an upcoming campaign', async () => {
@@ -661,8 +706,8 @@ describe('CampaignDetailPage', () => {
       expect(root.querySelector('[role="alert"]')?.textContent).toContain(
         'Le barème ne peut plus être modifié : la campagne a déjà commencé ou des règlements existent déjà.',
       );
-      // Le formulaire reste ouvert avec la saisie conservée après l'échec.
-      expect(root.querySelector('form')).not.toBeNull();
+      // Le dialogue reste ouvert avec la saisie conservée après l'échec.
+      expect(root.querySelector('dialog[aria-label="Montants de campagne"][open]')).not.toBeNull();
     });
 
     it('retries the same bareme submission and clears the error banner on success (T-102)', async () => {
@@ -713,13 +758,13 @@ describe('CampaignDetailPage', () => {
 
       const root: HTMLElement = fixture.nativeElement;
       const cancelButton = Array.from(root.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Annuler',
+        (button) => button.textContent?.trim() === 'Retour',
       ) as HTMLButtonElement;
       cancelButton.click();
       fixture.detectChanges();
 
       expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
-      expect(root.querySelector('form')).toBeNull();
+      expect(root.querySelector('dialog[aria-label="Montants de campagne"][open]')).toBeNull();
       expect(findEditButton(root)).not.toBeNull();
     });
   });
@@ -797,7 +842,7 @@ describe('CampaignDetailPage', () => {
       const root: HTMLElement = fixture.nativeElement;
       root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
       fixture.detectChanges();
-      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      const rows = Array.from(root.querySelectorAll('[data-testid="campaign-bareme-edit-row"]'));
       expect(rows).toHaveLength(2);
       expect(rows[0].textContent).toContain('Montant non configuré');
       expect(rows[1].textContent).not.toContain('Montant non configuré');
@@ -825,7 +870,7 @@ describe('CampaignDetailPage', () => {
       firstInput.dispatchEvent(new Event('input'));
       fixture.detectChanges();
 
-      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      const rows = Array.from(root.querySelectorAll('[data-testid="campaign-bareme-edit-row"]'));
       expect(rows[0].textContent).not.toContain('Montant non configuré');
     });
   });

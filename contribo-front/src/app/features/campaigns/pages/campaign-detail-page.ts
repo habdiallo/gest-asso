@@ -71,13 +71,9 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
  *
  * Formulaire de configuration du barème (T-68, `openapi:updateCampaignCategoryAmounts`) :
  * un champ de saisie de montant par catégorie de revenu déjà portée par la
- * campagne, réservé à l'Administrateur et au Trésorier, et proposé uniquement
- * tant que la campagne est à venir (`CampaignStatus.Upcoming`), conformément à
- * la contrainte contractuelle (avant la date de début, sans règlement existant).
- * Ce contrôle IHM ne remplace pas l'autorisation backend : une tentative hors
- * de cette fenêtre échoue côté serveur avec `CAMPAIGN_NOT_EDITABLE` (409),
- * affiché comme message d'erreur si elle survient malgré tout (par exemple si
- * la campagne a démarré entre le chargement de l'écran et l'enregistrement).
+ * campagne, réservé à l'Administrateur et au Trésorier. Le dialogue reste
+ * accessible tant que la campagne n'est pas clôturée ; l'autorisation backend
+ * reste la source de vérité pour accepter ou refuser l'enregistrement.
  * L'état retourné par l'appel remplace la campagne affichée (montants,
  * membres concernés et montants attendus recalculés), sans recalcul local.
  *
@@ -103,9 +99,8 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
  * retourné par l'appel remplace la campagne affichée.
  *
  * Verrouillage des actions de modification sur une campagne clôturée (T-81) :
- * l'édition du barème est déjà exclue par `canEditBaremeNow` (proposée
- * uniquement tant que la campagne est à venir, donc jamais sur une campagne
- * clôturée). L'enregistrement d'un nouveau règlement est masqué par
+ * l'édition du barème est exclue par `canEditBaremeNow` dès que la campagne est
+ * clôturée. L'enregistrement d'un nouveau règlement est masqué par
  * `CampaignDuesTab` via l'entrée `campaignClosed`, calculée ici à partir du
  * statut de la campagne. L'ajout d'un membre concerné n'est proposé nulle
  * part après création (les membres concernés sont fixés, non modifiables,
@@ -208,6 +203,22 @@ export class CampaignDetailPage {
     return amount === 0;
   }
 
+  /** Repère compact d'une catégorie, sans remplacer son libellé métier. */
+  categoryBadge(label: string): string {
+    const explicitLetter = label.match(/\b([A-Z])\b/i)?.[1];
+    const firstCharacter = label.trim().charAt(0);
+    return (explicitLetter ?? (firstCharacter || '?')).toUpperCase();
+  }
+
+  formatCategoryMemberCount(count: number): string {
+    return this.transloco.translate(
+      count === 1
+        ? 'campaigns.detail.bareme.memberCountValueSingular'
+        : 'campaigns.detail.bareme.memberCountValue',
+      { count },
+    );
+  }
+
   /** Campagne clôturée (T-81) : transmis à `CampaignDuesTab` pour masquer l'enregistrement d'un nouveau règlement. */
   readonly campaignClosed = computed(() => this.campaign()?.status === CampaignStatus.Closed);
 
@@ -217,9 +228,9 @@ export class CampaignDetailPage {
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
 
-  /** Édition proposée uniquement avant la date de début de la campagne. */
+  /** Édition proposée aux rôles autorisés tant que la campagne n'est pas clôturée. */
   readonly canEditBaremeNow = computed(
-    () => this.canEditBareme() && this.campaign()?.status === CampaignStatus.Upcoming,
+    () => this.canEditBareme() && this.campaign()?.status !== CampaignStatus.Closed,
   );
 
   readonly editingBareme = signal(false);
