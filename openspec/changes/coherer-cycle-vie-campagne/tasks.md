@@ -19,4 +19,4 @@
 
 - [x] 4.1 [T-132] Exécuter les tests frontend ciblés, la suite frontend et le build selon les commandes disponibles, puis vérifier le rendu des états `UPCOMING`, `OPEN` et `CLOSED` dans le navigateur si disponible. Le contrôle navigateur a été tenté mais reste bloqué par une interface d'extension active.
 - [x] 4.2 [T-132] Exécuter `openspec validate`, `node scripts/tickets.mjs check` et `node scripts/tickets.mjs verify T-132`, puis contrôler le diff pour exclure les modifications étrangères et le contrat API non prévu.
-- [ ] 4.3 [T-132] Préparer une PR ciblée vers `main` avec le ticket T-132 et le change `coherer-cycle-vie-campagne`, sans fusionner ni pousser directement vers `main`, puis traiter la revue.
+- [x] 4.3 [T-132] Préparer une PR ciblée vers `main` avec le ticket T-132 et le change `coherer-cycle-vie-campagne`, sans fusionner ni pousser directement vers `main`, puis traiter la revue. PR 132 fusionnée après contrôles CI au vert.
