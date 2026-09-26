@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-[1440px] px-5 py-7 pb-9 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-[1440px] px-5 py-7 pb-9 sm:px-6 lg:px-12 lg:py-8 lg:pb-16">
   <a
     [routerLink]="backRouterLink()"
     class="inline-flex min-h-11 items-center gap-2 rounded px-1 text-[10px] font-medium uppercase tracking-[0.1em] text-gold outline-none transition-colors hover:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash"
@@ -18,34 +18,38 @@
     {{ backLabel() }}
   </a>
 
-  <section
-    class="relative mt-8 overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-[30px]"
-  >
-    <div
-      class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
-      aria-hidden="true"
-    ></div>
-    <div class="relative z-10 flex flex-col items-start justify-between gap-6 min-[661px]:flex-row">
-      <div class="min-w-0">
-        <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
-          {{ kicker() }}
-        </p>
-        <h1 class="mt-2 font-sans text-[27px] font-medium leading-tight text-text">
-          {{ title() }}
-        </h1>
-        <p class="mt-1 text-[15px] font-light leading-normal text-text-2">
-          {{ intro() }}
-        </p>
+  @if (showHero()) {
+    <section
+      class="relative mt-8 overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-[30px]"
+    >
+      <div
+        class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="relative z-10 flex flex-col items-start justify-between gap-6 min-[661px]:flex-row"
+      >
+        <div class="min-w-0">
+          <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
+            {{ kicker() }}
+          </p>
+          <h1 class="mt-2 font-sans text-[27px] font-medium leading-tight text-text">
+            {{ title() }}
+          </h1>
+          <p class="mt-1 text-[15px] font-light leading-normal text-text-2">
+            {{ intro() }}
+          </p>
+        </div>
+        <div class="flex w-full flex-wrap gap-2.5 min-[661px]:w-auto" detail-actions-slot>
+          <ng-content select="[detail-actions]" />
+        </div>
       </div>
-      <div class="flex w-full flex-wrap gap-2.5 min-[661px]:w-auto" detail-actions-slot>
-        <ng-content select="[detail-actions]" />
-      </div>
-    </div>
 
-    <div class="relative z-10 mt-7 border-t border-line pt-6" detail-metrics-slot>
-      <ng-content select="[detail-metrics]" />
-    </div>
-  </section>
+      <div class="relative z-10 mt-7 border-t border-line pt-6" detail-metrics-slot>
+        <ng-content select="[detail-metrics]" />
+      </div>
+    </section>
+  }
 
   <ng-content select="[detail-tabs]" />
   <ng-content />

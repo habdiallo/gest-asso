@@ -273,9 +273,7 @@ describe('MemberDetailPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const tab = Array.from(root.querySelectorAll('[role="tab"]')).find((element) =>
-      element.textContent?.includes('Contributions aux cagnottes'),
-    ) as HTMLButtonElement | undefined;
+    const tab = root.querySelector('#member-detail-tab-contributions') as HTMLButtonElement | null;
     expect(tab).toBeDefined();
 
     tab?.click();
@@ -1251,25 +1249,23 @@ describe('MemberDetailPage', () => {
       // Les onglets historiques restent atteignables et affichent toujours
       // les données du membre après la désactivation (RG-MEM-012 à
       // RG-MEM-015) : aucune section ne disparaît ni ne se vide.
-      const findTab = (label: string): HTMLButtonElement =>
-        Array.from(root.querySelectorAll('[role="tab"]')).find((tab) =>
-          tab.textContent?.includes(label),
-        ) as HTMLButtonElement;
+      const findTab = (id: 'cotisations' | 'reglements' | 'contributions'): HTMLButtonElement =>
+        root.querySelector(`#member-detail-tab-${id}`) as HTMLButtonElement;
 
-      findTab('Situation des cotisations').click();
+      findTab('cotisations').click();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
       expect(root.textContent).toContain('Solidarité septembre');
       expect(root.textContent).toContain('Partiellement payé');
 
-      findTab('Règlements').click();
+      findTab('reglements').click();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
       expect(root.textContent).toContain('12 septembre 2026');
 
-      findTab('Contributions aux cagnottes').click();
+      findTab('contributions').click();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1339,9 +1335,9 @@ describe('MemberDetailPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    const cotisationsTab = Array.from(root.querySelectorAll('[role="tab"]')).find((tab) =>
-      tab.textContent?.includes('Situation des cotisations'),
-    ) as HTMLButtonElement | undefined;
+    const cotisationsTab = root.querySelector(
+      '#member-detail-tab-cotisations',
+    ) as HTMLButtonElement | null;
     expect(cotisationsTab).toBeDefined();
 
     cotisationsTab?.click();
