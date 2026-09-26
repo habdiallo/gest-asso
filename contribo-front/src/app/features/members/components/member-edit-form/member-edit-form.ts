@@ -38,7 +38,12 @@ export class MemberEditForm implements OnInit {
   readonly categoriesLoading = signal(true);
   readonly categoriesError = signal(false);
   readonly categorySelectOptions = computed<readonly CustomSelectOption[]>(() =>
-    this.categories().map((category) => ({ value: category.id, label: category.label })),
+    [this.member().incomeCategory, ...this.categories()]
+      .filter(
+        (category, index, categories) =>
+          categories.findIndex((candidate) => candidate.id === category.id) === index,
+      )
+      .map((category) => ({ value: category.id, label: category.label })),
   );
 
   readonly form = this.formBuilder.nonNullable.group({

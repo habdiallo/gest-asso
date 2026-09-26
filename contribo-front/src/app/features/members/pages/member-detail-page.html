@@ -350,12 +350,11 @@
   <app-form-dialog
     [open]="editOpen() && canEdit()"
     [dialogTitle]="'members.edit.dialogTitle' | transloco"
+    [kicker]="'memberDetail.hero.kicker' | transloco"
+    desktopWidth="1060px"
     (closed)="closeEditDialog()"
   >
     @if (editOpen() && canEdit()) {
-      <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
-        {{ 'memberDetail.hero.kicker' | transloco }}
-      </p>
       <p class="mt-2 text-sm text-text-2">{{ 'members.edit.intro' | transloco }}</p>
       @if (editError()) {
         <app-api-error-retry
@@ -452,12 +451,11 @@
   <app-form-dialog
     [open]="recordPaymentOpen() && canRecordPayments()"
     [dialogTitle]="'members.recordPayment.dialogTitle' | transloco"
+    [kicker]="'memberDetail.hero.kicker' | transloco"
+    desktopWidth="800px"
     (closed)="closeRecordPaymentDialog()"
   >
     @if (recordPaymentOpen() && canRecordPayments()) {
-      <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
-        {{ 'memberDetail.hero.kicker' | transloco }}
-      </p>
       <p class="mt-2 text-sm text-text-2">{{ 'members.recordPayment.intro' | transloco }}</p>
 
       @if (recordPaymentError(); as errorKey) {
@@ -591,15 +589,41 @@
               {{ 'members.recordPayment.traceabilityNote' | transloco }}
             </p>
 
-            <div class="mt-6 flex items-center justify-end gap-3">
+            <div
+              class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+            >
               <app-action-button
                 type="button"
                 variant="secondary"
                 (click)="closeRecordPaymentDialog()"
               >
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
                 {{ 'members.recordPayment.cancel' | transloco }}
               </app-action-button>
               <app-action-button type="submit" [disabled]="recordPaymentSubmitting()">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
                 {{
                   (recordPaymentSubmitting()
                     ? 'members.recordPayment.submitting'

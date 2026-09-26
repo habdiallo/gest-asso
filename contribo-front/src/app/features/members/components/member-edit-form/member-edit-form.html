@@ -1,9 +1,17 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <section>
-    <h3 class="text-[10px] font-medium uppercase tracking-[0.12em] text-gold">
-      {{ 'members.edit.sections.identity' | transloco }}
-    </h3>
-    <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <div class="flex items-center gap-3">
+      <span
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-wash font-data text-[9px] font-medium text-gold"
+        aria-hidden="true"
+      >
+        01
+      </span>
+      <h3 class="text-base font-medium text-text">
+        {{ 'members.edit.sections.identity' | transloco }}
+      </h3>
+    </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
       <div>
         <label
           for="member-edit-last-name"
@@ -99,10 +107,18 @@
   </section>
 
   <section class="mt-6 border-t border-line pt-6">
-    <h3 class="text-[10px] font-medium uppercase tracking-[0.12em] text-gold">
-      {{ 'members.edit.sections.location' | transloco }}
-    </h3>
-    <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <div class="flex items-center gap-3">
+      <span
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-wash font-data text-[9px] font-medium text-gold"
+        aria-hidden="true"
+      >
+        02
+      </span>
+      <h3 class="text-base font-medium text-text">
+        {{ 'members.edit.sections.location' | transloco }}
+      </h3>
+    </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
       <div>
         <label
           for="member-edit-country"
@@ -169,11 +185,11 @@
             {{ 'members.create.fields.incomeCategoryRequired' | transloco }}
           </p>
         }
-        @if (categoriesLoading()) {
+        @if (categoriesLoading() && categorySelectOptions().length === 0) {
           <p class="mt-2 text-sm text-text-2" role="status">
             {{ 'members.create.categoriesLoading' | transloco }}
           </p>
-        } @else if (categoriesError()) {
+        } @else if (categoriesError() && categorySelectOptions().length === 0) {
           <p class="mt-2 text-sm text-error" role="alert">
             {{ 'members.create.categoriesError' | transloco }}
           </p>
@@ -210,14 +226,37 @@
     </div>
   </section>
 
-  <p class="mt-4 text-sm text-text-2">
-    {{ 'members.edit.categoryNote' | transloco }}
-  </p>
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div
+    class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-6 min-[821px]:-mb-6 min-[821px]:px-6 min-[821px]:py-5"
+  >
     <app-action-button type="button" variant="secondary" (click)="cancel()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
       {{ 'members.create.cancel' | transloco }}
     </app-action-button>
     <app-action-button type="submit" [disabled]="submitting() || !hasChanges()">
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m5 12 4 4L19 6" />
+      </svg>
       {{ (submitting() ? 'members.edit.submitting' : 'members.edit.submit') | transloco }}
     </app-action-button>
   </div>

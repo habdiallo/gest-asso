@@ -573,7 +573,7 @@
   "members.edit.sections.location": "Localisation et association",
   "members.edit.error": "Impossible d'enregistrer les modifications. Votre saisie est conservée, vous pouvez réessayer.",
   "members.edit.success": "Les modifications du membre ont été enregistrées.",
-  "members.edit.submit": "Enregistrer les modifications",
+  "members.edit.submit": "Enregistrer",
   "members.edit.submitting": "Enregistrement en cours...",
   "members.edit.categoryNote": "La modification de catégorie ne change pas les cotisations déjà établies.",
   "members.edit.operatorNote": "En tant qu'Opérateur, vous pouvez modifier uniquement le téléphone, la ville, le pays et le nom d'usage. La catégorie de revenu, la fonction, le rôle applicatif et le statut sont réservés à l'Administrateur et au Trésorier.",
