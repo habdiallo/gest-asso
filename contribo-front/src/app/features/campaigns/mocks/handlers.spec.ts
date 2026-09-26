@@ -74,6 +74,39 @@ describe('GET /api/v1/campaigns (mock)', () => {
     expect(page.items).toHaveLength(1);
     expect(page.items[0]).toMatchObject({ name: 'Rentrée associative', status: 'UPCOMING' });
   });
+
+  it('keeps the upcoming campaign summary aligned with its category and dues', async () => {
+    const campaignResponse = await fetch(`/api/v1/campaigns/${upcomingCampaignId}`, {
+      headers: headersFor(UserRole.Treasurer),
+    });
+    const campaign = (await campaignResponse.json()) as Campaign;
+    const duesResponse = await fetch(`/api/v1/campaigns/${upcomingCampaignId}/dues?size=100`, {
+      headers: headersFor(UserRole.Treasurer),
+    });
+    const dues = (await duesResponse.json()) as {
+      items: Array<{ dueAmount: number; status: string }>;
+      page: { totalElements: number };
+    };
+
+    expect(campaign).toMatchObject({
+      memberCount: 62,
+      financialSummary: {
+        expectedAmount: 4_650_000,
+        collectedAmount: 0,
+        remainingAmount: 4_650_000,
+        dueCounts: { total: 62, paid: 0, partiallyPaid: 0, unpaid: 62 },
+      },
+    });
+    expect(campaign.categoryAmounts).toHaveLength(1);
+    expect(campaign.categoryAmounts[0]).toMatchObject({
+      memberCount: 62,
+      amount: 75_000,
+      expectedAmount: 4_650_000,
+    });
+    expect(dues.page.totalElements).toBe(62);
+    expect(dues.items).toHaveLength(62);
+    expect(dues.items.every((due) => due.dueAmount === 75_000 && due.status === 'DUE')).toBe(true);
+  });
 });
 
 describe('GET /api/v1/payments?campaignId=... (mock, T-129)', () => {
@@ -106,9 +139,13 @@ describe('GET /api/v1/campaigns/{id}/dues (mock, T-131)', () => {
     expect(response.status).toBe(200);
     const page = (await response.json()) as {
       items: Array<{ id: string; campaign: { status: string } }>;
+      page: { totalElements: number };
     };
     expect(page.items).toContainEqual(expect.objectContaining({ id: dueId }));
     expect(page.items[0]?.campaign.status).toBe(status);
+    if (campaignId === upcomingCampaignId) {
+      expect(page.page.totalElements).toBe(62);
+    }
   });
 });
 
@@ -145,11 +182,11 @@ describe('PUT /api/v1/campaigns/{id}/category-amounts (mock, T-113)', () => {
       expect(response.status).toBe(200);
       const campaign = (await response.json()) as Campaign;
       expect(campaign.categoryAmounts[0].amount).toBe(100_000);
-      expect(campaign.categoryAmounts[0].expectedAmount).toBe(9_100_000);
+      expect(campaign.categoryAmounts[0].expectedAmount).toBe(6_200_000);
       expect(campaign.financialSummary).toMatchObject({
-        expectedAmount: 9_100_000,
+        expectedAmount: 6_200_000,
         collectedAmount: 0,
-        remainingAmount: 9_100_000,
+        remainingAmount: 6_200_000,
         collectionRate: 0,
       });
 

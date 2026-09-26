@@ -29,7 +29,12 @@
             }) + (campaign.description ? ' · ' + campaign.description : '')
     "
   >
-    <app-action-button detail-actions type="button" (click)="openSituationTab()">
+    <app-action-button
+      detail-actions
+      type="button"
+      [variant]="campaign.status === 'OPEN' ? 'primary' : 'secondary'"
+      (click)="openSituationTab()"
+    >
       <svg
         class="h-4 w-4"
         viewBox="0 0 24 24"
@@ -92,99 +97,101 @@
         <span class="sr-only">{{ 'campaigns.detail.close.action' | transloco }}</span>
       </app-action-button>
     }
-    <app-detail-metrics detail-metrics [items]="metrics()" />
-    @if (campaign.status === 'UPCOMING' && openingReadiness(); as readiness) {
-      <section
-        class="mt-8 rounded-card border border-line bg-surface p-5 sm:p-6"
-        aria-labelledby="campaign-opening-readiness-title"
-        data-testid="campaign-opening-readiness"
-      >
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 id="campaign-opening-readiness-title" class="font-display text-2xl text-text">
-              {{ 'campaigns.detail.opening.title' | transloco }}
-            </h2>
-            <p class="mt-2 max-w-2xl text-sm text-text-2">
-              {{ 'campaigns.detail.opening.description' | transloco }}
-            </p>
+    <div detail-metrics>
+      <app-detail-metrics [items]="metrics()" />
+      @if (campaign.status === 'UPCOMING' && openingReadiness(); as readiness) {
+        <section
+          class="mt-6 rounded-card border border-line bg-surface p-5 sm:p-6"
+          aria-labelledby="campaign-opening-readiness-title"
+          data-testid="campaign-opening-readiness"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 id="campaign-opening-readiness-title" class="font-display text-2xl text-text">
+                {{ 'campaigns.detail.opening.title' | transloco }}
+              </h2>
+              <p class="mt-2 max-w-2xl text-sm text-text-2">
+                {{ 'campaigns.detail.opening.description' | transloco }}
+              </p>
+            </div>
+            <span
+              class="rounded-full px-3 py-1 font-data text-[10px] font-medium uppercase tracking-[0.08em]"
+              [class.bg-success-wash]="readiness.ready"
+              [class.text-success]="readiness.ready"
+              [class.bg-warning-wash]="!readiness.ready"
+              [class.text-warning]="!readiness.ready"
+            >
+              {{
+                (readiness.ready
+                  ? 'campaigns.detail.opening.ready'
+                  : 'campaigns.detail.opening.notReady'
+                ) | transloco
+              }}
+            </span>
           </div>
-          <span
-            class="rounded-full px-3 py-1 font-data text-[10px] font-medium uppercase tracking-[0.08em]"
-            [class.bg-success-wash]="readiness.ready"
-            [class.text-success]="readiness.ready"
-            [class.bg-warning-wash]="!readiness.ready"
-            [class.text-warning]="!readiness.ready"
-          >
-            {{
-              (readiness.ready
-                ? 'campaigns.detail.opening.ready'
-                : 'campaigns.detail.opening.notReady'
-              ) | transloco
-            }}
-          </span>
-        </div>
-        <ul class="mt-5 grid gap-3 sm:grid-cols-2" data-testid="campaign-opening-checklist">
-          <li class="flex items-center gap-3 text-sm text-text">
-            <span
-              class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
-              [class.bg-success-wash]="readiness.baremeComplete"
-              [class.text-success]="readiness.baremeComplete"
-              [class.bg-warning-wash]="!readiness.baremeComplete"
-              [class.text-warning]="!readiness.baremeComplete"
-              aria-hidden="true"
-              >{{ readiness.baremeComplete ? '✓' : '!' }}</span
-            >
-            {{ 'campaigns.detail.opening.checks.bareme' | transloco }}
-          </li>
-          <li class="flex items-center gap-3 text-sm text-text">
-            <span
-              class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
-              [class.bg-success-wash]="readiness.datesValid"
-              [class.text-success]="readiness.datesValid"
-              [class.bg-warning-wash]="!readiness.datesValid"
-              [class.text-warning]="!readiness.datesValid"
-              aria-hidden="true"
-              >{{ readiness.datesValid ? '✓' : '!' }}</span
-            >
-            {{ 'campaigns.detail.opening.checks.dates' | transloco }}
-          </li>
-          <li class="flex items-center gap-3 text-sm text-text">
-            <span
-              class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
-              [class.bg-success-wash]="readiness.startDateReached"
-              [class.text-success]="readiness.startDateReached"
-              [class.bg-warning-wash]="!readiness.startDateReached"
-              [class.text-warning]="!readiness.startDateReached"
-              aria-hidden="true"
-              >{{ readiness.startDateReached ? '✓' : '!' }}</span
-            >
-            {{ 'campaigns.detail.opening.checks.startDate' | transloco }}
-          </li>
-          <li class="flex items-center gap-3 text-sm text-text">
-            <span
-              class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
-              [class.bg-success-wash]="readiness.duesReady"
-              [class.text-success]="readiness.duesReady"
-              [class.bg-warning-wash]="!readiness.duesReady"
-              [class.text-warning]="!readiness.duesReady"
-              aria-hidden="true"
-              >{{ readiness.duesReady ? '✓' : '!' }}</span
-            >
-            {{ 'campaigns.detail.opening.checks.dues' | transloco }}
-          </li>
-        </ul>
-        @if (readiness.blockingReasons.length > 0) {
-          <div class="mt-5 rounded bg-warning-wash px-4 py-3 text-sm text-warning" role="status">
-            <p>{{ 'campaigns.detail.opening.blockingIntro' | transloco }}</p>
-            <ul class="mt-2 list-inside list-disc">
-              @for (reason of readiness.blockingReasons; track reason) {
-                <li>{{ openingBlockingReason(reason) | transloco }}</li>
-              }
-            </ul>
-          </div>
-        }
-      </section>
-    }
+          <ul class="mt-5 grid gap-3 sm:grid-cols-2" data-testid="campaign-opening-checklist">
+            <li class="flex items-center gap-3 text-sm text-text">
+              <span
+                class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
+                [class.bg-success-wash]="readiness.baremeComplete"
+                [class.text-success]="readiness.baremeComplete"
+                [class.bg-warning-wash]="!readiness.baremeComplete"
+                [class.text-warning]="!readiness.baremeComplete"
+                aria-hidden="true"
+                >{{ readiness.baremeComplete ? '✓' : '!' }}</span
+              >
+              {{ 'campaigns.detail.opening.checks.bareme' | transloco }}
+            </li>
+            <li class="flex items-center gap-3 text-sm text-text">
+              <span
+                class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
+                [class.bg-success-wash]="readiness.datesValid"
+                [class.text-success]="readiness.datesValid"
+                [class.bg-warning-wash]="!readiness.datesValid"
+                [class.text-warning]="!readiness.datesValid"
+                aria-hidden="true"
+                >{{ readiness.datesValid ? '✓' : '!' }}</span
+              >
+              {{ 'campaigns.detail.opening.checks.dates' | transloco }}
+            </li>
+            <li class="flex items-center gap-3 text-sm text-text">
+              <span
+                class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
+                [class.bg-success-wash]="readiness.startDateReached"
+                [class.text-success]="readiness.startDateReached"
+                [class.bg-warning-wash]="!readiness.startDateReached"
+                [class.text-warning]="!readiness.startDateReached"
+                aria-hidden="true"
+                >{{ readiness.startDateReached ? '✓' : '!' }}</span
+              >
+              {{ 'campaigns.detail.opening.checks.startDate' | transloco }}
+            </li>
+            <li class="flex items-center gap-3 text-sm text-text">
+              <span
+                class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
+                [class.bg-success-wash]="readiness.duesReady"
+                [class.text-success]="readiness.duesReady"
+                [class.bg-warning-wash]="!readiness.duesReady"
+                [class.text-warning]="!readiness.duesReady"
+                aria-hidden="true"
+                >{{ readiness.duesReady ? '✓' : '!' }}</span
+              >
+              {{ 'campaigns.detail.opening.checks.dues' | transloco }}
+            </li>
+          </ul>
+          @if (readiness.blockingReasons.length > 0) {
+            <div class="mt-5 rounded bg-warning-wash px-4 py-3 text-sm text-warning" role="status">
+              <p>{{ 'campaigns.detail.opening.blockingIntro' | transloco }}</p>
+              <ul class="mt-2 list-inside list-disc">
+                @for (reason of readiness.blockingReasons; track reason) {
+                  <li>{{ openingBlockingReason(reason) | transloco }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+      }
+    </div>
     <app-detail-tabs
       detail-tabs
       [tabs]="detailTabs()"

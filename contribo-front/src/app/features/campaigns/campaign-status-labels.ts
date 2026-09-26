@@ -3,10 +3,10 @@ import { CampaignStatus } from '@api';
 /**
  * Libellés français des statuts de campagne (schéma `CampaignStatus` de
  * `besoins/openapi.yaml`). La liste et le détail affichent le même statut
- * métier afin que le brouillon reste identifiable avant sa configuration.
+ * métier afin que le brouillon reste identifiable avant son ouverture.
  */
 const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
-  [CampaignStatus.Upcoming]: 'À venir',
+  [CampaignStatus.Upcoming]: 'Brouillon',
   [CampaignStatus.Open]: 'Ouverte',
   [CampaignStatus.Closed]: 'Clôturée',
 };

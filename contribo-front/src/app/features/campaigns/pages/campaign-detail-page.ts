@@ -260,9 +260,9 @@ export class CampaignDetailPage {
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
 
-  /** Action proposée uniquement tant que la campagne n'est pas déjà clôturée. */
+  /** Action proposée uniquement sur une campagne Ouverte. */
   readonly canCloseCampaignNow = computed(
-    () => this.canCloseCampaign() && this.campaign()?.status !== CampaignStatus.Closed,
+    () => this.canCloseCampaign() && this.campaign()?.status === CampaignStatus.Open,
   );
 
   readonly closeCampaignDialogOpen = signal(false);

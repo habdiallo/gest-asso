@@ -13,14 +13,14 @@
 
 - [x] 3.1 [T-131] Mettre à jour les tests de `CampaignDetailPage` pour couvrir l'ordre exact des colonnes, les libellés, les pastilles, les unités, les rôles, le statut de campagne, les états d'erreur et le rendu mobile observable.
 - [x] 3.2 [T-131] Exécuter les validations frontend et OpenSpec, puis comparer la vue aux captures desktop et mobile dans les deux thèmes lorsque le navigateur est disponible.
-- [ ] 3.3 [T-131] Préparer une PR ciblée vers `main` avec le ticket T-131 et le change `aligner-bareme-campagne-design`, sans fusionner ni pousser directement vers `main`, puis traiter la revue.
+- [x] 3.3 [T-131] Préparer une PR ciblée vers `main` avec le ticket T-131 et le change `aligner-bareme-campagne-design`, sans fusionner ni pousser directement vers `main`, puis traiter la revue. PR 131 fusionnée.
 
 ## 4. Corriger le cycle de vie de la campagne (retour de revue PR #131)
 
 - [x] 4.1 [T-131] Documenter le cycle de vie à trois états d'une campagne (Brouillon/`UPCOMING`, Ouverte/`OPEN`, Clôturée/`CLOSED`) et les actions autorisées par état dans `besoins/cahier-user-stories-mvp-association-v2.md` (RG-COT-017, RG-COT-018, RG-PAY-010).
 - [x] 4.2 [T-131] Corriger `canEditBaremeNow` (`campaign-detail-page.ts`) pour ne proposer l'édition du barème que sur une campagne `UPCOMING`, conformément au contrat `updateCampaignCategoryAmounts`, et restaurer/adapter le test vérifiant l'absence de l'action sur une campagne `OPEN`.
 - [x] 4.3 [T-131] Restreindre l'enregistrement d'un règlement à une campagne `OPEN` dans `CampaignDuesTab` (remplacer l'entrée `campaignClosed` par une autorisation positive sur `OPEN` uniquement), aligner `createPayment` sur RG-PAY-010 avec le 409 `CAMPAIGN_NOT_OPEN`, fournir des données MSW `UPCOMING` et `CLOSED`, et couvrir ces cas dans les tests de mocks, `CampaignDuesTab` et `CampaignDetailPage`.
-- [ ] 4.4 [T-131] Rejouer les tests ciblés, la validation du contrat OpenAPI, le lint et la suite frontend, puis pousser la correction sur `front/fix-131-bareme-campagne` et traiter la revue avant fusion.
+- [x] 4.4 [T-131] Rejouer les tests ciblés, la validation du contrat OpenAPI, le lint et la suite frontend, puis pousser la correction sur `front/fix-131-bareme-campagne` et traiter la revue avant fusion. Contrôles GitHub au vert et PR 131 fusionnée.
 
 ## 5. Ouverture explicite après préparation
 
