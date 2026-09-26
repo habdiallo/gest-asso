@@ -1,4 +1,29 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
+  <dl
+    class="mb-5 grid overflow-hidden rounded border border-line bg-surface-2 text-center min-[821px]:grid-cols-3"
+  >
+    <div class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r">
+      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+        {{ 'campaigns.detail.cotisations.recordPayment.summary.due' | transloco }}
+      </dt>
+      <dd class="mt-1 font-data text-sm text-text">{{ formatAmount(due().dueAmount) }}</dd>
+    </div>
+    <div class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r">
+      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+        {{ 'campaigns.detail.cotisations.recordPayment.summary.paid' | transloco }}
+      </dt>
+      <dd class="mt-1 font-data text-sm text-text">{{ formatAmount(due().paidAmount) }}</dd>
+    </div>
+    <div class="px-4 py-3">
+      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+        {{ 'campaigns.detail.cotisations.recordPayment.summary.remaining' | transloco }}
+      </dt>
+      <dd class="mt-1 font-data text-sm text-gold">
+        {{ formatAmount(due().remainingAmount) }}
+      </dd>
+    </div>
+  </dl>
+
   <div class="grid gap-4">
     <div class="grid gap-4 min-[821px]:grid-cols-2">
       <div>
@@ -19,6 +44,7 @@
       <app-amount-input
         formControlName="amount"
         [label]="'campaigns.detail.cotisations.recordPayment.fields.amount' | transloco"
+        labelClass="block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         [required]="true"
       />
 
@@ -29,14 +55,12 @@
         >
           {{ 'campaigns.detail.cotisations.recordPayment.fields.paymentDate' | transloco }}
         </label>
-        <input
-          id="record-payment-date"
-          type="date"
+        <app-date-input
+          controlId="record-payment-date"
           formControlName="paymentDate"
-          required
-          [attr.aria-invalid]="paymentDateInvalid() ? true : null"
-          [attr.aria-describedby]="paymentDateInvalid() ? 'record-payment-date-error' : null"
-          class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+          [required]="true"
+          [ariaInvalid]="paymentDateInvalid()"
+          [ariaDescribedBy]="paymentDateInvalid() ? 'record-payment-date-error' : null"
         />
         @if (paymentDateInvalid()) {
           <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">

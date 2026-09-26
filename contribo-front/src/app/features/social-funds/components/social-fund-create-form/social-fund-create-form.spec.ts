@@ -206,9 +206,11 @@ describe('SocialFundCreateForm', () => {
     const emitted: void[] = [];
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
-    const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]:not([aria-haspopup="listbox"])',
-    ) as HTMLButtonElement;
+    const cancelButton = Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      ) as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.trim() === 'Annuler') as HTMLButtonElement;
     cancelButton.click();
 
     expect(emitted).toHaveLength(1);

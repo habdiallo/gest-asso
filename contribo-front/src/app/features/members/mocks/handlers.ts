@@ -2,7 +2,6 @@ import { HttpResponse, delay, http } from 'msw';
 import {
   CampaignStatus,
   CurrencyCode,
-  DueStatus,
   ErrorCode,
   MemberStatus,
   PaymentMethod,
@@ -14,7 +13,6 @@ import type {
   Contribution,
   ContributionPage,
   CreateMemberRequest,
-  Due,
   DuePage,
   ErrorResponse,
   MemberDetails,
@@ -26,6 +24,7 @@ import type {
   UpdateMemberRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { getDemoDuesForMember } from '../../../../mocks/demo-dues';
 
 /**
  * Répertoire de démonstration pour `GET /api/v1/members` (T-21). Les données
@@ -71,6 +70,22 @@ const demoMembers: MemberSummary[] = [
     status: MemberStatus.Inactive,
   },
 ];
+
+// Le jeu de démonstration dépasse volontairement 20 membres afin que les
+// selects concernés rendent leur recherche intégrée visible dans le MVP.
+demoMembers.push(
+  ...Array.from({ length: 22 }, (_, index): MemberSummary => {
+    const sequence = String(503 + index).padStart(4, '0');
+    return {
+      id: `10700000-0000-4000-8000-00000000${sequence}`,
+      firstName: `Membre${index + 1}`,
+      lastName: 'Démonstration',
+      displayName: `Membre${index + 1} Démonstration`,
+      incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    };
+  }),
+);
 
 /**
  * Duplique les identifiants et libellés connus de
@@ -149,7 +164,7 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
   [demoMembers[0].id]: [
     {
       id: '10700000-0000-4000-8000-000000000700',
-      dueId: '10700000-0000-4000-8000-000000000800',
+      dueId: '10700000-0000-4000-8000-000000000410',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[0],
       amount: 50_000,
@@ -161,7 +176,7 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
     },
     {
       id: '10700000-0000-4000-8000-000000000701',
-      dueId: '10700000-0000-4000-8000-000000000801',
+      dueId: '10700000-0000-0000-0000-000000000430',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[1],
       amount: 150_000,
@@ -169,72 +184,6 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
       method: PaymentMethod.MobileMoney,
       recordedBy: demoRecordedBy,
       recordedAt: '2026-06-18T09:10:00Z',
-      currency: CurrencyCode.Gnf,
-    },
-  ],
-};
-
-/**
- * Cotisations de démonstration pour `GET /api/v1/members/{memberId}/dues`
- * (T-28). Duplique volontairement une campagne plausible plutôt que
- * d'importer `features/campaigns/mocks/handlers.ts` : les mocks MSW restent
- * autonomes par fonctionnalité (cf. commentaire équivalent sur
- * `demoIncomeCategoryLabelsById` ci-dessus).
- */
-const demoMemberDues: Record<string, Due[]> = {
-  '10700000-0000-4000-8000-000000000500': [
-    {
-      id: '10700000-0000-4000-8000-000000000420',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: {
-        id: '10700000-0000-4000-8000-000000000200',
-        name: 'Solidarité septembre',
-        startDate: '2026-09-01',
-        endDate: '2026-09-30',
-        status: CampaignStatus.Open,
-      },
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 100_000,
-      paidAmount: 50_000,
-      remainingAmount: 50_000,
-      status: DueStatus.PartiallyPaid,
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000421',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: {
-        id: '10700000-0000-4000-8000-000000000202',
-        name: 'Soutien juin 2026',
-        startDate: '2026-06-01',
-        endDate: '2026-06-30',
-        status: CampaignStatus.Closed,
-      },
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 150_000,
-      paidAmount: 150_000,
-      remainingAmount: 0,
-      status: DueStatus.Paid,
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000422',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: {
-        id: '10700000-0000-4000-8000-000000000201',
-        name: 'Rentrée associative',
-        startDate: '2026-09-26',
-        endDate: '2026-10-31',
-        status: CampaignStatus.Upcoming,
-      },
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 75_000,
-      paidAmount: 0,
-      remainingAmount: 75_000,
-      status: DueStatus.Due,
-      paymentCount: 0,
       currency: CurrencyCode.Gnf,
     },
   ],
@@ -649,10 +598,9 @@ export const membersHandlers = [
   /**
    * `GET /api/v1/members/{memberId}/dues` (T-28, `openapi:listMemberDues`) :
    * situation des cotisations du membre, paginée, de la plus récente à la
-   * plus ancienne (contrat `DuePage`). Le contenu affiché n'est pas encore
-   * restreint pour l'Opérateur ici : `MemberDuesTab` masque déjà la colonne
-   * catégorie de revenu côté IHM (RG-MEM-008), sans qu'un filtrage serveur
-   * supplémentaire soit prévu par ce mock.
+   * plus ancienne (contrat `DuePage`). Les mêmes cotisations sont utilisées
+   * par le handler de campagne afin qu'un `dueId` sélectionné depuis la fiche
+   * membre soit accepté par `POST /dues/{dueId}/payments`.
    */
   http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
@@ -669,7 +617,7 @@ export const membersHandlers = [
     const url = new URL(request.url);
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
-    const dues = demoMemberDues[memberId] ?? [];
+    const dues = getDemoDuesForMember(memberId);
     const items = dues.slice(page * size, page * size + size);
     return HttpResponse.json<DuePage>({
       items,

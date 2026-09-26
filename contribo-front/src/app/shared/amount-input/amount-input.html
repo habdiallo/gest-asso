@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-2">
-  <label [attr.for]="fieldId" class="text-sm font-medium text-text-2" [class.sr-only]="hideLabel()">
+  <label [attr.for]="fieldId" [class]="labelClass()" [class.sr-only]="hideLabel()">
     {{ label() }}
   </label>
   <div class="relative">

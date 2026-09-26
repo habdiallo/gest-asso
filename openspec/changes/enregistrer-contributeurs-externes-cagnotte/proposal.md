@@ -9,9 +9,14 @@ Le ticket T-134 propose un parcours explicite et traçable : une contribution es
 - Repenser le dialogue « Enregistrer une contribution » pour reprendre la hiérarchie du design cible : titre, texte d'aide, contexte de cagnotte, choix du contributeur, montant, date, mode, aide de traçabilité et actions clairement espacées.
 - Harmoniser l'agencement des dialogues d'enregistrement de règlement et de contribution : même largeur paysage sur desktop, mêmes espacements, mêmes grilles à deux colonnes et même pied d'actions, avec un retour à une colonne sur mobile.
 - Remplacer les cartes de choix concurrentes par une case à cocher « Contributeur externe » ; le select membre est remplacé par les champs prénom et nom lorsque la case est activée.
-- Pour un membre, permettre une recherche par nom ou prénom puis une sélection unique dans la liste des membres existants.
+- Pour un membre, conserver une sélection unique dans la liste des membres existants et afficher une recherche en première ligne du select dès que la liste dépasse 20 éléments.
 - Pour un contributeur externe, demander le prénom et le nom, sans créer de compte ni de membre dans l'annuaire.
+- Remplacer les calendriers natifs des formulaires concernés par un sélecteur de date partagé, accessible et visuellement aligné sur le thème Contribo, en conservant les valeurs API au format `YYYY-MM-DD`.
 - Préserver le contexte de cagnotte dans le dialogue ouvert depuis la fiche d'une cagnotte. La cagnotte est affichée en lecture seule dans ce parcours ; un sélecteur de cagnotte est réservé à un futur point d'entrée global.
+- Harmoniser les deux points d'entrée de règlement sans les confondre : depuis une campagne, la campagne et le membre sont affichés en lecture seule ; depuis une fiche membre, le membre est fixe et la campagne reste sélectionnable parmi les cotisations ouvertes et non soldées.
+- Afficher le résumé dû, déjà payé et reste à payer pour la cotisation sélectionnée. Le MVP conserve une imputation par règlement et par cotisation, sans cumul ni ventilation automatique entre plusieurs campagnes.
+- Préselectionner la première cotisation éligible depuis la fiche membre afin que le résumé soit visible dès l'ouverture et que le `dueId` requis par l'API soit disponible sans action supplémentaire.
+- Afficher ce même résumé dans le dialogue ouvert depuis une campagne et corriger uniquement les libellés d'action redondants, par exemple « Confirmer l'enregistrement » vers « Confirmer ».
 - Faire évoluer le contrat OpenAPI afin qu'une requête représente exactement l'un des deux types de contributeur, avec validation serveur et erreurs explicites.
 - Faire évoluer la réponse `Contribution`, les agrégats et les écrans de consultation pour afficher les deux types de contributeur sans casser la traçabilité ni l'indépendance des cagnottes.
 - Mettre à jour les mocks, les données de démonstration, les textes français et les tests de formulaire, de contrat et d'intégration de la cagnotte.

@@ -46,6 +46,7 @@ export class AmountInput implements ControlValueAccessor, OnInit {
   private readonly instanceId = `amount-input-${++nextInstanceId}`;
 
   readonly label = input('Montant');
+  readonly labelClass = input('text-sm font-medium text-text-2');
   readonly hideLabel = input(false);
   readonly hideUnit = input(false);
   readonly compact = input(false);

@@ -18,3 +18,21 @@
 - [x] 2.4 [T-134] Réduire la duplication de présentation uniquement si nécessaire, via une primitive neutre de layout ou d'actions dans `shared`, sans introduire de DTO, de logique métier ou de dépendance entre features.
 - [x] 2.5 [T-134] Ajouter les tests structurels et responsive des trois dialogues : composition en deux colonnes sur desktop, empilement sur petite fenêtre, absence de débordement, cohérence des labels et du footer, navigation clavier, focus et conservation des erreurs.
 - [x] 2.6 [T-134] Rejouer les validations ciblées des formulaires et de `FormDialog`, le lint, le build et la vérification navigateur des trois parcours dans les deux thèmes, puis mettre à jour uniquement les cases réalisées.
+
+## 3. Contexte métier des règlements
+
+- [x] 3.1 [T-134] Documenter la différence de contexte entre le règlement ouvert depuis une campagne et celui ouvert depuis une fiche membre, scope `fullstack`, type `feat`, branche `fullstack/feat-134-contributeur-externe-cagnotte`.
+- [x] 3.2 [T-134] Vérifier et maintenir le contrat et les mocks existants pour conserver une écriture sur un `dueId` unique, sans ajouter de cumul ni de ventilation multi-campagnes, scope `fullstack`, type `feat`, branche `fullstack/feat-134-contributeur-externe-cagnotte`.
+- [x] 3.3 [T-134] Adapter le dialogue ouvert depuis une campagne pour afficher le membre et la campagne en lecture seule, sans sélecteur de contexte, et conserver le plafond au reste à payer de la cotisation sélectionnée.
+- [x] 3.4 [T-134] Adapter le dialogue ouvert depuis une fiche membre pour garder le membre en lecture seule, sélectionner une cotisation ouverte non soldée et mettre à jour le résumé et le plafond selon la cotisation choisie.
+- [x] 3.5 [T-134] Ajouter les validations et mocks couvrant les deux points d'entrée, l'absence de cotisation éligible et l'interdiction de ventiler un règlement sur plusieurs campagnes.
+
+## 4. Sélection initiale et harmonisation ciblée
+
+- [x] 4.1 [T-134] Mettre à jour la documentation métier, le design et la spécification pour formaliser la préselection de la première cotisation éligible, le résumé identique depuis les deux points d'entrée et la distinction entre libellé descriptif de ligne et confirmation contextualisée, scope `fullstack`, type `feat`, branche `fullstack/feat-134-contributeur-externe-cagnotte`.
+- [x] 4.2 [T-134] Aligner le formulaire de règlement sur le contrat `POST /dues/{dueId}/payments` en présélectionnant un `dueId` éligible depuis la fiche membre et en ajoutant le résumé dû, déjà payé et reste à payer dans le formulaire ouvert depuis une campagne.
+- [x] 4.3 [T-134] Harmoniser les dimensions des boutons, les pieds de formulaire et les labels de champs des parcours membre, campagne et cagnotte, puis raccourcir uniquement les libellés redondants comme « Confirmer l'enregistrement » vers « Confirmer » via Transloco.
+- [x] 4.4 [T-134] Ajouter les tests de préselection, de résumé identique, de soumission sur le `dueId` sélectionné, de gabarit des boutons et de cohérence responsive, puis rejouer les validations ciblées.
+- [x] 4.5 [T-134] Supprimer le champ de recherche membre externe au select et conserver la pagination lorsque l'API renvoie plusieurs pages, avec tests et libellés nettoyés.
+- [x] 4.6 [T-134] Ajouter une recherche intégrée en première ligne à tout `app-custom-select` de plus de 20 options, fournir un mock de membres dépassant ce seuil et vérifier le filtrage clavier et visuel.
+- [x] 4.7 [T-134] Remplacer les calendriers natifs des formulaires concernés par un `DateInput` partagé, documenter le contrat de valeur `YYYY-MM-DD`, la présélection visuelle du jour courant, l'état du bouton « Aujourd'hui » et les règles de contraste, puis valider le rendu thématique et l'accessibilité.

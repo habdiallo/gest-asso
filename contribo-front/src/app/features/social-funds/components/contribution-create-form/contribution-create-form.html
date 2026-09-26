@@ -23,26 +23,7 @@
       </p>
     }
 
-    <div class="grid gap-4 min-[821px]:grid-cols-2">
-      <div>
-        <label
-          for="contribution-create-member-search"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-        >
-          {{ 'socialFunds.recordContribution.fields.memberSearchLabel' | transloco }}
-        </label>
-        <input
-          id="contribution-create-member-search"
-          type="search"
-          [value]="membersQuery()"
-          (input)="onMembersQueryInput($event)"
-          [placeholder]="
-            'socialFunds.recordContribution.fields.memberSearchPlaceholder' | transloco
-          "
-          class="app-form-control mb-2 min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
-        />
-      </div>
-
+    <div>
       <div>
         <label
           for="contribution-create-member"
@@ -194,6 +175,7 @@
     <div>
       <app-amount-input
         formControlName="amount"
+        labelClass="block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         [required]="true"
         [label]="'socialFunds.recordContribution.fields.amount' | transloco"
       />
@@ -205,16 +187,12 @@
       >
         {{ 'socialFunds.recordContribution.fields.contributionDate' | transloco }}
       </label>
-      <input
-        id="contribution-create-date"
-        type="date"
+      <app-date-input
+        controlId="contribution-create-date"
         formControlName="contributionDate"
-        required
-        [attr.aria-invalid]="contributionDateInvalid() ? true : null"
-        [attr.aria-describedby]="
-          contributionDateInvalid() ? 'contribution-create-date-error' : null
-        "
-        class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+        [required]="true"
+        [ariaInvalid]="contributionDateInvalid()"
+        [ariaDescribedBy]="contributionDateInvalid() ? 'contribution-create-date-error' : null"
       />
       @if (contributionDateInvalid()) {
         <p id="contribution-create-date-error" class="mt-2 text-sm text-error" role="alert">

@@ -4,7 +4,7 @@ Le parcours actuel est porté par `ContributionCreateForm`, ouvert depuis `Socia
 
 Le contrat actuel ne représente qu'un membre. `Contribution.member` est obligatoire dans les réponses et `CreateContributionRequest.memberId` est obligatoire dans les requêtes. Il faut donc faire évoluer le contrat, le client généré, les mocks et les consommateurs frontend ensemble. Le dépôt ne contient pas encore le backend : la proposition traite le contrat partagé et les comportements attendus sans inventer une implémentation serveur.
 
-Le prototype montre un dialogue aéré avec un contexte de cagnotte, des champs répartis en grille, une aide de traçabilité et un pied de formulaire distinct. Le dialogue fonctionnel actuel ajoute une recherche séparée et un select membre, mais ne permet pas un contributeur externe.
+Le prototype montre un dialogue aéré avec un contexte de cagnotte, des champs répartis en grille, une aide de traçabilité et un pied de formulaire distinct. Le dialogue fonctionnel actuel duplique le choix du membre avec une recherche séparée et un select, et ne permet pas un contributeur externe.
 
 Les dialogues de règlement déjà présents sur la fiche membre et dans le détail d'une campagne utilisent une largeur desktop de 800 à 920 px et une composition paysage. Le dialogue de contribution utilise encore la largeur par défaut de `FormDialog` (560 px), ce qui comprime la recherche membre, le contexte de cagnotte et les champs financiers. Le ticket doit donc traiter l'écart de composition, pas seulement les champs externes.
 
@@ -32,11 +32,19 @@ Les dialogues de règlement déjà présents sur la fiche membre et dans le dét
 
 ### Choisir explicitement le type de contributeur
 
-Le formulaire reste centré sur la saisie courte du prototype. Il affiche par défaut la recherche et la sélection d'un membre, avec une case à cocher « Contributeur externe ». Lorsque cette case est activée, le select membre disparaît et est remplacé par deux champs obligatoires, prénom et nom. Cette présentation évite deux cartes de choix concurrentes et garde le mode habituel comme parcours principal.
+Le formulaire reste centré sur la saisie courte du prototype. Il affiche par défaut un select pour choisir un membre, avec une case à cocher « Contributeur externe ». Lorsque cette case est activée, le select membre disparaît et est remplacé par deux champs obligatoires, prénom et nom. Cette présentation évite deux champs concurrents pour choisir un membre et garde le mode habituel comme parcours principal. Lorsque le select reçoit plus de 20 options, son menu affiche une recherche en première ligne qui filtre les options disponibles. La pagination reste disponible si l'API renvoie plusieurs pages.
 
 Les champs du mode inactif sont vidés et exclus de la requête. Le bouton de validation reste désactivé ou bloqué tant que le mode actif n'est pas valide. Le formulaire n'essaie jamais de deviner qu'un nom libre correspond à un membre.
 
-Alternative écartée : garder un champ de recherche membre et ajouter un bouton « autre ». Cette solution laisse deux parcours concurrents dans le même champ et rend ambiguë la valeur envoyée au serveur.
+Alternative écartée : garder un champ de recherche séparé à côté du select. Cette solution doublonne le contrôle de sélection et désaligne le comportement des autres selects. La recherche intégrée est portée par `app-custom-select`, uniquement lorsque plus de 20 options sont présentes, sans modifier le contrat des composants appelants.
+
+### Utiliser un calendrier Contribo partagé
+
+Les champs HTML `input[type=date]` conservent le format de valeur attendu par l'API, mais leur panneau de calendrier est rendu par le navigateur et ne respecte pas de manière fiable les couleurs, les bordures et les actions du thème Contribo. Les formulaires de règlement, de contribution, de campagne et de cagnotte utilisent donc un composant `DateInput` partagé.
+
+Le composant affiche le jour au format `jj/mm/aaaa`, ouvre un calendrier sombre avec accents dorés, permet de naviguer entre les mois, de choisir une date, d'effacer la valeur ou de sélectionner aujourd'hui. À l'ouverture sans valeur, le jour courant est repéré comme sélection par défaut dans le calendrier, sans être envoyé au formulaire tant que l'utilisateur ne l'a pas choisi. L'action « Aujourd'hui » est désactivée lorsque la date sélectionnée est déjà le jour courant, puis réactivée dès qu'une autre date est choisie. Les textes utilisent les tokens de contraste du thème : texte principal pour les dates, texte secondaire pour les repères moins prioritaires et état sélectionné en fond doré léger avec anneau doré, afin de rester lisible dans les thèmes sombre et clair. Le focus utilise un contour à contraste renforcé.
+
+Alternative écartée : styliser uniquement l'icône et l'input natif. Cette approche ne contrôle pas le panneau ouvert par le navigateur et laisse un rendu gris différent selon le navigateur et le système d'exploitation.
 
 ### Garder la cagnotte comme contexte depuis sa fiche
 
@@ -79,6 +87,24 @@ Une petite primitive de présentation partagée peut porter le pied d'actions et
 
 Alternative écartée : augmenter uniquement la largeur du dialogue de contribution et conserver ses espacements spécifiques. Cette correction réglerait la compression principale mais laisserait une différence perceptible entre les formulaires et reproduirait le problème lors d'une prochaine évolution.
 
+### Dépendre du point d'entrée pour le contexte du règlement
+
+Les deux dialogues de règlement utilisent le même gabarit visuel, mais leurs champs de contexte ne sont pas interchangeables.
+
+Depuis une ligne de cotisation dans le détail d'une campagne, la campagne et le membre sont déjà déterminés par la cotisation choisie. Le dialogue les affiche en lecture seule et ne propose aucun select pour les modifier. Le montant saisi est imputé au `dueId` de cette ligne et reste plafonné par son `remainingAmount`.
+
+Depuis la fiche d'un membre, le membre est également déterminé par la page et reste en lecture seule. La campagne est sélectionnable uniquement parmi les cotisations de ce membre rattachées à une campagne `OPEN` et présentant un reste positif. Le résumé `dueAmount`, `paidAmount` et `remainingAmount` se met à jour avec la cotisation sélectionnée. Le règlement est enregistré sur cette seule cotisation.
+
+À l'ouverture depuis la fiche membre, la première cotisation éligible renvoyée par `GET /members/{memberId}/dues` est sélectionnée automatiquement. Le sélecteur reste disponible pour choisir une autre cotisation éligible. Cette présélection garantit que le formulaire respecte immédiatement le contrat `POST /dues/{dueId}/payments`, qui ne peut être soumis sans `dueId`, et évite d'afficher un résumé vide alors qu'une cotisation est disponible.
+
+Le formulaire ouvert depuis une campagne affiche le même résumé que celui de la fiche membre, calculé uniquement à partir du `Due` transmis par la ligne choisie. Le contexte membre et campagne reste en lecture seule dans ce parcours ; aucun nouveau chargement de campagne ni nouveau sélecteur n'est introduit.
+
+Les boutons gardent leur intention métier. Un bouton de ligne peut rester libellé « Enregistrer un règlement » car il décrit l'action proposée. Dans le dialogue, une confirmation déjà contextualisée utilise un libellé court comme « Confirmer » ; les libellés ne sont raccourcis que lorsqu'ils répètent inutilement le contexte déjà visible.
+
+Le MVP ne cumule pas les montants de plusieurs campagnes dans le dialogue et ne ventile pas un montant unique entre plusieurs cotisations. Cette règle évite de modifier le contrat `POST /dues/{dueId}/payments`, qui porte déjà une écriture sur un `dueId` unique. Une ventilation multi-campagnes nécessiterait un parcours, une validation et une transaction dédiés dans une évolution ultérieure.
+
+Le contrat reste donc aligné sur les ressources existantes : `GET /members/{memberId}/dues` fournit les cotisations éligibles à la fiche membre et `POST /dues/{dueId}/payments` enregistre le règlement de la cotisation sélectionnée. Aucun agrégat cumulé supplémentaire n'est introduit pour ce MVP.
+
 ### Valider le dialogue comme un parcours accessible
 
 Le dialogue reçoit un nom, place le focus sur le premier contrôle pertinent, garde une navigation clavier logique, annonce les erreurs associées aux champs et restitue le focus au déclencheur à la fermeture. Sur petit écran, les champs passent sur une colonne et le pied de formulaire reste accessible sans débordement horizontal.
@@ -111,3 +137,4 @@ Le retour arrière consiste à restaurer le contrat précédent et le formulaire
 - Faut-il afficher une mention « contributeur externe » dans chaque ligne d'historique, ou le nom suffit-il dans le MVP ? La proposition recommande un badge ou un sous-libellé discret pour éviter toute confusion avec un membre.
 - La sélection d'une cagnotte depuis un formulaire global doit-elle être livrée dans un ticket séparé lié à T-134 ? La proposition la laisse hors périmètre jusqu'à la définition de la page globale des contributions.
 - Le pied d'actions doit-il être extrait dans un composant `shared` ou rester porté par les trois templates avec les mêmes classes ? L'implémentation devra retenir l'option qui réduit la duplication sans introduire une abstraction métier.
+- Une ventilation d'un même règlement sur plusieurs campagnes pourra être étudiée dans un ticket ultérieur ; elle est explicitement hors périmètre du MVP de T-134.

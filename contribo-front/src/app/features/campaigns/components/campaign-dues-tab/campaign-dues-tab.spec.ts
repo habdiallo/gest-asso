@@ -405,6 +405,10 @@ describe('CampaignDuesTab', () => {
     expect(dialog.getAttribute('style')).toContain('--form-dialog-desktop-width: 920px');
     expect(dialog.querySelector('.grid[class~="min-[821px]:grid-cols-2"]')).not.toBeNull();
     expect(dialog.textContent).toContain(fr['campaigns.detail.cotisations.recordPayment.intro']);
+    expect(dialog.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.summary.remaining'],
+    );
+    expect(dialog.textContent).toContain(formatGnfAmountDetailed(50_000));
   });
 
   it('shows a specific error when the amount exceeds the remaining amount', async () => {

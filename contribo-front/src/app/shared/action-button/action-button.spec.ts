@@ -45,6 +45,8 @@ describe('ActionButton', () => {
     expect(links[0].textContent).toContain('Nouvelle campagne');
     expect(links[0].getAttribute('aria-label')).toBe('Nouvelle campagne');
     expect(links[0].classList.contains('min-h-11')).toBe(true);
+    expect(links[0].classList.contains('h-11')).toBe(true);
+    expect(links[0].classList.contains('min-w-32')).toBe(true);
     expect(links[1].getAttribute('aria-disabled')).toBe('true');
     expect(links[1].getAttribute('tabindex')).toBe('-1');
     expect(links[1].classList.contains('aria-disabled:opacity-[0.42]')).toBe(true);

@@ -123,6 +123,32 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
   });
 });
 
+describe('GET /api/v1/members/{memberId}/dues (mock, T-134)', () => {
+  it('exposes the same due identifiers as the campaign payment handler', async () => {
+    const response = await runRequest(
+      new Request('http://localhost/api/v1/members/10700000-0000-4000-8000-000000000500/dues', {
+        headers: { Authorization: `Bearer ${demoAccounts[0].accessToken}` },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as {
+      items: Array<{ id: string; member: { id: string }; campaign: { status: string } }>;
+    };
+    expect(page.items.map((due) => due.id)).toEqual(
+      expect.arrayContaining([
+        '10700000-0000-4000-8000-000000000410',
+        '10700000-0000-4000-8000-000000000420',
+        '10700000-0000-0000-0000-000000000430',
+        '10700000-0000-4000-8000-000000000431',
+      ]),
+    );
+    expect(
+      page.items.every((due) => due.member.id === '10700000-0000-4000-8000-000000000500'),
+    ).toBe(true);
+  });
+});
+
 describe('POST /api/v1/members/{memberId}/reactivation (mocks MSW, T-44)', () => {
   const adminHeaders = {
     Authorization: `Bearer ${demoAccounts[0].accessToken}`,

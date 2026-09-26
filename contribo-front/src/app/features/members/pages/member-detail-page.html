@@ -560,6 +560,7 @@
             <div class="mt-4 grid gap-4 min-[821px]:grid-cols-2">
               <app-amount-input
                 formControlName="amount"
+                labelClass="block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
                 [label]="'members.recordPayment.fields.amount' | transloco"
                 [required]="true"
               />
@@ -570,16 +571,12 @@
                 >
                   {{ 'members.recordPayment.fields.paymentDate' | transloco }}
                 </label>
-                <input
-                  id="record-payment-date"
-                  type="date"
+                <app-date-input
+                  controlId="record-payment-date"
                   formControlName="paymentDate"
-                  required
-                  [attr.aria-invalid]="paymentDateInvalid() ? true : null"
-                  [attr.aria-describedby]="
-                    paymentDateInvalid() ? 'record-payment-date-error' : null
-                  "
-                  class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+                  [required]="true"
+                  [ariaInvalid]="paymentDateInvalid()"
+                  [ariaDescribedBy]="paymentDateInvalid() ? 'record-payment-date-error' : null"
                 />
                 @if (paymentDateInvalid()) {
                   <p id="record-payment-date-error" class="mt-2 text-sm text-error" role="alert">

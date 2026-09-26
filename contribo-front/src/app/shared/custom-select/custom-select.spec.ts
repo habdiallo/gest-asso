@@ -22,7 +22,7 @@ function flushMicrotasks(): Promise<void> {
 })
 class HostComponent {
   readonly control = new FormControl<string | null>(null);
-  readonly options = OPTIONS;
+  options = OPTIONS;
 }
 
 describe('CustomSelect', () => {
@@ -60,6 +60,34 @@ describe('CustomSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('renders a first-line search and filters options when more than 20 are available', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.options = Array.from({ length: 21 }, (_, index) => ({
+      value: `option-${index + 1}`,
+      label: `Option ${index + 1}`,
+    }));
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
+
+    const filterInput: HTMLInputElement =
+      fixture.nativeElement.querySelector('input[type="search"]');
+    expect(filterInput).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('[role="option"]')).toHaveLength(21);
+
+    filterInput.value = 'Option 21';
+    filterInput.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(
+      Array.from(
+        fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<Element>,
+      ).map((option) => option.textContent?.trim()),
+    ).toEqual(['Option 21']);
+  });
+
   it('keeps one option in the tab order while moving the roving focus target', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
@@ -73,7 +101,9 @@ describe('CustomSelect', () => {
     );
     expect(optionButtons.map((button) => button.tabIndex)).toEqual([0, -1, -1]);
 
-    optionButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    optionButtons[0].dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    );
     fixture.detectChanges();
     optionButtons = Array.from(fixture.nativeElement.querySelectorAll('[role="option"]'));
     expect(optionButtons.map((button) => button.tabIndex)).toEqual([-1, 0, -1]);

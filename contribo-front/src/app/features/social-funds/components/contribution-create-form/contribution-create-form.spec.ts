@@ -74,9 +74,9 @@ describe('ContributionCreateForm', () => {
     fixture.detectChanges();
 
     const grids = fixture.nativeElement.querySelectorAll('.grid[class~="min-[821px]:grid-cols-2"]');
-    expect(grids.length).toBeGreaterThanOrEqual(2);
-    expect(grids[0].querySelector('#contribution-create-member-search')).not.toBeNull();
-    expect(grids[0].querySelector('#contribution-create-member')).not.toBeNull();
+    expect(grids.length).toBeGreaterThanOrEqual(1);
+    expect(fixture.nativeElement.querySelector('#contribution-create-member-search')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#contribution-create-member')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Mariage de Fanta et Sékou');
     expect(fixture.nativeElement.querySelector('.border-t.border-line')).not.toBeNull();
   });
@@ -275,23 +275,14 @@ describe('ContributionCreateForm', () => {
     expect(emitted).toHaveLength(1);
   });
 
-  it('searches members by name, resets to the first page and debounces the request', async () => {
+  it('does not duplicate the member select with a separate search field', async () => {
     const listMembers = vi.fn(() => of(memberPage));
     const fixture = await createFixture(listMembers);
     await fixture.whenStable();
-    listMembers.mockClear();
-
-    const searchInput: HTMLInputElement = fixture.nativeElement.querySelector(
-      '#contribution-create-member-search',
-    );
-    searchInput.value = 'Fanta';
-    searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(listMembers).not.toHaveBeenCalled();
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    expect(listMembers).toHaveBeenCalledWith(0, 20, 'Fanta');
+    expect(fixture.nativeElement.querySelector('#contribution-create-member-search')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#contribution-create-member')).not.toBeNull();
   });
 
   it('loads the next page of members and ignores a stale response from a previous page', async () => {
@@ -322,7 +313,7 @@ describe('ContributionCreateForm', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenLastCalledWith(1, 20, undefined);
+    expect(listMembers).toHaveBeenLastCalledWith(1, 100);
     const trigger = fixture.nativeElement.querySelector(
       '#contribution-create-member',
     ) as HTMLButtonElement;

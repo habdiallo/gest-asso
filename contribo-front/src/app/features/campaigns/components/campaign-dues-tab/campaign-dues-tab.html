@@ -144,13 +144,13 @@
               @if (canRecordPaymentsNow()) {
                 <td class="whitespace-nowrap px-4 py-2 text-right">
                   @if (due.status !== paidStatus) {
-                    <button
+                    <app-action-button
                       type="button"
-                      class="min-h-11 rounded border border-line px-3 py-2 text-xs text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+                      variant="secondary"
                       (click)="openRecordPayment(due)"
                     >
                       {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
-                    </button>
+                    </app-action-button>
                   }
                 </td>
               }
