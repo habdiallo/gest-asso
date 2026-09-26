@@ -118,14 +118,13 @@
         [attr.aria-busy]="loading() ? 'true' : null"
       >
         @for (campaign of campaignPage.items; track campaign.id) {
-          @let displayStatus = campaignListStatus(campaign.status);
           @let statusTone = campaignStatusTone(campaign.status);
           @let financialSummary = campaign.financialSummary;
           <li>
             <app-financial-card
               [routerLink]="[campaign.id]"
               [eyebrow]="campaign.memberCount + ' ' + ('campaigns.list.members' | transloco)"
-              [statusLabel]="campaignStatusLabel(displayStatus)"
+              [statusLabel]="campaignStatusLabel(campaign.status)"
               [statusTone]="statusTone"
               [title]="campaign.name"
               [subtitle]="

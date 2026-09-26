@@ -7,14 +7,14 @@
 >
   <div class="flex h-full flex-col min-[821px]:h-auto min-[821px]:max-h-[85vh]">
     <header
-      class="flex items-center justify-between gap-4 border-b border-line px-4 py-3 min-[821px]:px-6 min-[821px]:py-4"
+      class="flex items-center justify-between gap-4 border-b border-line px-4 py-3 min-[821px]:px-6 min-[821px]:py-3"
     >
       @if (kicker()) {
         <div class="min-w-0">
-          <p class="font-data text-[10px] font-medium uppercase tracking-[0.15em] text-gold">
+          <p class="font-data text-[8px] font-medium uppercase tracking-[0.15em] text-gold">
             {{ kicker() }}
           </p>
-          <h2 class="mt-1 font-sans text-lg font-medium leading-tight text-text">
+          <h2 class="mt-1 font-sans text-sm font-medium leading-tight text-text">
             {{ dialogTitle() }}
           </h2>
         </div>
@@ -41,7 +41,7 @@
         <span class="sr-only">{{ closeLabel() }}</span>
       </button>
     </header>
-    <div class="flex-1 overflow-y-auto px-4 py-4 min-[821px]:px-6 min-[821px]:py-6">
+    <div class="flex-1 overflow-y-auto px-4 py-4 min-[821px]:px-7 min-[821px]:py-7">
       <ng-content></ng-content>
     </div>
   </div>

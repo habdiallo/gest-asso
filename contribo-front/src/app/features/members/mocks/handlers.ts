@@ -219,6 +219,24 @@ const demoMemberDues: Record<string, Due[]> = {
       paymentCount: 1,
       currency: CurrencyCode.Gnf,
     },
+    {
+      id: '10700000-0000-4000-8000-000000000422',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: {
+        id: '10700000-0000-4000-8000-000000000201',
+        name: 'Rentrée associative',
+        startDate: '2026-09-26',
+        endDate: '2026-10-31',
+        status: CampaignStatus.Upcoming,
+      },
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      dueAmount: 75_000,
+      paidAmount: 0,
+      remainingAmount: 75_000,
+      status: DueStatus.Due,
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
   ],
 };
 

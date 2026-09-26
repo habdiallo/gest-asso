@@ -1539,8 +1539,18 @@ describe('MemberDetailPage', () => {
                 status: 'OPEN',
               },
             }),
+            buildDue({
+              id: 'due-upcoming',
+              campaign: {
+                id: 'c3e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+                name: 'Campagne à venir',
+                startDate: '2026-10-15',
+                endDate: '2026-11-15',
+                status: 'UPCOMING',
+              },
+            }),
           ],
-          page: { number: 0, size: 50, totalElements: 2, totalPages: 1 },
+          page: { number: 0, size: 50, totalElements: 3, totalPages: 1 },
         }),
       );
       const fixture = await createFixture(() => of(buildMemberDetails()), { listMemberDues });
@@ -1556,6 +1566,7 @@ describe('MemberDetailPage', () => {
       const dialog = root.querySelector('dialog[open]') as HTMLElement;
       expect(dialog.textContent).toContain('Solidarité septembre');
       expect(dialog.textContent).not.toContain('Rentrée associative');
+      expect(dialog.textContent).not.toContain('Campagne à venir');
       expect(fixture.componentInstance.selectedDue()?.id).toBe('due-open');
       expect(dialog.textContent).toContain('Montant dû');
       expect(dialog.textContent).toContain('Déjà payé');

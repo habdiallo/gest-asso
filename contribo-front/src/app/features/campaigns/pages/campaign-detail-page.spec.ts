@@ -8,6 +8,7 @@ import type {
   CurrentUser,
   DuePage,
   ErrorResponse,
+  CampaignOpeningReadiness,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -37,7 +38,7 @@ if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
 }
 
 function buildCampaign(overrides: Partial<Campaign> = {}): Campaign {
-  return {
+  const campaign: Campaign = {
     id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
     name: 'Solidarité septembre',
     startDate: '2026-09-01',
@@ -62,8 +63,20 @@ function buildCampaign(overrides: Partial<Campaign> = {}): Campaign {
       dueCounts: { total: 60, paid: 40, partiallyPaid: 5, unpaid: 15 },
       currency: CurrencyCode.Gnf,
     },
+    openingReadiness: {
+      baremeComplete: true,
+      datesValid: true,
+      startDateReached: true,
+      duesReady: true,
+      ready: true,
+      blockingReasons: [],
+    } satisfies CampaignOpeningReadiness,
     ...overrides,
   };
+  if (campaign.status !== 'UPCOMING' && !overrides.openingReadiness) {
+    campaign.openingReadiness = undefined;
+  }
+  return campaign;
 }
 
 function buildCurrentUser(role: UserRole): CurrentUser {
@@ -96,6 +109,7 @@ async function createFixture(
       request: UpdateCampaignCategoryAmountsRequest,
     ) => Observable<Campaign>;
     closeCampaign?: (campaignId: string) => Observable<Campaign>;
+    openCampaign?: (campaignId: string) => Observable<Campaign>;
     listCampaignDues?: () => Observable<DuePage>;
     role?: UserRole;
     campaignId?: string;
@@ -108,6 +122,9 @@ async function createFixture(
     ((): Observable<Campaign> => throwError(() => new Error('not stubbed')));
   const closeCampaign =
     options.closeCampaign ??
+    ((): Observable<Campaign> => throwError(() => new Error('not stubbed')));
+  const openCampaign =
+    options.openCampaign ??
     ((): Observable<Campaign> => throwError(() => new Error('not stubbed')));
 
   await TestBed.configureTestingModule({
@@ -127,6 +144,7 @@ async function createFixture(
           getCampaign,
           updateCampaignCategoryAmounts,
           closeCampaign,
+          openCampaign,
           listCampaignDues:
             options.listCampaignDues ??
             (() =>
@@ -156,14 +174,16 @@ async function createFixture(
 
 function findEditButton(root: HTMLElement): HTMLButtonElement | null {
   const buttons = Array.from(root.querySelectorAll('button')) as HTMLButtonElement[];
-  const editButton = buttons.find((button) => button.textContent?.trim() === 'Modifier le barème');
+  const editButton = buttons.find(
+    (button) => button.textContent?.trim() === 'Modifier les montants',
+  );
   if (editButton) {
     return editButton;
   }
   buttons.find((button) => button.textContent?.includes('Montants par catégorie'))?.click();
   return (
     (Array.from(root.querySelectorAll('button')).find(
-      (button) => button.textContent?.trim() === 'Modifier le barème',
+      (button) => button.textContent?.trim() === 'Modifier les montants',
     ) as HTMLButtonElement | undefined) ?? null
   );
 }
@@ -274,10 +294,53 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-detail-panel-situation')).toBeNull();
     const categoriesPanel = root.querySelector('#campaign-detail-panel-categories');
     expect(categoriesPanel).not.toBeNull();
-    expect(categoriesPanel?.textContent).toContain('Montants par catégorie');
+    expect(categoriesPanel?.textContent).toContain('Barème de la campagne');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+  });
+
+  it('renders the target bareme columns, category badges and member units', async () => {
+    const fixture = await createFixture(() => of(buildCampaign()));
+    fixture.detectChanges();
+    selectCategoriesTab(fixture);
+
+    const root: HTMLElement = fixture.nativeElement;
+    const table = root.querySelector('#campaign-detail-panel-categories app-data-table table');
+    const headers = Array.from(table?.querySelectorAll('thead th') ?? []).map((header) =>
+      header.textContent?.trim(),
+    );
+
+    expect(headers).toEqual([
+      'Catégorie',
+      'Montant de cette campagne',
+      'Membres concernés',
+      'Total attendu',
+    ]);
+    expect(table?.textContent).toContain('Standard');
+    expect(table?.textContent).toContain('60 membres');
+    expect(table?.textContent).toContain('6\u202f000\u202f000 GNF');
+    expect(root.querySelector('[data-testid="campaign-bareme-mobile-cards"]')).not.toBeNull();
+  });
+
+  it('opens the bareme editor from the visible edit action', async () => {
+    const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+      role: UserRole.Administrator,
+    });
+    fixture.detectChanges();
+    selectCategoriesTab(fixture);
+
+    const editButton = findEditButton(fixture.nativeElement);
+    expect(editButton).not.toBeNull();
+    editButton?.click();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('dialog[aria-label="Montants de campagne"][open]'),
+    ).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Configuration propre à cette campagne.');
+    expect(fixture.nativeElement.textContent).toContain('À venir');
+    expect(fixture.nativeElement.textContent).toContain('Enregistrer');
   });
 
   it('shows the campaign financial summary in the hero metrics', async () => {
@@ -411,7 +474,7 @@ describe('CampaignDetailPage', () => {
       expect(findEditButton(fixture.nativeElement)).toBeNull();
     });
 
-    it('does not show the edit action for an Administrator once the campaign is open', async () => {
+    it('does not show the edit action for an Administrator while the campaign is open', async () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'OPEN' })), {
         role: UserRole.Administrator,
       });
@@ -661,8 +724,8 @@ describe('CampaignDetailPage', () => {
       expect(root.querySelector('[role="alert"]')?.textContent).toContain(
         'Le barème ne peut plus être modifié : la campagne a déjà commencé ou des règlements existent déjà.',
       );
-      // Le formulaire reste ouvert avec la saisie conservée après l'échec.
-      expect(root.querySelector('form')).not.toBeNull();
+      // Le dialogue reste ouvert avec la saisie conservée après l'échec.
+      expect(root.querySelector('dialog[aria-label="Montants de campagne"][open]')).not.toBeNull();
     });
 
     it('retries the same bareme submission and clears the error banner on success (T-102)', async () => {
@@ -713,13 +776,13 @@ describe('CampaignDetailPage', () => {
 
       const root: HTMLElement = fixture.nativeElement;
       const cancelButton = Array.from(root.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Annuler',
+        (button) => button.textContent?.trim() === 'Retour',
       ) as HTMLButtonElement;
       cancelButton.click();
       fixture.detectChanges();
 
       expect(updateCampaignCategoryAmounts).not.toHaveBeenCalled();
-      expect(root.querySelector('form')).toBeNull();
+      expect(root.querySelector('dialog[aria-label="Montants de campagne"][open]')).toBeNull();
       expect(findEditButton(root)).not.toBeNull();
     });
   });
@@ -797,7 +860,7 @@ describe('CampaignDetailPage', () => {
       const root: HTMLElement = fixture.nativeElement;
       root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]?.click();
       fixture.detectChanges();
-      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      const rows = Array.from(root.querySelectorAll('[data-testid="campaign-bareme-edit-row"]'));
       expect(rows).toHaveLength(2);
       expect(rows[0].textContent).toContain('Montant non configuré');
       expect(rows[1].textContent).not.toContain('Montant non configuré');
@@ -825,8 +888,115 @@ describe('CampaignDetailPage', () => {
       firstInput.dispatchEvent(new Event('input'));
       fixture.detectChanges();
 
-      const rows = Array.from(root.querySelectorAll('tbody tr'));
+      const rows = Array.from(root.querySelectorAll('[data-testid="campaign-bareme-edit-row"]'));
       expect(rows[0].textContent).not.toContain('Montant non configuré');
+    });
+  });
+
+  describe('ouverture explicite de campagne (T-131)', () => {
+    it('affiche une checklist bloquante lorsque le barème est incomplet', async () => {
+      const fixture = await createFixture(
+        () =>
+          of(
+            buildCampaign({
+              status: 'UPCOMING',
+              openingReadiness: {
+                baremeComplete: false,
+                datesValid: true,
+                startDateReached: true,
+                duesReady: true,
+                ready: false,
+                blockingReasons: ['BAREME_INCOMPLETE'],
+              },
+            }),
+          ),
+        { role: UserRole.Administrator },
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.querySelector('[data-testid="campaign-opening-readiness"]')).not.toBeNull();
+      expect(root.textContent).toContain('Préparation incomplète');
+      expect(root.textContent).toContain('Le barème doit être complété.');
+      expect(findButtonByText(root, 'Ouvrir la campagne')).toBeNull();
+    });
+
+    it('propose l’ouverture à un rôle habilité lorsque la checklist est prête', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+      });
+      fixture.detectChanges();
+      expect(findButtonByText(fixture.nativeElement, 'Ouvrir la campagne')).not.toBeNull();
+    });
+
+    it('ne propose pas l’ouverture à un membre même lorsque la checklist est prête', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Member,
+      });
+      fixture.detectChanges();
+      expect(findButtonByText(fixture.nativeElement, 'Ouvrir la campagne')).toBeNull();
+    });
+
+    it('demande une confirmation puis remplace la campagne par l’état ouvert', async () => {
+      const openCampaign = vi.fn(() =>
+        of(
+          buildCampaign({
+            status: 'OPEN',
+            openedAt: '2026-09-26T14:00:00Z',
+            openedBy: { userId: 'user-1', displayName: 'Awa Camara' },
+          }),
+        ),
+      );
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Treasurer,
+        openCampaign,
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Ouvrir la campagne')?.click();
+      fixture.detectChanges();
+
+      expect(openCampaign).not.toHaveBeenCalled();
+      expect(root.textContent).toContain(
+        "Cette action fige définitivement le barème et autorise l'enregistrement des règlements.",
+      );
+
+      findButtonByText(root, 'Ouvrir')?.click();
+      fixture.detectChanges();
+
+      expect(openCampaign).toHaveBeenCalledWith('e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20');
+      expect(fixture.componentInstance.campaign()?.status).toBe('OPEN');
+      expect(findButtonByText(root, 'Ouvrir la campagne')).toBeNull();
+    });
+
+    it('affiche le conflit serveur lorsque la campagne n’est plus prête', async () => {
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Administrator,
+        openCampaign: () =>
+          throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 409,
+                error: {
+                  code: ErrorCode.CampaignNotReady,
+                  message: 'Préparation incomplète.',
+                } as ErrorResponse,
+              }),
+          ),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Ouvrir la campagne')?.click();
+      fixture.detectChanges();
+      findButtonByText(root, 'Ouvrir')?.click();
+      fixture.detectChanges();
+
+      expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+        'La campagne ne peut pas encore être ouverte',
+      );
+      expect(fixture.componentInstance.campaign()?.status).toBe('UPCOMING');
     });
   });
 
@@ -963,7 +1133,7 @@ describe('CampaignDetailPage', () => {
 
     it('ignores a late bareme response arriving after the campaign is closed (P2, PR #73)', async () => {
       const baremeResponse$ = new Subject<Campaign>();
-      const openCampaign = buildCampaign({ status: 'OPEN' });
+      const openCampaign = buildCampaign({ status: 'UPCOMING' });
       const fixture = await createFixture(() => of(openCampaign), {
         role: UserRole.Administrator,
         updateCampaignCategoryAmounts: () => baremeResponse$.asObservable(),
@@ -1047,6 +1217,48 @@ describe('CampaignDetailPage', () => {
       const fixture = await createFixture(() => of(buildCampaign({ status: 'CLOSED' })), {
         role: UserRole.Treasurer,
         listCampaignDues: () => of(due),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      findButtonByText(root, 'Cotisations')?.click();
+      fixture.detectChanges();
+
+      expect(
+        root.textContent?.includes(fr['campaigns.detail.cotisations.recordPayment.action']),
+      ).toBe(false);
+    });
+
+    it('hides the record payment action of the cotisations tab on an upcoming campaign (T-131)', async () => {
+      const upcomingDue: DuePage = {
+        items: [
+          {
+            id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+            member: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', displayName: 'Amadou Diallo' },
+            campaign: {
+              id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+              name: 'Solidarité septembre',
+              startDate: '2026-10-01',
+              endDate: '2026-10-31',
+              status: 'UPCOMING',
+            },
+            incomeCategorySnapshot: {
+              id: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+              label: 'Standard',
+            },
+            dueAmount: 100_000,
+            paidAmount: 50_000,
+            remainingAmount: 50_000,
+            status: 'PARTIALLY_PAID',
+            paymentCount: 1,
+            currency: CurrencyCode.Gnf,
+          },
+        ],
+        page: { number: 0, size: 20, totalElements: 1, totalPages: 1 },
+      };
+      const fixture = await createFixture(() => of(buildCampaign({ status: 'UPCOMING' })), {
+        role: UserRole.Treasurer,
+        listCampaignDues: () => of(upcomingDue),
       });
       fixture.detectChanges();
 

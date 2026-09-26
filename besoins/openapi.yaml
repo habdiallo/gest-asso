@@ -602,7 +602,9 @@ paths:
       description: |
         Réservé aux Administrateurs et Trésoriers. La création est atomique : elle photographie
         les membres actifs, leur catégorie et le montant correspondant au barème fourni. Les membres
-        inactifs sont exclus. Aucun changement ultérieur de catégorie ne modifie ces cotisations.
+        inactifs sont exclus. La campagne est créée à l'état `UPCOMING` et reste dans cet état
+        jusqu'à une ouverture explicite après sa date de début et après validation de sa préparation.
+        L'ouverture fige les montants. Aucun changement ultérieur de catégorie ne modifie ces cotisations.
       operationId: createCampaign
       requestBody:
         required: true
@@ -716,6 +718,35 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /campaigns/{campaignId}/open:
+    post:
+      tags: [Campagnes]
+      summary: Ouvrir une campagne
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Une campagne `UPCOMING` ne peut être ouverte
+        qu'après sa date de début et lorsque sa checklist de préparation est complète. L'ouverture
+        fige le barème, active l'enregistrement des règlements et renseigne `openedAt` et `openedBy`.
+      operationId: openCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Campagne ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/CampaignOpeningConflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /campaigns/{campaignId}/closure:
     post:
       tags: [Campagnes]
@@ -776,7 +807,9 @@ paths:
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
         Le montant doit être positif et ne peut pas dépasser le reste à payer. L'utilisateur et l'instant
-        de saisie sont déterminés par le serveur.
+        de saisie sont déterminés par le serveur. Le règlement ne peut être enregistré que lorsque la
+        campagne rattachée à la cotisation est à l'état `OPEN`; une campagne `UPCOMING` ou `CLOSED`
+        entraîne une réponse `409` avec le code `CAMPAIGN_NOT_OPEN`.
       operationId: createPayment
       parameters:
         - $ref: '#/components/parameters/DueId'
@@ -802,7 +835,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          $ref: '#/components/responses/Conflict'
+          $ref: '#/components/responses/PaymentConflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1098,10 +1131,7 @@ components:
     CampaignStatusFilter:
       name: status
       in: query
-      description: >-
-        Filtre de présentation sur le statut de la campagne. Pour `GET /campaigns`,
-        la valeur `OPEN` inclut les campagnes techniques `UPCOMING`, afin que le
-        segment utilisateur « Ouvertes » ne masque pas une campagne à venir.
+      description: Filtre exact sur le statut métier de la campagne. `UPCOMING` correspond au segment « À venir », `OPEN` à « Ouvertes » et `CLOSED` à « Clôturées ».
       schema:
         $ref: '#/components/schemas/CampaignStatus'
     SocialFundStatusFilter:
@@ -1273,6 +1303,48 @@ components:
               value:
                 code: RESOURCE_CLOSED
                 message: La ressource est clôturée et n'accepte plus cette action.
+    PaymentConflict:
+      description: Le règlement est incompatible avec l'état de la cotisation ou de sa campagne.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            campaignNotOpen:
+              value:
+                code: CAMPAIGN_NOT_OPEN
+                message: Un règlement ne peut être enregistré que sur une campagne ouverte.
+            overpayment:
+              value:
+                code: PAYMENT_EXCEEDS_REMAINING_AMOUNT
+                message: Le montant dépasse le reste à payer.
+            dueAlreadyPaid:
+              value:
+                code: DUE_ALREADY_PAID
+                message: Cette cotisation est déjà entièrement réglée.
+    CampaignOpeningConflict:
+      description: L'ouverture est incompatible avec la préparation, la date ou l'état courant de la campagne.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            notReady:
+              value:
+                code: CAMPAIGN_NOT_READY
+                message: La campagne n'est pas prête à être ouverte.
+            startDateNotReached:
+              value:
+                code: CAMPAIGN_START_DATE_NOT_REACHED
+                message: La date de début de la campagne n'est pas encore atteinte.
+            alreadyOpen:
+              value:
+                code: CAMPAIGN_ALREADY_OPEN
+                message: La campagne est déjà ouverte.
+            closed:
+              value:
+                code: CAMPAIGN_CLOSED
+                message: La campagne est clôturée.
     InternalServerError:
       description: Erreur interne non prévue.
       content:
@@ -1333,7 +1405,7 @@ components:
       example: ACTIVE
     CampaignStatus:
       type: string
-      description: UPCOMING avant la date de début, OPEN à partir du début et jusqu'à la clôture explicite, CLOSED après clôture.
+      description: UPCOMING tant que la campagne n'est pas ouverte explicitement, OPEN après son ouverture et jusqu'à la clôture explicite, CLOSED après clôture.
       enum: [UPCOMING, OPEN, CLOSED]
       example: OPEN
     DueStatus:
@@ -1967,11 +2039,55 @@ components:
               type: string
               maxLength: 1000
               example: Campagne générale de soutien aux activités de l'association.
+            openedAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: Instant où la campagne a été ouverte explicitement.
+              example: '2026-10-01T08:00:00Z'
+            openedBy:
+              allOf:
+                - $ref: '#/components/schemas/AuditActor'
+              readOnly: true
+              description: Utilisateur ayant ouvert la campagne.
+            openingReadiness:
+              $ref: '#/components/schemas/CampaignOpeningReadiness'
             categoryAmounts:
               type: array
               minItems: 1
               items:
                 $ref: '#/components/schemas/CampaignCategoryAmount'
+    CampaignOpeningReadiness:
+      type: object
+      additionalProperties: false
+      required: [baremeComplete, datesValid, startDateReached, duesReady, ready, blockingReasons]
+      properties:
+        baremeComplete:
+          type: boolean
+          readOnly: true
+          description: Chaque catégorie portée par un membre concerné possède un montant strictement positif.
+        datesValid:
+          type: boolean
+          readOnly: true
+          description: La période de la campagne est cohérente.
+        startDateReached:
+          type: boolean
+          readOnly: true
+          description: La date de début est atteinte dans le fuseau de référence de l'association.
+        duesReady:
+          type: boolean
+          readOnly: true
+          description: Les cotisations peuvent être établies pour les membres concernés.
+        ready:
+          type: boolean
+          readOnly: true
+          description: Toutes les conditions nécessaires à l'ouverture sont satisfaites.
+        blockingReasons:
+          type: array
+          readOnly: true
+          items:
+            type: string
+          example: []
     CampaignFinancialSummary:
       type: object
       additionalProperties: false
@@ -2537,7 +2653,12 @@ components:
         - MEMBER_ALREADY_ACTIVE
         - INVALID_OPERATOR_CONFIGURATION
         - CAMPAIGN_NOT_EDITABLE
+        - CAMPAIGN_NOT_READY
+        - CAMPAIGN_START_DATE_NOT_REACHED
+        - CAMPAIGN_ALREADY_OPEN
+        - CAMPAIGN_CLOSED
         - CAMPAIGN_ALREADY_CLOSED
+        - CAMPAIGN_NOT_OPEN
         - PAYMENT_EXCEEDS_REMAINING_AMOUNT
         - DUE_ALREADY_PAID
         - RESOURCE_CLOSED

@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-2">
-  <label [attr.for]="fieldId" class="text-sm font-medium text-text-2">
+  <label [attr.for]="fieldId" class="text-sm font-medium text-text-2" [class.sr-only]="hideLabel()">
     {{ label() }}
   </label>
   <div class="relative">
@@ -16,12 +16,17 @@
       [attr.aria-invalid]="showError() ? true : null"
       [attr.aria-describedby]="describedBy()"
       placeholder="0"
-      class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 pr-14 text-text disabled:opacity-40"
+      class="app-form-control w-full rounded border border-line bg-surface-2 px-3 pr-14 text-text disabled:opacity-40"
+      [style.min-height.px]="compact() ? 36 : 48"
+      [class.font-data]="compact()"
+      [class.text-right]="compact()"
+      [class.text-xs]="compact()"
       (input)="handleInput($event)"
       (blur)="handleBlur()"
     />
     <span
       class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-text-3"
+      [class.hidden]="hideUnit()"
       aria-hidden="true"
     >
       GNF

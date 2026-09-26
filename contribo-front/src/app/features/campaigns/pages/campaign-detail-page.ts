@@ -71,13 +71,10 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
  *
  * Formulaire de configuration du barème (T-68, `openapi:updateCampaignCategoryAmounts`) :
  * un champ de saisie de montant par catégorie de revenu déjà portée par la
- * campagne, réservé à l'Administrateur et au Trésorier, et proposé uniquement
- * tant que la campagne est à venir (`CampaignStatus.Upcoming`), conformément à
- * la contrainte contractuelle (avant la date de début, sans règlement existant).
- * Ce contrôle IHM ne remplace pas l'autorisation backend : une tentative hors
- * de cette fenêtre échoue côté serveur avec `CAMPAIGN_NOT_EDITABLE` (409),
- * affiché comme message d'erreur si elle survient malgré tout (par exemple si
- * la campagne a démarré entre le chargement de l'écran et l'enregistrement).
+ * campagne, réservé à l'Administrateur et au Trésorier. Le dialogue est
+ * proposé uniquement lorsque la campagne est encore en Brouillon ;
+ * l'autorisation backend reste la source de vérité pour accepter ou refuser
+ * l'enregistrement.
  * L'état retourné par l'appel remplace la campagne affichée (montants,
  * membres concernés et montants attendus recalculés), sans recalcul local.
  *
@@ -102,12 +99,11 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
  * définitive avant l'appel à `POST /campaigns/{campaignId}/closure`. L'état
  * retourné par l'appel remplace la campagne affichée.
  *
- * Verrouillage des actions de modification sur une campagne clôturée (T-81) :
- * l'édition du barème est déjà exclue par `canEditBaremeNow` (proposée
- * uniquement tant que la campagne est à venir, donc jamais sur une campagne
- * clôturée). L'enregistrement d'un nouveau règlement est masqué par
- * `CampaignDuesTab` via l'entrée `campaignClosed`, calculée ici à partir du
- * statut de la campagne. L'ajout d'un membre concerné n'est proposé nulle
+ * Verrouillage des actions de modification selon le cycle de vie (T-81) :
+ * l'édition du barème est exclue dès que la campagne n'est plus en Brouillon.
+ * L'enregistrement d'un nouveau règlement est proposé par `CampaignDuesTab`
+ * uniquement lorsque la campagne est Ouverte, via l'entrée
+ * `campaignOpenForPayments`. L'ajout d'un membre concerné n'est proposé nulle
  * part après création (les membres concernés sont fixés, non modifiables,
  * à la création de la campagne, T-65) : aucune action supplémentaire à
  * désactiver pour ce ticket. Ce contrôle IHM ne remplace pas l'autorisation
@@ -208,8 +204,26 @@ export class CampaignDetailPage {
     return amount === 0;
   }
 
-  /** Campagne clôturée (T-81) : transmis à `CampaignDuesTab` pour masquer l'enregistrement d'un nouveau règlement. */
-  readonly campaignClosed = computed(() => this.campaign()?.status === CampaignStatus.Closed);
+  /** Repère compact d'une catégorie, sans remplacer son libellé métier. */
+  categoryBadge(label: string): string {
+    const explicitLetter = label.match(/\b([A-Z])\b/i)?.[1];
+    const firstCharacter = label.trim().charAt(0);
+    return (explicitLetter ?? (firstCharacter || '?')).toUpperCase();
+  }
+
+  formatCategoryMemberCount(count: number): string {
+    return this.transloco.translate(
+      count === 1
+        ? 'campaigns.detail.bareme.memberCountValueSingular'
+        : 'campaigns.detail.bareme.memberCountValue',
+      { count },
+    );
+  }
+
+  /** Règlements autorisés uniquement sur une campagne Ouverte (RG-PAY-010). */
+  readonly campaignOpenForPayments = computed(
+    () => this.campaign()?.status === CampaignStatus.Open,
+  );
 
   /** Administrateur/Trésorier seuls : Opérateur et Membre n'éditent jamais le barème. */
   readonly canEditBareme = computed(() => {
@@ -217,9 +231,17 @@ export class CampaignDetailPage {
     return role === UserRole.Administrator || role === UserRole.Treasurer;
   });
 
-  /** Édition proposée uniquement avant la date de début de la campagne. */
+  /** Édition proposée aux rôles autorisés uniquement sur une campagne Brouillon. */
   readonly canEditBaremeNow = computed(
     () => this.canEditBareme() && this.campaign()?.status === CampaignStatus.Upcoming,
+  );
+
+  readonly openingReadiness = computed(() => this.campaign()?.openingReadiness ?? null);
+  readonly canOpenCampaignNow = computed(
+    () =>
+      this.canEditBareme() &&
+      this.campaign()?.status === CampaignStatus.Upcoming &&
+      this.openingReadiness()?.ready === true,
   );
 
   readonly editingBareme = signal(false);
@@ -249,6 +271,13 @@ export class CampaignDetailPage {
 
   /** Invalide toute réponse encore en vol si l'écran change de campagne. */
   private closeCampaignRequestToken = 0;
+
+  readonly openCampaignDialogOpen = signal(false);
+  readonly openingCampaign = signal(false);
+  readonly openCampaignErrorMessage = signal<TranslationKey | null>(null);
+
+  /** Invalide toute réponse d'ouverture arrivée après une autre action de la page. */
+  private openCampaignRequestToken = 0;
 
   constructor() {
     // Onglet initial (T-127) : le tableau de bord lie vers l'onglet
@@ -385,6 +414,94 @@ export class CampaignDetailPage {
       }
     }
     return 'campaigns.detail.bareme.error';
+  }
+
+  openingBlockingReason(reason: string): TranslationKey {
+    switch (reason) {
+      case 'BAREME_INCOMPLETE':
+        return 'campaigns.detail.opening.blockingBareme';
+      case 'DATES_INVALID':
+        return 'campaigns.detail.opening.blockingDates';
+      case 'START_DATE_NOT_REACHED':
+        return 'campaigns.detail.opening.blockingStartDate';
+      case 'DUES_NOT_READY':
+        return 'campaigns.detail.opening.blockingDues';
+      default:
+        return 'campaigns.detail.opening.blockingUnknown';
+    }
+  }
+
+  openCampaignDialog(): void {
+    if (!this.canOpenCampaignNow() || this.openCampaignDialogOpen()) {
+      return;
+    }
+
+    this.openCampaignErrorMessage.set(null);
+    this.openingCampaign.set(false);
+    this.openCampaignDialogOpen.set(true);
+  }
+
+  cancelOpenCampaignDialog(): void {
+    this.openCampaignRequestToken++;
+    this.openCampaignDialogOpen.set(false);
+    this.openingCampaign.set(false);
+    this.openCampaignErrorMessage.set(null);
+  }
+
+  confirmOpenCampaign(): void {
+    const campaign = this.campaign();
+    if (!campaign || this.openingCampaign()) {
+      return;
+    }
+
+    this.openingCampaign.set(true);
+    this.openCampaignErrorMessage.set(null);
+    const token = ++this.openCampaignRequestToken;
+    this.baremeRequestToken++;
+
+    this.campaignsService
+      .openCampaign(campaign.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (openedCampaign) => {
+          this.campaign.set(openedCampaign);
+          if (token !== this.openCampaignRequestToken) {
+            return;
+          }
+          this.openingCampaign.set(false);
+          this.openCampaignDialogOpen.set(false);
+        },
+        error: (error: unknown) => {
+          if (token !== this.openCampaignRequestToken) {
+            return;
+          }
+          this.openingCampaign.set(false);
+          this.openCampaignErrorMessage.set(this.resolveOpenCampaignErrorKey(error));
+        },
+      });
+  }
+
+  private resolveOpenCampaignErrorKey(error: unknown): TranslationKey {
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as ErrorResponse | undefined;
+      switch (body?.code) {
+        case ErrorCode.CampaignNotReady:
+          return 'campaigns.detail.opening.errorNotReady';
+        case ErrorCode.CampaignStartDateNotReached:
+          return 'campaigns.detail.opening.errorStartDateNotReached';
+        case ErrorCode.CampaignAlreadyOpen:
+          return 'campaigns.detail.opening.errorAlreadyOpen';
+        case ErrorCode.CampaignClosed:
+          return 'campaigns.detail.opening.errorClosed';
+        case ErrorCode.ResourceNotFound:
+          return 'campaigns.detail.opening.errorNotFound';
+        case ErrorCode.AccessDenied:
+          return 'campaigns.detail.opening.errorAccessDenied';
+        default:
+          return 'campaigns.detail.opening.error';
+      }
+    }
+    return 'campaigns.detail.opening.error';
   }
 
   openCloseCampaignDialog(): void {
