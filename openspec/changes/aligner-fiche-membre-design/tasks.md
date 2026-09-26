@@ -9,6 +9,7 @@
 - [x] 2.2 [T-130] Remplacer les cartes individuelles d'information par la carte principale de la maquette, en conservant les champs personnels, associatifs, les valeurs de remplacement et les règles de modification. Aligner le modal Modifier un membre sur la maquette avec ses sections, champs préremplis, sélecteurs, actions et gestion du focus.
 - [x] 2.3 [T-130] Ajouter la colonne latérale avec les cartes Situation actuelle et Compte associé, en utilisant les données financières et de compte déjà fournies par l'API sans recalcul local.
 - [x] 2.4 [T-130] Harmoniser les actions, les dialogues, les onglets et les trois historiques avec les primitives partagées, tout en conservant les autorisations, la pagination et les états de chargement, erreur et vide. Couvrir les cycles complets des modals Modifier un membre et Nouveau règlement. Limiter les colonnes aux ensembles métier définis dans la spec et retirer toute colonne de journalisation des règlements et contributions.
+- [x] 2.5 [T-130] Supprimer l’onglet Informations redondant de la fiche cagnotte et conserver directement l’historique des contributions sous le hero, puisque les données de synthèse sont déjà visibles dans le détail.
 
 ## 3. Validation et livraison
 

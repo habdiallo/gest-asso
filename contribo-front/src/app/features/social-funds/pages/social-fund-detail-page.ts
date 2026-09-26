@@ -21,9 +21,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { DataTable } from '@shared/data-table/data-table';
 import { DetailMetrics } from '@shared/detail-metrics/detail-metrics';
 import type { DetailMetric } from '@shared/detail-metrics/detail-metrics';
-import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
 import { DetailShell } from '@shared/detail-shell/detail-shell';
-import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { ContributionCreateForm } from '../components/contribution-create-form/contribution-create-form';
 import { formatSocialFundCalendarDate } from '../social-fund-dates';
@@ -92,7 +90,6 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
     DataTable,
     DetailMetrics,
     DetailShell,
-    DetailTabs,
     PaginationControls,
     ContributionCreateForm,
   ],
@@ -110,14 +107,6 @@ export class SocialFundDetailPage {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly socialFund = signal<SocialFund | null>(null);
-  readonly activeTab = signal<'contributions' | 'information'>('contributions');
-  readonly detailTabs = computed<readonly DetailTab[]>(() => [
-    {
-      id: 'contributions',
-      label: this.transloco.translate('socialFunds.detail.tabs.contributions'),
-    },
-    { id: 'information', label: this.transloco.translate('socialFunds.detail.tabs.information') },
-  ]);
   readonly metrics = computed<readonly DetailMetric[]>(() => {
     const fund = this.socialFund();
     if (!fund) return [];
@@ -219,12 +208,6 @@ export class SocialFundDetailPage {
   readonly socialEventTypeLabel = socialEventTypeLabel;
   readonly contributionMethodLabel = contributionMethodLabel;
   readonly progressBarWidth = progressBarWidth;
-
-  selectDetailTab(tab: string): void {
-    if (tab === 'contributions' || tab === 'information') {
-      this.activeTab.set(tab);
-    }
-  }
 
   constructor() {
     const socialFundId = this.route.snapshot.paramMap.get('socialFundId');
