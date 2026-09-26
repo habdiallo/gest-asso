@@ -6,6 +6,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import {
   ContributionsService,
   CurrencyCode,
+  DueStatus,
   ErrorCode,
   MemberStatus,
   MembresService,
@@ -18,13 +19,16 @@ import {
 import type {
   ContributionPage,
   CurrentUser,
+  Due,
   DuePage,
   ErrorResponse,
   MemberDetails,
+  PaymentCreationResponse,
   PaymentPage,
 } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
+import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import fr from '../../../../assets/i18n/fr.json';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
@@ -130,12 +134,36 @@ function buildPaymentPage(overrides: Partial<PaymentPage> = {}): PaymentPage {
   };
 }
 
+function buildDue(overrides: Partial<Due> = {}): Due {
+  return {
+    id: 'd1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d40',
+    member: { id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', displayName: 'Amadou Diallo' },
+    campaign: {
+      id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+      name: 'Solidarité septembre',
+      startDate: '2026-09-01',
+      endDate: '2026-09-30',
+      status: 'OPEN',
+    },
+    incomeCategorySnapshot: { id: 'b1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11', label: 'Catégorie B' },
+    dueAmount: 100_000,
+    paidAmount: 50_000,
+    remainingAmount: 50_000,
+    status: DueStatus.PartiallyPaid,
+    paymentCount: 1,
+    currency: 'GNF',
+    ...overrides,
+  } as Due;
+}
+
 async function createFixture(
   getMember: (memberId: string) => Observable<MemberDetails>,
   options: {
     memberId?: string;
     reactivateMember?: (memberId: string) => Observable<MemberDetails>;
     deactivateMember?: (memberId: string) => Observable<MemberDetails>;
+    listMemberDues?: (memberId: string) => Observable<DuePage>;
+    createPayment?: (dueId: string) => Observable<PaymentCreationResponse>;
     role?: UserRole;
     user?: CurrentUser;
   } = {},
@@ -158,13 +186,14 @@ async function createFixture(
           getMember,
           reactivateMember: options.reactivateMember ?? (() => new Observable<MemberDetails>()),
           deactivateMember: options.deactivateMember ?? (() => new Observable<MemberDetails>()),
-          listMemberDues: () => of(emptyDuePage),
+          listMemberDues: options.listMemberDues ?? (() => of(emptyDuePage)),
         } as unknown as MembresService,
       },
       {
         provide: RglementsService,
         useValue: {
           listPayments: () => of(buildPaymentPage()),
+          createPayment: options.createPayment ?? (() => new Observable<PaymentCreationResponse>()),
         } as unknown as RglementsService,
       },
       {
@@ -279,9 +308,9 @@ describe('MemberDetailPage', () => {
 
       const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
       expect(tabs[1].getAttribute('aria-selected')).toBe('true');
-      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1, -1]);
-      expect(root.querySelector('#member-tabpanel-cotisations')).not.toBeNull();
-      expect(root.querySelector('#member-tabpanel-informations')).toBeNull();
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
+      expect(root.querySelector('#member-detail-panel-reglements')).not.toBeNull();
+      expect(root.querySelector('#member-detail-panel-cotisations')).toBeNull();
       expect(document.activeElement).toBe(tabs[1]);
     });
 
@@ -308,7 +337,7 @@ describe('MemberDetailPage', () => {
 
       const root: HTMLElement = fixture.nativeElement;
       let tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-      tabs[3].click();
+      tabs[2].click();
       fixture.detectChanges();
 
       dispatchArrowKey(findActiveTabButton(root), 'ArrowRight');
@@ -328,8 +357,8 @@ describe('MemberDetailPage', () => {
       fixture.detectChanges();
 
       const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-      expect(tabs[3].getAttribute('aria-selected')).toBe('true');
-      expect(document.activeElement).toBe(tabs[3]);
+      expect(tabs[2].getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(tabs[2]);
     });
 
     it('ignores other keys on the tablist', async () => {
@@ -384,7 +413,10 @@ describe('MemberDetailPage', () => {
         provideRouter([]),
         {
           provide: MembresService,
-          useValue: { getMember: () => of(buildMemberDetails()) } as unknown as MembresService,
+          useValue: {
+            getMember: () => of(buildMemberDetails()),
+            listMemberDues: () => of(emptyDuePage),
+          } as unknown as MembresService,
         },
         { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
         {
@@ -525,6 +557,7 @@ describe('MemberDetailPage', () => {
             getMember: () => of(member),
             updateMemberContact,
             updateMember,
+            listMemberDues: () => of(emptyDuePage),
           } as unknown as MembresService,
         },
         {
@@ -571,7 +604,11 @@ describe('MemberDetailPage', () => {
         provideRouter([]),
         {
           provide: MembresService,
-          useValue: { getMember: () => of(member), updateMember } as unknown as MembresService,
+          useValue: {
+            getMember: () => of(member),
+            updateMember,
+            listMemberDues: () => of(emptyDuePage),
+          } as unknown as MembresService,
         },
         {
           provide: ActivatedRoute,
@@ -631,7 +668,11 @@ describe('MemberDetailPage', () => {
         provideRouter([]),
         {
           provide: MembresService,
-          useValue: { getMember: () => of(member), updateMember } as unknown as MembresService,
+          useValue: {
+            getMember: () => of(member),
+            updateMember,
+            listMemberDues: () => of(emptyDuePage),
+          } as unknown as MembresService,
         },
         {
           provide: ActivatedRoute,
@@ -1234,9 +1275,8 @@ describe('MemberDetailPage', () => {
       fixture.detectChanges();
       expect(root.textContent).toContain('Mariage de Fanta et Sekou');
 
-      // Le retour à l'onglet Informations confirme aussi le statut Inactif.
-      findTab('Informations').click();
-      fixture.detectChanges();
+      // Le statut Inactif reste visible en permanence dans la carte
+      // d'identité (T-130), sans dépendre de l'onglet actif.
       expect(root.textContent).toContain('Inactif');
     },
   );
@@ -1357,5 +1397,331 @@ describe('MemberDetailPage', () => {
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Lecture seule');
+  });
+
+  describe('modal "Modifier un membre" (T-130)', () => {
+    it('shows the kicker, the title and the two sections of the mockup', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        user: buildCurrentUser(UserRole.Administrator),
+      });
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      root.querySelector<HTMLButtonElement>('button')?.click();
+      fixture.detectChanges();
+
+      const dialog = root.querySelector('dialog[open]');
+      expect(dialog?.textContent).toContain('Fiche membre');
+      expect(dialog?.querySelector('h2')?.textContent).toContain('Modifier un membre');
+      expect(dialog?.textContent).toContain('Identité');
+      expect(dialog?.textContent).toContain('Localisation et association');
+    });
+  });
+
+  describe('cartes situation financière et compte associé (T-130)', () => {
+    it('shows the remaining, due and paid amounts from financialSummary, without recalculation', async () => {
+      const fixture = await createFixture(() =>
+        of(
+          buildMemberDetails({
+            financialSummary: {
+              totalDueAmount: 300_000,
+              totalPaidAmount: 100_000,
+              totalRemainingAmount: 200_000,
+              currency: 'GNF',
+            },
+          }),
+        ),
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain(formatGnfAmountDetailed(300_000));
+      expect(root.textContent).toContain(formatGnfAmountDetailed(200_000));
+      expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
+      expect(root.textContent).toContain('Situation actuelle');
+    });
+
+    it('shows "0 GNF" for zero financial amounts instead of a missing-value placeholder', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()));
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent?.match(/0 GNF/g)?.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('shows the account as active with the translated applicative role and the member identity', async () => {
+      const fixture = await createFixture(() =>
+        of(
+          buildMemberDetails({
+            account: {
+              id: 'account-1',
+              role: UserRole.Treasurer,
+              operatorCanRecordPayments: false,
+              active: true,
+            },
+          }),
+        ),
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Compte associé');
+      expect(root.textContent).toContain('Accès actif');
+      expect(root.textContent).toContain('Trésorier');
+      expect(root.textContent).toContain('Amadou Diallo');
+    });
+
+    it('shows the account as inactive when member.account.active is false', async () => {
+      const fixture = await createFixture(() =>
+        of(
+          buildMemberDetails({
+            account: {
+              id: 'account-1',
+              role: UserRole.Member,
+              operatorCanRecordPayments: false,
+              active: false,
+            },
+          }),
+        ),
+      );
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain('Accès inactif');
+    });
+  });
+
+  describe('modal "Nouveau règlement" (T-130)', () => {
+    function findRecordPaymentButton(root: HTMLElement): HTMLButtonElement | undefined {
+      return Array.from(root.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Enregistrer un règlement',
+      );
+    }
+
+    it('hides the action for an Operator not authorized to record payments', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        user: buildCurrentUser(UserRole.Operator, false),
+      });
+      fixture.detectChanges();
+
+      expect(findRecordPaymentButton(fixture.nativeElement)).toBeUndefined();
+    });
+
+    it('loads the payable dues, excludes the already-paid one, and preselects the single remaining campaign', async () => {
+      const listMemberDues = vi.fn(() =>
+        of({
+          items: [
+            buildDue({ id: 'due-open', status: DueStatus.PartiallyPaid }),
+            buildDue({
+              id: 'due-paid',
+              status: DueStatus.Paid,
+              remainingAmount: 0,
+              campaign: {
+                id: 'c2e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+                name: 'Rentrée associative',
+                startDate: '2026-08-15',
+                endDate: '2026-10-15',
+                status: 'OPEN',
+              },
+            }),
+          ],
+          page: { number: 0, size: 50, totalElements: 2, totalPages: 1 },
+        }),
+      );
+      const fixture = await createFixture(() => of(buildMemberDetails()), { listMemberDues });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(listMemberDues).toHaveBeenCalledWith('a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10', 0, 50);
+      const root: HTMLElement = fixture.nativeElement;
+      const dialog = root.querySelector('dialog[open]') as HTMLElement;
+      expect(dialog.textContent).toContain('Solidarité septembre');
+      expect(dialog.textContent).not.toContain('Rentrée associative');
+      expect(fixture.componentInstance.selectedDue()?.id).toBe('due-open');
+      expect(dialog.textContent).toContain('Montant dû');
+      expect(dialog.textContent).toContain('Déjà payé');
+      expect(dialog.textContent).toContain('Reste à payer');
+    });
+
+    it('shows a message and no form when the member has no payable due', async () => {
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () => of(emptyDuePage),
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.textContent).toContain("n'a aucune cotisation restant à régler");
+      expect(root.querySelector('dialog[open] form')).toBeNull();
+    });
+
+    it('blocks confirmation when the amount exceeds the remaining amount, without calling createPayment', async () => {
+      const due = buildDue({ id: 'due-open', remainingAmount: 50_000 });
+      const createPayment = vi.fn(() => new Observable<PaymentCreationResponse>());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () =>
+          of({ items: [due], page: { number: 0, size: 50, totalElements: 1, totalPages: 1 } }),
+        createPayment,
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const page = fixture.componentInstance;
+      page.recordPaymentForm.controls.amount.setValue(60_000);
+      page.recordPaymentForm.controls.paymentDate.setValue('2026-09-18');
+      page.recordPaymentForm.controls.method.setValue(PaymentMethod.Cash);
+      page.submitRecordPayment();
+      fixture.detectChanges();
+
+      expect(createPayment).not.toHaveBeenCalled();
+      expect(page.recordPaymentOpen()).toBe(true);
+    });
+
+    it('confirms a valid payment, closes the dialog, refreshes the member and the already-mounted tabs', async () => {
+      const due = buildDue({ id: 'due-open', remainingAmount: 50_000 });
+      const createPayment = vi.fn(() =>
+        of({
+          payment: {
+            id: 'p1',
+            dueId: due.id,
+            member: due.member,
+            campaign: due.campaign,
+            amount: 25_000,
+            paymentDate: '2026-09-18',
+            method: PaymentMethod.Cash,
+            recordedBy: { userId: 'u1', displayName: 'Admin' },
+            recordedAt: '2026-09-18T10:00:00Z',
+            currency: 'GNF',
+          },
+          due: { ...due, paidAmount: 75_000, remainingAmount: 25_000 },
+        } as PaymentCreationResponse),
+      );
+      const getMember = vi
+        .fn()
+        .mockReturnValueOnce(of(buildMemberDetails()))
+        .mockReturnValueOnce(
+          of(
+            buildMemberDetails({
+              financialSummary: {
+                totalDueAmount: 100_000,
+                totalPaidAmount: 75_000,
+                totalRemainingAmount: 25_000,
+                currency: 'GNF',
+              },
+            }),
+          ),
+        );
+      const fixture = await createFixture(getMember, {
+        listMemberDues: () =>
+          of({ items: [due], page: { number: 0, size: 50, totalElements: 1, totalPages: 1 } }),
+        createPayment,
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const page = fixture.componentInstance;
+      const initialRefreshToken = page.dataRefreshToken();
+      page.recordPaymentForm.controls.amount.setValue(25_000);
+      page.recordPaymentForm.controls.paymentDate.setValue('2026-09-18');
+      page.recordPaymentForm.controls.method.setValue(PaymentMethod.Cash);
+      page.submitRecordPayment();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(createPayment).toHaveBeenCalledWith(due.id, {
+        amount: 25_000,
+        paymentDate: '2026-09-18',
+        method: PaymentMethod.Cash,
+      });
+      expect(page.recordPaymentOpen()).toBe(false);
+      expect(getMember).toHaveBeenCalledTimes(2);
+      expect(page.dataRefreshToken()).toBe(initialRefreshToken + 1);
+      expect(fixture.nativeElement.textContent).toContain(formatGnfAmountDetailed(25_000));
+    });
+
+    it('shows a mapped error and keeps the dialog open with the entered values when the mutation fails', async () => {
+      const due = buildDue({ id: 'due-open', remainingAmount: 50_000 });
+      const createPayment = vi.fn(() =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: {
+                code: ErrorCode.PaymentExceedsRemainingAmount,
+                message: 'Reste à payer dépassé.',
+              } as ErrorResponse,
+            }),
+        ),
+      );
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () =>
+          of({ items: [due], page: { number: 0, size: 50, totalElements: 1, totalPages: 1 } }),
+        createPayment,
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const page = fixture.componentInstance;
+      page.recordPaymentForm.controls.amount.setValue(50_000);
+      page.recordPaymentForm.controls.paymentDate.setValue('2026-09-18');
+      page.recordPaymentForm.controls.method.setValue(PaymentMethod.Cash);
+      page.submitRecordPayment();
+      fixture.detectChanges();
+
+      expect(createPayment).toHaveBeenCalledTimes(1);
+      expect(page.recordPaymentOpen()).toBe(true);
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.querySelector('dialog [role="alert"]')?.textContent).toContain(
+        'dépasse le reste à payer',
+      );
+      expect(page.recordPaymentForm.controls.amount.value).toBe(50_000);
+    });
+
+    it('closes without calling createPayment when cancelled', async () => {
+      const due = buildDue({ id: 'due-open' });
+      const createPayment = vi.fn(() => new Observable<PaymentCreationResponse>());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () =>
+          of({ items: [due], page: { number: 0, size: 50, totalElements: 1, totalPages: 1 } }),
+        createPayment,
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const cancelButton = Array.from(root.querySelectorAll('dialog[open] button')).find(
+        (button) => button.textContent?.trim() === 'Annuler',
+      ) as HTMLButtonElement | undefined;
+      cancelButton?.click();
+      fixture.detectChanges();
+
+      expect(createPayment).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.recordPaymentOpen()).toBe(false);
+    });
   });
 });

@@ -46,6 +46,8 @@ export class MemberPaymentsTab {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly memberId = input.required<string>();
+  /** Incrémenté par la fiche membre après un règlement pour recharger la première page (T-130). */
+  readonly refreshToken = input(0);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -78,6 +80,7 @@ export class MemberPaymentsTab {
   constructor() {
     effect(() => {
       const memberId = this.memberId();
+      this.refreshToken();
       this.paymentsPage.set(null);
       this.fetchPage(memberId, 0, { isInitialLoad: true });
     });

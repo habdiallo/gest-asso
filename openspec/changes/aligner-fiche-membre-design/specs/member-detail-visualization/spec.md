@@ -83,9 +83,101 @@ La fiche SHALL afficher les actions avec les composants partagés et des états 
 - **THEN** le dialogue reste cohérent avec l'état de saisie ou de confirmation
 - **AND** une erreur accessible et une nouvelle tentative sont proposées sans double appel automatique
 
+### Requirement: Formulaire de modification du membre
+
+Le clic sur l'action Modifier SHALL ouvrir un modal intitulé `Modifier un membre`, avec le kicker `Fiche membre`, un bouton de fermeture, un texte d'introduction et les sections `Identité` et `Localisation et association`. Le formulaire SHALL préremplir les valeurs du membre et afficher les champs Nom, Prénom, Nom d'usage, Téléphone, Pays, Ville, Catégorie de revenu et Fonction associative. Le statut du membre SHALL rester géré depuis la fiche et ne SHALL NOT être éditable dans ce formulaire.
+
+Le modal SHALL afficher les actions `Annuler` et `Enregistrer`. `Enregistrer` SHALL déclencher la mutation existante avec les valeurs validées, tandis que `Annuler`, la fermeture et Échap SHALL fermer le modal sans mutation. Le modal SHALL gérer le focus initial, le confinement du focus, le retour du focus au bouton Modifier et une erreur de mutation réessayable sans effacer la saisie. Le rendu SHALL utiliser les primitives d'input et de sélection partagées, avec un état `focus-visible` accessible sans double bordure.
+
+#### Scenario: Ouverture du formulaire de modification
+
+- **WHEN** un utilisateur autorisé clique sur `Modifier` depuis la fiche membre
+- **THEN** un modal intitulé `Modifier un membre` s'ouvre au-dessus de la fiche
+- **AND** les champs sont préremplis avec les valeurs actuelles du membre
+- **AND** le focus initial est placé dans le modal
+
+#### Scenario: Organisation du formulaire sur desktop
+
+- **WHEN** le modal est affiché à une largeur desktop
+- **THEN** la section `Identité` affiche Nom et Prénom sur une ligne, puis Nom d'usage et Téléphone sur une ligne
+- **AND** la section `Localisation et association` affiche Pays et Ville sur une ligne, puis Catégorie de revenu et Fonction associative sur une ligne
+- **AND** les actions `Annuler` et `Enregistrer` sont alignées dans le footer du modal
+
+#### Scenario: Sélections et champs modifiables
+
+- **WHEN** l'utilisateur ouvre Pays ou Catégorie de revenu
+- **THEN** le champ utilise le sélecteur partagé et expose son état actif de manière visible
+- **AND** les autres champs acceptent la modification sans ajouter de bordure ring externe
+
+#### Scenario: Annulation ou fermeture du formulaire
+
+- **WHEN** l'utilisateur clique sur `Annuler`, sur le bouton de fermeture ou appuie sur Échap
+- **THEN** le modal se ferme sans appeler l'API de mise à jour
+- **AND** le focus revient au bouton `Modifier`
+
+#### Scenario: Enregistrement réussi du formulaire
+
+- **WHEN** l'utilisateur modifie des valeurs valides puis clique sur `Enregistrer`
+- **THEN** la mutation de mise à jour est appelée une seule fois avec les valeurs du formulaire
+- **AND** le modal se ferme après succès
+- **AND** la fiche affiche les valeurs mises à jour
+
+#### Scenario: Erreur lors de l'enregistrement
+
+- **WHEN** la mutation de mise à jour échoue
+- **THEN** le modal reste ouvert avec les valeurs saisies
+- **AND** une erreur accessible est affichée avec la possibilité de réessayer
+
+### Requirement: Formulaire d'enregistrement d'un règlement
+
+Le clic sur l'action `Enregistrer un règlement` SHALL ouvrir un modal intitulé `Nouveau règlement` avec le kicker `Fiche membre`, une fermeture explicite et un texte indiquant qu'il s'agit d'une opération déjà constatée. Le modal SHALL afficher une synthèse composée de `Montant dû`, `Déjà payé` et `Reste à payer`, puis les champs `Membre`, `Campagne`, `Montant`, `Date` et `Mode de règlement`. Le membre courant SHALL être présélectionné lorsque le modal est ouvert depuis sa fiche.
+
+Le montant SHALL être numérique, exprimé en GNF et limité au reste à payer de la campagne sélectionnée. Le formulaire SHALL afficher ce maximum, empêcher la confirmation d'une valeur supérieure et utiliser les options de mode de règlement existantes. Il SHALL afficher une information sur l'horodatage et l'association de l'opération au compte courant pour la traçabilité, sans transformer cette information en colonne des tableaux métier.
+
+La confirmation SHALL déclencher une seule mutation avec le membre, la campagne, le montant, la date et le mode validés. Les actions `Annuler`, la fermeture et Échap SHALL fermer le modal sans mutation. Le modal SHALL gérer le focus initial, le confinement du focus, le retour du focus au déclencheur, les erreurs accessibles, la conservation de la saisie en cas d'échec et l'état de chargement de la confirmation.
+
+#### Scenario: Ouverture depuis la fiche membre
+
+- **WHEN** un utilisateur autorisé clique sur `Enregistrer un règlement` depuis la fiche d'un membre
+- **THEN** le modal `Nouveau règlement` s'ouvre
+- **AND** le membre courant est sélectionné
+- **AND** le focus initial est placé dans le modal
+
+#### Scenario: Synthèse de la cotisation
+
+- **WHEN** une campagne est sélectionnée pour le règlement
+- **THEN** le modal affiche `Montant dû`, `Déjà payé` et `Reste à payer`
+- **AND** le montant restant est visuellement mis en évidence
+- **AND** le maximum autorisé du champ Montant correspond au reste à payer
+
+#### Scenario: Validation du montant
+
+- **WHEN** l'utilisateur saisit un montant supérieur au reste à payer ou un montant invalide
+- **THEN** le formulaire affiche une erreur accessible
+- **AND** l'action `Confirmer l'enregistrement` ne déclenche pas de mutation
+
+#### Scenario: Confirmation d'un règlement
+
+- **WHEN** l'utilisateur saisit un montant valide, une date et un mode de règlement puis confirme
+- **THEN** une seule mutation est appelée avec le membre, la campagne, le montant, la date et le mode
+- **AND** le modal se ferme après succès
+- **AND** les données de la fiche sont rafraîchies pour refléter le règlement
+
+#### Scenario: Traçabilité présentée dans le formulaire
+
+- **WHEN** le modal de règlement est ouvert
+- **THEN** une information indique que l'opération sera horodatée et associée au compte courant
+- **AND** cette information ne crée aucune colonne `Enregistré par`, `Enregistrée par` ou `Horodatage` dans les tableaux
+
+#### Scenario: Erreur de confirmation d'un règlement
+
+- **WHEN** la mutation du règlement échoue
+- **THEN** le modal reste ouvert avec les valeurs saisies
+- **AND** une erreur accessible est affichée avec la possibilité de réessayer
+
 ### Requirement: Onglets et historiques du membre
 
-La fiche SHALL conserver les onglets Informations, Cotisations, Règlements et Contributions avec une sémantique ARIA complète, l'activation au clic et la navigation clavier. Les tableaux SHALL conserver leurs données, leurs formatages, leur pagination et leurs états de chargement, d'erreur et vide, avec uniquement les colonnes métier suivantes et dans cet ordre : `Campagne`, `Dû`, `Payé`, `Reste`, `Statut` pour les cotisations ; `Date`, `Campagne`, `Montant`, `Mode` pour les règlements ; `Cagnotte`, `Montant`, `Mode`, `Date` pour les contributions. Les tableaux de la fiche membre MUST NOT afficher une colonne de journalisation telle que `Enregistré par`, `Enregistrée par`, `Horodatage`, ou toute autre colonne équivalente. Les champs d'audit éventuellement renvoyés par l'API peuvent rester disponibles dans les données consommées, mais SHALL NOT être rendus dans ces tableaux. La pagination SHALL rester masquée lorsque le nombre d'éléments ne dépasse pas la taille de page configurée.
+Les informations personnelles et associatives SHALL rester visibles en permanence dans la carte principale (voir Requirement "Identité et informations du membre"), sans onglet dédié séparé. La fiche SHALL conserver les onglets Cotisations, Règlements et Contributions avec une sémantique ARIA complète, l'activation au clic et la navigation clavier. Les tableaux SHALL conserver leurs données, leurs formatages, leur pagination et leurs états de chargement, d'erreur et vide, avec uniquement les colonnes métier suivantes et dans cet ordre : `Campagne`, `Dû`, `Payé`, `Reste`, `Statut` pour les cotisations ; `Date`, `Campagne`, `Montant`, `Mode` pour les règlements ; `Cagnotte`, `Montant`, `Mode`, `Date` pour les contributions. Les tableaux de la fiche membre MUST NOT afficher une colonne de journalisation telle que `Enregistré par`, `Enregistrée par`, `Horodatage`, ou toute autre colonne équivalente. Les champs d'audit éventuellement renvoyés par l'API peuvent rester disponibles dans les données consommées, mais SHALL NOT être rendus dans ces tableaux. La pagination SHALL rester masquée lorsque le nombre d'éléments ne dépasse pas la taille de page configurée.
 
 #### Scenario: Activation d'un onglet
 

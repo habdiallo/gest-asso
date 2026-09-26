@@ -49,6 +49,26 @@ Les composants `MemberDuesTab`, `MemberPaymentsTab`, `MemberContributionsTab`, `
 
 Les dialogues de modification, désactivation et réactivation conserveront leur cycle de vie actuel : prévention des doubles soumissions, erreur visible, nouvelle tentative, fermeture par Échap lorsque permise et restitution du focus au déclencheur.
 
+### Aligner le formulaire de modification du membre
+
+Le clic sur `Modifier` ouvre le formulaire dans un modal centré avec un overlay sombre. Le modal reprend la hiérarchie de la maquette : kicker `Fiche membre`, titre `Modifier un membre`, bouton de fermeture en haut à droite, texte d'introduction, puis deux sections numérotées.
+
+La section `Identité` contient `Nom`, `Prénom`, `Nom d'usage` et `Téléphone`. La section `Localisation et association` contient `Pays`, `Ville`, `Catégorie de revenu` et `Fonction associative`. Sur desktop, chaque section utilise deux colonnes ; les champs passent sur une colonne lorsque la largeur disponible ne permet plus une saisie confortable. Les valeurs existantes sont préremplies et le statut reste géré depuis la fiche, comme indiqué dans l'introduction du modal.
+
+Les champs utilisent les primitives d'input partagées : hauteur minimale de 48 px, fond de surface, bordure simple, rayon cohérent, `outline: none` accompagné d'un état `:focus-visible` accessible, et aucune double bordure provoquée par un ring externe. `Pays` et `Catégorie de revenu` utilisent le composant de sélection partagé avec une indication de choix. Le footer du modal aligne `Annuler` et `Enregistrer`, avec `Enregistrer` en action primaire jaune et un état de chargement pendant la mutation.
+
+Le modal doit gérer le focus initial, le confinement du focus, la fermeture par Échap et la restitution du focus au bouton `Modifier`. Une fermeture ou une annulation ne doit pas envoyer de requête. Une erreur d'enregistrement reste visible dans le modal et permet une nouvelle tentative sans perdre les valeurs saisies.
+
+### Aligner le formulaire d'enregistrement d'un règlement
+
+Le clic sur `Enregistrer un règlement` ouvre un modal intitulé `Nouveau règlement` avec le kicker `Fiche membre`, un bouton de fermeture et un texte indiquant qu'il s'agit d'une opération déjà constatée, sans déclencher de paiement depuis ce formulaire.
+
+Le modal affiche d'abord une synthèse en trois blocs : `Montant dû`, `Déjà payé` et `Reste à payer`. Le reste à payer est mis en évidence avec la couleur d'accent. Le formulaire contient ensuite `Membre` et `Campagne` sous forme de sélecteurs, puis `Montant` et `Date` sur la même ligne, et `Mode de règlement` sous forme de sélecteur. Lorsqu'il est ouvert depuis une fiche membre, le membre concerné est présélectionné. La campagne sélectionnée détermine la synthèse affichée et le plafond de saisie.
+
+Le champ `Montant` est numérique, affiche la devise `GNF`, indique le maximum autorisé correspondant au reste à payer et bloque une valeur supérieure. La date utilise le contrôle de date partagé. Le mode de règlement utilise les options métier existantes. Une alerte informative rappelle que l'opération sera horodatée et associée au compte de l'utilisateur pour assurer sa traçabilité. Cette information est contextuelle au formulaire et ne constitue pas une colonne de journalisation dans les tableaux.
+
+Le footer aligne `Annuler` et `Confirmer l'enregistrement`, avec l'action primaire jaune et un état de chargement pendant la mutation. La confirmation envoie une seule requête avec le membre, la campagne, le montant, la date et le mode de règlement validés. Une annulation, la fermeture ou Échap ferme le modal sans mutation. Le focus est initialisé dans le modal, y reste confiné et revient au déclencheur après fermeture.
+
 ### Limiter les tableaux aux données métier nécessaires
 
 Les tableaux de la fiche membre ne doivent présenter que les informations nécessaires à la consultation opérationnelle. Ils ne doivent pas exposer de colonne destinée à la journalisation, même si les DTO de l'API fournissent ces métadonnées pour d'autres usages.
@@ -63,7 +83,7 @@ Les champs `recordedBy` et `recordedAt`, ainsi que leurs libellés « Enregistr�
 
 ### Étendre les tests avant de valider l'alignement
 
-Les tests de `MemberDetailPage` seront adaptés aux nouveaux rôles DOM et à la projection du shell. Ils couvriront le rendu de la carte principale et des deux cartes latérales, les permissions par rôle, le statut actif/inactif, les valeurs absentes, l'activation des onglets, les actions de dialogue et la présence des enfants paginés. Les primitives partagées ne seront pas recopiées dans les tests de page.
+Les tests de `MemberDetailPage` seront adaptés aux nouveaux rôles DOM et à la projection du shell. Ils couvriront le rendu de la carte principale et des deux cartes latérales, les permissions par rôle, le statut actif/inactif, l'ouverture et la validation des formulaires de modification et de règlement, l'activation des onglets, les actions de dialogue et la présence des enfants paginés. Les primitives partagées ne seront pas recopiées dans les tests de page.
 
 La vérification visuelle sera menée à au moins 1440 px, 1024 px et 375 px dans les deux thèmes lorsque le navigateur est disponible. Les tests jsdom et la compilation ne seront pas présentés comme un audit d'accessibilité exhaustif.
 

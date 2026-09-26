@@ -26,11 +26,6 @@
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'memberDetail.cotisations.columns.campaign' | transloco }}
             </th>
-            @if (showIncomeCategory()) {
-              <th scope="col" class="px-4 py-0 font-medium">
-                {{ 'memberDetail.cotisations.columns.incomeCategory' | transloco }}
-              </th>
-            }
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'memberDetail.cotisations.columns.dueAmount' | transloco }}
             </th>
@@ -63,11 +58,6 @@
                   }}
                 </span>
               </th>
-              @if (showIncomeCategory()) {
-                <td class="px-4 py-2 text-[13px] text-text-2">
-                  {{ due.incomeCategorySnapshot.label }}
-                </td>
-              }
               <td class="whitespace-nowrap px-4 py-2 font-data text-[13px] text-text-2">
                 {{ formatAmount(due.dueAmount) }}
               </td>
