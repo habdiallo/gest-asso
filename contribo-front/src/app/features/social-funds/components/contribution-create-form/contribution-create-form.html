@@ -41,7 +41,9 @@
           "
           class="app-form-control mb-2 min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
         />
+      </div>
 
+      <div>
         <label
           for="contribution-create-member"
           class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
@@ -101,17 +103,17 @@
           </nav>
         }
       </div>
+    </div>
 
-      <div>
-        <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
-          {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
-        </span>
-        <div
-          class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
-          aria-readonly="true"
-        >
-          {{ socialFundTitle() }}
-        </div>
+    <div class="mt-4">
+      <span class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3">
+        {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
+      </span>
+      <div
+        class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
+        aria-readonly="true"
+      >
+        {{ socialFundTitle() }}
       </div>
     </div>
   } @else {

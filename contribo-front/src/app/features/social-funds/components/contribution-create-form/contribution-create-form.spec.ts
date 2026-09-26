@@ -75,6 +75,9 @@ describe('ContributionCreateForm', () => {
 
     const grids = fixture.nativeElement.querySelectorAll('.grid[class~="min-[821px]:grid-cols-2"]');
     expect(grids.length).toBeGreaterThanOrEqual(2);
+    expect(grids[0].querySelector('#contribution-create-member-search')).not.toBeNull();
+    expect(grids[0].querySelector('#contribution-create-member')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Mariage de Fanta et Sékou');
     expect(fixture.nativeElement.querySelector('.border-t.border-line')).not.toBeNull();
   });
 
