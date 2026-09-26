@@ -34,18 +34,18 @@ Chaque ligne MUST identifier visuellement la catégorie par une pastille cohére
 
 ### Requirement: Action d'édition du barème
 
-L'action « Modifier les montants » MUST être visible pour un Administrateur ou un Trésorier lorsque la campagne n'est pas clôturée et MUST ouvrir un dialogue réutilisant le formulaire et la mutation existants.
+L'action « Modifier les montants » MUST être visible pour un Administrateur ou un Trésorier uniquement lorsque la campagne est en Brouillon (`UPCOMING`) et MUST ouvrir un dialogue réutilisant le formulaire et la mutation existants. Voir la capacité `campaign-lifecycle-actions` pour le cycle de vie complet à trois états.
 
-#### Scenario: Utilisateur autorisé sur une campagne à venir
+#### Scenario: Utilisateur autorisé sur une campagne en Brouillon
 
-- **WHEN** un Administrateur ou un Trésorier consulte une campagne `UPCOMING` ou `OPEN`
+- **WHEN** un Administrateur ou un Trésorier consulte une campagne `UPCOMING`
 - **THEN** l'action « Modifier les montants » est visible dans l'en-tête du barème
 - **AND** son activation ouvre le dialogue « Montants de campagne » avec les montants courants préremplis
 - **AND** le dialogue affiche le nom de la campagne, le nombre de membres concernés et son statut
 
 #### Scenario: Utilisateur ou campagne non autorisé
 
-- **WHEN** un Membre ou un Opérateur consulte une campagne, ou lorsqu'un utilisateur autorisé consulte une campagne `CLOSED`
+- **WHEN** un Membre ou un Opérateur consulte une campagne, ou lorsqu'un utilisateur autorisé consulte une campagne `OPEN` ou `CLOSED`
 - **THEN** l'action d'édition du barème n'est pas visible
 - **AND** aucune mutation de montant n'est déclenchée par l'interface
 

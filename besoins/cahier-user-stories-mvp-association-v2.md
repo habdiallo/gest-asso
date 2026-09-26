@@ -257,6 +257,24 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-COT-004** — La date de fin est obligatoire.
 - **RG-COT-005** — La date de fin ne peut pas être antérieure à la date de début.
 
+### Cycle de vie d'une campagne
+
+Une campagne traverse trois états, dans cet ordre et sans retour en arrière :
+
+| État | Déclencheur | Actions autorisées |
+|---|---|---|
+| Brouillon | Création de la campagne, jusqu'à l'ouverture explicite après la date de début | Configurer/modifier les montants par catégorie (US-COT-002), vérifier la préparation et ouvrir la campagne si elle est prête |
+| Ouverte | Ouverture explicite par un Administrateur ou un Trésorier, après la date de début | Enregistrer des règlements (US-COT-005), suivre les cotisations (US-COT-004) et le bilan (US-COT-007) |
+| Clôturée | Clôture explicite par un Administrateur ou un Trésorier (US-COT-008) | Consultation uniquement ; aucune modification |
+
+**Règles**
+
+- **RG-COT-017** : Une campagne suit trois états : Brouillon jusqu'à son ouverture explicite, Ouverte après cette ouverture et jusqu'à sa clôture, puis Clôturée après clôture explicite (US-COT-008).
+- **RG-COT-018** : Les montants par catégorie d'une campagne ne sont modifiables que lorsqu'elle est en Brouillon ; ils sont figés dès qu'elle passe à l'état Ouverte.
+- **RG-COT-019** : Une campagne ne peut être ouverte que par un Administrateur ou un Trésorier, après sa date de début et lorsque toutes les vérifications de préparation sont satisfaites.
+- **RG-COT-020** : L'ouverture d'une campagne est confirmée explicitement, enregistrée avec sa date et son auteur, puis rend le barème immuable.
+- **RG-PAY-010** : Un règlement ne peut être enregistré que sur une campagne à l'état Ouverte ; l'enregistrement n'est pas possible en Brouillon ni sur une campagne Clôturée.
+
 ### US-COT-002 — Configurer les montants par catégorie
 
 **En tant qu'Administrateur ou Trésorier**, je veux définir le montant applicable à chaque catégorie de revenu dans une campagne, afin de déterminer les montants dus.
@@ -277,6 +295,7 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-COT-008** — Une catégorie de revenu n'a jamais de montant de cotisation permanent.
 - **RG-COT-009** — Deux campagnes peuvent définir des montants différents pour une même catégorie.
 - **RG-COT-010** — Le montant applicable à un membre est celui défini dans la campagne pour sa catégorie.
+- Cette configuration n'est accessible que sur une campagne en Brouillon (RG-COT-018).
 
 ### US-COT-003 — Établir la cotisation d'un membre
 
@@ -313,6 +332,7 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-PAY-003** — Le montant total payé permet de déterminer le reste à payer.
 - **RG-PAY-007** — Le système refuse l'enregistrement d'un règlement dont le montant dépasserait le reste à payer de la cotisation concernée.
 - **RG-PAY-008** — Chaque règlement enregistre l'identité de l'utilisateur qui l'a saisi et l'horodatage de la saisie (traçabilité).
+- **RG-PAY-010** — Un règlement ne peut être enregistré que sur une campagne Ouverte (voir Cycle de vie d'une campagne, §7).
 
 ### US-COT-006 — Gérer un paiement partiel
 
@@ -350,7 +370,23 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - Son historique est conservé.
 - Les montants dus restent inchangés.
 - Les règlements restent accessibles.
-- Une campagne clôturée ne peut plus être modifiée.
+- Une campagne clôturée ne peut plus être modifiée : ni son barème (RG-COT-018), ni l'enregistrement d'un nouveau règlement (RG-PAY-010) (Cycle de vie d'une campagne, §7).
+
+### US-COT-009 - Ouvrir une campagne
+
+**En tant qu'Administrateur ou Trésorier**, je veux ouvrir explicitement une campagne prête, afin de figer son barème et de démarrer l'enregistrement des règlements.
+
+**Informations de préparation** : complétude du barème, cohérence des dates, capacité à établir les cotisations, date de début et état courant de la campagne.
+
+**Règles**
+
+- L'action d'ouverture est proposée uniquement à l'Administrateur et au Trésorier.
+- Toutes les catégories portées par les membres concernés doivent avoir un montant strictement positif.
+- La date de début doit être atteinte ; une ouverture anticipée n'est pas autorisée dans le MVP.
+- Une confirmation explicite est demandée avant l'ouverture, car le barème devient immuable.
+- L'ouverture renseigne la date et l'utilisateur l'ayant effectuée.
+- Une campagne ouverte accepte les règlements et n'accepte plus de modification du barème.
+- Une campagne non prête reste en Brouillon et expose les éléments bloquants.
 
 ---
 

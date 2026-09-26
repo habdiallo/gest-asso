@@ -190,7 +190,7 @@ describe('CampaignsListPage', () => {
     expect(root.textContent).toContain('67%');
   });
 
-  it('renders the prototype status segments and does not expose an upcoming label', async () => {
+  it('renders the status segments and exposes the upcoming campaign state', async () => {
     const fixture = await createFixture(() =>
       of(
         buildCampaignPage({
@@ -206,9 +206,8 @@ describe('CampaignsListPage', () => {
       button.textContent?.trim(),
     );
 
-    expect(statusButtons).toEqual(['Toutes', 'Ouvertes', 'Clôturées']);
-    expect(root.textContent).toContain('Ouverte');
-    expect(root.textContent).not.toContain('À venir');
+    expect(statusButtons).toEqual(['Toutes', 'À venir', 'Ouvertes', 'Clôturées']);
+    expect(root.querySelector('app-financial-card')?.textContent).toContain('À venir');
   });
 
   it('shows the empty-list message when there is no campaign', async () => {
@@ -235,8 +234,10 @@ describe('CampaignsListPage', () => {
 
     fixture.componentInstance.onStatusFilterChange(CampaignStatus.Closed);
     fixture.detectChanges();
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Upcoming);
+    fixture.detectChanges();
 
-    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
+    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed, CampaignStatus.Upcoming]);
   });
 
   it('requests at most six campaigns per page', async () => {

@@ -41,9 +41,9 @@ const DUES_PAGE_SIZE = 10;
  * règlement lorsqu'il y est autorisé). Les autres rôles (Administrateur,
  * Trésorier) et l'absence de rôle conservent la colonne inchangée.
  *
- * L'enregistrement d'un nouveau règlement est également masqué sur une
- * campagne clôturée (T-81, RG-COT), quel que soit le rôle par ailleurs
- * autorisé : voir l'entrée `campaignClosed`, transmise par
+ * L'enregistrement d'un nouveau règlement est proposé uniquement sur une
+ * campagne Ouverte (T-131, RG-PAY-010), quel que soit le rôle par ailleurs
+ * autorisé : voir l'entrée positive `campaignOpenForPayments`, transmise par
  * `CampaignDetailPage` à partir du statut de la campagne.
  *
  * L'action est enfin masquée ligne par ligne sur une cotisation déjà soldée
@@ -79,8 +79,8 @@ export class CampaignDuesTab implements OnInit {
   private loadRequestId = 0;
 
   readonly campaignId = input.required<string>();
-  /** Campagne clôturée (T-81) : masque l'enregistrement d'un nouveau règlement, quel que soit le rôle par ailleurs autorisé. */
-  readonly campaignClosed = input<boolean>(false);
+  /** Campagne Ouverte : autorise l'enregistrement d'un nouveau règlement, sous réserve du rôle. */
+  readonly campaignOpenForPayments = input<boolean>(false);
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly duePage = signal<DuePage | null>(null);
@@ -93,12 +93,12 @@ export class CampaignDuesTab implements OnInit {
   readonly canRecordPayments = this.sessionService.canRecordPayments;
 
   /**
-   * Action masquée sur une campagne clôturée (T-81), quel que soit le rôle
-   * par ailleurs autorisé. Ce contrôle IHM ne remplace pas l'autorisation
-   * serveur (voir `api-client.md`).
+   * Action proposée uniquement sur une campagne Ouverte, quel que soit le
+   * rôle par ailleurs autorisé. Ce contrôle IHM ne remplace pas
+   * l'autorisation serveur (voir `api-client.md`).
    */
   readonly canRecordPaymentsNow = computed(
-    () => this.canRecordPayments() && !this.campaignClosed(),
+    () => this.canRecordPayments() && this.campaignOpenForPayments(),
   );
 
   readonly recordPaymentDue = signal<Due | null>(null);
@@ -306,6 +306,8 @@ export class CampaignDuesTab implements OnInit {
       switch (body?.code) {
         case ErrorCode.PaymentExceedsRemainingAmount:
           return 'campaigns.detail.cotisations.recordPayment.errorExceedsRemaining';
+        case ErrorCode.CampaignNotOpen:
+          return 'campaigns.detail.cotisations.recordPayment.errorCampaignNotOpen';
         case ErrorCode.DueAlreadyPaid:
           return 'campaigns.detail.cotisations.recordPayment.errorAlreadyPaid';
         case ErrorCode.ValidationError:

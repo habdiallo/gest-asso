@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
+  CampaignStatus,
   DueStatus,
   ErrorCode,
   MemberStatus,
@@ -79,9 +80,9 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
  * exposé par `SessionService` (T-13).
  *
  * Action "Enregistrer un règlement" (T-130) : ouvre un modal `Nouveau
- * règlement` qui charge les cotisations non soldées du membre
- * (`listMemberDues`, statut différent de Payé) pour peupler un sélecteur de
- * campagne, puis délègue à `RglementsService.createPayment(due.id, ...)`,
+ * règlement` qui charge les cotisations ouvertes et non soldées du membre
+ * (`listMemberDues`, campagne `OPEN` et statut différent de Payé) pour peupler
+ * un sélecteur de campagne, puis délègue à `RglementsService.createPayment(due.id, ...)`,
  * même appel que `CampaignDuesTab` (T-71). Après succès, le membre est
  * rechargé pour rafraîchir la situation financière affichée (`financialSummary`,
  * non renvoyée par la mutation de règlement) et `dataRefreshToken` est
@@ -565,7 +566,9 @@ export class MemberDetailPage {
           if (session !== this.recordPaymentSession) {
             return;
           }
-          const payable = page.items.filter((due) => due.status !== DueStatus.Paid);
+          const payable = page.items.filter(
+            (due) => due.status !== DueStatus.Paid && due.campaign.status === CampaignStatus.Open,
+          );
           this.payableDues.set(payable);
           this.payableDuesLoading.set(false);
           if (payable.length === 1) {
@@ -603,6 +606,8 @@ export class MemberDetailPage {
       switch (body?.code) {
         case ErrorCode.PaymentExceedsRemainingAmount:
           return 'members.recordPayment.errorExceedsRemaining';
+        case ErrorCode.CampaignNotOpen:
+          return 'members.recordPayment.errorCampaignNotOpen';
         case ErrorCode.DueAlreadyPaid:
           return 'members.recordPayment.errorAlreadyPaid';
         case ErrorCode.ValidationError:

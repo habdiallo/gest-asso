@@ -138,7 +138,7 @@ async function createFixture(
     ) => Observable<PaymentCreationResponse>;
     user?: CurrentUser | null;
     role?: UserRole;
-    campaignClosed?: boolean;
+    campaignOpenForPayments?: boolean;
   } = {},
 ): Promise<ComponentFixture<CampaignDuesTab>> {
   await TestBed.configureTestingModule({
@@ -168,9 +168,7 @@ async function createFixture(
 
   const fixture = TestBed.createComponent(CampaignDuesTab);
   fixture.componentRef.setInput('campaignId', result.items[0].campaign.id);
-  if (options.campaignClosed !== undefined) {
-    fixture.componentRef.setInput('campaignClosed', options.campaignClosed);
-  }
+  fixture.componentRef.setInput('campaignOpenForPayments', options.campaignOpenForPayments ?? true);
   fixture.detectChanges();
   return fixture;
 }
@@ -245,8 +243,11 @@ describe('CampaignDuesTab', () => {
     ).toBe(true);
   });
 
-  it('hides the record payment action on a closed campaign, even for an authorized Treasurer (T-81)', async () => {
-    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
+  it('hides the record payment action when the campaign is not open, even for an authorized Treasurer (T-131)', async () => {
+    const fixture = await createFixture(undefined, {
+      user: treasurer,
+      campaignOpenForPayments: false,
+    });
 
     expect(
       fixture.nativeElement.textContent.includes(
@@ -255,8 +256,11 @@ describe('CampaignDuesTab', () => {
     ).toBe(false);
   });
 
-  it('renders the record payment action inside an open campaign table (T-81)', async () => {
-    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: false });
+  it('renders the record payment action inside an open campaign table (T-131)', async () => {
+    const fixture = await createFixture(undefined, {
+      user: treasurer,
+      campaignOpenForPayments: true,
+    });
 
     const actionButtons = Array.from(
       fixture.nativeElement.querySelectorAll('button'),
@@ -302,10 +306,32 @@ describe('CampaignDuesTab', () => {
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
   });
 
-  it('ignores an attempt to open the record payment dialog on a closed campaign (T-81)', async () => {
-    const fixture = await createFixture(undefined, { user: treasurer, campaignClosed: true });
+  it('ignores an attempt to open the record payment dialog when the campaign is not open (T-131)', async () => {
+    const fixture = await createFixture(undefined, {
+      user: treasurer,
+      campaignOpenForPayments: false,
+    });
 
     fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
+  });
+
+  it('does not allow opening the record payment dialog for an upcoming campaign (T-131)', async () => {
+    const upcomingResult: DuePage = {
+      ...result,
+      items: result.items.map((item) => ({
+        ...item,
+        campaign: { ...item.campaign, status: CampaignStatus.Upcoming },
+      })),
+    };
+    const fixture = await createFixture(() => of(upcomingResult), {
+      user: treasurer,
+      campaignOpenForPayments: false,
+    });
+
+    fixture.componentInstance.openRecordPayment(upcomingResult.items[0]);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.recordPaymentDue()).toBeNull();
@@ -402,6 +428,34 @@ describe('CampaignDuesTab', () => {
 
     expect(fixture.nativeElement.textContent).toContain(
       fr['campaigns.detail.cotisations.recordPayment.errorExceedsRemaining'],
+    );
+    expect(fixture.componentInstance.recordPaymentDue()).not.toBeNull();
+  });
+
+  it('shows a dedicated error when the campaign is no longer open server-side (T-131)', async () => {
+    const createPayment = () =>
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: {
+              code: ErrorCode.CampaignNotOpen,
+              message: "La campagne n'est pas ouverte.",
+            },
+          }),
+      );
+    const fixture = await createFixture(undefined, { createPayment, user: treasurer });
+
+    fixture.componentInstance.openRecordPayment(result.items[0]);
+    fixture.componentInstance.handleRecordPayment({
+      amount: 25_000,
+      paymentDate: '2026-09-18',
+      method: PaymentMethod.Cash,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.errorCampaignNotOpen'],
     );
     expect(fixture.componentInstance.recordPaymentDue()).not.toBeNull();
   });

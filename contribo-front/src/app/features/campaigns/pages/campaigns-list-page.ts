@@ -24,11 +24,7 @@ import { PageHeader } from '@shared/page-header/page-header';
 import { Subject, debounceTime } from 'rxjs';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { formatCalendarDate } from '../campaign-dates';
-import {
-  campaignListStatus,
-  campaignStatusLabel,
-  campaignStatusTone,
-} from '../campaign-status-labels';
+import { campaignStatusLabel, campaignStatusTone } from '../campaign-status-labels';
 
 /** Nombre maximal de cartes affichées par page, soit deux lignes de trois cartes sur desktop. */
 const PAGE_SIZE = 6;
@@ -38,10 +34,9 @@ const PAGE_SIZE = 6;
  * et statut, pour Administrateur/Trésorier/Opérateur (`campaigns.routes.ts`
  * restreint déjà l'accès par rôle via `roleGuard`). Le filtre par statut
  * (T-58, paramètre contractuel `status`) restreint la liste aux campagnes
- * ouvertes ou clôturées. Dans le contrat de cette liste, la valeur demandée
- * `OPEN` inclut aussi les campagnes techniques `UPCOMING`, afin que le segment
- * « Ouvertes » corresponde au statut visuel affiché. La liste présente les
- * cartes financières du prototype et normalise `UPCOMING` en campagne ouverte.
+ * ouvertes, à venir ou clôturées. Les segments correspondent aux statuts
+ * techniques du contrat et chaque carte affiche le statut métier réel afin de
+ * rendre le brouillon configurable identifiable.
  *
  * La recherche par nom (T-59, paramètre contractuel `q` de
  * `GET /campaigns`) filtre côté serveur les campagnes dont le nom
@@ -125,6 +120,7 @@ export class CampaignsListPage {
 
   readonly statusOptions: readonly { value: CampaignStatus | ''; labelKey: string }[] = [
     { value: '', labelKey: 'campaigns.list.statusFilterAll' },
+    { value: CampaignStatus.Upcoming, labelKey: 'campaigns.list.statusFilterUpcoming' },
     { value: CampaignStatus.Open, labelKey: 'campaigns.list.statusFilterOpen' },
     { value: CampaignStatus.Closed, labelKey: 'campaigns.list.statusFilterClosed' },
   ];
@@ -139,7 +135,6 @@ export class CampaignsListPage {
 
   readonly formatCalendarDate = formatCalendarDate;
   readonly formatAmount = formatGnfAmountCondensed;
-  readonly campaignListStatus = campaignListStatus;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly campaignStatusTone = campaignStatusTone;
 

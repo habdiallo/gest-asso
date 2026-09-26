@@ -3,6 +3,7 @@ import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, User
 import type {
   Campaign,
   CampaignCategoryAmountInput,
+  CampaignOpeningReadiness,
   CampaignPage,
   CampaignSummary,
   CreateCampaignRequest,
@@ -37,8 +38,8 @@ const demoCampaigns: CampaignSummary[] = [
   {
     id: '10700000-0000-4000-8000-000000000201',
     name: 'Rentrée associative',
-    startDate: '2026-08-15',
-    endDate: '2026-10-15',
+    startDate: '2026-09-26',
+    endDate: '2026-10-31',
     status: CampaignStatus.Upcoming,
     memberCount: 62,
     financialSummary: {
@@ -129,7 +130,7 @@ const demoCampaignDetails: Record<string, Campaign> = {
   '10700000-0000-4000-8000-000000000201': {
     ...demoCampaigns[1],
     // Le statut technique UPCOMING reste nécessaire aux règles d'édition du
-    // barème. La liste Campagnes le présente toutefois comme « Ouverte ».
+    // barème. La liste Campagnes conserve désormais le libellé « À venir ».
     status: CampaignStatus.Upcoming,
     description: 'Contribution exceptionnelle pour la rentrée scolaire des enfants de membres.',
     categoryAmounts: [
@@ -261,6 +262,34 @@ const demoCampaignDues: Record<string, Due[]> = {
       currency: CurrencyCode.Gnf,
     },
   ],
+  '10700000-0000-4000-8000-000000000201': [
+    {
+      id: '10700000-0000-4000-8000-000000000420',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: demoCampaigns[1],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 75_000,
+      paidAmount: 0,
+      remainingAmount: 75_000,
+      status: 'DUE',
+      paymentCount: 0,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
+  '10700000-0000-4000-8000-000000000202': [
+    {
+      id: '10700000-0000-0000-0000-000000000430',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: demoCampaigns[2],
+      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
+      dueAmount: 100_000,
+      paidAmount: 50_000,
+      remainingAmount: 50_000,
+      status: 'PARTIALLY_PAID',
+      paymentCount: 1,
+      currency: CurrencyCode.Gnf,
+    },
+  ],
 };
 
 const demoPaymentsByCampaignId: Record<string, Payment[]> = {
@@ -290,6 +319,20 @@ const demoPaymentsByCampaignId: Record<string, Payment[]> = {
       currency: CurrencyCode.Gnf,
     },
   ],
+  '10700000-0000-4000-8000-000000000202': [
+    {
+      id: '10700000-0000-4000-8000-000000000702',
+      dueId: '10700000-0000-0000-0000-000000000430',
+      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
+      campaign: demoCampaigns[2],
+      amount: 50_000,
+      paymentDate: '2026-06-12',
+      method: PaymentMethod.BankTransfer,
+      recordedBy: { userId: '10700000-0000-4000-8000-000000000900', displayName: 'Mamadou Sy' },
+      recordedAt: '2026-06-12T14:32:00Z',
+      currency: CurrencyCode.Gnf,
+    },
+  ],
 };
 
 function authenticationRequired(): Response {
@@ -301,6 +344,43 @@ function authenticationRequired(): Response {
 
 function normalizeForSearch(value: string): string {
   return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+const demoToday = '2026-09-26';
+
+function calculateOpeningReadiness(campaign: Campaign): CampaignOpeningReadiness {
+  const baremeComplete =
+    campaign.categoryAmounts.length > 0 &&
+    campaign.categoryAmounts.every((categoryAmount) => categoryAmount.amount > 0);
+  const datesValid = campaign.startDate <= campaign.endDate;
+  const startDateReached = demoToday >= campaign.startDate;
+  const duesReady = campaign.memberCount > 0 && campaign.categoryAmounts.length > 0;
+  const blockingReasons: string[] = [];
+
+  if (!baremeComplete) blockingReasons.push('BAREME_INCOMPLETE');
+  if (!datesValid) blockingReasons.push('DATES_INVALID');
+  if (!startDateReached) blockingReasons.push('START_DATE_NOT_REACHED');
+  if (!duesReady) blockingReasons.push('DUES_NOT_READY');
+
+  return {
+    baremeComplete,
+    datesValid,
+    startDateReached,
+    duesReady,
+    ready: blockingReasons.length === 0,
+    blockingReasons,
+  };
+}
+
+function campaignForRead(campaign: Campaign): Campaign {
+  if (campaign.status !== CampaignStatus.Upcoming) {
+    return campaign;
+  }
+  return { ...campaign, openingReadiness: calculateOpeningReadiness(campaign) };
+}
+
+function campaignOpeningConflict(code: ErrorCode, message: string): Response {
+  return HttpResponse.json<ErrorResponse>({ code, message }, { status: 409 });
 }
 
 function campaignNotFound(): Response {
@@ -346,6 +426,16 @@ function paymentExceedsRemainingAmount(): Response {
     {
       code: ErrorCode.PaymentExceedsRemainingAmount,
       message: 'Le montant dépasse le reste à payer.',
+    },
+    { status: 409 },
+  );
+}
+
+function campaignNotOpen(): Response {
+  return HttpResponse.json<ErrorResponse>(
+    {
+      code: ErrorCode.CampaignNotOpen,
+      message: 'Un règlement ne peut être enregistré que sur une campagne ouverte.',
     },
     { status: 409 },
   );
@@ -476,14 +566,7 @@ export const campaignsHandlers = [
     const query = url.searchParams.get('q')?.trim();
     const normalizedQuery = query ? normalizeForSearch(query) : null;
     const filtered = demoCampaigns.filter((campaign) => {
-      // La liste ne présente que les états Ouvertes et Clôturées. Son segment
-      // « Ouvertes » couvre donc les campagnes OPEN et UPCOMING, sans altérer
-      // le statut technique renvoyé par une ressource de détail.
-      const matchesStatus =
-        !status ||
-        (status === CampaignStatus.Open
-          ? campaign.status === CampaignStatus.Open || campaign.status === CampaignStatus.Upcoming
-          : campaign.status === status);
+      const matchesStatus = !status || campaign.status === status;
       const matchesQuery =
         !normalizedQuery || normalizeForSearch(campaign.name).includes(normalizedQuery);
       return matchesStatus && matchesQuery;
@@ -530,7 +613,9 @@ export const campaignsHandlers = [
       name: body.name,
       startDate: body.startDate,
       endDate: body.endDate,
-      status: CampaignStatus.Open,
+      // Une campagne créée reste configurable en brouillon jusqu'à son
+      // ouverture explicite après la date de début selon le cycle de vie métier.
+      status: CampaignStatus.Upcoming,
       memberCount: 0,
     };
     demoCampaigns.unshift(summary);
@@ -540,9 +625,10 @@ export const campaignsHandlers = [
       description: body.description,
       categoryAmounts: [],
     };
-    demoCampaignDetails[summary.id] = campaign;
+    const campaignWithReadiness = campaignForRead(campaign);
+    demoCampaignDetails[summary.id] = campaignWithReadiness;
 
-    return HttpResponse.json<Campaign>(campaign, { status: 201 });
+    return HttpResponse.json<Campaign>(campaignWithReadiness, { status: 201 });
   }),
 
   /**
@@ -562,8 +648,96 @@ export const campaignsHandlers = [
       return campaignNotFound();
     }
 
-    return HttpResponse.json<Campaign>(campaign);
+    return HttpResponse.json<Campaign>(campaignForRead(campaign));
   }),
+
+  /**
+   * Handler MSW de démonstration pour `POST /api/v1/campaigns/{campaignId}/open`.
+   * Le backend métier n'est pas présent dans ce dépôt frontend. Ce mock reproduit
+   * donc le contrat attendu : recalcul de la checklist, contrôle du statut et de
+   * la date, puis mise à jour atomique des snapshots utilisés par les onglets.
+   * L'implémentation serveur devra conserver ces contrôles dans une transaction
+   * et utiliser l'horloge et le fuseau de l'association.
+   */
+  http.post(
+    '/api/v1/campaigns/:campaignId/open',
+    async ({ request, params }): Promise<Response> => {
+      await delay(300);
+      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      if (!account) {
+        return authenticationRequired();
+      }
+      if (
+        account.user.role !== UserRole.Administrator &&
+        account.user.role !== UserRole.Treasurer
+      ) {
+        return accessDenied();
+      }
+
+      const campaignId = typeof params['campaignId'] === 'string' ? params['campaignId'] : '';
+      const campaign = demoCampaignDetails[campaignId];
+      if (!campaign) {
+        return campaignNotFound();
+      }
+      if (campaign.status === CampaignStatus.Open) {
+        return campaignOpeningConflict(
+          ErrorCode.CampaignAlreadyOpen,
+          'Cette campagne est déjà ouverte.',
+        );
+      }
+      if (campaign.status === CampaignStatus.Closed) {
+        return campaignOpeningConflict(ErrorCode.CampaignClosed, 'Cette campagne est clôturée.');
+      }
+
+      const readiness = calculateOpeningReadiness(campaign);
+      if (!readiness.startDateReached) {
+        return campaignOpeningConflict(
+          ErrorCode.CampaignStartDateNotReached,
+          "La date de début de cette campagne n'est pas encore atteinte.",
+        );
+      }
+      if (!readiness.ready) {
+        return campaignOpeningConflict(
+          ErrorCode.CampaignNotReady,
+          "La checklist de préparation de cette campagne n'est pas complète.",
+        );
+      }
+
+      const openedSummary: CampaignSummary = { ...campaign, status: CampaignStatus.Open };
+      const openedCampaign: Campaign = {
+        ...campaign,
+        status: CampaignStatus.Open,
+        openedAt: new Date().toISOString(),
+        openedBy: {
+          userId: account.user.userId,
+          displayName: account.user.member.displayName,
+        },
+        openingReadiness: undefined,
+      };
+      demoCampaignDetails[campaignId] = openedCampaign;
+      const campaignIndex = demoCampaigns.findIndex((item) => item.id === campaignId);
+      if (campaignIndex !== -1) {
+        demoCampaigns[campaignIndex] = openedSummary;
+      }
+
+      const campaignDues = demoCampaignDues[campaignId];
+      if (campaignDues) {
+        demoCampaignDues[campaignId] = campaignDues.map((due) => ({
+          ...due,
+          campaign: openedSummary,
+        }));
+      }
+      const campaignPayments = demoPaymentsByCampaignId[campaignId];
+      if (campaignPayments) {
+        demoPaymentsByCampaignId[campaignId] = campaignPayments.map((payment) => ({
+          ...payment,
+          campaign: openedSummary,
+        }));
+      }
+
+      return HttpResponse.json<Campaign>(openedCampaign);
+    },
+  ),
 
   /**
    * Handler MSW de démonstration pour `PUT /api/v1/campaigns/{campaignId}/category-amounts`
@@ -639,7 +813,7 @@ export const campaignsHandlers = [
       };
       demoCampaignDetails[campaignId] = updatedCampaign;
 
-      return HttpResponse.json<Campaign>(updatedCampaign);
+      return HttpResponse.json<Campaign>(campaignForRead(updatedCampaign));
     },
   ),
 
@@ -718,9 +892,10 @@ export const campaignsHandlers = [
    * Handler MSW de démonstration pour `POST /api/v1/dues/{dueId}/payments`
    * (T-71, `createPayment`) : réservé à l'Administrateur, au Trésorier et à
    * l'Opérateur dont `operatorCanRecordPayments` est actif (RG-ROLE-007 à
-   * RG-ROLE-009), refuse un montant dépassant le reste à payer ou une cotisation
-   * déjà réglée, puis renvoie le règlement et la cotisation recalculée en
-   * mettant à jour le jeu de démonstration utilisé par les lectures suivantes.
+   * RG-ROLE-009), refuse une campagne qui n'est pas Ouverte (RG-PAY-010), un
+   * montant dépassant le reste à payer ou une cotisation déjà réglée, puis
+   * renvoie le règlement et la cotisation recalculée en mettant à jour le jeu
+   * de démonstration utilisé par les lectures suivantes.
    */
   http.post('/api/v1/dues/:dueId/payments', async ({ request, params }): Promise<Response> => {
     await delay(300);
@@ -742,6 +917,9 @@ export const campaignsHandlers = [
       return dueNotFound();
     }
     const { due } = found;
+    if (due.campaign.status !== CampaignStatus.Open) {
+      return campaignNotOpen();
+    }
     if (due.status === DueStatus.Paid) {
       return dueAlreadyPaid();
     }
