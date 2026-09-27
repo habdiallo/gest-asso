@@ -2355,7 +2355,7 @@
     },
     {
       "id": 122,
-      "title": "Aligner visuellement l'ecran roles et utilisateurs sur design/.",
+      "title": "Aligner la liste Utilisateurs et rôles et le dialogue de configuration sur le design cible, sans modifier le contrat métier.",
       "priority": "P2",
       "scope": "front",
       "type": "fix",
@@ -2366,7 +2366,10 @@
         "6.2",
         "6.3",
         "6.4",
-        "6.5"
+        "6.5",
+        "6.6",
+        "6.7",
+        "6.8"
       ],
       "dependencies": [
         121

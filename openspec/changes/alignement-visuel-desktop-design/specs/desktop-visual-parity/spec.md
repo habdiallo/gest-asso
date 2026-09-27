@@ -57,11 +57,37 @@ Le frontend SHALL reproduire en desktop la présentation visuelle de la liste de
 
 ### Requirement: Fidélité visuelle de l'écran Rôles et utilisateurs en desktop
 
-Le frontend SHALL reproduire en desktop la présentation visuelle de la liste des utilisateurs et de leurs rôles telle que définie par `design/`, pour les écarts identifiés lors de la revue, sans changer le comportement existant.
+Le frontend SHALL reproduire en desktop la présentation visuelle de la page Utilisateurs et rôles et du dialogue de configuration tel que défini par `design/`, à 1440 px et 1024 px, dans les deux thèmes, sans modifier les colonnes métier, les données, les droits, les routes ou les opérations API existantes.
 
-#### Scenario: Liste conforme au prototype
-- **WHEN** un Administrateur consulte l'écran Rôles et utilisateurs à 1440 px, dans les deux thèmes
-- **THEN** la présentation correspond à l'équivalent dans `design/`
+#### Scenario: Barre d'outils conforme au prototype
+- **WHEN** un Administrateur ouvre la page Utilisateurs et rôles
+- **THEN** la page affiche une recherche principale « Rechercher un utilisateur... » et un contrôle compact de filtre « Rôle » alignés sur une même barre d'outils
+- **AND** la recherche continue d'alimenter le paramètre `q` et le filtre continue d'alimenter le paramètre `role` de `GET /users`
+
+#### Scenario: Tableau conforme au prototype
+- **WHEN** la liste des utilisateurs est disponible
+- **THEN** le tableau conserve les colonnes Utilisateur, Rôle applicatif, Opérations financières et Compte, ainsi que la colonne d'action sans libellé visible
+- **AND** la cellule utilisateur affiche un avatar d'initiales et le nom affiché
+- **AND** les états d'autorisation financière et de compte sont affichés avec une pastille, un libellé textuel et un contraste lisible
+- **AND** l'action de ligne est représentée par un chevron et ouvre le dialogue de configuration du compte
+
+#### Scenario: Dialogue de configuration conforme au prototype
+- **WHEN** un Administrateur ouvre la configuration d'un compte
+- **THEN** le dialogue affiche le kicker, l'identité du compte et son état, puis une section numérotée pour le rôle applicatif
+- **AND** il affiche une section numérotée pour l'autorisation « Enregistrer les opérations financières » lorsque le rôle sélectionné est Opérateur
+- **AND** il affiche l'aide indiquant que cette autorisation est globale et un pied d'actions aligné avec Annuler et Enregistrer
+- **AND** le rôle courant et l'autorisation courante sont présélectionnés
+
+#### Scenario: Conservation du comportement métier
+- **WHEN** l'Administrateur sélectionne un autre rôle ou modifie l'autorisation Opérateur puis enregistre
+- **THEN** le frontend appelle `PUT /users/{userId}` avec les valeurs du formulaire existant
+- **AND** une valeur `operatorCanRecordPayments` vraie est impossible pour un rôle différent d'Opérateur
+- **AND** les états de succès, d'erreur, de chargement, de pagination et de recherche restent observables sans régression
+
+#### Scenario: Comparaison des thèmes et dimensions desktop
+- **WHEN** la page et le dialogue sont vérifiés à 1440 px puis 1024 px dans Obsidian Midnight et Alabaster Gallery
+- **THEN** les couleurs, typographies, hauteurs de contrôles, espacements, bordures, rayons, focus et états désactivés restent conformes au prototype
+- **AND** aucune modification de comportement mobile n'est introduite par T-122
 
 ### Requirement: Fidélité visuelle de l'espace personnel du membre en desktop
 
