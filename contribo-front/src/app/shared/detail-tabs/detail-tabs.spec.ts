@@ -60,7 +60,7 @@ describe('DetailTabs', () => {
     expect(tabList.className).not.toContain('grid-cols-3');
   });
 
-  it('uses mobile labels to keep a campaign tablist compact without changing its accessible name', () => {
+  it('uses the visible mobile label as the accessible name', () => {
     TestBed.configureTestingModule({});
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.tabs.set([
@@ -72,10 +72,14 @@ describe('DetailTabs', () => {
     fixture.detectChanges();
 
     const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
-    const firstTab = fixture.nativeElement.querySelector('[role="tab"]') as HTMLButtonElement;
+    const tabs = fixture.nativeElement.querySelectorAll(
+      '[role="tab"]',
+    ) as NodeListOf<HTMLButtonElement>;
     expect(tabList.className).toContain('grid-cols-3');
-    expect(firstTab.getAttribute('aria-label')).toBe('Situation des membres');
-    expect(firstTab.textContent).toContain('Membres');
+    expect(tabs[0].getAttribute('aria-label')).toBeNull();
+    expect(tabs[0].textContent).toContain('Membres');
+    expect(tabs[1].getAttribute('aria-label')).toBeNull();
+    expect(tabs[1].textContent).toContain('Catégories');
   });
 
   it('changes tabs on click and moves with arrow keys', () => {
