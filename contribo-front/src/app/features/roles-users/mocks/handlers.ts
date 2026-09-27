@@ -7,8 +7,8 @@ import type {
   UserAccountPage,
   UserRole as UserRoleType,
 } from '@api';
-import type { DemoAccount } from '../../../../mocks/demo-accounts';
-import { demoAccounts, findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import type { DemoAccount } from '@mocks/demo-accounts';
+import { demoAccounts, findDemoAccountByAuthorization } from '@mocks/demo-accounts';
 
 function toUserAccount(account: DemoAccount): UserAccount {
   return {

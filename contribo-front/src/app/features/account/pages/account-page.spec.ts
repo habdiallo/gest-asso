@@ -5,7 +5,7 @@ import { CurrencyCode, MemberStatus, UserRole } from '@api';
 import type { CurrentUser } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { AccountPage } from './account-page';
 
 function buildCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {

@@ -152,9 +152,21 @@ export class CampaignDetailPage {
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly tabs = CAMPAIGN_DETAIL_TABS;
   readonly detailTabs = computed<readonly DetailTab[]>(() => [
-    { id: 'situation', label: this.transloco.translate('campaigns.detail.tabs.situation') },
-    { id: 'categories', label: this.transloco.translate('campaigns.detail.tabs.categories') },
-    { id: 'payments', label: this.transloco.translate('campaigns.detail.tabs.payments') },
+    {
+      id: 'situation',
+      label: this.transloco.translate('campaigns.detail.tabs.situation'),
+      mobileLabel: this.transloco.translate('campaigns.detail.tabs.mobile.situation'),
+    },
+    {
+      id: 'categories',
+      label: this.transloco.translate('campaigns.detail.tabs.categories'),
+      mobileLabel: this.transloco.translate('campaigns.detail.tabs.mobile.categories'),
+    },
+    {
+      id: 'payments',
+      label: this.transloco.translate('campaigns.detail.tabs.payments'),
+      mobileLabel: this.transloco.translate('campaigns.detail.tabs.mobile.payments'),
+    },
   ]);
 
   readonly metrics = computed<readonly DetailMetric[]>(() => {

@@ -4,7 +4,7 @@ import { UserRole, UtilisateursEtRlesService } from '@api';
 import type { UserAccount, UserAccountPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { RolesUsersPage } from './roles-users-page';
 
 /*

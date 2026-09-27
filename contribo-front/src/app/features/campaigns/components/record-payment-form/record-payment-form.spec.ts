@@ -4,7 +4,7 @@ import { CampaignStatus, CurrencyCode, DueStatus, PaymentMethod } from '@api';
 import type { CreatePaymentRequest, Due } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { RecordPaymentForm } from './record-payment-form';
 
 const due: Due = {
@@ -78,6 +78,9 @@ describe('RecordPaymentForm', () => {
     );
     expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
     expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
+    expect(root.querySelector('[data-testid="record-payment-summary"]')?.className).toContain(
+      'grid-cols-3',
+    );
   });
 
   it('uses the contribution-style two-column layout for amount and date', async () => {

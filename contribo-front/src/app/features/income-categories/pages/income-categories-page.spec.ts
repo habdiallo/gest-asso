@@ -5,7 +5,7 @@ import type { IncomeCategory } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { IncomeCategoriesPage } from './income-categories-page';
 
 /*

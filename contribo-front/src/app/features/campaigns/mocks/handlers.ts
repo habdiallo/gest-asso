@@ -16,8 +16,8 @@ import type {
   PaymentPage,
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
-import { demoCampaignDues } from '../../../../mocks/demo-dues';
+import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
+import { demoCampaignDues } from '@mocks/demo-dues';
 
 const demoCampaigns: CampaignSummary[] = [
   {

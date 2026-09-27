@@ -12,7 +12,7 @@ import type {
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { DashboardPage } from './dashboard-page';
 
 const viewer: ManagementDashboard['viewer'] = {

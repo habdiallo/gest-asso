@@ -5,7 +5,7 @@ import type { Payment, PaymentPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { CampaignPaymentsTab } from './campaign-payments-tab';
 
@@ -83,6 +83,11 @@ describe('CampaignPaymentsTab', () => {
     expect(root.textContent).toContain('12 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
+    const mobileCard = root.querySelector('[data-testid="campaign-payments-mobile-cards"] li');
+    expect(mobileCard?.textContent).toContain('Amadou Diallo');
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(50_000));
+    expect(mobileCard?.textContent).toContain('Mobile Money');
+    expect(mobileCard?.textContent).toContain('12 septembre 2026');
   });
 
   it('matches the target typography without changing the payment columns', async () => {

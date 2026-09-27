@@ -134,6 +134,9 @@
   /* Conteneur commun des pages principales. */
   --container-shell: 90rem;
 
+  /* Point de rupture commun mobile/tablette, aligné sur l'échelle responsive. */
+  --breakpoint-tablet: 41.3125rem;
+
   /* Ombre des cartes/panneaux (section Shapes, `--shadow` de design/styles.css) :
      expose l'utilitaire `shadow-card`, suivant le thème actif comme `rounded-card`. */
   --shadow-card: var(--shadow);
@@ -277,6 +280,25 @@ body {
   .form-dialog-actions > button {
     min-width: 0;
     width: 100%;
+  }
+
+  .form-dialog-actions > app-action-button > button,
+  .form-dialog-actions > app-action-button > a {
+    min-width: 0;
+    width: 100%;
+    height: auto;
+    min-height: 2.75rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .form-dialog-actions > button {
+    height: auto;
+    min-height: 2.75rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
   }
 }
 

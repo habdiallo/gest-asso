@@ -5,7 +5,7 @@ import type {
   SocialFund,
   SocialFundPage,
 } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { socialFundsHandlers } from './handlers';
 
 async function runRequest(request: Request): Promise<Response> {

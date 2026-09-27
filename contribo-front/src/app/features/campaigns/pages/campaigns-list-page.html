@@ -74,14 +74,14 @@
     </label>
 
     <div
-      class="flex min-h-12 shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px]"
+      class="flex min-h-12 w-full shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px] sm:w-auto"
       role="group"
       [attr.aria-label]="'campaigns.list.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-9 rounded px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          class="min-h-9 min-w-0 flex-1 rounded px-2 text-center text-[9px] font-normal uppercase leading-tight tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:flex-none sm:px-3"
           [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
@@ -116,7 +116,7 @@
       <app-empty-state class="mt-6 block" [message]="'campaigns.list.empty' | transloco" />
     } @else {
       <ul
-        class="mt-5 grid grid-cols-1 items-stretch gap-4 min-[661px]:grid-cols-2 lg:grid-cols-3"
+        class="mt-5 grid grid-cols-1 items-stretch gap-4 tablet:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="loading() ? 'true' : null"
       >
         @for (campaign of campaignPage.items; track campaign.id) {
@@ -159,21 +159,21 @@
         >
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="previousPageDisabled()"
             [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
             (click)="goToPreviousPage()"
           >
-            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">‹</span>
-            <span class="sr-only min-[661px]:not-sr-only">
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
+            <span class="sr-only tablet:not-sr-only">
               {{ 'campaigns.list.previousPage' | transloco }}
             </span>
           </button>
           <p class="min-w-12 text-center text-text-2" role="status">
-            <span class="min-[661px]:hidden" aria-hidden="true"
+            <span class="tablet:hidden" aria-hidden="true"
               >{{ campaignPage.page.number + 1 }}/{{ campaignPage.page.totalPages }}</span
             >
-            <span class="sr-only min-[661px]:not-sr-only">
+            <span class="sr-only tablet:not-sr-only">
               {{
                 'campaigns.list.pageStatus'
                   | transloco
@@ -186,13 +186,13 @@
           </p>
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="nextPageDisabled()"
             [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
             (click)="goToNextPage()"
           >
-            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">›</span>
-            <span class="sr-only min-[661px]:not-sr-only">
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
+            <span class="sr-only tablet:not-sr-only">
               {{ 'campaigns.list.nextPage' | transloco }}
             </span>
           </button>

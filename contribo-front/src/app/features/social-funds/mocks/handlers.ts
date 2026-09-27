@@ -12,7 +12,7 @@ import type {
   SocialFundPage,
   SocialFundSummary,
 } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
 
 /**
  * Cagnottes de démonstration (T-117) : deux cagnottes ouvertes (`...500`, `...502`)

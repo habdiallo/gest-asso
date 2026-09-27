@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { DateInput } from './date-input';
 
 @Component({

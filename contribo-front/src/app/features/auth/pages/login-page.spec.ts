@@ -5,7 +5,7 @@ import { provideRouter, Router } from '@angular/router';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { LoginPage } from './login-page';
 
 function fillForm(

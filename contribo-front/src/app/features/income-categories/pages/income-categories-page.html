@@ -34,7 +34,7 @@
     <app-empty-state class="mt-6 block" [message]="'incomeCategories.empty' | transloco" />
   } @else {
     <app-data-table
-      class="mt-8 hidden min-[661px]:block"
+      class="mt-8 hidden tablet:block"
       [caption]="'incomeCategories.caption' | transloco"
       [busy]="loading()"
     >
@@ -108,7 +108,7 @@
     </app-data-table>
 
     <section
-      class="mt-8 grid gap-2 min-[661px]:hidden"
+      class="mt-8 grid gap-2 tablet:hidden"
       role="list"
       [attr.aria-label]="'incomeCategories.caption' | transloco"
     >
@@ -121,7 +121,7 @@
             >
               {{ getCategoryInitial(category.label) }}
             </span>
-            <h3 class="responsive-body min-w-0 flex-1 truncate font-medium text-text">
+            <h3 class="responsive-body min-w-0 flex-1 break-words font-medium text-text">
               {{ category.label }}
             </h3>
             <app-action-button

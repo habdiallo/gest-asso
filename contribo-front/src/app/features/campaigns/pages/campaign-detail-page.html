@@ -385,7 +385,7 @@
             <dt class="font-data text-[9px] font-medium uppercase tracking-[0.12em] text-text-3">
               {{ 'campaigns.detail.bareme.dialogCampaign' | transloco }}
             </dt>
-            <dd class="mt-2 truncate text-[15px] text-text">{{ campaign.name }}</dd>
+            <dd class="mt-2 break-words text-[15px] text-text">{{ campaign.name }}</dd>
           </div>
           <div
             class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r min-[821px]:px-5 min-[821px]:py-3.5"
@@ -423,7 +423,7 @@
                 aria-hidden="true"
                 >{{ categoryBadge(categoryAmount.incomeCategory.label) }}</span
               >
-              <span class="min-w-0 flex-1 truncate text-[13px] text-text-2">
+              <span class="min-w-0 flex-1 break-words text-[13px] text-text-2">
                 {{ categoryAmount.incomeCategory.label }}
               </span>
               @if (categoryAmountUnconfigured(baremeAmounts.at(i).value ?? 0)) {

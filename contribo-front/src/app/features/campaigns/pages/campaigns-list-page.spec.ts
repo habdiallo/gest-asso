@@ -14,7 +14,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { CampaignsListPage } from './campaigns-list-page';
 

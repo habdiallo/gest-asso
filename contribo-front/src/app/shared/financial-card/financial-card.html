@@ -24,7 +24,7 @@
     <div class="mt-5 sm:mt-[22px]">
       @if (hasProgress(); as hasProgress) {
         @if (targetAmount(); as targetAmount) {
-          <p class="font-display text-2xl leading-none text-text max-[660px]:text-xl">
+          <p class="font-display text-2xl leading-none text-text max-tablet:text-xl">
             <span [title]="collectedAmount.fullText">
               <span aria-hidden="true">{{ collectedAmount.text }}</span>
               <span class="sr-only">{{ collectedAmount.fullText }}</span>
@@ -44,7 +44,7 @@
           </div>
         }
       } @else {
-        <p class="font-display text-2xl leading-none text-text max-[660px]:text-xl">
+        <p class="font-display text-2xl leading-none text-text max-tablet:text-xl">
           <span [title]="collectedAmount.fullText">
             <span aria-hidden="true">{{ collectedAmount.text }}</span>
             <span class="sr-only">{{ collectedAmount.fullText }}</span>

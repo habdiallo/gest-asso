@@ -1,5 +1,5 @@
 import type { ManagementDashboard, MemberDashboard } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { buildDashboardResponse } from './handlers';
 
 function findAccount(identifier: string) {

@@ -6,7 +6,7 @@ import type { CurrentUser, IncomeCategory, LoginResponse } from '@api';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-import fr from '../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { App } from './app';
 import { routes } from './app.routes';
 

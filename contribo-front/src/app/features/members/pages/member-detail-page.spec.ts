@@ -30,7 +30,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { MemberDetailPage } from './member-detail-page';
 
@@ -248,6 +248,28 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).toContain('Catégorie B');
     expect(root.textContent).toContain('Président');
     expect(root.textContent).toContain('Actif');
+
+    const personalDetails = root.querySelector<HTMLElement>(
+      '[data-testid="member-personal-details"]',
+    );
+    expect(personalDetails?.className).toContain('grid-cols-2');
+  });
+
+  it('arranges the member actions as a mobile grid with a full-width payment action', async () => {
+    const fixture = await createFixture(() =>
+      of(buildMemberDetails({ status: MemberStatus.Inactive })),
+    );
+
+    const root: HTMLElement = fixture.nativeElement;
+    const actions = root.querySelector<HTMLElement>('[data-testid="member-detail-actions"]');
+    const paymentAction = root.querySelector<HTMLElement>(
+      '[data-testid="member-detail-payment-action"]',
+    );
+
+    expect(actions?.className).toContain('grid-cols-1');
+    expect(actions?.className).toContain('min-[420px]:grid-cols-2');
+    expect(actions?.querySelectorAll('button')).toHaveLength(3);
+    expect(paymentAction?.className).toContain('col-span-full');
   });
 
   it('shows a placeholder for optional fields left absent by the API', async () => {
@@ -1436,6 +1458,15 @@ describe('MemberDetailPage', () => {
       expect(root.textContent).toContain(formatGnfAmountDetailed(200_000));
       expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
       expect(root.textContent).toContain('Situation actuelle');
+      const financialSummary = root.querySelector<HTMLElement>(
+        '[data-testid="member-financial-summary"]',
+      );
+      expect(financialSummary?.className).toContain('grid-cols-3');
+      expect(financialSummary?.className).toContain('tablet:grid-cols-2');
+      expect(financialSummary?.querySelectorAll(':scope > div').length).toBe(3);
+      expect(financialSummary?.querySelector(':scope > div')?.className).toContain(
+        'tablet:col-span-2',
+      );
     });
 
     it('shows "0 GNF" for zero financial amounts instead of a missing-value placeholder', async () => {

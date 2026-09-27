@@ -1,24 +1,29 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <dl
-    class="mb-5 grid overflow-hidden rounded border border-line bg-surface-2 text-center min-[821px]:grid-cols-3"
+    data-testid="record-payment-summary"
+    class="mb-5 grid grid-cols-3 overflow-hidden rounded border border-line bg-surface-2 text-center"
   >
-    <div class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r">
-      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+    <div class="min-w-0 border-r border-line px-2 py-3 min-[821px]:px-4">
+      <dt class="break-words text-[9px] uppercase leading-tight tracking-[0.1em] text-text-3">
         {{ 'campaigns.detail.cotisations.recordPayment.summary.due' | transloco }}
       </dt>
-      <dd class="mt-1 font-data text-sm text-text">{{ formatAmount(due().dueAmount) }}</dd>
+      <dd class="mt-1 break-words font-data text-sm text-text">
+        {{ formatAmount(due().dueAmount) }}
+      </dd>
     </div>
-    <div class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r">
-      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+    <div class="min-w-0 border-r border-line px-2 py-3 min-[821px]:px-4">
+      <dt class="break-words text-[9px] uppercase leading-tight tracking-[0.1em] text-text-3">
         {{ 'campaigns.detail.cotisations.recordPayment.summary.paid' | transloco }}
       </dt>
-      <dd class="mt-1 font-data text-sm text-text">{{ formatAmount(due().paidAmount) }}</dd>
+      <dd class="mt-1 break-words font-data text-sm text-text">
+        {{ formatAmount(due().paidAmount) }}
+      </dd>
     </div>
-    <div class="px-4 py-3">
-      <dt class="text-[9px] uppercase tracking-[0.1em] text-text-3">
+    <div class="min-w-0 px-2 py-3 min-[821px]:px-4">
+      <dt class="break-words text-[9px] uppercase leading-tight tracking-[0.1em] text-text-3">
         {{ 'campaigns.detail.cotisations.recordPayment.summary.remaining' | transloco }}
       </dt>
-      <dd class="mt-1 font-data text-sm text-gold">
+      <dd class="mt-1 break-words font-data text-sm text-gold">
         {{ formatAmount(due().remainingAmount) }}
       </dd>
     </div>

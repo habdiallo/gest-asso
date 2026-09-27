@@ -5,7 +5,7 @@ import {
   findDemoAccount,
   findDemoAccountByAuthorization,
   isLoginRequest,
-} from '../../../../mocks/demo-accounts';
+} from '@mocks/demo-accounts';
 
 function authenticationRequired() {
   return HttpResponse.json<ErrorResponse>(

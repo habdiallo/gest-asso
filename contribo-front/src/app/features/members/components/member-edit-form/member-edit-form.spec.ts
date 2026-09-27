@@ -4,7 +4,7 @@ import { CatgoriesDeRevenuService, CurrencyCode, MemberStatus, UserRole } from '
 import type { IncomeCategory, MemberDetails, UpdateMemberRequest } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberEditForm } from './member-edit-form';
 
 const category: IncomeCategory = {

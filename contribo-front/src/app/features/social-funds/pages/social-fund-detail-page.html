@@ -82,7 +82,7 @@
           />
         }
         <app-data-table
-          class="mt-5 hidden min-[661px]:block"
+          class="mt-5 hidden tablet:block"
           [caption]="'socialFunds.detail.contributionsCaption' | transloco"
           [busy]="contributionsPageActionPending()"
         >
@@ -139,7 +139,7 @@
           </tbody>
         </app-data-table>
         <ul
-          class="mt-5 grid gap-3 min-[661px]:hidden"
+          class="mt-5 grid gap-3 tablet:hidden"
           [attr.aria-busy]="contributionsPageActionPending() ? 'true' : null"
         >
           @for (contribution of contributions(); track contribution.id) {
@@ -153,7 +153,7 @@
                     {{ contributionInitials(contribution) }}
                   </span>
                   <div class="min-w-0">
-                    <p class="truncate font-medium text-text">
+                    <p class="break-words font-medium text-text">
                       {{ contributionDisplayName(contribution) }}
                     </p>
                     @if (contributionIsExternal(contribution)) {

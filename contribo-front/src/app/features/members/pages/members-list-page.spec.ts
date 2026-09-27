@@ -15,7 +15,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { MembersListPage } from './members-list-page';
@@ -401,6 +401,27 @@ describe('MembersListPage', () => {
 
     expect(root.textContent).toContain('Toure');
     expect(root.textContent).toContain('Conde');
+  });
+
+  it('places the category and country filters in a compact mobile row', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildMemberPage({
+          items: [
+            buildMember({ country: 'Guinée' }),
+            buildMember({ id: 'member-senegal', country: 'Sénégal' }),
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const filters = fixture.nativeElement.querySelector(
+      '[data-testid="members-secondary-filters"]',
+    ) as HTMLElement | null;
+    expect(filters).toBeTruthy();
+    expect(filters?.className).toContain('grid-cols-2');
+    expect(filters?.querySelectorAll('app-custom-select')).toHaveLength(2);
   });
 
   it('shows a dedicated message when no member matches the selected category', async () => {

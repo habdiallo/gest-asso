@@ -19,7 +19,7 @@ import type {
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { SocialFundCreateForm } from '../components/social-fund-create-form/social-fund-create-form';
 import { SocialFundsListPage } from './social-funds-list-page';
