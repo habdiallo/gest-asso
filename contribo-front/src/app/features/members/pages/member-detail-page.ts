@@ -48,6 +48,7 @@ import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PaymentMethodSelect } from '@shared/payment-method-select/payment-method-select';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import { MemberContributionsTab } from '../components/member-contributions-tab/member-contributions-tab';
 import { MemberDuesTab } from '../components/member-dues-tab/member-dues-tab';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
@@ -112,6 +113,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
     MemberDuesTab,
     MemberPaymentsTab,
     MemberContributionsTab,
+    StatusBadge,
   ],
   templateUrl: './member-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
