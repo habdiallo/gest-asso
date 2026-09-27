@@ -1,5 +1,5 @@
 @if (loading() && !campaign()) {
-  <main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-10">
+  <main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-10">
     <app-loading-skeleton
       variant="detail"
       [rows]="4"
@@ -7,7 +7,7 @@
     />
   </main>
 } @else if (loadError() && !campaign()) {
-  <main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-10">
+  <main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-10">
     <p class="mt-6 text-error" role="alert">{{ 'campaigns.detail.error' | transloco }}</p>
   </main>
 } @else if (campaign(); as campaign) {
@@ -80,7 +80,7 @@
       <app-detail-metrics [items]="metrics()" />
       @if (campaign.status === 'UPCOMING' && openingReadiness(); as readiness) {
         <section
-          class="mt-6 rounded-card border border-line bg-surface p-4 sm:p-6"
+          class="mt-6 rounded-card border border-line bg-surface p-5 sm:p-6"
           aria-labelledby="campaign-opening-readiness-title"
           data-testid="campaign-opening-readiness"
         >
@@ -385,7 +385,7 @@
             <dt class="font-data text-[9px] font-medium uppercase tracking-[0.12em] text-text-3">
               {{ 'campaigns.detail.bareme.dialogCampaign' | transloco }}
             </dt>
-            <dd class="mt-2 break-words text-[15px] text-text">{{ campaign.name }}</dd>
+            <dd class="mt-2 truncate text-[15px] text-text">{{ campaign.name }}</dd>
           </div>
           <div
             class="border-b border-line px-4 py-3 min-[821px]:border-b-0 min-[821px]:border-r min-[821px]:px-5 min-[821px]:py-3.5"
@@ -423,7 +423,7 @@
                 aria-hidden="true"
                 >{{ categoryBadge(categoryAmount.incomeCategory.label) }}</span
               >
-              <span class="min-w-0 flex-1 break-words text-[13px] text-text-2">
+              <span class="min-w-0 flex-1 truncate text-[13px] text-text-2">
                 {{ categoryAmount.incomeCategory.label }}
               </span>
               @if (categoryAmountUnconfigured(baremeAmounts.at(i).value ?? 0)) {
@@ -459,7 +459,7 @@
         </p>
 
         <div
-          class="form-dialog-actions -mx-4 -mb-4 mt-7 flex flex-wrap justify-end gap-2.5 border-t border-line px-4 py-[17px] min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7"
+          class="-mx-4 -mb-4 mt-7 flex flex-wrap justify-end gap-2.5 border-t border-line px-4 py-[17px] min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7"
         >
           <app-action-button
             type="button"
@@ -510,7 +510,6 @@
   <app-form-dialog
     [open]="openCampaignDialogOpen()"
     [dialogTitle]="'campaigns.detail.opening.dialogTitle' | transloco"
-    mobilePresentation="compact"
     (closed)="cancelOpenCampaignDialog()"
   >
     @if (openCampaignDialogOpen()) {
@@ -520,7 +519,7 @@
       @if (openCampaignErrorMessage(); as errorKey) {
         <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
       }
-      <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
+      <div class="mt-6 flex items-center justify-end gap-3">
         <app-action-button
           type="button"
           variant="secondary"
@@ -546,7 +545,6 @@
   <app-form-dialog
     [open]="closeCampaignDialogOpen()"
     [dialogTitle]="'campaigns.detail.close.dialogTitle' | transloco"
-    mobilePresentation="compact"
     (closed)="cancelCloseCampaignDialog()"
   >
     @if (closeCampaignDialogOpen()) {
@@ -554,7 +552,7 @@
       @if (closeCampaignErrorMessage(); as errorKey) {
         <p class="mt-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
       }
-      <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
+      <div class="mt-6 flex items-center justify-end gap-3">
         <app-action-button
           type="button"
           variant="secondary"

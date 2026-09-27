@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-shell px-4 pb-16 pt-6 sm:px-6 sm:pt-10 lg:px-12">
+<main class="mx-auto max-w-shell px-5 pb-16 pt-8 sm:px-8 sm:pt-10 lg:px-12">
   @let headerKickerKey =
     managementDashboard()
       ? 'dashboard.kickerManagement'
@@ -34,16 +34,6 @@
 
   @if (loading()) {
     <app-loading-skeleton variant="grid" [rows]="4" [label]="'dashboard.loading' | transloco" />
-  } @else if (sessionExpired()) {
-    <div
-      class="mt-6 max-w-2xl rounded-card border border-line bg-surface p-5 shadow-card"
-      role="alert"
-    >
-      <p class="text-error">{{ 'dashboard.sessionExpired' | transloco }}</p>
-      <app-action-button class="mt-4" type="button" variant="secondary" (click)="reconnect()">
-        {{ 'dashboard.reconnect' | transloco }}
-      </app-action-button>
-    </div>
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
   } @else {
@@ -108,9 +98,7 @@
         </section>
       }
 
-      <div
-        class="dashboard-kpi-grid mt-5 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
-      >
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div
           class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
         >
@@ -152,7 +140,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.collectedDues' | transloco }}
               </span>
               <span
@@ -207,7 +197,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.remainingDues' | transloco }}
               </span>
               <span
@@ -261,7 +253,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.collectedContributions' | transloco }}
               </span>
               <span
@@ -327,7 +321,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.newMembers' | transloco }}
               </span>
               <span
@@ -355,7 +351,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.openCampaigns' | transloco }}
               </span>
               <span
@@ -384,7 +382,9 @@
             class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
           >
             <div class="flex items-start justify-between gap-4">
-              <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
+              <span
+                class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2"
+              >
                 {{ 'dashboard.management.registeredMembers' | transloco }}
               </span>
               <span
@@ -423,13 +423,11 @@
               {{ 'dashboard.quickActions.subtitle' | transloco }}
             </p>
           </div>
-          <div
-            class="dashboard-quick-actions grid grid-cols-1 gap-3 p-4 min-[360px]:grid-cols-2 sm:p-5 lg:grid-cols-4"
-          >
+          <div class="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
             <a
               [routerLink]="navigationPaths.members"
               [queryParams]="canCreateMember() ? { creer: '1' } : undefined"
-              class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
+              class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
             >
               <svg
                 class="h-[18px] w-[18px] text-gold"
@@ -455,7 +453,7 @@
             @if (isAdministrator()) {
               <a
                 [routerLink]="navigationPaths.rolesAndUsers"
-                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
+                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -475,7 +473,7 @@
               </a>
               <a
                 [routerLink]="navigationPaths.incomeCategories"
-                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
+                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -497,7 +495,7 @@
             } @else {
               <a
                 [routerLink]="navigationPaths.socialFunds"
-                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
+                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -524,7 +522,7 @@
             <a
               [routerLink]="navigationPaths.campaigns"
               [queryParams]="canCreateCampaign() ? { creer: '1' } : undefined"
-              class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
+              class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
             >
               <svg
                 class="h-[18px] w-[18px] text-gold"
@@ -708,10 +706,10 @@
                       </svg>
                     </span>
                     <div class="min-w-0">
-                      <p class="break-words text-sm font-medium text-text">
+                      <p class="truncate text-sm font-medium text-text">
                         {{ payment.member.displayName }}
                       </p>
-                      <p class="mt-1 break-words text-[11px] text-text-3">
+                      <p class="mt-1 truncate text-[11px] text-text-3">
                         {{ payment.campaign.name }} · {{ paymentMethodLabel(payment.method) }} ·
                         {{ formatCalendarDate(payment.paymentDate) }}
                       </p>
@@ -729,9 +727,7 @@
     }
 
     @if (memberDashboard(); as member) {
-      <div
-        class="dashboard-kpi-grid mt-5 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
-      >
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div
           class="min-h-[174px] rounded-card border border-line bg-surface p-[22px] pb-[18px] shadow-card"
         >
@@ -960,13 +956,11 @@
                   {{ member.viewer.member.displayName.slice(0, 2).toUpperCase() }}
                 </span>
                 <div class="min-w-0">
-                  <p class="break-words text-sm font-medium text-text">
+                  <p class="truncate text-sm font-medium text-text">
                     {{ member.viewer.member.displayName }}
                   </p>
                   @if (member.viewer.member.city) {
-                    <p class="mt-1 break-words text-xs text-text-3">
-                      {{ member.viewer.member.city }}
-                    </p>
+                    <p class="mt-1 truncate text-xs text-text-3">{{ member.viewer.member.city }}</p>
                   }
                 </div>
               </div>
@@ -988,7 +982,7 @@
               </dl>
               <a
                 [routerLink]="navigationPaths.memberSpace"
-                class="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded border border-line bg-surface-2 px-4 text-control font-medium uppercase tracking-control text-text transition-colors hover:border-gold-hover"
+                class="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface-2 px-4 text-[10px] font-medium uppercase tracking-[0.1em] text-text transition-colors hover:border-gold-hover"
               >
                 {{ 'dashboard.profile.viewProfile' | transloco }}
               </a>
