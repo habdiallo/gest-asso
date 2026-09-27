@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
+<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   @let summary = memberPage()?.summary;
   <app-page-header
     [kicker]="'members.kicker' | transloco"
@@ -49,7 +49,11 @@
     </p>
   }
 
-  <div class="mt-6 flex flex-wrap items-center gap-3">
+  <div
+    class="min-[821px]:sticky min-[821px]:top-[78px] min-[821px]:z-10 -mx-2 mb-3 {{
+      createdConfirmation() ? 'mt-6' : 'mt-3 min-[821px]:mt-[-8px]'
+    }} flex flex-wrap items-center gap-2.5 rounded-xl bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl"
+  >
     <div class="relative min-w-[240px] flex-1">
       <label for="members-search" class="sr-only">
         {{ 'members.searchLabel' | transloco }}
@@ -109,7 +113,7 @@
       @for (filter of statusFilterOptions; track filter.value) {
         <button
           type="button"
-          class="min-h-9 rounded-md px-3 text-[9px] font-medium uppercase tracking-[0.08em] transition-colors"
+          class="min-h-9 rounded-md px-3 text-[9px] font-normal uppercase tracking-[0.08em] transition-colors"
           [class.bg-surface]="statusFilter() === filter.value"
           [class.text-text]="statusFilter() === filter.value"
           [class.text-text-3]="statusFilter() !== filter.value"
@@ -140,12 +144,14 @@
         <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {
         <div
-          class="mt-6 overflow-x-auto rounded-card border border-line bg-surface shadow-card"
+          class="mt-3 overflow-x-auto rounded-card border border-line bg-surface shadow-card"
           [attr.aria-busy]="loading() ? 'true' : null"
         >
-          <table class="w-full min-w-[980px] text-left text-sm">
+          <table class="w-full min-w-[980px] text-left text-[13px]">
             <thead>
-              <tr class="bg-surface-2 text-[9px] uppercase tracking-[0.13em] text-text-3">
+              <tr
+                class="bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+              >
                 <th scope="col" class="h-11 px-4">{{ 'members.columns.member' | transloco }}</th>
                 <th scope="col" class="h-11 px-4">{{ 'members.columns.phone' | transloco }}</th>
                 @if (showFinancialDetail()) {
@@ -166,18 +172,18 @@
                   class="group border-t border-line text-text-2 transition-colors hover:bg-gold-wash"
                 >
                   <td class="h-16 px-4">
-                    <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex min-w-0 items-center gap-[11px]">
                       <span
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
+                        class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-xs font-medium text-gold"
                         aria-hidden="true"
                       >
                         {{ memberInitials(member) }}
                       </span>
                       <div class="min-w-0">
-                        <strong class="block truncate font-medium text-text">{{
+                        <strong class="block truncate text-[13px] font-medium text-text">{{
                           member.displayName
                         }}</strong>
-                        <span class="mt-1 block text-xs text-text-3">
+                        <span class="mt-[3px] block text-[10px] text-text-3">
                           @if (member.city || member.country) {
                             {{ member.city || ('members.valueMissing' | transloco) }}
                             @if (member.city && member.country) {

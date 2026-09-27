@@ -285,20 +285,37 @@ function memberAlreadyInactive(): Response {
  * nominatifs ; `summary` reste calculé sur l'ensemble du répertoire, ces
  * compteurs étant indépendants du filtre courant (`MemberCountSummary`).
  */
-export function buildMemberPageResponse(nameQuery?: string): MemberPage {
+export function buildMemberPageResponse(
+  nameQuery?: string,
+  pageNumber = 0,
+  pageSize = Number.MAX_SAFE_INTEGER,
+  status?: MemberStatus,
+): MemberPage {
   const normalizedQuery = nameQuery?.trim() ? normalizeForSearch(nameQuery.trim()) : null;
-  const items = normalizedQuery
+  const filteredItems = normalizedQuery
     ? demoMembers.filter((member) => matchesNameQuery(member, normalizedQuery))
     : [...demoMembers];
+  const statusFilteredItems = status
+    ? filteredItems.filter((member) => member.status === status)
+    : filteredItems;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 10;
+  const totalPages = statusFilteredItems.length
+    ? Math.ceil(statusFilteredItems.length / safePageSize)
+    : 0;
 
   return {
-    items,
+    items: statusFilteredItems.slice(pageNumber * safePageSize, (pageNumber + 1) * safePageSize),
     summary: {
       total: demoMembers.length,
       active: demoMembers.filter((member) => member.status === MemberStatus.Active).length,
       inactive: demoMembers.filter((member) => member.status === MemberStatus.Inactive).length,
     },
-    page: { number: 0, size: items.length, totalElements: items.length, totalPages: 1 },
+    page: {
+      number: pageNumber,
+      size: safePageSize,
+      totalElements: statusFilteredItems.length,
+      totalPages,
+    },
   };
 }
 
@@ -322,17 +339,12 @@ export const membersHandlers = [
 
     const url = new URL(request.url);
     const nameQuery = url.searchParams.get('q') ?? undefined;
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const pageSize = url.searchParams.has('size')
+      ? Number(url.searchParams.get('size'))
+      : Number.MAX_SAFE_INTEGER;
     const status = url.searchParams.get('status') as MemberStatus | null;
-    const response = buildMemberPageResponse(nameQuery);
-    if (status) {
-      const items = response.items.filter((member) => member.status === status);
-      return HttpResponse.json<MemberPage>({
-        ...response,
-        items,
-        page: { ...response.page, totalElements: items.length },
-      });
-    }
-
+    const response = buildMemberPageResponse(nameQuery, pageNumber, pageSize, status ?? undefined);
     return HttpResponse.json<MemberPage>(response);
   }),
 

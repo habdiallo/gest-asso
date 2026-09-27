@@ -42,9 +42,9 @@
       </p>
     }
 
-    <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
+    <div class="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_330px] xl:items-stretch">
       <section
-        class="relative overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-6 lg:col-start-1 lg:row-start-1"
+        class="relative overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-7 xl:col-start-1 xl:row-start-1"
       >
         <div
           class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
@@ -61,7 +61,7 @@
               {{ memberInitials(member) }}
             </span>
             <div class="min-w-0">
-              <h1 class="font-sans text-2xl font-medium leading-tight text-text">
+              <h1 class="font-sans text-[22px] font-medium leading-tight text-text">
                 {{ member.displayName }}
               </h1>
               <div class="mt-1.5 flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs text-text-3">
@@ -151,7 +151,7 @@
           </div>
         </div>
 
-        <dl class="relative z-10 mt-6 grid grid-cols-1 gap-x-8 border-t border-line sm:grid-cols-2">
+        <dl class="relative z-10 mt-7 grid grid-cols-1 gap-x-8 border-t border-line sm:grid-cols-2">
           <div class="border-b border-line py-3">
             <dt class="text-[8px] uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.lastName' | transloco }}
@@ -213,8 +213,8 @@
         </dl>
       </section>
 
-      <aside class="flex flex-col gap-4 lg:col-start-2 lg:row-start-1 lg:justify-start">
-        <section class="rounded-card border border-line bg-surface p-5 shadow-card">
+      <aside class="flex flex-col gap-4 xl:col-start-2 xl:row-start-1 xl:justify-start">
+        <section class="rounded-card border border-line bg-surface p-[22px] shadow-card">
           <h2 class="text-base font-medium text-text">
             {{ 'memberDetail.financial.title' | transloco }}
           </h2>
@@ -244,7 +244,7 @@
           </dl>
         </section>
 
-        <section class="rounded-card border border-line bg-surface p-5 shadow-card">
+        <section class="rounded-card border border-line bg-surface p-[22px] shadow-card">
           <h2 class="text-base font-medium text-text">
             {{ 'memberDetail.account.title' | transloco }}
           </h2>

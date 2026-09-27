@@ -6,21 +6,27 @@ import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts'
 const demoIncomeCategories: IncomeCategory[] = [
   {
     id: '10700000-0000-4000-8000-000000000101',
-    label: 'Standard',
-    memberCount: 58,
-    updatedAt: '2026-08-01T09:00:00Z',
+    label: 'Catégorie A',
+    memberCount: 18,
+    updatedAt: '2026-09-02T10:15:00Z',
   },
   {
     id: '10700000-0000-4000-8000-000000000102',
-    label: 'Catégorie A',
-    memberCount: 24,
+    label: 'Catégorie B',
+    memberCount: 31,
     updatedAt: '2026-09-02T10:15:00Z',
   },
   {
     id: '10700000-0000-4000-8000-000000000103',
-    label: 'Catégorie B',
-    memberCount: 9,
-    updatedAt: '2026-09-10T16:45:00Z',
+    label: 'Catégorie C',
+    memberCount: 24,
+    updatedAt: '2026-09-02T10:15:00Z',
+  },
+  {
+    id: '10700000-0000-4000-8000-000000000104',
+    label: 'Catégorie D',
+    memberCount: 18,
+    updatedAt: '2026-09-02T10:15:00Z',
   },
 ];
 
