@@ -1,19 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CurrencyCode, UserRole } from '@api';
+import { CurrencyCode } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SIDEBAR_ROLE_LABEL_KEYS } from '@core/navigation/sidebar-profile';
 import { SessionService } from '@core/session/session.service';
 import { ThemeService } from '@core/theme/theme.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { PageHeader } from '@shared/page-header/page-header';
 import { StatusBadge } from '@shared/status-badge/status-badge';
-
-const ROLE_LABEL_KEYS: Record<UserRole, string> = {
-  [UserRole.Administrator]: 'account.roles.administrator',
-  [UserRole.Treasurer]: 'account.roles.treasurer',
-  [UserRole.Operator]: 'account.roles.operator',
-  [UserRole.Member]: 'account.roles.member',
-};
 
 const CURRENCY_LABEL_KEYS: Record<CurrencyCode, string> = {
   [CurrencyCode.Gnf]: 'account.currency.gnf',
@@ -34,7 +28,7 @@ export class AccountPage {
   readonly theme = this.themeService.theme;
   readonly roleLabelKey = computed(() => {
     const role = this.user()?.role;
-    return role ? ROLE_LABEL_KEYS[role] : null;
+    return role ? SIDEBAR_ROLE_LABEL_KEYS[role] : null;
   });
   readonly currencyLabelKey = computed(() => {
     const currency = this.user()?.association.currency;
