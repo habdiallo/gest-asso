@@ -34,7 +34,7 @@ const MEMBERS_PAGE_SIZE = 10;
  * à US-MEM-002. La présentation reprend le tableau du prototype, avec
  * l'identité, la ville et le pays regroupés autour de l'avatar. La pagination
  * de base (page suivante/précédente sur `page`/`size`) est fournie par ce
- * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 20
+ * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 10
  * premiers membres. La colonne Statut affiche un badge
  * distinguant visuellement les membres actifs des membres inactifs (T-22,
  * RG-MEM-007), en plus du libellé textuel, pour ne pas reposer uniquement sur

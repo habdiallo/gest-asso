@@ -8,15 +8,14 @@ import {
   signal,
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService, ErrorCode } from '@api';
 import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
-import { ActionButton } from '@shared/action-button/action-button';
-import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { IncomeCategoryForm } from '../income-category-form/income-category-form';
 
 /** Rejette un libellé vide ou composé uniquement d'espaces (contrainte API). */
 function requireNonBlank(control: AbstractControl<string>): ValidationErrors | null {
@@ -29,17 +28,17 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  * (T-50). Appelle `PATCH /income-categories/{incomeCategoryId}` (`@api`,
  * `CatgoriesDeRevenuService.updateIncomeCategory`).
  *
- * Affiche un avertissement rappelant que la modification du libellé n'a pas
- * d'effet rétroactif sur les cotisations déjà établies avec l'ancien libellé
- * (US-REV-002) : seul le libellé affiché change, les montants et campagnes
- * passés ne sont jamais recalculés.
+ * La modification du libellé n'a pas d'effet rétroactif sur les cotisations
+ * déjà établies avec l'ancien libellé (US-REV-002) : seul le libellé affiché
+ * change, les montants et campagnes passés ne sont jamais recalculés. Cette
+ * règle métier reste portée par le contrat et le traitement API.
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15), comme le
  * formulaire de création ; ce composant porte le formulaire et l'appel API.
  */
 @Component({
   selector: 'app-edit-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, ApiErrorRetry, FormDialog],
+  imports: [TranslocoPipe, FormDialog, IncomeCategoryForm],
   templateUrl: './edit-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

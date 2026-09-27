@@ -21,51 +21,55 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-118 --json` (`front/fix-118-alignement-visuel-membres`). Prérequis : T-117. Périmètre : `features/members` (liste + fiche détail, onglets inclus). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle des écrans Membres »).
 
-- [ ] 2.1 [T-118] Résoudre et vérifier T-118, créer/réutiliser sa branche depuis `origin/main` en incluant T-117.
-- [ ] 2.2 [T-118] Capturer la liste des membres puis une fiche membre (chaque onglet) à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 2.3 [T-118] Corriger les écarts listés, sans changer les données affichées, les droits par rôle ni le comportement des actions existantes.
-- [ ] 2.4 [T-118] Exécuter les validations pertinentes et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà traités (groupe 1).
-- [ ] 2.5 [T-118] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 2.1 [T-118] Résoudre et vérifier T-118, créer/réutiliser sa branche depuis `origin/main` en incluant T-117.
+- [x] 2.2 [T-118] Capturer la liste des membres puis une fiche membre (chaque onglet) à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 2.3 [T-118] Corriger les écarts listés, sans changer les données affichées, les droits par rôle ni le comportement des actions existantes.
+- [x] 2.4 [T-118] Exécuter les validations pertinentes et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà traités (groupe 1).
+- [x] 2.5 [T-118] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 3. Catégories de revenu [T-119]
 
-Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-119 --json` (`front/fix-119-alignement-visuel-categories-revenu`). Prérequis : T-118. Périmètre : `features/income-categories` (liste + dialogues de création/modification). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Catégories de revenu »).
+Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-119 --json` (`front/fix-119-alignement-visuel-categories-revenu`). Prérequis : T-118. Périmètre : `features/income-categories` (liste + dialogues de création/modification), correction de la régression de pagination du tableau des membres introduite pendant T-118, et harmonisation légère de la typographie des filtres et du tableau membres. Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Catégories de revenu »), ainsi que la règle transversale de pagination des tableaux au-delà de 10 éléments.
 
-- [ ] 3.1 [T-119] Résoudre et vérifier T-119, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 3.2 [T-119] Capturer la liste des catégories de revenu puis ses dialogues de création et de modification à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 3.3 [T-119] Corriger les écarts listés, sans changer la validation ni l'enregistrement existants.
-- [ ] 3.4 [T-119] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 3.5 [T-119] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 3.1 [T-119] Résoudre et vérifier T-119, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 3.2 [T-119] Capturer la liste des catégories de revenu puis ses dialogues de création et de modification à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 3.3 [T-119] Corriger les écarts listés, sans changer la validation ni l'enregistrement existants, en mutualisant l'agencement du formulaire de création et de modification.
+- [x] 3.4 [T-119] Corriger la régression de T-118 sur le tableau des membres : le mock et le rendu doivent respecter une pagination conditionnée à plus de 10 éléments, avec 10 lignes par page, un nombre total de pages cohérent et des contrôles accessibles. Aligner la table sur la typographie du design, avec 13 px pour les cellules, 8 px pour les en-têtes, 13 px pour le nom et 10 px pour la métadonnée, puis retirer la graisse excessive des libellés des filtres sans modifier leur comportement.
+- [x] 3.5 [T-119] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents, notamment la pagination des membres et les parcours de création/modification de catégorie.
+- [x] 3.6 [T-119] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 4. Campagnes [T-120]
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-120 --json` (`front/fix-120-alignement-visuel-campagnes`). Prérequis : T-119. Périmètre : `features/campaigns` (liste + détail : onglets Barème, Cotisations, Bilan, dialogues associés). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle des écrans Campagnes »).
 
-- [ ] 4.1 [T-120] Résoudre et vérifier T-120, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 4.2 [T-120] Capturer la liste des campagnes puis le détail d'une campagne (chaque onglet successivement) et ses dialogues à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 4.3 [T-120] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
-- [ ] 4.4 [T-120] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 4.5 [T-120] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 4.1 [T-120] Résoudre et vérifier T-120, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 4.2 [T-120] Capturer la liste des campagnes puis le détail d'une campagne (chaque onglet successivement) et ses dialogues à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 4.3 [T-120] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
+- [x] 4.4 [T-120] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
+- [x] 4.5 [T-120] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 5. Cagnottes [T-121]
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-121 --json` (`front/fix-121-alignement-visuel-cagnottes`). Prérequis : T-120. Périmètre : `features/social-funds` (liste + détail, dialogues associés). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle des écrans Cagnottes »).
 
-- [ ] 5.1 [T-121] Résoudre et vérifier T-121, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 5.2 [T-121] Capturer la liste des cagnottes puis le détail d'une cagnotte à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 5.3 [T-121] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
-- [ ] 5.4 [T-121] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 5.5 [T-121] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 5.1 [T-121] Résoudre et vérifier T-121, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 5.2 [T-121] Capturer la liste des cagnottes puis le détail d'une cagnotte à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 5.3 [T-121] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
+- [x] 5.4 [T-121] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
+- [x] 5.5 [T-121] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 6. Rôles et utilisateurs [T-122]
 
-Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-122 --json` (`front/fix-122-alignement-visuel-roles-utilisateurs`). Prérequis : T-121. Périmètre : `features/roles-users` (liste). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Rôles et utilisateurs »).
+Scope/type : `front/fix`. Branche : `front/fix-122-alignement-visuel-roles-utilisateurs`. Prérequis : T-121. Périmètre : `features/roles-users`, traductions françaises, mocks et tests du composant. Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Rôles et utilisateurs en desktop »).
 
-- [ ] 6.1 [T-122] Résoudre et vérifier T-122, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 6.2 [T-122] Capturer l'écran Rôles et utilisateurs à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 6.3 [T-122] Corriger les écarts listés.
-- [ ] 6.4 [T-122] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 6.5 [T-122] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 6.1 [T-122] Résoudre T-122, vérifier le prérequis T-121 et confirmer la branche `front/fix-122-alignement-visuel-roles-utilisateurs` avant toute modification de code.
+- [x] 6.2 [T-122] Capturer la page actuelle et le dialogue de configuration à 1440 px, puis à 1024 px, dans les deux thèmes, et consigner les écarts de structure, typographie, espacement, états et contraste avec `design/`.
+- [x] 6.3 [T-122] Recomposer l'en-tête et la barre d'outils : titre et introduction du prototype, recherche principale, filtre de rôle compact, sans changer les paramètres `q`, `role`, la pagination ou les états de chargement.
+- [x] 6.4 [T-122] Recomposer le tableau sans changer ses colonnes : avatar d'initiales, identité, libellés de rôle, pastilles d'autorisation et de compte, chevron d'action et états hover/focus accessibles.
+- [x] 6.5 [T-122] Recomposer le dialogue de configuration avec son kicker, son identité de compte, ses sections numérotées, son autorisation conditionnelle Opérateur, son encart d'information et son pied d'actions, en conservant `PUT /users/{userId}` et les validations existantes.
+- [x] 6.6 [T-122] Adapter les clés Transloco, les fixtures et les tests DOM/API nécessaires pour couvrir les avatars, pastilles, filtres, dialogue, présélections, succès, erreurs et contrainte d'autorisation.
+- [x] 6.7 [T-122] Exécuter les tests ciblés, la suite frontend, le lint, le build, le formatage et les contrôles de tickets/OpenSpec, puis vérifier visuellement les deux thèmes à 1440 px et 1024 px sans régression mobile.
+- [x] 6.8 [T-122] Revoir le diff ciblé, documenter les captures avant/après, committer avec le titre T-122, pousser uniquement la branche du ticket et ouvrir une PR vers `main` sans fusionner.
 
 ## 7. Mon espace [T-123]
 
