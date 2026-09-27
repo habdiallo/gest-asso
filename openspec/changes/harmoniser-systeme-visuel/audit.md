@@ -65,6 +65,20 @@
 - Garder les paddings spécifiques des KPI, les largeurs minimales de tableaux et
   les tailles de dialogue lorsqu'ils protègent la densité ou les données.
 
+## Décision d'arrondis appliquée
+
+- `rounded` reste le rayon de contrôle commun des boutons, champs, selects,
+  pagination, filtres, groupes d'options et alertes inline.
+- `rounded-card` est réservé aux wrappers de tableaux, cartes, panneaux et barres
+  de filtres qui portent une surface complète.
+- `rounded-modal` reste réservé aux dialogues. Les menus de select utilisent
+  `rounded-menu` et leurs options `rounded-option` pour conserver une hiérarchie
+  intermédiaire sans réutiliser le rayon d'une carte.
+- `rounded-full` reste réservé aux avatars, statuts, pastilles et formes
+  circulaires. `rounded-icon` couvre les petits conteneurs d'icônes récurrents.
+- Les anciennes variantes de contrôle `rounded-lg`, `rounded-md`, `rounded-xl`,
+  `rounded-[11px]` et `rounded-button` ont été retirées des templates concernés.
+
 ## Impact estimé
 
 - `styles.css` reçoit un petit ensemble de tokens CSS-first, sans changement de

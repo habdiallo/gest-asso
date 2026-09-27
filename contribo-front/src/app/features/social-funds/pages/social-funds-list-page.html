@@ -47,7 +47,7 @@
   }
 
   <div
-    class="-mx-2 mb-3 flex flex-col gap-3 rounded-xl bg-[color:color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-[18px] lg:sticky lg:top-[86px] lg:z-[9] lg:flex-row lg:items-center"
+    class="-mx-2 mb-3 flex flex-col gap-3 rounded-card bg-[color:color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-[18px] lg:sticky lg:top-[86px] lg:z-[9] lg:flex-row lg:items-center"
   >
     <label class="relative min-w-0 flex-1">
       <span class="sr-only">{{ 'socialFunds.searchLabel' | transloco }}</span>
@@ -69,19 +69,19 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'socialFunds.searchPlaceholder' | transloco"
-        class="app-form-control min-h-12 w-full rounded-lg border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
+        class="app-form-control min-h-12 w-full rounded border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
       />
     </label>
 
     <div
-      class="flex min-h-12 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface-2 p-[3px]"
+      class="flex min-h-12 shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px]"
       role="group"
       [attr.aria-label]="'socialFunds.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-9 rounded-md px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          class="min-h-9 rounded px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
           [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
@@ -219,7 +219,7 @@
       </p>
     }
 
-    <p class="mt-4 flex items-center gap-2 rounded-lg bg-info-wash px-4 py-3 text-xs text-info" role="note">
+    <p class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
       <svg
         class="h-4 w-4 shrink-0"
         viewBox="0 0 24 24"

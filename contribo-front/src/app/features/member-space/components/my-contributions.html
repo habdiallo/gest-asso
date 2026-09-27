@@ -12,7 +12,7 @@
     <p role="alert" class="text-error">{{ 'memberSpace.contributions.error' | transloco }}</p>
     <button
       type="button"
-      class="rounded-button border border-line px-4 py-2 text-text"
+      class="rounded border border-line px-4 py-2 text-text"
       (click)="retry()"
     >
       {{ 'memberSpace.contributions.retry' | transloco }}
@@ -48,7 +48,7 @@
     >
       <button
         type="button"
-        class="rounded-button border border-line px-4 py-2 text-text disabled:opacity-40"
+        class="rounded border border-line px-4 py-2 text-text disabled:opacity-40"
         [disabled]="loading() || result.page.number <= 0"
         (click)="loadPage(result.page.number - 1)"
       >
@@ -62,7 +62,7 @@
       </p>
       <button
         type="button"
-        class="rounded-button border border-line px-4 py-2 text-text disabled:opacity-40"
+        class="rounded border border-line px-4 py-2 text-text disabled:opacity-40"
         [disabled]="loading() || result.page.number + 1 >= result.page.totalPages"
         (click)="loadPage(result.page.number + 1)"
       >
