@@ -20,4 +20,4 @@
 ## 4. Contrôle et publication
 
 - [x] 4.1 [T-140] Exécuter les tests ciblés puis `npm test -- --watch=false`, `npm run lint`, `npm run format:check`, `npm run build`, `npm run test:tooling`, `node scripts/tickets.mjs check`, `node scripts/tickets.mjs verify T-140`, `openspec validate audit-refactorisation-sans-regression --strict` et les contrôles de diff pertinents. Critère : les résultats réels et les écarts préexistants sont consignés sans corriger du hors périmètre.
-- [ ] 4.2 [T-140] Relire le diff, vérifier l'identité du ticket et de la branche, mettre à jour le rapport d'audit et préparer une PR vers `main` avec le modèle du dépôt. Critère : les fichiers T-138 et les skills `source-command-opsx-*` ne sont pas embarqués, la PR reste non fusionnée et le retour arrière par commit est explicable.
+- [x] 4.2 [T-140] Relire le diff, vérifier l'identité du ticket et de la branche, mettre à jour le rapport d'audit et préparer une PR vers `main` avec le modèle du dépôt. Critère : les fichiers T-138 et les skills `source-command-opsx-*` ne sont pas embarqués, la PR reste non fusionnée et le retour arrière par commit est explicable.
