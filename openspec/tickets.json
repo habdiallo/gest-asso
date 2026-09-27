@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 137,
+  "nextTicketId": 138,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2765,6 +2765,34 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "docs/chore-000-archiver-changes-openspec-termines-2",
       "branchAfterInitialization": "docs/chore-136-archiver-changes-openspec-termines-2"
+    },
+    {
+      "id": 137,
+      "title": "Aligner l'acces depuis le pied de sidebar sur le design, avec une page Mon acces pour les comptes applicatifs et une devise GNF en lecture seule.",
+      "priority": "P2",
+      "scope": "front",
+      "type": "fix",
+      "slug": "aligner-espace-personnel",
+      "change": "aligner-espace-personnel",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4"
+      ],
+      "dependencies": [95, 128, 136],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/fix-000-aligner-espace-personnel",
+      "branchAfterInitialization": "front/fix-137-aligner-espace-personnel"
     }
   ]
 }

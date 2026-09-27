@@ -65,6 +65,11 @@ export const routes: Routes = [
       import('@features/social-funds/social-funds.routes').then((m) => m.SOCIAL_FUNDS_ROUTES),
   },
   {
+    path: NAVIGATION_PATHS.account.slice(1),
+    canMatch: [roleGuard(UserRole.Administrator, UserRole.Treasurer, UserRole.Operator)],
+    loadChildren: () => import('@features/account/account.routes').then((m) => m.ACCOUNT_ROUTES),
+  },
+  {
     path: 'mon-espace',
     // Espace personnel du membre (T-95) : profil en lecture seule, réservé à
     // un utilisateur authentifié, quel que soit son rôle applicatif.

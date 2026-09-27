@@ -6,4 +6,5 @@ export const NAVIGATION_PATHS = {
   socialFunds: '/cagnottes',
   rolesAndUsers: '/roles-utilisateurs',
   memberSpace: '/mon-espace',
+  account: '/mon-compte',
 } as const;

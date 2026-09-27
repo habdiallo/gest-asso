@@ -20,6 +20,7 @@ import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -116,6 +117,7 @@ const MEMBERS_PAGE_SIZE = 10;
     PageHeader,
     CustomSelect,
     MemberCreateForm,
+    StatusBadge,
   ],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

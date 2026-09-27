@@ -6,7 +6,7 @@
   />
 
   <div
-    class="-mx-2 mb-3 mt-6 flex flex-col gap-2 rounded-xl border border-line bg-surface-glass p-2 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:flex-row sm:items-center lg:sticky lg:top-[86px] lg:z-[9]"
+    class="mb-3 mt-6 flex flex-col gap-2 sm:flex-row sm:items-center lg:sticky lg:top-[86px] lg:z-[9]"
   >
     <div class="min-w-0 flex-1">
       <input
@@ -15,7 +15,7 @@
         (input)="onSearchInput($event)"
         [placeholder]="'rolesUsers.searchPlaceholder' | transloco"
         [attr.aria-label]="'rolesUsers.searchLabel' | transloco"
-        class="app-form-control min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-text"
+        class="app-form-control min-h-11 w-full rounded-full border border-line bg-surface px-4 text-text"
       />
     </div>
 
@@ -28,6 +28,7 @@
         [ariaLabel]="'rolesUsers.roleFilterLabel' | transloco"
         [showFilterIcon]="true"
         [compact]="true"
+        [pill]="true"
         (valueChange)="onRoleFilterChange($event)"
       />
     </div>
@@ -102,35 +103,25 @@
               <td class="px-4 py-2 text-text-2">{{ userRoleLabel(account.role) }}</td>
               <td class="px-4 py-2">
                 @if (operatorAuthorizationLabel(account); as authorization) {
-                  <span
-                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-data text-[9px] font-medium uppercase tracking-[0.11em]"
-                    [class.bg-success-wash]="authorization === 'Autorisé'"
-                    [class.text-success]="authorization === 'Autorisé'"
-                    [class.bg-surface-2]="authorization !== 'Autorisé'"
-                    [class.text-text-3]="authorization !== 'Autorisé'"
-                  >
-                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-                    {{ authorization }}
-                  </span>
+                  <app-status-badge
+                    [label]="authorization"
+                    [tone]="authorization === 'Autorisé' ? 'success' : 'neutral'"
+                  />
                 } @else {
                   <span class="text-text-3">&mdash;</span>
                 }
               </td>
               <td class="px-4 py-2">
                 @if (account.active) {
-                  <span
-                    class="inline-flex items-center gap-1.5 rounded-full bg-success-wash px-3 py-1 font-data text-[9px] font-medium uppercase tracking-[0.11em] text-success"
-                  >
-                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-                    {{ 'rolesUsers.accountActive' | transloco }}
-                  </span>
+                  <app-status-badge
+                    [label]="'rolesUsers.accountActive' | transloco"
+                    tone="success"
+                  />
                 } @else {
-                  <span
-                    class="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1 font-data text-[9px] font-medium uppercase tracking-[0.11em] text-text-3"
-                  >
-                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-                    {{ 'rolesUsers.accountInactive' | transloco }}
-                  </span>
+                  <app-status-badge
+                    [label]="'rolesUsers.accountInactive' | transloco"
+                    tone="neutral"
+                  />
                 }
               </td>
               <td class="px-4 py-2 text-right">

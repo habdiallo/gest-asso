@@ -93,20 +93,15 @@
                 {{ 'campaigns.detail.opening.description' | transloco }}
               </p>
             </div>
-            <span
-              class="rounded-full px-3 py-1 font-data text-[10px] font-medium uppercase tracking-[0.08em]"
-              [class.bg-success-wash]="readiness.ready"
-              [class.text-success]="readiness.ready"
-              [class.bg-warning-wash]="!readiness.ready"
-              [class.text-warning]="!readiness.ready"
-            >
-              {{
+            <app-status-badge
+              [label]="
                 (readiness.ready
                   ? 'campaigns.detail.opening.ready'
                   : 'campaigns.detail.opening.notReady'
                 ) | transloco
-              }}
-            </span>
+              "
+              [tone]="readiness.ready ? 'success' : 'warning'"
+            />
           </div>
           <ul class="mt-5 grid gap-3 sm:grid-cols-2" data-testid="campaign-opening-checklist">
             <li class="flex items-center gap-3 text-sm text-text">
@@ -279,10 +274,11 @@
                       >{{ formatGnfAmountDetailed(categoryAmount.amount) }}</span
                     >
                     @if (categoryAmountUnconfigured(categoryAmount.amount)) {
-                      <span
-                        class="ml-2 rounded-full border border-warning px-2 py-0.5 text-[10px] uppercase tracking-[0.06em] text-warning"
-                        >{{ 'campaigns.detail.bareme.notConfigured' | transloco }}</span
-                      >
+                      <app-status-badge
+                        class="ml-2"
+                        [label]="'campaigns.detail.bareme.notConfigured' | transloco"
+                        tone="warning"
+                      />
                     }
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-text-2">

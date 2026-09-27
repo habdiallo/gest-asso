@@ -15,6 +15,7 @@ import { EmptyState } from '@shared/empty-state/empty-state';
 import { PageHeader } from '@shared/page-header/page-header';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { Subject, catchError, of, switchMap } from 'rxjs';
@@ -69,6 +70,7 @@ const SEARCH_DEBOUNCE_MS = 300;
     FormDialog,
     LoadingSkeleton,
     CustomSelect,
+    StatusBadge,
   ],
   templateUrl: './roles-users-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

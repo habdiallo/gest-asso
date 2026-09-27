@@ -35,6 +35,7 @@ import { CustomSelect } from '@shared/custom-select/custom-select';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import { formatCalendarDate, formatInstant } from '../dashboard-dates';
 import {
   campaignStatusLabel,
@@ -43,33 +44,11 @@ import {
   dueStatusTone,
   paymentMethodLabel,
 } from '../dashboard-status-labels';
-import type { StatusTone } from '../dashboard-status-labels';
 
 /** Largeur de barre de progression : jamais hors de [0, 100], même sur une donnée aberrante. */
 function clampPercentage(value: number): number {
   return Math.min(100, Math.max(0, value));
 }
-
-/**
- * Classes du badge de statut pilote/fond selon la teinte (même convention que
- * `members-list-page.html`), sans exposer `[NgClass]` interdit par
- * `.claude/rules/frontend/templates.md`.
- */
-const STATUS_TONE_CLASSES: Record<StatusTone, string> = {
-  success: 'bg-success-wash text-success',
-  warning: 'bg-warning-wash text-warning',
-  error: 'bg-error-wash text-error',
-  info: 'bg-info-wash text-info',
-  neutral: 'bg-surface-2 text-text-2',
-};
-
-const STATUS_TONE_DOT_CLASSES: Record<StatusTone, string> = {
-  success: 'bg-success',
-  warning: 'bg-warning',
-  error: 'bg-error',
-  info: 'bg-info',
-  neutral: 'bg-text-3',
-};
 
 /** Rôles autorisés à créer un membre, une campagne ou une cagnotte (même règle que leurs écrans). */
 function isManagerRole(role: UserRole): boolean {
@@ -124,6 +103,7 @@ interface SocialFundScopeView {
     EmptyState,
     LoadingSkeleton,
     PageHeader,
+    StatusBadge,
   ],
   templateUrl: './dashboard-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -267,9 +247,6 @@ export class DashboardPage {
     collectedAmount: number,
   ): number =>
     targetAmount > 0 ? clampPercentage(Math.round((collectedAmount / targetAmount) * 100)) : 0;
-
-  readonly statusToneClasses = (tone: StatusTone): string => STATUS_TONE_CLASSES[tone];
-  readonly statusToneDotClasses = (tone: StatusTone): string => STATUS_TONE_DOT_CLASSES[tone];
 
   constructor() {
     this.loadDashboard();

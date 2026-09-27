@@ -1,4 +1,6 @@
 @if (isAuthenticated()) {
+  @let sidebarProfileLabelKey =
+    sidebarProfile()?.destinationLabelKey ?? 'shell.sidebar.openMemberSpace';
   <!-- Barre latérale desktop/tablette (>= 821px), cf. design/styles.css .sidebar. -->
   <aside class="desktop-sidebar">
     <div class="sidebar-brand">
@@ -27,14 +29,14 @@
       <button
         type="button"
         class="sidebar-profile"
-        aria-label="Ouvrir mon espace"
+        [attr.aria-label]="sidebarProfileLabelKey | transloco"
         (click)="openSidebarProfile()"
       >
         @if (sidebarProfile(); as profile) {
           <div class="sidebar-avatar" aria-hidden="true">{{ profile.initials }}</div>
           <div class="sidebar-profile-copy">
             <strong [title]="profile.name">{{ profile.name }}</strong>
-            <span>{{ profile.role }}</span>
+            <span>{{ profile.roleLabelKey | transloco }}</span>
           </div>
         }
         <svg

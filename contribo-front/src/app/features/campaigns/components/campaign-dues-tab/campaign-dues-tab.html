@@ -126,20 +126,16 @@
                 {{ formatAmount(due.remainingAmount) }}
               </td>
               <td class="px-4 py-2">
-                <span
-                  class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-transparent px-2 py-[5px] font-data text-[8px] font-medium uppercase tracking-[0.11em]"
-                  [class.text-success]="due.status === paidStatus"
-                  [class.text-error]="due.status === overdueStatus"
-                  [class.text-warning]="due.status !== paidStatus && due.status !== overdueStatus"
-                  [class.bg-success-wash]="due.status === paidStatus"
-                  [class.bg-error-wash]="due.status === overdueStatus"
-                  [class.bg-warning-wash]="
-                    due.status !== paidStatus && due.status !== overdueStatus
+                <app-status-badge
+                  [label]="statusLabels[due.status] | transloco"
+                  [tone]="
+                    due.status === paidStatus
+                      ? 'success'
+                      : due.status === overdueStatus
+                        ? 'error'
+                        : 'warning'
                   "
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-                  {{ statusLabels[due.status] | transloco }}
-                </span>
+                />
               </td>
               @if (canRecordPaymentsNow()) {
                 <td class="whitespace-nowrap px-4 py-2 text-right">
