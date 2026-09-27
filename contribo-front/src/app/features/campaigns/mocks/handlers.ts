@@ -17,6 +17,7 @@ import type {
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { demoCampaignDues } from '../../../../mocks/demo-dues';
 
 const demoCampaigns: CampaignSummary[] = [
   {
@@ -211,99 +212,6 @@ const demoCampaignDetails: Record<string, Campaign> = {
   },
 };
 
-function buildUpcomingCampaignDues(): Due[] {
-  return Array.from({ length: 62 }, (_, index) => {
-    const dueId = (0x420 + index).toString(16).padStart(12, '0');
-    const memberId = (0x500 + index).toString(16).padStart(12, '0');
-    return {
-      id: `10700000-0000-4000-8000-${dueId}`,
-      member: {
-        id: `10700000-0000-4000-8000-${memberId}`,
-        displayName: index === 0 ? 'Amadou Diallo' : `Membre ${String(index + 1).padStart(2, '0')}`,
-      },
-      campaign: demoCampaigns[1],
-      incomeCategorySnapshot: {
-        id: '10700000-0000-4000-8000-000000000101',
-        label: 'Standard',
-      },
-      dueAmount: 75_000,
-      paidAmount: 0,
-      remainingAmount: 75_000,
-      status: DueStatus.Due,
-      paymentCount: 0,
-      currency: CurrencyCode.Gnf,
-    } satisfies Due;
-  });
-}
-
-const demoCampaignDues: Record<string, Due[]> = {
-  '10700000-0000-4000-8000-000000000200': [
-    {
-      id: '10700000-0000-4000-8000-000000000410',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: demoCampaigns[0],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-      dueAmount: 100_000,
-      paidAmount: 50_000,
-      remainingAmount: 50_000,
-      status: 'PARTIALLY_PAID',
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000411',
-      member: { id: '10700000-0000-4000-8000-000000000501', displayName: 'Fatoumata Bah' },
-      campaign: demoCampaigns[0],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-      dueAmount: 100_000,
-      paidAmount: 0,
-      remainingAmount: 100_000,
-      status: 'DUE',
-      paymentCount: 0,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000412',
-      member: { id: '10700000-0000-4000-8000-000000000502', displayName: 'Mamadou Bah' },
-      campaign: demoCampaigns[0],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000102', label: 'Bienfaiteur' },
-      dueAmount: 250_000,
-      paidAmount: 250_000,
-      remainingAmount: 0,
-      status: 'PAID',
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000413',
-      member: { id: '10700000-0000-4000-8000-000000000503', displayName: 'Aissatou Sow' },
-      campaign: demoCampaigns[0],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-      dueAmount: 100_000,
-      paidAmount: 0,
-      remainingAmount: 100_000,
-      status: 'OVERDUE',
-      paymentCount: 0,
-      currency: CurrencyCode.Gnf,
-    },
-  ],
-  '10700000-0000-4000-8000-000000000201': buildUpcomingCampaignDues(),
-  '10700000-0000-4000-8000-000000000202': [
-    {
-      id: '10700000-0000-0000-0000-000000000430',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: demoCampaigns[2],
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Standard' },
-      dueAmount: 100_000,
-      paidAmount: 50_000,
-      remainingAmount: 50_000,
-      status: 'PARTIALLY_PAID',
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-  ],
-};
-
 const demoPaymentsByCampaignId: Record<string, Payment[]> = {
   '10700000-0000-4000-8000-000000000200': [
     {
@@ -334,7 +242,7 @@ const demoPaymentsByCampaignId: Record<string, Payment[]> = {
   '10700000-0000-4000-8000-000000000202': [
     {
       id: '10700000-0000-4000-8000-000000000702',
-      dueId: '10700000-0000-0000-0000-000000000430',
+      dueId: '10700000-0000-4000-8000-000000000430',
       member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
       campaign: demoCampaigns[2],
       amount: 50_000,

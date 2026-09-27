@@ -1151,6 +1151,7 @@ describe('MemberDetailPage', () => {
           {
             id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
             member: { id: memberId, displayName: 'Amadou Diallo' },
+            externalContributor: null,
             socialFund: {
               id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
               title: 'Mariage de Fanta et Sekou',
@@ -1513,6 +1514,7 @@ describe('MemberDetailPage', () => {
       fixture.detectChanges();
 
       const dialog = fixture.nativeElement.querySelector('dialog[open]') as HTMLElement;
+      expect(dialog.getAttribute('style')).toContain('--form-dialog-desktop-width: 920px');
       expect(dialog.querySelector('app-loading-skeleton')).not.toBeNull();
       expect(dialog.querySelector('[role="status"]')?.textContent).toContain(
         'Chargement des cotisations',
@@ -1549,8 +1551,20 @@ describe('MemberDetailPage', () => {
                 status: 'UPCOMING',
               },
             }),
+            buildDue({
+              id: 'due-open-zero',
+              remainingAmount: 0,
+              status: DueStatus.PartiallyPaid,
+              campaign: {
+                id: 'c4e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
+                name: 'Campagne déjà soldée',
+                startDate: '2026-08-01',
+                endDate: '2026-09-30',
+                status: 'OPEN',
+              },
+            }),
           ],
-          page: { number: 0, size: 50, totalElements: 3, totalPages: 1 },
+          page: { number: 0, size: 50, totalElements: 4, totalPages: 1 },
         }),
       );
       const fixture = await createFixture(() => of(buildMemberDetails()), { listMemberDues });
@@ -1567,10 +1581,74 @@ describe('MemberDetailPage', () => {
       expect(dialog.textContent).toContain('Solidarité septembre');
       expect(dialog.textContent).not.toContain('Rentrée associative');
       expect(dialog.textContent).not.toContain('Campagne à venir');
+      expect(dialog.textContent).not.toContain('Campagne déjà soldée');
       expect(fixture.componentInstance.selectedDue()?.id).toBe('due-open');
       expect(dialog.textContent).toContain('Montant dû');
       expect(dialog.textContent).toContain('Déjà payé');
       expect(dialog.textContent).toContain('Reste à payer');
+      expect((dialog.querySelector('#record-payment-member') as HTMLButtonElement).disabled).toBe(
+        true,
+      );
+      expect((dialog.querySelector('#record-payment-campaign') as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+
+    it('updates the summary and the payment limit when another open campaign is selected', async () => {
+      const firstDue = buildDue({ id: 'due-open-first', remainingAmount: 50_000 });
+      const secondDue = buildDue({
+        id: 'due-open-second',
+        campaign: {
+          id: 'c2e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d12',
+          name: 'Cotisation trimestrielle T3',
+          startDate: '2026-07-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+        },
+        dueAmount: 200_000,
+        paidAmount: 50_000,
+        remainingAmount: 150_000,
+        status: DueStatus.PartiallyPaid,
+      });
+      const createPayment = vi.fn(() => new Observable<PaymentCreationResponse>());
+      const fixture = await createFixture(() => of(buildMemberDetails()), {
+        listMemberDues: () =>
+          of({
+            items: [firstDue, secondDue],
+            page: { number: 0, size: 50, totalElements: 2, totalPages: 1 },
+          }),
+        createPayment,
+      });
+      fixture.detectChanges();
+
+      findRecordPaymentButton(fixture.nativeElement)?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const page = fixture.componentInstance;
+      expect(page.recordPaymentForm.controls.dueId.value).toBe(firstDue.id);
+      expect(page.selectedDue()?.id).toBe(firstDue.id);
+      page.onDueSelected(secondDue.id);
+      page.recordPaymentForm.controls.dueId.setValue(secondDue.id);
+      fixture.detectChanges();
+
+      expect(page.selectedDue()?.id).toBe(secondDue.id);
+      expect(fixture.nativeElement.textContent).toContain(formatGnfAmountDetailed(150_000));
+
+      page.recordPaymentForm.controls.amount.setValue(150_001);
+      page.recordPaymentForm.controls.paymentDate.setValue('2026-09-18');
+      page.recordPaymentForm.controls.method.setValue(PaymentMethod.Cash);
+      page.submitRecordPayment();
+      expect(createPayment).not.toHaveBeenCalled();
+
+      page.recordPaymentForm.controls.amount.setValue(125_000);
+      page.submitRecordPayment();
+      expect(createPayment).toHaveBeenCalledWith(secondDue.id, {
+        amount: 125_000,
+        paymentDate: '2026-09-18',
+        method: PaymentMethod.Cash,
+      });
     });
 
     it('shows a message and no form when the member has no payable due', async () => {

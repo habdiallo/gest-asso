@@ -69,14 +69,12 @@
       >
         {{ 'campaigns.create.fields.startDate' | transloco }}
       </label>
-      <input
-        id="campaign-create-start-date"
-        type="date"
+      <app-date-input
+        controlId="campaign-create-start-date"
         formControlName="startDate"
-        required
-        [attr.aria-invalid]="startDateInvalid() ? true : null"
-        [attr.aria-describedby]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        [required]="true"
+        [ariaInvalid]="startDateInvalid()"
+        [ariaDescribedBy]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
       />
       @if (startDateInvalid()) {
         <p id="campaign-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -92,14 +90,12 @@
       >
         {{ 'campaigns.create.fields.endDate' | transloco }}
       </label>
-      <input
-        id="campaign-create-end-date"
-        type="date"
+      <app-date-input
+        controlId="campaign-create-end-date"
         formControlName="endDate"
-        required
-        [attr.aria-invalid]="endDateInvalid() ? true : null"
-        [attr.aria-describedby]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        [required]="true"
+        [ariaInvalid]="endDateInvalid()"
+        [ariaDescribedBy]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
       />
       @if (endDateRequiredInvalid()) {
         <p id="campaign-create-end-date-error" class="mt-2 text-sm text-error" role="alert">

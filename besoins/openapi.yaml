@@ -138,7 +138,7 @@ paths:
         - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
-          description: Contributions du membre connecté, de la plus récente à la plus ancienne.
+          description: Contributions rattachées au membre connecté, de la plus récente à la plus ancienne; les contributions externes sont exclues.
           content:
             application/json:
               schema:
@@ -974,8 +974,9 @@ paths:
       summary: Enregistrer une contribution à une cagnotte
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
-        La contribution est un encaissement déjà constaté. L'utilisateur et l'instant de saisie sont
-        déterminés par le serveur. Une cagnotte clôturée refuse toute contribution.
+        La contribution est un encaissement déjà constaté pour un membre ou un contributeur externe.
+        La requête doit contenir exactement une identité contributrice. L'utilisateur et l'instant de
+        saisie sont déterminés par le serveur. Une cagnotte clôturée refuse toute contribution.
       operationId: createContribution
       parameters:
         - $ref: '#/components/parameters/SocialFundId'
@@ -1037,8 +1038,9 @@ paths:
       summary: Lister les contributions aux cagnottes
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
-        l'Opérateur est requise pour écrire une contribution, pas pour consulter l'historique
-        d'un membre autorisé.
+        l'Opérateur est requise pour écrire une contribution, pas pour consulter un historique
+        autorisé. L'historique peut contenir des contributions rattachées à un membre ou à un
+        contributeur externe.
       operationId: listContributions
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -2458,6 +2460,7 @@ components:
           type: integer
           minimum: 0
           readOnly: true
+          description: Nombre d'identités contributrices distinctes, membres par identifiant et externes par paire de prénom et nom normalisée dans cette cagnotte.
           example: 43
         contributionCount:
           type: integer
@@ -2537,17 +2540,42 @@ components:
         status:
           $ref: '#/components/schemas/SocialFundStatus'
 
+    ExternalContributor:
+      type: object
+      additionalProperties: false
+      required: [firstName, lastName]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+          description: Prénom conservé comme instantané de la contribution externe.
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+          description: Nom conservé comme instantané de la contribution externe.
     Contribution:
       type: object
       additionalProperties: false
-      required: [id, member, socialFund, amount, contributionDate, method, recordedBy, recordedAt, currency]
+      required: [id, member, externalContributor, socialFund, amount, contributionDate, method, recordedBy, recordedAt, currency]
       properties:
         id:
           type: string
           format: uuid
           readOnly: true
         member:
-          $ref: '#/components/schemas/PersonSummary'
+          oneOf:
+            - $ref: '#/components/schemas/PersonSummary'
+            - type: 'null'
+          description: Membre associé, nul pour une contribution externe.
+        externalContributor:
+          oneOf:
+            - $ref: '#/components/schemas/ExternalContributor'
+            - type: 'null'
+          description: Identité externe associée, nulle pour une contribution membre.
         socialFund:
           $ref: '#/components/schemas/SocialFundReference'
         amount:
@@ -2571,6 +2599,10 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyCode'
     CreateContributionRequest:
+      oneOf:
+        - $ref: '#/components/schemas/CreateMemberContributionRequest'
+        - $ref: '#/components/schemas/CreateExternalContributionRequest'
+    CreateMemberContributionRequest:
       type: object
       additionalProperties: false
       required: [memberId, amount, contributionDate, method]
@@ -2578,6 +2610,24 @@ components:
         memberId:
           type: string
           format: uuid
+          description: Identifiant du membre associé.
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+    CreateExternalContributionRequest:
+      type: object
+      additionalProperties: false
+      required: [externalContributor, amount, contributionDate, method]
+      properties:
+        externalContributor:
+          $ref: '#/components/schemas/ExternalContributor'
         amount:
           type: integer
           format: int64

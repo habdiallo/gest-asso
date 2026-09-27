@@ -41,6 +41,7 @@ import { AmountInput } from '@shared/amount-input/amount-input';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { DateInput } from '@shared/date-input/date-input';
 import { DetailShell } from '@shared/detail-shell/detail-shell';
 import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
 import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
@@ -100,6 +101,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
     AmountInput,
     ApiErrorRetry,
     CustomSelect,
+    DateInput,
     DetailShell,
     DetailTabs,
     FormDialog,
@@ -567,11 +569,14 @@ export class MemberDetailPage {
             return;
           }
           const payable = page.items.filter(
-            (due) => due.status !== DueStatus.Paid && due.campaign.status === CampaignStatus.Open,
+            (due) =>
+              due.campaign.status === CampaignStatus.Open &&
+              due.status !== DueStatus.Paid &&
+              due.remainingAmount > 0,
           );
           this.payableDues.set(payable);
           this.payableDuesLoading.set(false);
-          if (payable.length === 1) {
+          if (payable.length > 0) {
             this.recordPaymentForm.controls.dueId.setValue(payable[0].id);
             this.selectedDueId.set(payable[0].id);
           }

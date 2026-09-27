@@ -17,6 +17,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { DateInput } from '@shared/date-input/date-input';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 /**
@@ -73,7 +74,14 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-campaign-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect, LoadingSkeleton],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    ActionButton,
+    CustomSelect,
+    DateInput,
+    LoadingSkeleton,
+  ],
   templateUrl: './campaign-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
