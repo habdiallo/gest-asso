@@ -99,6 +99,29 @@ deux colonnes et récapitulatifs de règlement en trois colonnes, ainsi que le
 maintien de la pagination à 10 éléments par page. Aucun changement
 de dépendance externe, de contrat ou de stockage n'est nécessaire.
 
+### Compléments hors périmètre initial intégrés à T-140
+
+Les retours de vérification mobile reçus pendant le ticket ont élargi le groupe
+initial de refactorisation, sans créer un nouveau comportement métier. Ils sont
+explicitement rattachés à T-140 car ils corrigent des régressions d'ergonomie
+visuelle sur les composants déjà audités et restent réversibles :
+
+- les actions de fiche membre et les actions de dialogue sont réparties sans
+  débordement, avec une largeur complète lorsqu'une action est seule ;
+- les tablists partagées et locales sont adaptées à leur nombre et à la longueur
+  de leurs libellés, avec trois colonnes pour trois libellés courts ;
+- les tableaux des onglets membre, campagne et cagnotte disposent d'une version
+  en cartes sur mobile, tandis que les tableaux desktop restent disponibles ;
+- les recherches, filtres, informations personnelles et récapitulatifs financiers
+  utilisent des grilles compactes, dont le résumé financier membre en trois
+  colonnes ;
+- les textes mobiles peuvent revenir à la ligne et la pagination conserve une
+  taille de page de 10 éléments.
+
+Ces compléments ne modifient ni les routes, ni les permissions, ni les données,
+ni les contrats API. Les changements fonctionnels ou métier restent hors de
+T-140 et doivent faire l'objet d'un ticket distinct.
+
 ## Frontières conservées
 
 Les imports strictement locaux à une feature restent relatifs. L'import du mock
