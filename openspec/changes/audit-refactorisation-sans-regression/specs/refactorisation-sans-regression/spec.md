@@ -94,9 +94,12 @@ Chaque groupe significatif MUST être validé avant le groupe suivant et la livr
 Les composants qui exposent plusieurs onglets MUST rendre tous les onglets
 visibles et sélectionnables sur mobile sans dépendre d'un défilement horizontal
 non signalé. La disposition mobile MUST être adaptée au nombre d'onglets et à
-la longueur de leurs libellés : trois libellés courts tiennent sur une seule
-ligne en colonnes égales, tandis que les ensembles plus longs ou plus nombreux
-utilisent une disposition de repli lisible. Les tablists locaux qui exposaient
+la longueur de leurs libellés mobiles : un usage peut fournir une version
+mobile courte sans modifier le nom accessible complet. Trois libellés courts
+tiennent sur une seule ligne en colonnes égales, tandis que les ensembles plus
+longs ou plus nombreux utilisent une disposition de repli lisible. Les textes
+mobiles doivent revenir à la ligne et casser les mots longs plutôt que dépasser
+la largeur disponible. Les tablists locaux qui exposaient
 le même parcours MUST réutiliser le composant partagé ou appliquer les mêmes
 règles. Les tableaux des onglets de la
 fiche membre MUST proposer une présentation en cartes sur les petites

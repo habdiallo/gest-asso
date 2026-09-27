@@ -60,6 +60,24 @@ describe('DetailTabs', () => {
     expect(tabList.className).not.toContain('grid-cols-3');
   });
 
+  it('uses mobile labels to keep a campaign tablist compact without changing its accessible name', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.tabs.set([
+      { id: 'members', label: 'Situation des membres', mobileLabel: 'Membres' },
+      { id: 'categories', label: 'Montants par catégorie', mobileLabel: 'Catégories' },
+      { id: 'payments', label: 'Règlements', mobileLabel: 'Règlements' },
+    ]);
+    fixture.componentInstance.activeId.set('members');
+    fixture.detectChanges();
+
+    const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
+    const firstTab = fixture.nativeElement.querySelector('[role="tab"]') as HTMLButtonElement;
+    expect(tabList.className).toContain('grid-cols-3');
+    expect(firstTab.getAttribute('aria-label')).toBe('Situation des membres');
+    expect(firstTab.textContent).toContain('Membres');
+  });
+
   it('changes tabs on click and moves with arrow keys', () => {
     TestBed.configureTestingModule({});
     const fixture = TestBed.createComponent(HostComponent);

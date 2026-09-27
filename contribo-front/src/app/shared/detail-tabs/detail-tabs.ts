@@ -11,6 +11,7 @@ import type { ElementRef } from '@angular/core';
 export interface DetailTab {
   readonly id: string;
   readonly label: string;
+  readonly mobileLabel?: string;
 }
 
 type MobileColumnCount = 1 | 2 | 3;
@@ -38,11 +39,12 @@ export class DetailTabs {
       return 1;
     }
 
-    const totalLabelLength = tabs.reduce((total, tab) => total + tab.label.trim().length, 0);
+    const mobileLabels = tabs.map((tab) => tab.mobileLabel?.trim() || tab.label.trim());
+    const totalLabelLength = mobileLabels.reduce((total, label) => total + label.length, 0);
     const compactThreeTabs =
       tabs.length === MOBILE_COMPACT_TAB_COUNT &&
       totalLabelLength <= MOBILE_COMPACT_MAX_TOTAL_LABEL_LENGTH &&
-      tabs.every((tab) => tab.label.trim().length <= MOBILE_COMPACT_MAX_LABEL_LENGTH);
+      mobileLabels.every((label) => label.length <= MOBILE_COMPACT_MAX_LABEL_LENGTH);
 
     if (compactThreeTabs) {
       return 3;

@@ -242,7 +242,7 @@ describe('CampaignDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
+    expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual([
       'Situation des membres',
       'Montants par catégorie',
       'Règlements',

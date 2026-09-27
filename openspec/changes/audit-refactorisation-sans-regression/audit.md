@@ -133,7 +133,7 @@ migration de données ni changement du contrat API.
 
 ## Validation après implémentation
 
-- `npm test -- --watch=false` : 76 fichiers et 781 tests réussis.
+- `npm test -- --watch=false` : 76 fichiers et 782 tests réussis.
 - `npm run lint` : réussi.
 - `npm run build` : réussi, avec l'avertissement CSS préexistant décrit plus
   haut.

@@ -63,7 +63,9 @@ Alternative écartée : ajouter un alias global `@app/*` ou remplacer mécanique
 ### 8. Rendre les parcours à onglets et les listes métier utilisables sur mobile
 
 Les onglets partagés calculent leur disposition mobile à partir du nombre
-d'onglets et de la longueur réelle de leurs libellés. Trois libellés courts,
+d'onglets et de la longueur réelle de leurs libellés mobiles. Un usage peut
+fournir un libellé mobile court lorsque le libellé desktop est trop long, sans
+changer le nom accessible complet. Trois libellés courts,
 comme « Cotisations », « Règlements » et « Contributions », restent sur une
 seule ligne en trois colonnes égales. Les ensembles plus longs ou plus
 nombreux utilisent une grille à deux colonnes afin de rester lisibles, sans

@@ -13,6 +13,7 @@
       role="tab"
       class="detail-tab-button min-h-11 min-w-0 w-full break-words border-b-2 px-1.5 py-2 text-center text-control font-medium uppercase leading-tight tracking-control outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash min-[661px]:w-auto min-[661px]:shrink-0 min-[661px]:whitespace-nowrap min-[661px]:px-4"
       [id]="tabId(tab)"
+      [attr.aria-label]="tab.label"
       [attr.aria-selected]="isActive(tab) ? 'true' : 'false'"
       [attr.aria-controls]="panelId(tab)"
       [tabIndex]="isActive(tab) ? 0 : -1"
@@ -26,7 +27,8 @@
       (click)="select(tab)"
       (keydown)="onKeydown($event)"
     >
-      {{ tab.label }}
+      <span class="min-[661px]:hidden">{{ tab.mobileLabel || tab.label }}</span>
+      <span class="hidden min-[661px]:inline">{{ tab.label }}</span>
     </button>
   }
 </div>
