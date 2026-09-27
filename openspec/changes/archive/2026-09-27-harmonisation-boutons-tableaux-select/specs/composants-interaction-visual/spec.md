@@ -1,11 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Taille et rayon des boutons d'action
-Tout bouton d'action affiché dans `contribo-front/src/app/features/*` (bouton primaire, secondaire
-ou de pagination) SHALL avoir une hauteur minimale de 44px (`min-h-11`, cohérente avec le bouton
-« Nouvelle campagne » du tableau de bord et avec `.btn` de `design/styles.css`) et un rayon d'angle
-de 8px (token Tailwind `rounded`, `--radius` de `contribo-front/src/styles.css`), quel que soit
-l'écran sur lequel il apparaît.
+Tout bouton d'action affiché dans `contribo-front/src/app/features/*` (bouton primaire, secondaire ou de pagination) SHALL avoir une hauteur minimale de 44px (`min-h-11`, cohérente avec le bouton « Nouvelle campagne » du tableau de bord et avec `.btn` de `design/styles.css`) et un rayon d'angle de 8px (token Tailwind `rounded`, `--radius` de `contribo-front/src/styles.css`), quel que soit l'écran sur lequel il apparaît.
 
 #### Scenario: Bouton principal d'une liste
 - **WHEN** un rôle authentifié autorisé affiche une page de liste comportant un bouton d'action
@@ -19,9 +15,7 @@ l'écran sur lequel il apparaît.
   boutons de l'écran, et non le rayon des conteneurs (`rounded-card`, 14px)
 
 ### Requirement: Rayon des conteneurs de tableau
-Tout wrapper englobant un tableau de données (`<table>`) dans `contribo-front/src/app/features/*`
-SHALL avoir un rayon d'angle de 14px (token Tailwind `rounded-card`, `--radius-card` de
-`contribo-front/src/styles.css`), qu'il ait déjà un rayon différent ou aucun rayon défini.
+Tout wrapper englobant un tableau de données (`<table>`) dans `contribo-front/src/app/features/*` SHALL avoir un rayon d'angle de 14px (token Tailwind `rounded-card`, `--radius-card` de `contribo-front/src/styles.css`), qu'il ait déjà un rayon différent ou aucun rayon défini.
 
 #### Scenario: Tableau sans rayon défini
 - **WHEN** un écran affiche un tableau dont le wrapper `overflow-x-auto` ne porte aujourd'hui aucune
@@ -36,11 +30,7 @@ SHALL avoir un rayon d'angle de 14px (token Tailwind `rounded-card`, `--radius-c
 - **THEN** ce wrapper est corrigé pour porter la classe `rounded-card` (14px)
 
 ### Requirement: Taille et rayon des champs de saisie
-Tout champ de saisie (`<input>` texte/date/nombre, `<textarea>`) de
-`contribo-front/src/app/features/*` et de `contribo-front/src/app/shared/amount-input` SHALL avoir
-une hauteur minimale de 48px et un rayon d'angle de 8px (token Tailwind `rounded`), cohérents avec
-`.field input` de `design/styles.css`, sans modifier l'anneau de focus doré déjà en place
-(`focus:border-gold`, `focus:ring-[3px]`, `focus:ring-gold-wash`).
+Tout champ de saisie (`<input>` texte/date/nombre, `<textarea>`) de `contribo-front/src/app/features/*` et de `contribo-front/src/app/shared/amount-input` SHALL avoir une hauteur minimale de 48px et un rayon d'angle de 8px (token Tailwind `rounded`), cohérents avec `.field input` de `design/styles.css`, sans modifier l'anneau de focus doré déjà en place (`focus:border-gold`, `focus:ring-[3px]`, `focus:ring-gold-wash`).
 
 #### Scenario: Champ de saisie d'un formulaire
 - **WHEN** un formulaire de création ou d'édition affiche un champ texte, date, nombre ou une zone
@@ -92,14 +82,7 @@ financiers.
   devinée
 
 ### Requirement: Sélecteur de campagne/cagnotte et bilan financier du tableau de bord
-Lorsque l'API retourne `financialOverview` pour le tableau de bord de gestion, `dashboard-page`
-SHALL proposer un sélecteur (`shared/custom-select`) de campagne ou de cagnotte relié aux paramètres
-`campaignId`/`socialFundId` de l'opération `getDashboard`, et afficher via `shared/stat-card` les
-montants retournés par `financialOverview.selectedCampaign.financialSummary`
-(`collectedAmount`, `expectedAmount`, `remainingAmount`, `collectionRate`) et par
-`financialOverview.selectedSocialFund` (`collectedAmount`, et `progressRate` si un objectif existe).
-Ces cartes ne SHALL jamais afficher de valeur calculée côté frontend à partir d'une liste partielle
-(ex. `recentPayments`) : uniquement les agrégats déjà fournis par l'API.
+Lorsque l'API retourne `financialOverview` pour le tableau de bord de gestion, `dashboard-page` SHALL proposer un sélecteur (`shared/custom-select`) de campagne ou de cagnotte relié aux paramètres `campaignId`/`socialFundId` de l'opération `getDashboard`, et afficher via `shared/stat-card` les montants retournés par `financialOverview.selectedCampaign.financialSummary` (`collectedAmount`, `expectedAmount`, `remainingAmount`, `collectionRate`) et par `financialOverview.selectedSocialFund` (`collectedAmount`, et `progressRate` si un objectif existe). Ces cartes ne SHALL jamais afficher de valeur calculée côté frontend à partir d'une liste partielle (ex. `recentPayments`) : uniquement les agrégats déjà fournis par l'API.
 
 #### Scenario: Bilan financier disponible pour une campagne sélectionnée
 - **WHEN** un Administrateur, Trésorier ou Opérateur autorisé consulte le tableau de bord et que
