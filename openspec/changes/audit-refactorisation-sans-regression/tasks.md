@@ -9,6 +9,7 @@
 - [ ] 2.1 [T-140] Prioriser les opportunités selon le bénéfice, la fréquence et le risque, puis sélectionner les groupes livrables compatibles avec `front/refactor-140-audit-refactorisation-sans-regression`. Critère : les changements fonctionnels, visuels, contractuels, de navigation, de permissions, de dépendances majeures et d'état global sont exclus ou proposés comme tickets séparés.
 - [ ] 2.2 [T-140] Consolider uniquement les duplications prouvées, constantes, helpers purs, types ou mappings dont l'abstraction réduit la complexité sur plusieurs usages réels. Critère : les interfaces publiques et les résultats observables restent inchangés, avec tests ciblés pour chaque groupe.
 - [ ] 2.3 [T-140] Simplifier les responsabilités de composants ou services uniquement après identification de tous les consommateurs et sans franchir les frontières `features/`, `core/` et `shared/`. Critère : aucune architecture parallèle, dépendance entre features ou abstraction spéculative n'est introduite.
+- [ ] 2.4 [T-140] Déclarer les alias stables nécessaires, notamment `@assets/*` et `@mocks/*`, puis migrer uniquement les imports profonds éligibles en réutilisant `@core/*`, `@shared/*`, `@features/*` et `@api` selon leurs frontières. Critère : les chemins résolvent dans Angular, TypeScript, Vitest, lint et build, les imports locaux restent lisibles et aucune dépendance entre features n'est masquée.
 
 ## 3. Code mort, comportement et validations
 

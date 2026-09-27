@@ -54,21 +54,30 @@ Une suppression nécessitera l'absence de consommateurs statiques et la vérific
 
 Les groupes concernés relanceront les tests ciblés puis les contrôles proportionnés : `npm test -- --watch=false`, `npm run lint`, `npm run format:check`, `npm run build`, `npm run test:tooling`, les contrôles de tickets et OpenSpec. Les parcours et états visuels concernés seront comparés sur mobile, tablette et desktop, dans les deux thèmes lorsqu'ils existent.
 
+### 7. Utiliser des alias limités aux racines stables
+
+Les alias déjà déclarés (`@core/*`, `@shared/*`, `@features/*` et `@api`) seront réutilisés selon leurs frontières. L'audit pourra ajouter `@assets/*` vers `src/assets/*` et `@mocks/*` vers `src/mocks/*` afin de remplacer les traversées profondes observées dans les tests et handlers. Un import qui reste dans la même feature conservera un chemin relatif lorsque celui-ci exprime mieux la proximité locale. `@features/*` ne servira pas à créer ou dissimuler une dépendance entre features.
+
+Alternative écartée : ajouter un alias global `@app/*` ou remplacer mécaniquement tous les imports relatifs. Cette solution raccourcirait les chemins mais masquerait les frontières et pourrait rendre les dépendances plus difficiles à contrôler.
+
 ## Risks / Trade-offs
 
 - [Risque] Une extraction de logique modifie involontairement l'ordre d'exécution ou la gestion d'erreur. → Mitigation : préserver les signatures, conserver les tests de comportement et isoler chaque extraction dans un commit relisible.
 - [Risque] Une abstraction partagée force des cas particuliers et augmente le couplage. → Mitigation : comparer explicitement avec deux implémentations locales et refuser l'abstraction si le gain n'est pas net.
 - [Risque] Du code utilisé indirectement est déclaré mort à tort. → Mitigation : vérifier routes, imports dynamiques, scripts, configurations et tests avant suppression.
 - [Risque] Le formatage ou la compilation révèle des écarts préexistants non liés. → Mitigation : enregistrer l'état de référence, ne corriger que les régressions T-140 et signaler les limites hors périmètre.
+- [Risque] Un alias TypeScript résout dans le build mais pas dans les tests ou les outils. → Mitigation : valider les configurations Angular, TypeScript, Vitest et lint avec un import représentatif avant migration en volume.
+- [Risque] Un alias raccourci masque une dépendance interdite entre features. → Mitigation : limiter les alias aux racines autorisées et conserver les contrôles d'architecture dans `test:tooling`.
 - [Risque] Le périmètre global devient trop large pour une PR. → Mitigation : prioriser les groupes faible risque et créer un ticket ou une PR distincte pour les changements structurels, fonctionnels, visuels ou contractuels.
 
 ## Migration Plan
 
 1. Résoudre T-140, vérifier `origin/main`, créer la branche `front/refactor-140-audit-refactorisation-sans-regression` et conserver les modifications préexistantes hors périmètre.
 2. Produire la cartographie, la matrice de preuves et l'état de référence avant les changements de code.
-3. Implémenter un groupe de refactorisation, valider son comportement, puis relire son diff avant le groupe suivant.
-4. Publier une PR T-140 vers `main` avec le rapport d'audit, les validations et les risques restants.
-5. En cas de régression, revenir au dernier commit du groupe concerné ou revertir le commit ciblé. Aucun changement de migration de données ou de contrat externe n'est prévu.
+3. Déclarer les alias stables nécessaires, migrer les imports profonds éligibles et vérifier leur résolution dans le build, les tests et les outils.
+4. Implémenter un groupe de refactorisation, valider son comportement, puis relire son diff avant le groupe suivant.
+5. Publier une PR T-140 vers `main` avec le rapport d'audit, les validations et les risques restants.
+6. En cas de régression, revenir au dernier commit du groupe concerné ou revertir le commit ciblé. Aucun changement de migration de données ou de contrat externe n'est prévu.
 
 ## Open Questions
 
