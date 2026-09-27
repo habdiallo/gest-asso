@@ -194,10 +194,3 @@ donnée persistée ou de contrat API n'est prévu.
   ajoutés au thème, plutôt que de conserver les utilities Tailwind natives ?
 - Les tableaux réutilisés ont-ils besoin d'un composant de présentation commun,
   ou les primitives et `app-data-table` suffisent-elles après harmonisation ?
-La capture mobile fournie est une référence d'agencement, pas une spécification de
-contenu. Elle montre notamment un shell compact, un titre avec action pleine largeur,
-des cartes KPI en deux colonnes lorsque l'espace le permet, des sections empilées,
-des surfaces de listes lisibles et une navigation basse. L'audit doit vérifier si
-les composants existants peuvent produire cette densité et ces transitions, mais ne
-doit pas ajouter les blocs métier, textes, KPI ou actions présents uniquement dans
-la capture du dashboard.
