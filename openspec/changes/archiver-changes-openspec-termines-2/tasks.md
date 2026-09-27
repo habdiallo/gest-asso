@@ -23,7 +23,7 @@ avec la CLI `openspec archive`, en synchronisant leurs specs delta vers
 - [x] 2.1 [T-136] Committer avec le message `docs(docs): T-136 archiver les
       changes openspec termines` (ou équivalent conforme), en ajoutant
       uniquement les fichiers de ce ticket.
-- [ ] 2.2 [T-136] Pousser la branche
+- [x] 2.2 [T-136] Pousser la branche
       `docs/chore-136-archiver-changes-openspec-termines-2` et ouvrir une PR
       vers `main` avec le modèle du dépôt, seulement si la livraison est
-      explicitement demandée.
+      explicitement demandée. PR #135 ouverte.
