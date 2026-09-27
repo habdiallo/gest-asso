@@ -1,22 +1,28 @@
-import type { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import type { RedirectFunction, Routes } from '@angular/router';
 import { UserRole } from '@api';
 import { authenticatedMatch } from '@core/session/authenticated.guard';
 import { roleGuard } from '@core/session/role.guard';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import { SessionService } from '@core/session/session.service';
+
+const sessionEntryRedirect: RedirectFunction = () =>
+  inject(SessionService).isAuthenticated() ? NAVIGATION_PATHS.dashboard.slice(1) : 'login';
 
 export const routes: Routes = [
   {
     path: '',
-    // Point d'entrée après connexion (T-16) : le tableau de bord n'est
-    // sélectionné que pour un utilisateur authentifié ; sinon Angular
-    // retente la route '' suivante, la page d'accueil visiteur.
+    pathMatch: 'full',
+    // Le tableau de bord est le point d'entrée d'une session active. Angular
+    // ne permet pas de combiner `canMatch` et `redirectTo`, le redirect
+    // fonctionnel porte donc directement la décision de session.
+    redirectTo: sessionEntryRedirect,
+  },
+  {
+    path: NAVIGATION_PATHS.dashboard.slice(1),
     canMatch: [authenticatedMatch],
     loadChildren: () =>
       import('@features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
-  },
-  {
-    path: '',
-    loadChildren: () => import('@features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
   {
     // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
@@ -81,5 +87,5 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: sessionEntryRedirect },
 ];

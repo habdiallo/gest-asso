@@ -110,6 +110,31 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('app-navigation-menu nav')).toBeTruthy();
   });
 
+  it('presents the mobile account panel with identity and distinct account actions', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const profileButton = root.querySelector('.mobile-profile-button') as HTMLButtonElement;
+    profileButton.click();
+    fixture.detectChanges();
+
+    expect(profileButton.getAttribute('aria-expanded')).toBe('true');
+    expect(root.querySelector('.mobile-profile-summary strong')?.textContent).toContain(
+      'Awa Camara',
+    );
+    expect(root.querySelector('.mobile-profile-summary span')?.textContent).toContain(
+      'Administrateur',
+    );
+    expect(root.querySelector('.mobile-profile-account-action')?.textContent).toContain(
+      'Ouvrir mon accès',
+    );
+    expect(root.querySelector('.mobile-profile-logout .logout-button')?.textContent).toContain(
+      'Se déconnecter',
+    );
+  });
+
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
     'keeps the complete logout action for %s and removes the authenticated shell after activation',
     async (role) => {
@@ -138,10 +163,10 @@ describe('App', () => {
     },
   );
 
-  it('loads the home feature at the root route', async () => {
+  it('redirects an unauthenticated visitor from the root to the login screen', async () => {
     const harness = await RouterTestingHarness.create('/');
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
-    expect(harness.routeNativeElement?.querySelector('main')).toBeTruthy();
+    expect(TestBed.inject(Router).url).toBe('/login');
+    expect(harness.routeNativeElement?.tagName).toBe('APP-LOGIN-PAGE');
   });
 
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
@@ -211,7 +236,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
     fixture.detectChanges();
-    await router.navigateByUrl('/');
+    await router.navigateByUrl('/dashboard');
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
@@ -225,9 +250,10 @@ describe('App', () => {
     expect(root.querySelector('.desktop-breadcrumb strong')?.textContent?.trim()).toBe('Campagnes');
   });
 
-  it('redirects an unknown route to the home feature', async () => {
+  it('redirects an unknown unauthenticated route to login', async () => {
     const harness = await RouterTestingHarness.create('/unknown');
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Contribo');
+    expect(TestBed.inject(Router).url).toBe('/login');
+    expect(harness.routeNativeElement?.tagName).toBe('APP-LOGIN-PAGE');
   });
 
   it('loads the access-denied screen at /acces-refuse', async () => {
@@ -256,10 +282,10 @@ describe('App', () => {
 
   it('redirects an unauthenticated visitor away from the income categories route', async () => {
     // authenticatedMatch renvoie false sans rediriger : la route ne matche pas
-    // et Angular retombe sur le joker applicatif, qui redirige vers l'accueil.
+    // et Angular retombe sur le joker applicatif, qui redirige vers login.
     await RouterTestingHarness.create('/categories-de-revenu');
 
-    expect(TestBed.inject(Router).url).toBe('/');
+    expect(TestBed.inject(Router).url).toBe('/login');
   });
 
   // T-99 (RG-DATA-001) : un Membre ne consulte que ses propres données via

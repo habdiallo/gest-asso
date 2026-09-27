@@ -108,9 +108,10 @@ export class NavigationMenu {
   );
 
   /**
-   * Seul le lien « Tableau de bord » (`/`) exige une correspondance exacte de
-   * route : sans cela, `/` préfixe toutes les autres routes authentifiées et
-   * resterait actif en permanence (`RouterLinkActive` non exact).
+   * Seul le lien « Tableau de bord » (`/dashboard`) exige une correspondance
+   * exacte de route : sans cela, son chemin préfixerait les autres routes
+   * authentifiées et resterait actif en permanence (`RouterLinkActive` non
+   * exact).
    */
   readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
 }

@@ -2,6 +2,12 @@
   display: block;
 }
 
+.dashboard-quick-actions > a {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 @media (max-width: 659px) {
   .dashboard-kpi-grid > div {
     min-height: 146px;

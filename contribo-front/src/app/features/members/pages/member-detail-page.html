@@ -380,6 +380,7 @@
   <app-form-dialog
     [open]="deactivateOpen() && canDeactivate()"
     [dialogTitle]="'members.deactivate.dialogTitle' | transloco"
+    mobilePresentation="compact"
     (closed)="closeDeactivateDialog()"
   >
     @if (deactivateOpen() && canDeactivate()) {
@@ -389,7 +390,7 @@
         </p>
       }
       <p class="text-sm text-text">{{ 'members.deactivate.confirmMessage' | transloco }}</p>
-      <div class="mt-6 flex justify-end gap-3">
+      <div class="form-dialog-actions mt-6 flex justify-end gap-3">
         <app-action-button
           type="button"
           variant="secondary"
@@ -416,6 +417,7 @@
   <app-form-dialog
     [open]="reactivateOpen() && canReactivate()"
     [dialogTitle]="'members.reactivate.dialogTitle' | transloco"
+    mobilePresentation="compact"
     (closed)="closeReactivateDialog()"
   >
     @if (reactivateOpen() && canReactivate()) {
@@ -425,7 +427,7 @@
         </p>
       }
       <p class="text-sm text-text">{{ 'members.reactivate.confirmMessage' | transloco }}</p>
-      <div class="mt-6 flex justify-end gap-3">
+      <div class="form-dialog-actions mt-6 flex justify-end gap-3">
         <app-action-button type="button" variant="secondary" (click)="closeReactivateDialog()">
           {{ 'members.reactivate.cancel' | transloco }}
         </app-action-button>
@@ -592,7 +594,7 @@
             </p>
 
             <div
-              class="-mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7 min-[821px]:py-5"
+              class="form-dialog-actions -mx-4 -mb-4 mt-6 flex items-center justify-end gap-3 border-t border-line px-4 py-4 min-[821px]:-mx-7 min-[821px]:-mb-7 min-[821px]:px-7 min-[821px]:py-5"
             >
               <app-action-button
                 type="button"

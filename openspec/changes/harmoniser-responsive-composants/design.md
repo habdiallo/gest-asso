@@ -71,6 +71,37 @@ Les adaptations visuelles ne changent pas les inputs, outputs, services, droits,
 routes ou modèles API. Les contrôles restent nommés, atteignables au clavier,
 visibles au focus et suffisamment grands pour le toucher.
 
+### Distinguer les formulaires des confirmations
+
+Les dialogues de saisie restent plein écran sous 821px afin de donner au
+formulaire toute la hauteur disponible et de conserver son scroll interne. Les
+confirmations courtes utilisent la même primitive avec une présentation compacte
+centrée. Les pieds d'actions de formulaire passent en deux colonnes égales sur
+mobile, avec deux zones tactiles indépendantes et un espacement constant.
+
+### Rendre la navigation active explicite
+
+La navigation basse réutilise le composant partagé et conserve
+aria-current="page". Sous 1181px, l'item courant est identifié par sa couleur,
+un fond léger et un repère inférieur doré. Le traitement reste compatible avec
+les deux thèmes et ne dépend pas seulement du changement de couleur du texte.
+
+### Garder une entrée de session déterministe
+
+La route racine ne présente pas de home-page publique dans cette phase. Un
+redirect fonctionnel choisit `/login` sans session et `/dashboard` avec une
+session active. Le dashboard conserve une route explicite `/dashboard`, ce qui
+rend la navigation, le fil d'Ariane et les liens partageables cohérents.
+
+### Conserver OnPush comme stratégie Angular
+
+Tous les composants de production audités déclarent déjà
+`ChangeDetectionStrategy.OnPush`. Cette stratégie reste la valeur par défaut
+du projet : les états réactifs sont portés par les signaux, les inputs et les
+événements, tandis que les observables affichés dans les templates doivent
+passer par `AsyncPipe` ou être convertis en signal. Aucun composant ne justifie
+un retour à `Default` sans preuve reproductible et test associé.
+
 ## Risks / Trade-offs
 
 - [Risque] Une composition mobile trop compacte réduit la lisibilité. ->

@@ -36,6 +36,8 @@ describe('DetailTabs', () => {
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-controls')).toBe('campaign-panel-members');
     expect(tabs[1].tabIndex).toBe(-1);
+    expect(tabs[0].classList.contains('bg-gold-wash')).toBe(true);
+    expect(tabs[1].classList.contains('bg-gold-wash')).toBe(false);
   });
 
   it('changes tabs on click and moves with arrow keys', () => {

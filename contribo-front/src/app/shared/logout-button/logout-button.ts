@@ -5,6 +5,7 @@ import { SessionService } from '@core/session/session.service';
 @Component({
   selector: 'app-logout-button',
   templateUrl: './logout-button.html',
+  styleUrl: './logout-button.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutButton {

@@ -139,3 +139,55 @@ définissent ni les données ni l'ordre fonctionnel à implémenter.
   limite de l'environnement de validation courant ; les règles sont toutefois
   bornées aux seuils existants et aucune donnée ou interaction n'a été
   supprimée.
+
+## Corrections complémentaires vérifiées
+
+- Les contrôles de thème et de profil du header mobile partagent une forme
+  circulaire, une surface discrète et un état de focus commun. Le menu profil
+  conserve ses actions sans ajouter de navigation concurrente.
+- L'item actif de la navigation basse est identifiable par un fond doré léger,
+  une couleur de texte renforcée et un repère inférieur. Le lien actif expose
+  également aria-current="page".
+- Les listes Membres, Utilisateurs & rôles et Catégories de revenu affichent
+  une carte mobile dédiée sous 661px, avec les informations essentielles et
+  l'accès au détail ou à l'édition. Les tableaux restent disponibles à partir
+  de 661px.
+- À 393px, les cartes et les filtres des trois listes restent dans le viewport,
+  sans augmenter la largeur de document. Les pieds d'actions des formulaires
+  prennent deux colonnes égales sur mobile.
+- Les onglets du détail de cotisation gardent leur navigation clavier et
+  deviennent une bande locale défilable. Deux onglets occupent environ la
+  largeur visible, les libellés longs se replient et l'onglet actif reçoit un
+  fond et un soulignement dorés.
+- Une action unique dans le hero d'un détail occupe toute la largeur mobile.
+  Les groupes de deux actions conservent deux colonnes égales.
+- La liste Cagnottes conserve ses cartes financières et son filtre local sans
+  débordement. Le détail Cagnotte remplace le tableau des contributions par des
+  cartes mobiles qui conservent le contributeur, le montant, le mode et la
+  date ; le tableau reste réservé aux largeurs à partir de 661px.
+- Le contrôle de désactivation d'un membre a été vérifié en confirmation
+  compacte centrée, tandis que les dialogues de saisie restent plein écran
+  avec scroll interne.
+- Le panneau de compte mobile a été recomposé comme un popover compact :
+  identité et rôle en tête, accès au compte dans une action neutre avec
+  chevron, puis déconnexion isolée avec le traitement d'erreur du design. La
+  hiérarchie reste lisible dans les thèmes clair et sombre et le bouton profil
+  expose son état ouvert via `aria-expanded`.
+
+## Routage et détection des changements
+
+- La route racine ne charge plus la home-page visiteur : un utilisateur sans
+  session est redirigé vers `/login`, tandis qu'une session active est dirigée
+  vers `/dashboard`.
+- Le dashboard est désormais monté explicitement sous `/dashboard`. Le joker
+  de navigation réutilise la même décision de session, ce qui évite de
+  renvoyer un visiteur non connecté vers une page publique supprimée.
+- L'inventaire Angular compte 54 composants de production sous `src/app` et
+  chacun déclare `ChangeDetectionStrategy.OnPush`. Aucun passage global à
+  `Default` n'est justifié : les composants utilisent déjà des signaux,
+  inputs, événements, observables consommés par le template ou des flux de
+  route compatibles avec OnPush.
+- La stratégie retenue est de conserver OnPush par défaut pour les nouveaux
+  composants et de traiter les mises à jour par signaux, inputs immuables,
+  événements ou `AsyncPipe`. Un composant ne doit repasser à Default qu'après
+  la démonstration d'un besoin concret, documenté et couvert par un test.

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 
 @Component({
@@ -54,7 +55,7 @@ export class LoginPage {
       next: (response) => {
         this.submitting.set(false);
         this.sessionService.setSession(response);
-        void this.router.navigateByUrl('/');
+        void this.router.navigateByUrl(NAVIGATION_PATHS.dashboard);
       },
       error: () => {
         this.submitting.set(false);

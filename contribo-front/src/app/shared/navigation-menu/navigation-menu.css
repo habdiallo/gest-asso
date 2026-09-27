@@ -25,6 +25,14 @@
   height: 1rem;
 }
 
+.mobile-nav-link-active,
+.mobile-nav-link-active:hover {
+  color: var(--gold-hover);
+  background: var(--gold-wash);
+  box-shadow: inset 0 -2px 0 var(--gold-hover);
+  font-weight: 600;
+}
+
 .mobile-nav-label-long {
   max-width: 100%;
   overflow-wrap: anywhere;

@@ -69,6 +69,20 @@ describe('FormDialog', () => {
     expect(dialog.getAttribute('aria-label')).toBe('Modifier la cotisation');
   });
 
+  it('adds the compact presentation class only when requested', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Confirmer la désactivation');
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    expect(dialog.classList.contains('form-dialog-compact')).toBe(false);
+
+    fixture.componentRef.setInput('mobilePresentation', 'compact');
+    fixture.detectChanges();
+
+    expect(dialog.classList.contains('form-dialog-compact')).toBe(true);
+  });
+
   it('emits closed and closes the native dialog when the explicit close button is activated', () => {
     const fixture = TestBed.createComponent(FormDialog);
     fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');

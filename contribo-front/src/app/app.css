@@ -46,79 +46,200 @@
 
 .mobile-header-actions {
   position: relative;
-  gap: 0.5rem;
+  gap: 0.35rem;
   margin-left: auto;
 }
 
+.mobile-header app-theme-toggle button,
 .mobile-profile-button {
   display: inline-flex;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-icon);
+  border: 1px solid transparent;
+  border-radius: 9999px;
   color: var(--text);
-  background: transparent;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
+.mobile-header app-theme-toggle button:hover,
+.mobile-header app-theme-toggle button:focus-visible,
 .mobile-profile-button:hover,
 .mobile-profile-button:focus-visible {
-  border-color: var(--line-strong);
+  background: var(--gold-wash);
   color: var(--gold-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
+  transform: translateY(-1px);
 }
 
+.mobile-profile-button[aria-expanded='true'] {
+  background: var(--gold-wash);
+  color: var(--gold-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
+}
+
+.mobile-header app-theme-toggle button:focus-visible,
 .mobile-profile-button:focus-visible {
   outline: 3px solid var(--gold-wash);
   outline-offset: 2px;
 }
 
+.mobile-header app-theme-toggle button svg,
 .mobile-profile-button svg {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .mobile-profile-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  top: calc(100% + 0.65rem);
+  right: -0.25rem;
   z-index: 30;
-  display: grid;
-  min-width: 15rem;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.65rem;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-menu);
   background: var(--surface);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 16px 38px -18px rgb(0 0 0 / 75%);
+  animation: mobile-profile-menu-in 140ms ease-out;
 }
 
-.mobile-profile-menu > button,
+.mobile-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.3rem 0.25rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-profile-avatar {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, transparent);
+  border-radius: 50%;
+  background: var(--gold-wash);
+  color: var(--gold-hover);
+  font: 600 0.7rem var(--font-data);
+}
+
+.mobile-profile-summary-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+
+.mobile-profile-summary-copy strong,
+.mobile-profile-summary-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-profile-summary-copy strong {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mobile-profile-summary-copy span {
+  color: var(--text-3);
+  font-size: 0.7rem;
+}
+
+.mobile-profile-actions {
+  display: grid;
+  gap: 0.4rem;
+  padding-top: 0.6rem;
+}
+
+.mobile-profile-action,
 .mobile-profile-menu app-logout-button {
   width: 100%;
 }
 
-.mobile-profile-menu > button {
+.mobile-profile-action {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   min-height: 2.75rem;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid transparent;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: transparent;
-  color: var(--text);
-  text-align: left;
-}
-
-.mobile-profile-menu > button:hover,
-.mobile-profile-menu > button:focus-visible {
   background: var(--surface-2);
+  color: var(--text);
+  text-align: start;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
 }
 
-.mobile-profile-menu app-logout-button button {
-  min-height: 2.75rem;
-  width: 100%;
-  padding: 0.65rem 0.75rem;
-  justify-content: flex-start;
-  border-radius: var(--radius);
+.mobile-profile-action:hover,
+.mobile-profile-action:focus-visible {
+  border-color: color-mix(in srgb, var(--gold) 42%, var(--line));
+  background: var(--gold-wash);
+  color: var(--gold-hover);
+}
+
+.mobile-profile-action-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.45rem;
+  background: var(--gold-wash);
+  color: var(--gold-hover);
+}
+
+.mobile-profile-action-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.mobile-profile-action-label {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-profile-action-arrow {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: var(--text-3);
+}
+
+@keyframes mobile-profile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-profile-menu {
+    animation: none;
+  }
 }
 
 .mobile-bottom-nav {
