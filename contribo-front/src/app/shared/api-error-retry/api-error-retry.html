@@ -2,7 +2,7 @@
   <p class="text-sm text-error" role="alert">{{ message() }}</p>
   <button
     type="button"
-    class="rounded-lg border border-error px-3 py-1.5 text-control font-medium uppercase tracking-control text-error transition-colors hover:bg-error-wash"
+    class="rounded border border-error px-3 py-1.5 text-control font-medium uppercase tracking-control text-error transition-colors hover:bg-error-wash"
     (click)="retry.emit()"
   >
     {{ retryLabel() }}

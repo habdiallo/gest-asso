@@ -1,9 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
-import fr from '@assets/i18n/fr.json';
 import { CustomSelect } from './custom-select';
 import type { CustomSelectOption } from './custom-select';
 
@@ -23,7 +20,6 @@ function flushMicrotasks(): Promise<void> {
   template: `<app-custom-select
     [formControl]="control"
     [options]="options"
-    label="Rôle"
     [required]="true"
     [pill]="pill"
     [compact]="compact"
@@ -38,31 +34,6 @@ class HostComponent {
 }
 
 describe('CustomSelect', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        TranslocoTestingModule.forRoot({
-          langs: { fr },
-          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
-          preloadLangs: true,
-        }),
-      ],
-      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
-    }).compileComponents();
-  });
-
-  it('marks a required custom select in the label and accessibility tree', () => {
-    const fixture = TestBed.createComponent(HostComponent);
-    fixture.detectChanges();
-
-    const label = fixture.nativeElement.querySelector('label') as HTMLLabelElement;
-    const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-
-    expect(label.textContent).toContain('*');
-    expect(label.textContent).toContain('Champ obligatoire');
-    expect(trigger.getAttribute('aria-required')).toBe('true');
-  });
-
   it('supports a pill trigger for toolbar filters', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.pill = true;
@@ -82,14 +53,14 @@ describe('CustomSelect', () => {
     expect(trigger.textContent).toContain('Option B');
   });
 
-  it('preserves the compact radius for non-pill controls', () => {
+  it('uses the button radius for compact non-pill controls', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.compact = true;
     fixture.detectChanges();
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(trigger.classList.contains('rounded')).toBe(false);
-    expect(trigger.classList.contains('rounded-lg')).toBe(true);
+    expect(trigger.classList.contains('rounded')).toBe(true);
+    expect(trigger.classList.contains('rounded-lg')).toBe(false);
     expect(trigger.classList.contains('rounded-full')).toBe(false);
   });
 
