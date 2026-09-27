@@ -29,13 +29,14 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 
 ## 3. Catégories de revenu [T-119]
 
-Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-119 --json` (`front/fix-119-alignement-visuel-categories-revenu`). Prérequis : T-118. Périmètre : `features/income-categories` (liste + dialogues de création/modification). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Catégories de revenu »).
+Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-119 --json` (`front/fix-119-alignement-visuel-categories-revenu`). Prérequis : T-118. Périmètre : `features/income-categories` (liste + dialogues de création/modification), correction de la régression de pagination du tableau des membres introduite pendant T-118, et harmonisation légère de la typographie des filtres et du tableau membres. Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'écran Catégories de revenu »), ainsi que la règle transversale de pagination des tableaux au-delà de 10 éléments.
 
-- [ ] 3.1 [T-119] Résoudre et vérifier T-119, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 3.2 [T-119] Capturer la liste des catégories de revenu puis ses dialogues de création et de modification à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 3.3 [T-119] Corriger les écarts listés, sans changer la validation ni l'enregistrement existants.
-- [ ] 3.4 [T-119] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 3.5 [T-119] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 3.1 [T-119] Résoudre et vérifier T-119, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 3.2 [T-119] Capturer la liste des catégories de revenu puis ses dialogues de création et de modification à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 3.3 [T-119] Corriger les écarts listés, sans changer la validation ni l'enregistrement existants, en mutualisant l'agencement du formulaire de création et de modification.
+- [x] 3.4 [T-119] Corriger la régression de T-118 sur le tableau des membres : le mock et le rendu doivent respecter une pagination conditionnée à plus de 10 éléments, avec 10 lignes par page, un nombre total de pages cohérent et des contrôles accessibles. Aligner la table sur la typographie du design, avec 13 px pour les cellules, 8 px pour les en-têtes, 13 px pour le nom et 10 px pour la métadonnée, puis retirer la graisse excessive des libellés des filtres sans modifier leur comportement.
+- [x] 3.5 [T-119] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents, notamment la pagination des membres et les parcours de création/modification de catégorie.
+- [x] 3.6 [T-119] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 4. Campagnes [T-120]
 

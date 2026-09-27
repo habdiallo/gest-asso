@@ -84,13 +84,15 @@ describe('EditIncomeCategoryDialog', () => {
     expect(input.value).toBe('Standard');
   });
 
-  it('shows a warning that the change has no retroactive effect (US-REV-002)', () => {
+  it('keeps the edit-only non-retroactive reminder in the shared form layout', () => {
     const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
     fixture.componentRef.setInput('category', buildCategory());
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("pas d'effet rétroactif");
+    expect(fixture.nativeElement.textContent).toContain(
+      "La modification du libellé ne s'applique qu'aux prochaines campagnes",
+    );
   });
 
   it('does not call the API and shows a validation error when submitted without a label', () => {

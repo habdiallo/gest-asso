@@ -111,6 +111,26 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
       expect(response.items).toEqual([]);
     });
 
+    it('pagine les résultats du handler par tranches de 10 membres', async () => {
+      const headers = { Authorization: `Bearer ${demoAccounts[0].accessToken}` };
+      const firstResponse = await runRequest(
+        new Request('http://localhost/api/v1/members?page=0&size=10', { headers }),
+      );
+      const secondResponse = await runRequest(
+        new Request('http://localhost/api/v1/members?page=1&size=10', { headers }),
+      );
+      const firstPage = (await firstResponse.json()) as MemberPage;
+      const secondPage = (await secondResponse.json()) as MemberPage;
+
+      expect(firstPage.items).toHaveLength(10);
+      expect(firstPage.page.totalElements).toBeGreaterThan(10);
+      expect(firstPage.page.totalPages).toBe(Math.ceil(firstPage.page.totalElements / 10));
+      expect(secondPage.items).toHaveLength(10);
+      expect(secondPage.items.map((member) => member.id)).not.toEqual(
+        expect.arrayContaining(firstPage.items.map((member) => member.id)),
+      );
+    });
+
     it('filtre via le paramètre `q` de la requête `GET /api/v1/members`', async () => {
       const headers = { Authorization: `Bearer ${demoAccounts[0].accessToken}` };
       const response = await runRequest(
