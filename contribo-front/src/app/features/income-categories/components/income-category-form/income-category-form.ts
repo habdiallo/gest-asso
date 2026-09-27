@@ -24,6 +24,7 @@ export class IncomeCategoryForm {
   readonly labelInvalid = input.required<boolean>();
   readonly labelRequired = input.required<TranslationKey>();
   readonly errorMessage = input<TranslationKey | null>(null);
+  readonly editing = input(false);
   readonly submitting = input(false);
   readonly submitLabel = input.required<TranslationKey>();
   readonly submittingLabel = input.required<TranslationKey>();

@@ -84,14 +84,14 @@ describe('EditIncomeCategoryDialog', () => {
     expect(input.value).toBe('Standard');
   });
 
-  it('uses the same informational form layout as the create dialog', () => {
+  it('keeps the edit-only non-retroactive reminder in the shared form layout', () => {
     const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
     fixture.componentRef.setInput('category', buildCategory());
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain(
-      "Aucun montant n'est associé à cette catégorie",
+      "La modification du libellé ne s'applique qu'aux prochaines campagnes",
     );
   });
 
