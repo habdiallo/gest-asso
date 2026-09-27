@@ -74,14 +74,14 @@
     </label>
 
     <div
-      class="flex min-h-12 shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px]"
+      class="flex min-h-12 w-full shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px] sm:w-auto"
       role="group"
       [attr.aria-label]="'socialFunds.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-9 rounded px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          class="min-h-9 min-w-0 flex-1 rounded px-2 text-center text-[9px] font-normal uppercase leading-tight tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:flex-none sm:px-3"
           [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"

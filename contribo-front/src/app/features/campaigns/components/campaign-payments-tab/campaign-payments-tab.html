@@ -52,7 +52,7 @@
         />
       }
       <app-data-table
-        class="block"
+        class="hidden min-[661px]:block"
         [caption]="'campaigns.detail.payments.caption' | transloco"
         [busy]="loading()"
       >
@@ -97,6 +97,40 @@
           }
         </tbody>
       </app-data-table>
+      <ul class="mt-4 grid gap-3 min-[661px]:hidden" data-testid="campaign-payments-mobile-cards">
+        @for (payment of result.items; track payment.id) {
+          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
+            <div class="flex min-w-0 items-start justify-between gap-3">
+              <p class="min-w-0 break-words font-medium text-text">
+                {{ payment.member.displayName }}
+              </p>
+              <p
+                class="shrink-0 text-right font-data text-sm font-medium tabular-nums text-success"
+              >
+                + {{ formatAmount(payment.amount) }}
+              </p>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
+              <div class="min-w-0">
+                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                  {{ 'campaigns.detail.payments.columns.method' | transloco }}
+                </dt>
+                <dd class="responsive-body mt-1 break-words text-text-2">
+                  {{ methodLabel(payment.method) }}
+                </dd>
+              </div>
+              <div class="min-w-0 text-right">
+                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                  {{ 'campaigns.detail.payments.columns.date' | transloco }}
+                </dt>
+                <dd class="responsive-body mt-1 break-words text-text-2">
+                  {{ formatDate(payment.paymentDate) }}
+                </dd>
+              </div>
+            </dl>
+          </li>
+        }
+      </ul>
     }
 
     @if (result.page.totalPages > 1) {

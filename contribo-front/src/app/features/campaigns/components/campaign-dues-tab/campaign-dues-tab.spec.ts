@@ -180,6 +180,10 @@ describe('CampaignDuesTab', () => {
 
     expect(root.textContent).toContain('Amadou Diallo');
     expect(root.textContent).toContain('Partiellement payé');
+    const mobileCard = root.querySelector('[data-testid="campaign-dues-mobile-cards"] li');
+    expect(mobileCard?.textContent).toContain('Amadou Diallo');
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(100_000));
+    expect(mobileCard?.textContent).toContain('Partiellement payé');
   });
 
   it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {

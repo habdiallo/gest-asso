@@ -78,6 +78,9 @@ describe('RecordPaymentForm', () => {
     );
     expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
     expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
+    expect(root.querySelector('[data-testid="record-payment-summary"]')?.className).toContain(
+      'grid-cols-3',
+    );
   });
 
   it('uses the contribution-style two-column layout for amount and date', async () => {

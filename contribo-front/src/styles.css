@@ -278,6 +278,25 @@ body {
     min-width: 0;
     width: 100%;
   }
+
+  .form-dialog-actions > app-action-button > button,
+  .form-dialog-actions > app-action-button > a {
+    min-width: 0;
+    width: 100%;
+    height: auto;
+    min-height: 2.75rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .form-dialog-actions > button {
+    height: auto;
+    min-height: 2.75rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
 }
 
 .detail-tabs-list {

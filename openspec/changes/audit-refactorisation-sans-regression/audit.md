@@ -38,15 +38,15 @@ La référence avant refactorisation est la suivante :
 Chaque feature regroupe ses pages, composants, services, mocks et tests
 colocalisés :
 
-| Feature | Responsabilité principale | Validation observée |
-| --- | --- | --- |
-| `campaigns` | campagnes, détails, cotisations et paiements | tests de pages, composants et handlers |
-| `dashboard` | indicateurs, sélections et actions rapides | tests de page et mocks |
-| `income-categories` | catégories de revenu et dialogs | tests de page, formulaires et handlers |
-| `member-space` | parcours membre et consultations personnelles | tests de pages et composants |
-| `members` | liste, détail, formulaires et cotisations membre | tests de page, formulaires et onglets |
-| `roles-users` | utilisateurs, rôles et permissions | tests de page et handlers |
-| `social-funds` | cagnottes, détails et contributions | tests de pages, formulaires et handlers |
+| Feature             | Responsabilité principale                        | Validation observée                     |
+| ------------------- | ------------------------------------------------ | --------------------------------------- |
+| `campaigns`         | campagnes, détails, cotisations et paiements     | tests de pages, composants et handlers  |
+| `dashboard`         | indicateurs, sélections et actions rapides       | tests de page et mocks                  |
+| `income-categories` | catégories de revenu et dialogs                  | tests de page, formulaires et handlers  |
+| `member-space`      | parcours membre et consultations personnelles    | tests de pages et composants            |
+| `members`           | liste, détail, formulaires et cotisations membre | tests de page, formulaires et onglets   |
+| `roles-users`       | utilisateurs, rôles et permissions               | tests de page et handlers               |
+| `social-funds`      | cagnottes, détails et contributions              | tests de pages, formulaires et handlers |
 
 ### Socle transversal
 
@@ -67,17 +67,17 @@ besoin d'évolution pour le périmètre retenu.
 
 ## Matrice des constats
 
-| Constat et preuve | Fréquence / consommateurs | Bénéfice attendu | Risque | Décision et validation |
-| --- | --- | --- | --- | --- |
-| Imports profonds vers `assets/i18n/fr.json` | 33 occurrences dans l'application et les specs, depuis core, shared et plusieurs features | Réduire les remontées fragiles et rendre la racine globale explicite | Faible si l'alias est résolu par Angular, TypeScript, tests et lint | Retenu. Ajouter `@assets/*`, migrer les imports globaux, exécuter tests, lint et build |
-| Imports profonds vers `mocks/demo-accounts.ts` et `mocks/demo-dues.ts` | Handlers et specs de plusieurs features | Réduire les chemins relatifs et stabiliser les mocks communs | Faible si `@mocks/*` reste réservé à `src/mocks` | Retenu. Ajouter `@mocks/*`, conserver les imports locaux et valider `test:tooling` |
-| Formateur `Intl.DateTimeFormat` de date calendrier strictement identique | 7 modules de features, même locale, options UTC et construction ISO | Supprimer une duplication prouvée sans changer les signatures locales | Faible avec un helper pur et des wrappers locaux | Retenu. Centraliser dans `core/formatting`, conserver les exports locaux et ajouter un test |
-| `dashboard/mocks/handlers.ts` importe `social-funds/mocks/handlers.ts` | 1 dépendance directe entre features | Aucun gain sûr par alias, mais signal d'architecture à traiter | Élevé, car déplacer ou masquer le mock peut changer les fixtures | Reporté. Documenter pour un ticket dédié, ne pas le masquer avec `@features/*` |
-| Pages et specs très volumineuses, notamment dashboard, membres, campagnes et cagnottes | Pages jusqu'à 989 lignes HTML, specs jusqu'à 1831 lignes | Lisibilité potentielle | Moyen à élevé, consommateurs et états nombreux | Reporté. Une extraction sans découpage fonctionnel prouvé serait spéculative |
-| `$any($event.target)` dans `campaign-dues-tab.html` | 1 occurrence | Améliorer le typage local | Faible mais hors des groupes retenus, car le type DOM doit être choisi explicitement | Reporté. À traiter avec un ticket de typage ciblé si nécessaire |
-| Présence de code mort | Recherche des routes, imports, scripts, configurations et conventions Angular | Réduire le code inutilisé | Élevé si une référence indirecte est manquée | Aucun élément supprimé. Les éléments non démontrés restent en place |
-| `OnPush`, `effect` et état réactif | Les composants de production observés utilisent déjà `OnPush`; les `effect` sont localisés | Gain éventuel de performance | Élevé sans mesure ni preuve de mauvais comportement | Aucun changement global. L'audit ne justifie pas de modifier la stratégie Angular |
-| Budget CSS dépassé et écarts Prettier | Avertissement build et trois fichiers formatés hors périmètre | Réduire les avertissements | Aucun lien démontré avec T-140 | Conservé comme état préexistant, sans correction hors périmètre |
+| Constat et preuve                                                                      | Fréquence / consommateurs                                                                  | Bénéfice attendu                                                      | Risque                                                                               | Décision et validation                                                                      |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Imports profonds vers `assets/i18n/fr.json`                                            | 33 occurrences dans l'application et les specs, depuis core, shared et plusieurs features  | Réduire les remontées fragiles et rendre la racine globale explicite  | Faible si l'alias est résolu par Angular, TypeScript, tests et lint                  | Retenu. Ajouter `@assets/*`, migrer les imports globaux, exécuter tests, lint et build      |
+| Imports profonds vers `mocks/demo-accounts.ts` et `mocks/demo-dues.ts`                 | Handlers et specs de plusieurs features                                                    | Réduire les chemins relatifs et stabiliser les mocks communs          | Faible si `@mocks/*` reste réservé à `src/mocks`                                     | Retenu. Ajouter `@mocks/*`, conserver les imports locaux et valider `test:tooling`          |
+| Formateur `Intl.DateTimeFormat` de date calendrier strictement identique               | 7 modules de features, même locale, options UTC et construction ISO                        | Supprimer une duplication prouvée sans changer les signatures locales | Faible avec un helper pur et des wrappers locaux                                     | Retenu. Centraliser dans `core/formatting`, conserver les exports locaux et ajouter un test |
+| `dashboard/mocks/handlers.ts` importe `social-funds/mocks/handlers.ts`                 | 1 dépendance directe entre features                                                        | Aucun gain sûr par alias, mais signal d'architecture à traiter        | Élevé, car déplacer ou masquer le mock peut changer les fixtures                     | Reporté. Documenter pour un ticket dédié, ne pas le masquer avec `@features/*`              |
+| Pages et specs très volumineuses, notamment dashboard, membres, campagnes et cagnottes | Pages jusqu'à 989 lignes HTML, specs jusqu'à 1831 lignes                                   | Lisibilité potentielle                                                | Moyen à élevé, consommateurs et états nombreux                                       | Reporté. Une extraction sans découpage fonctionnel prouvé serait spéculative                |
+| `$any($event.target)` dans `campaign-dues-tab.html`                                    | 1 occurrence                                                                               | Améliorer le typage local                                             | Faible mais hors des groupes retenus, car le type DOM doit être choisi explicitement | Reporté. À traiter avec un ticket de typage ciblé si nécessaire                             |
+| Présence de code mort                                                                  | Recherche des routes, imports, scripts, configurations et conventions Angular              | Réduire le code inutilisé                                             | Élevé si une référence indirecte est manquée                                         | Aucun élément supprimé. Les éléments non démontrés restent en place                         |
+| `OnPush`, `effect` et état réactif                                                     | Les composants de production observés utilisent déjà `OnPush`; les `effect` sont localisés | Gain éventuel de performance                                          | Élevé sans mesure ni preuve de mauvais comportement                                  | Aucun changement global. L'audit ne justifie pas de modifier la stratégie Angular           |
+| Budget CSS dépassé et écarts Prettier                                                  | Avertissement build et trois fichiers formatés hors périmètre                              | Réduire les avertissements                                            | Aucun lien démontré avec T-140                                                       | Conservé comme état préexistant, sans correction hors périmètre                             |
 
 ## Priorisation et groupe livré
 
@@ -91,10 +91,12 @@ Le groupe T-140 est limité aux corrections internes démontrées et réversible
 
 Les routes, permissions, appels API, données, formulaires, états globaux,
 navigation et composants métier restent inchangés. Les seules évolutions
-visuelles ajoutées après le retour utilisateur sont ciblées sur mobile : grille
-des actions de fiche membre, disposition adaptative des tablists selon leurs
-libellés, cartes des trois listes d'onglets et maintien de la pagination à 10
-éléments par page. Aucun changement
+visuelles ajoutées après le retour utilisateur sont ciblées sur mobile : actions
+réparties sans débordement, disposition adaptative des tablists selon leurs
+libellés, cartes des listes métier qui exposaient encore une table large,
+retour à la ligne des textes, filtres compacts et récapitulatifs de règlement
+en trois colonnes, ainsi que le maintien de la pagination à 10 éléments par
+page. Aucun changement
 de dépendance externe, de contrat ou de stockage n'est nécessaire.
 
 ## Frontières conservées
@@ -121,19 +123,21 @@ Le groupe initial ne modifiait ni HTML ni CSS. Le complément demandé modifie
 les templates mobiles de la fiche membre et des tablists, sans changer le rendu
 desktop, les données ni les parcours. Les tables desktop restent sémantiques et
 les cartes mobiles reprennent toutes les valeurs métier. La vérification
-navigateur manuelle couvre la largeur mobile via le parcours de fiche membre ;
-les variations exactes de navigateur et de thème restent couvertes par la
+navigateur manuelle couvre le dashboard, les listes de membres, les fiches
+campagne et cagnotte, ainsi que les tablists et les cartes mobiles. Les
+variations exactes de navigateur et de thème restent couvertes par la
 validation responsive existante et les limites documentées.
 
 ## Reversibilité
 
-Les corrections sont isolées dans un helper et des changements d'import. Un
-revert du commit T-140 restaure les chemins et les implémentations locales sans
-migration de données ni changement du contrat API.
+Les corrections sont isolées dans les composants partagés, les templates
+mobiles et les changements d'import. Un revert du commit T-140 restaure les
+chemins et le rendu précédent sans migration de données ni changement du
+contrat API.
 
 ## Validation après implémentation
 
-- `npm test -- --watch=false` : 76 fichiers et 782 tests réussis.
+- `npm test -- --watch=false` : 76 fichiers et 783 tests réussis.
 - `npm run lint` : réussi.
 - `npm run build` : réussi, avec l'avertissement CSS préexistant décrit plus
   haut.
@@ -144,6 +148,6 @@ migration de données ni changement du contrat API.
   réussis.
 - `openspec validate audit-refactorisation-sans-regression --strict` : réussi.
 - `git diff --check` : réussi.
-- Les changements HTML ciblent uniquement les actions, tablists et cartes
-  mobiles de la fiche membre et du profil membre. Aucun chemin T-138 ou
-  `source-command-opsx-*` n'est inclus.
+- Les changements HTML ciblent les actions, tablists, filtres, tableaux et
+  cartes mobiles du dashboard, des membres, des campagnes et des cagnottes.
+  Aucun chemin T-138 ou `source-command-opsx-*` n'est inclus.

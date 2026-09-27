@@ -419,7 +419,7 @@
             <a
               [routerLink]="navigationPaths.members"
               [queryParams]="canCreateMember() ? { creer: '1' } : undefined"
-              class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+              class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
             >
               <svg
                 class="h-[18px] w-[18px] text-gold"
@@ -445,7 +445,7 @@
             @if (isAdministrator()) {
               <a
                 [routerLink]="navigationPaths.rolesAndUsers"
-                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -465,7 +465,7 @@
               </a>
               <a
                 [routerLink]="navigationPaths.incomeCategories"
-                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -487,7 +487,7 @@
             } @else {
               <a
                 [routerLink]="navigationPaths.socialFunds"
-                class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+                class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
               >
                 <svg
                   class="h-[18px] w-[18px] text-gold"
@@ -514,7 +514,7 @@
             <a
               [routerLink]="navigationPaths.campaigns"
               [queryParams]="canCreateCampaign() ? { creer: '1' } : undefined"
-              class="flex min-h-[92px] flex-col items-start gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-xs text-text transition-colors hover:border-gold-hover"
+              class="flex min-h-[92px] flex-col items-center gap-3.5 rounded-card border border-line bg-surface-2 p-3.5 text-center text-xs text-text transition-colors hover:border-gold-hover lg:items-start lg:text-left"
             >
               <svg
                 class="h-[18px] w-[18px] text-gold"
@@ -698,10 +698,10 @@
                       </svg>
                     </span>
                     <div class="min-w-0">
-                      <p class="truncate text-sm font-medium text-text">
+                      <p class="break-words text-sm font-medium text-text">
                         {{ payment.member.displayName }}
                       </p>
-                      <p class="mt-1 truncate text-[11px] text-text-3">
+                      <p class="mt-1 break-words text-[11px] text-text-3">
                         {{ payment.campaign.name }} · {{ paymentMethodLabel(payment.method) }} ·
                         {{ formatCalendarDate(payment.paymentDate) }}
                       </p>
@@ -950,11 +950,13 @@
                   {{ member.viewer.member.displayName.slice(0, 2).toUpperCase() }}
                 </span>
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-medium text-text">
+                  <p class="break-words text-sm font-medium text-text">
                     {{ member.viewer.member.displayName }}
                   </p>
                   @if (member.viewer.member.city) {
-                    <p class="mt-1 truncate text-xs text-text-3">{{ member.viewer.member.city }}</p>
+                    <p class="mt-1 break-words text-xs text-text-3">
+                      {{ member.viewer.member.city }}
+                    </p>
                   }
                 </div>
               </div>

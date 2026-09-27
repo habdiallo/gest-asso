@@ -1,13 +1,15 @@
-<dl class="grid grid-cols-1 gap-6 min-[661px]:grid-cols-4 min-[661px]:gap-6">
+<dl class="grid grid-cols-2 gap-x-4 gap-y-6 min-[661px]:grid-cols-4 min-[661px]:gap-6">
   @for (item of items(); track item.label) {
     <div class="min-w-0">
-      <dt class="responsive-label font-data font-medium uppercase tracking-[0.11em] text-text-3">
+      <dt
+        class="responsive-label break-words font-data font-medium uppercase tracking-[0.11em] text-text-3"
+      >
         {{ item.label }}
       </dt>
-      <dd class="responsive-metric-value mt-2 font-display tracking-[0.04em] text-text">
+      <dd class="responsive-metric-value mt-2 break-words font-display tracking-[0.04em] text-text">
         {{ item.value }}
       </dd>
-      <dd class="responsive-label mt-2 text-text-3">{{ item.hint }}</dd>
+      <dd class="responsive-label mt-2 break-words text-text-3">{{ item.hint }}</dd>
     </div>
   }
 </dl>

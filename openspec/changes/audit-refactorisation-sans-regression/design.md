@@ -74,11 +74,17 @@ cas. Le profil membre réutilise désormais le composant partagé, ce qui lui
 applique la même adaptation pour ses libellés plus longs. L'ordre DOM, le
 roving tabindex,
 les relations ARIA et l'indicateur actif restent portés par le même composant.
-Le comportement desktop reste inchangé. Sur la fiche membre, les trois actions
-du bandeau sont regroupées en grille : les actions secondaires partagent la
-largeur lorsque l'espace le permet et l'enregistrement d'un règlement occupe
-une ligne complète. Les trois tableaux des onglets de la fiche membre gardent
-leur table sémantique sur desktop et proposent des cartes lisibles sur mobile.
+Le comportement desktop reste inchangé. Sur les écrans métier, les tables qui
+étaient encore uniquement consultables sous forme large, notamment les onglets
+Cotisations et Règlements d'une campagne, gardent leur table sémantique sur
+desktop et proposent des cartes lisibles sur mobile. Sur la fiche membre, les
+trois actions du bandeau sont regroupées en grille : les actions secondaires
+partagent la largeur lorsque l'espace le permet et l'enregistrement d'un
+règlement occupe une ligne complète. Les trois tableaux des onglets de la fiche
+membre gardent également ce même comportement.
+Les filtres catégorie et pays de la liste des membres partagent une ligne
+mobile lorsqu'ils sont tous les deux disponibles, tandis que le récapitulatif
+du règlement utilise trois colonnes compactes pour ses montants.
 La pagination reste pilotée par la réponse API et apparaît lorsque
 `totalPages > 1`, avec une taille de page de 10.
 

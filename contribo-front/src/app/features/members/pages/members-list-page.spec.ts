@@ -403,6 +403,27 @@ describe('MembersListPage', () => {
     expect(root.textContent).toContain('Conde');
   });
 
+  it('places the category and country filters in a compact mobile row', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildMemberPage({
+          items: [
+            buildMember({ country: 'Guinée' }),
+            buildMember({ id: 'member-senegal', country: 'Sénégal' }),
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const filters = fixture.nativeElement.querySelector(
+      '[data-testid="members-secondary-filters"]',
+    ) as HTMLElement | null;
+    expect(filters).toBeTruthy();
+    expect(filters?.className).toContain('grid-cols-2');
+    expect(filters?.querySelectorAll('app-custom-select')).toHaveLength(2);
+  });
+
   it('shows a dedicated message when no member matches the selected category', async () => {
     const memberA = buildMember({ incomeCategory: { id: 'cat-a', label: 'Catégorie A' } });
     const fixture = await createFixture(() => of(buildMemberPage({ items: [memberA] })));

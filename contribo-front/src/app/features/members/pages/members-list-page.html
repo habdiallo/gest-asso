@@ -79,31 +79,65 @@
         class="app-form-control responsive-body min-h-11 w-full rounded border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
       />
     </div>
-    @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
-      <div class="w-full shrink-0 sm:w-[190px]">
-        <app-custom-select
-          controlId="member-income-category-filter"
-          [options]="incomeCategorySelectOptions()"
-          [value]="selectedIncomeCategoryId() ?? ''"
-          [placeholder]="'members.filters.incomeCategoryShort' | transloco"
-          [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
-          [compact]="true"
-          (valueChange)="onIncomeCategoryFilterChange($event)"
-        />
+    @if (
+      showFinancialDetail() &&
+      incomeCategoryOptions().length > 0 &&
+      countrySelectOptions().length > 1
+    ) {
+      <div
+        data-testid="members-secondary-filters"
+        class="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:contents"
+      >
+        <div class="w-full min-w-0 shrink-0 sm:w-[190px]">
+          <app-custom-select
+            controlId="member-income-category-filter"
+            [options]="incomeCategorySelectOptions()"
+            [value]="selectedIncomeCategoryId() ?? ''"
+            [placeholder]="'members.filters.incomeCategoryShort' | transloco"
+            [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
+            [compact]="true"
+            (valueChange)="onIncomeCategoryFilterChange($event)"
+          />
+        </div>
+        <div class="w-full min-w-0 shrink-0 sm:w-[160px]">
+          <app-custom-select
+            controlId="member-country-filter"
+            [options]="countrySelectOptions()"
+            [value]="selectedCountry() ?? ''"
+            [placeholder]="'members.filters.countryShort' | transloco"
+            [ariaLabel]="'members.filters.countryLabel' | transloco"
+            [compact]="true"
+            (valueChange)="onCountryFilterChange($event)"
+          />
+        </div>
       </div>
-    }
-    @if (countrySelectOptions().length > 1) {
-      <div class="w-full shrink-0 sm:w-[160px]">
-        <app-custom-select
-          controlId="member-country-filter"
-          [options]="countrySelectOptions()"
-          [value]="selectedCountry() ?? ''"
-          [placeholder]="'members.filters.countryShort' | transloco"
-          [ariaLabel]="'members.filters.countryLabel' | transloco"
-          [compact]="true"
-          (valueChange)="onCountryFilterChange($event)"
-        />
-      </div>
+    } @else {
+      @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
+        <div class="w-full shrink-0 sm:w-[190px]">
+          <app-custom-select
+            controlId="member-income-category-filter"
+            [options]="incomeCategorySelectOptions()"
+            [value]="selectedIncomeCategoryId() ?? ''"
+            [placeholder]="'members.filters.incomeCategoryShort' | transloco"
+            [ariaLabel]="'members.filters.incomeCategoryLabel' | transloco"
+            [compact]="true"
+            (valueChange)="onIncomeCategoryFilterChange($event)"
+          />
+        </div>
+      }
+      @if (countrySelectOptions().length > 1) {
+        <div class="w-full shrink-0 sm:w-[160px]">
+          <app-custom-select
+            controlId="member-country-filter"
+            [options]="countrySelectOptions()"
+            [value]="selectedCountry() ?? ''"
+            [placeholder]="'members.filters.countryShort' | transloco"
+            [ariaLabel]="'members.filters.countryLabel' | transloco"
+            [compact]="true"
+            (valueChange)="onCountryFilterChange($event)"
+          />
+        </div>
+      }
     }
     <div
       class="flex w-full shrink-0 rounded border border-line bg-surface-2 p-1 sm:w-auto"
@@ -259,7 +293,7 @@
                   {{ memberInitials(member) }}
                 </span>
                 <div class="min-w-0 flex-1">
-                  <strong class="responsive-body block truncate font-medium text-text">{{
+                  <strong class="responsive-body block break-words font-medium text-text">{{
                     member.displayName
                   }}</strong>
                   <span class="responsive-meta mt-1 block text-text-3">
@@ -290,7 +324,7 @@
                   <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
                     {{ 'members.columns.phone' | transloco }}
                   </dt>
-                  <dd class="responsive-body mt-1 truncate text-text-2">
+                  <dd class="responsive-body mt-1 break-words text-text-2">
                     {{ member.phone || ('members.valueMissing' | transloco) }}
                   </dd>
                 </div>
@@ -310,7 +344,7 @@
                     <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
                       {{ 'members.columns.incomeCategory' | transloco }}
                     </dt>
-                    <dd class="responsive-body mt-1 truncate text-text-2">
+                    <dd class="responsive-body mt-1 break-words text-text-2">
                       {{ member.incomeCategory.label }}
                     </dd>
                   </div>
@@ -319,7 +353,7 @@
                   <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
                     {{ 'members.columns.function' | transloco }}
                   </dt>
-                  <dd class="responsive-body mt-1 truncate text-text-2">
+                  <dd class="responsive-body mt-1 break-words text-text-2">
                     {{ member.associationFunction || ('members.valueMissing' | transloco) }}
                   </dd>
                 </div>

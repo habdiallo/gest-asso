@@ -99,7 +99,9 @@ mobile courte sans modifier le nom accessible complet. Trois libellés courts
 tiennent sur une seule ligne en colonnes égales, tandis que les ensembles plus
 longs ou plus nombreux utilisent une disposition de repli lisible. Les textes
 mobiles doivent revenir à la ligne et casser les mots longs plutôt que dépasser
-la largeur disponible. Les tablists locaux qui exposaient
+la largeur disponible. Les tables métier qui ne tiennent pas dans la largeur
+mobile MUST proposer une représentation en cartes conservant toutes les
+valeurs et actions de la ligne. Les tablists locaux qui exposaient
 le même parcours MUST réutiliser le composant partagé ou appliquer les mêmes
 règles. Les tableaux des onglets de la
 fiche membre MUST proposer une présentation en cartes sur les petites
@@ -117,10 +119,10 @@ utilisables sans débordement.
 - **WHEN** les libellés d'un tablist ne tiennent pas proprement en trois colonnes ou que le tablist contient plus de trois onglets
 - **THEN** une disposition de repli lisible est utilisée sans masquer d'onglet, sans imposer un défilement horizontal et sans modifier l'ordre DOM ou l'indicateur actif
 
-#### Scenario: Tableau d'un onglet de fiche membre sur mobile
+#### Scenario: Tableau métier sur mobile
 
-- **WHEN** des cotisations, règlements ou contributions sont disponibles sur une petite largeur
-- **THEN** chaque élément est présenté sous forme de carte avec ses valeurs métier, sans perte de montant, date, statut ou mode de règlement
+- **WHEN** des cotisations, règlements, contributions ou catégories sont disponibles sur une petite largeur
+- **THEN** chaque élément est présenté sous forme de carte avec ses valeurs métier, sans perte de montant, date, statut, catégorie, membre ou mode de règlement
 
 #### Scenario: Pagination d'un onglet
 
