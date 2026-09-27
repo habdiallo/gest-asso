@@ -134,6 +134,9 @@
   /* Conteneur commun des pages principales. */
   --container-shell: 90rem;
 
+  /* Point de rupture commun mobile/tablette, aligné sur l'échelle responsive. */
+  --breakpoint-tablet: 41.3125rem;
+
   /* Ombre des cartes/panneaux (section Shapes, `--shadow` de design/styles.css) :
      expose l'utilitaire `shadow-card`, suivant le thème actif comme `rounded-card`. */
   --shadow-card: var(--shadow);

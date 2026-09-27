@@ -1462,10 +1462,10 @@ describe('MemberDetailPage', () => {
         '[data-testid="member-financial-summary"]',
       );
       expect(financialSummary?.className).toContain('grid-cols-3');
-      expect(financialSummary?.className).toContain('min-[661px]:grid-cols-2');
+      expect(financialSummary?.className).toContain('tablet:grid-cols-2');
       expect(financialSummary?.querySelectorAll(':scope > div').length).toBe(3);
       expect(financialSummary?.querySelector(':scope > div')?.className).toContain(
-        'min-[661px]:col-span-2',
+        'tablet:col-span-2',
       );
     });
 

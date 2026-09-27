@@ -17,7 +17,7 @@
     />
   }
   <app-data-table
-    class="hidden min-[661px]:block"
+    class="hidden tablet:block"
     [caption]="'memberDetail.payments.caption' | transloco"
     [busy]="pageActionPending()"
   >
@@ -60,7 +60,7 @@
       }
     </tbody>
   </app-data-table>
-  <ul class="mt-4 grid gap-3 min-[661px]:hidden" data-testid="member-payments-mobile-cards">
+  <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="member-payments-mobile-cards">
     @for (payment of payments(); track payment.id) {
       <li class="rounded-card border border-line bg-surface p-4 shadow-card">
         <div class="flex min-w-0 items-start justify-between gap-3">

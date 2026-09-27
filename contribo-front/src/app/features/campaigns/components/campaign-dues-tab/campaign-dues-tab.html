@@ -1,5 +1,5 @@
 <div [attr.aria-busy]="loading()">
-  <div class="mb-7 grid gap-3 min-[661px]:grid-cols-[minmax(0,1fr)_auto]">
+  <div class="mb-7 grid gap-3 tablet:grid-cols-[minmax(0,1fr)_auto]">
     <div>
       <label for="campaign-dues-search" class="sr-only">
         {{ 'campaigns.detail.cotisations.searchLabel' | transloco }}
@@ -58,7 +58,7 @@
       <app-empty-state [message]="'campaigns.detail.cotisations.empty' | transloco" />
     } @else {
       <app-data-table
-        class="hidden min-[661px]:block"
+        class="hidden tablet:block"
         [caption]="'campaigns.detail.cotisations.caption' | transloco"
         [busy]="loading()"
       >
@@ -155,7 +155,7 @@
           }
         </tbody>
       </app-data-table>
-      <ul class="mt-4 grid gap-3 min-[661px]:hidden" data-testid="campaign-dues-mobile-cards">
+      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="campaign-dues-mobile-cards">
         @for (due of result.items; track due.id) {
           <li class="rounded-card border border-line bg-surface p-4 shadow-card">
             <div class="flex min-w-0 items-start justify-between gap-3">

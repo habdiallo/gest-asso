@@ -59,7 +59,7 @@
       />
     }
     <section
-      class="mt-5 hidden overflow-x-auto rounded-card border border-line bg-surface-glass min-[661px]:block"
+      class="mt-5 hidden overflow-x-auto rounded-card border border-line bg-surface-glass tablet:block"
       [attr.aria-busy]="loading() ? 'true' : null"
     >
       <table class="w-full min-w-[640px] text-left">
@@ -154,7 +154,7 @@
     </section>
 
     <section
-      class="mt-5 grid gap-2 min-[661px]:hidden"
+      class="mt-5 grid gap-2 tablet:hidden"
       role="list"
       [attr.aria-label]="'rolesUsers.title' | transloco"
     >
@@ -247,8 +247,8 @@
               (click)="goToPreviousPage()"
               class="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text"
             >
-              <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">‹</span>
-              <span class="sr-only min-[661px]:not-sr-only">{{
+              <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
+              <span class="sr-only tablet:not-sr-only">{{
                 'rolesUsers.previousPage' | transloco
               }}</span>
             </button>
@@ -259,8 +259,8 @@
               (click)="goToNextPage()"
               class="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text"
             >
-              <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">›</span>
-              <span class="sr-only min-[661px]:not-sr-only">{{
+              <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
+              <span class="sr-only tablet:not-sr-only">{{
                 'rolesUsers.nextPage' | transloco
               }}</span>
             </button>

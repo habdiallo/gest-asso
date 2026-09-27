@@ -178,7 +178,7 @@
         <app-empty-state class="mt-6 block" [message]="'members.filters.empty' | transloco" />
       } @else {
         <div
-          class="mt-3 hidden overflow-x-auto rounded-card border border-line bg-surface shadow-card min-[661px]:block"
+          class="mt-3 hidden overflow-x-auto rounded-card border border-line bg-surface shadow-card tablet:block"
           [attr.aria-busy]="loading() ? 'true' : null"
         >
           <table class="responsive-body w-full min-w-[980px] text-left">
@@ -277,7 +277,7 @@
           </table>
         </div>
 
-        <div class="mt-3 grid gap-2 min-[661px]:hidden" role="list">
+        <div class="mt-3 grid gap-2 tablet:hidden" role="list">
           @for (member of filteredItems(); track member.id) {
             <a
               [routerLink]="[member.id]"
@@ -370,21 +370,21 @@
         >
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="previousPageDisabled()"
             [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
             (click)="goToPreviousPage()"
           >
-            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">‹</span>
-            <span class="sr-only min-[661px]:not-sr-only">{{
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
+            <span class="sr-only tablet:not-sr-only">{{
               'members.previousPage' | transloco
             }}</span>
           </button>
           <p class="min-w-12 text-center text-text-2" role="status">
-            <span class="min-[661px]:hidden" aria-hidden="true"
+            <span class="tablet:hidden" aria-hidden="true"
               >{{ page.page.number + 1 }}/{{ page.page.totalPages }}</span
             >
-            <span class="sr-only min-[661px]:not-sr-only">
+            <span class="sr-only tablet:not-sr-only">
               {{
                 'members.pageStatus'
                   | transloco: { page: page.page.number + 1, totalPages: page.page.totalPages }
@@ -393,13 +393,13 @@
           </p>
           <button
             type="button"
-            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="nextPageDisabled()"
             [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
             (click)="goToNextPage()"
           >
-            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">›</span>
-            <span class="sr-only min-[661px]:not-sr-only">{{
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
+            <span class="sr-only tablet:not-sr-only">{{
               'members.nextPage' | transloco
             }}</span>
           </button>

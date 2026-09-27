@@ -1,5 +1,5 @@
 <div
-  class="detail-tabs-list mt-7 grid gap-x-2 border-b border-line sm:mt-8 min-[661px]:flex min-[661px]:gap-2 min-[661px]:overflow-x-auto min-[661px]:overscroll-x-contain min-[661px]:rounded-none min-[661px]:border-x-0 min-[661px]:border-t-0 min-[661px]:border-b min-[661px]:border-line min-[661px]:bg-transparent min-[661px]:p-0"
+  class="detail-tabs-list mt-7 grid gap-x-2 border-b border-line sm:mt-8 tablet:flex tablet:gap-2 tablet:overflow-x-auto tablet:overscroll-x-contain tablet:rounded-none tablet:border-x-0 tablet:border-t-0 tablet:border-b tablet:border-line tablet:bg-transparent tablet:p-0"
   [class.grid-cols-1]="mobileColumnCount() === 1"
   [class.grid-cols-2]="mobileColumnCount() === 2"
   [class.grid-cols-3]="mobileColumnCount() === 3"
@@ -11,7 +11,7 @@
       #tabButton
       type="button"
       role="tab"
-      class="detail-tab-button min-h-11 min-w-0 w-full break-words border-b-2 px-1.5 py-2 text-center text-control font-medium uppercase leading-tight tracking-control outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash min-[661px]:w-auto min-[661px]:shrink-0 min-[661px]:whitespace-nowrap min-[661px]:px-4"
+      class="detail-tab-button min-h-11 min-w-0 w-full break-words border-b-2 px-1.5 py-2 text-center text-control font-medium uppercase leading-tight tracking-control outline-none transition-[border-color,color,background-color] duration-[180ms] focus-visible:ring-[3px] focus-visible:ring-gold-wash tablet:w-auto tablet:shrink-0 tablet:whitespace-nowrap tablet:px-4"
       [id]="tabId(tab)"
       [attr.aria-label]="tab.label"
       [attr.aria-selected]="isActive(tab) ? 'true' : 'false'"
@@ -27,8 +27,8 @@
       (click)="select(tab)"
       (keydown)="onKeydown($event)"
     >
-      <span class="min-[661px]:hidden">{{ tab.mobileLabel || tab.label }}</span>
-      <span class="hidden min-[661px]:inline">{{ tab.label }}</span>
+      <span class="tablet:hidden">{{ tab.mobileLabel || tab.label }}</span>
+      <span class="hidden tablet:inline">{{ tab.label }}</span>
     </button>
   }
 </div>

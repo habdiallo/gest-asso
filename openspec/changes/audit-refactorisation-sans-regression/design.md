@@ -62,6 +62,10 @@ Alternative écartée : ajouter un alias global `@app/*` ou remplacer mécanique
 
 ### 8. Rendre les parcours à onglets et les listes métier utilisables sur mobile
 
+Le seuil commun de passage mobile/tablette est exposé par le jeton Tailwind
+`--breakpoint-tablet` et les variantes `tablet:` et `max-tablet:`. Les templates
+ne doivent pas recopier une valeur de largeur arbitraire dans une classe.
+
 Les onglets partagés calculent leur disposition mobile à partir du nombre
 d'onglets et de la longueur réelle de leurs libellés mobiles. Un usage peut
 fournir un libellé mobile court lorsque le libellé desktop est trop long, sans

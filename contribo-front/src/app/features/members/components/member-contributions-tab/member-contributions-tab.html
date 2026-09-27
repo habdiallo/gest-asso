@@ -21,7 +21,7 @@
       <app-empty-state [message]="'memberDetail.contributions.empty' | transloco" />
     } @else {
       <app-data-table
-        class="hidden min-[661px]:block"
+        class="hidden tablet:block"
         [caption]="'memberDetail.contributions.caption' | transloco"
         [busy]="loading()"
       >
@@ -65,7 +65,7 @@
         </tbody>
       </app-data-table>
       <ul
-        class="mt-4 grid gap-3 min-[661px]:hidden"
+        class="mt-4 grid gap-3 tablet:hidden"
         data-testid="member-contributions-mobile-cards"
       >
         @for (contribution of result.items; track contribution.id) {

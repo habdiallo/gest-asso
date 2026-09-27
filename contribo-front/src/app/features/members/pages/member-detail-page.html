@@ -51,7 +51,7 @@
           aria-hidden="true"
         ></div>
         <div
-          class="relative z-10 flex flex-col items-start justify-between gap-6 min-[661px]:flex-row"
+          class="relative z-10 flex flex-col items-start justify-between gap-6 tablet:flex-row"
         >
           <div class="flex min-w-0 items-center gap-4">
             <span
@@ -81,7 +81,7 @@
 
           <div
             data-testid="member-detail-actions"
-            class="grid w-full grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 min-[661px]:flex min-[661px]:w-auto max-[660px]:[&>app-action-button>button]:w-full"
+            class="grid w-full grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 tablet:flex tablet:w-auto max-tablet:[&>app-action-button>button]:w-full"
           >
             @if (canEdit()) {
               <app-action-button variant="secondary" type="button" (click)="openEditDialog()">
@@ -127,7 +127,7 @@
             @if (canRecordPayments()) {
               <div
                 data-testid="member-detail-payment-action"
-                class="col-span-full min-w-0 min-[661px]:contents max-[660px]:[&>app-action-button>button]:w-full"
+                class="col-span-full min-w-0 tablet:contents max-tablet:[&>app-action-button>button]:w-full"
               >
                 <app-action-button type="button" (click)="openRecordPaymentDialog()">
                   <svg
@@ -224,21 +224,21 @@
           </h2>
           <dl
             data-testid="member-financial-summary"
-            class="mt-4 grid grid-cols-3 gap-x-2 border-t border-line pt-4 min-[661px]:grid-cols-2 min-[661px]:gap-x-4 min-[661px]:gap-y-4"
+            class="mt-4 grid grid-cols-3 gap-x-2 border-t border-line pt-4 tablet:grid-cols-2 tablet:gap-x-4 tablet:gap-y-4"
           >
             <div
-              class="order-3 min-w-0 text-center min-[661px]:order-none min-[661px]:col-span-2 min-[661px]:border-b min-[661px]:pb-4 min-[661px]:text-left"
+              class="order-3 min-w-0 text-center tablet:order-none tablet:col-span-2 tablet:border-b tablet:pb-4 tablet:text-left"
             >
               <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.remaining' | transloco }}
               </dt>
               <dd
-                class="responsive-body mt-1 break-words font-data text-gold min-[661px]:responsive-metric-value min-[661px]:mt-2 min-[661px]:font-display min-[661px]:tracking-wide min-[661px]:text-text"
+                class="responsive-body mt-1 break-words font-data text-gold tablet:responsive-metric-value tablet:mt-2 tablet:font-display tablet:tracking-wide tablet:text-text"
               >
                 {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
               </dd>
             </div>
-            <div class="order-1 min-w-0 text-center min-[661px]:order-none min-[661px]:text-left">
+            <div class="order-1 min-w-0 text-center tablet:order-none tablet:text-left">
               <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.due' | transloco }}
               </dt>
@@ -246,7 +246,7 @@
                 {{ formatAmount(member.financialSummary.totalDueAmount) }}
               </dd>
             </div>
-            <div class="order-2 min-w-0 text-center min-[661px]:order-none min-[661px]:text-left">
+            <div class="order-2 min-w-0 text-center tablet:order-none tablet:text-left">
               <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.paid' | transloco }}
               </dt>

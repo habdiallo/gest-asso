@@ -27,6 +27,6 @@ describe('DetailMetrics', () => {
 
     const metrics = fixture.nativeElement.querySelector('dl');
     expect(metrics.className).toContain('grid-cols-2');
-    expect(metrics.className).toContain('min-[661px]:grid-cols-4');
+    expect(metrics.className).toContain('tablet:grid-cols-4');
   });
 });
