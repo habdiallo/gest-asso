@@ -1,15 +1,18 @@
 ## Why
 
-La fidélité visuelle au prototype `design/` n'a jusqu'ici été vérifiée systématiquement que pour la sidebar desktop (`desktop-sidebar-visual`, change archivé `fidelite-sidebar-desktop-design`, T-111). Les autres écrans (tableau de bord, listes, fiches, formulaires) n'ont jamais fait l'objet d'une comparaison écran par écran avec leur équivalent dans `design/` en mode desktop. Le porteur du produit a par exemple constaté qu'après connexion, l'écran affiché est censé être le tableau de bord mais qu'aucun lien de navigation « Tableau de bord » n'existe dans l'application, alors que le prototype en affiche un pour chaque rôle. Sans méthode explicite, ce type d'écart s'accumule silencieusement écran après écran.
+Le ticket T-122 doit traiter l'écart restant entre la page actuelle Utilisateurs et rôles et son équivalent dans `design/`. La page actuelle conserve la recherche et le filtre dans deux champs larges, affiche les utilisateurs sans avatar ni pastilles d'état et expose une action textuelle, alors que le design cible utilise une barre d'outils compacte, un tableau plus lisible et une navigation par chevron.
+
+Le même écart existe dans le dialogue de configuration : le comportement métier est présent, mais son agencement ne reprend pas la hiérarchie visuelle du prototype. Le ticket doit donc aligner la liste et le dialogue sans changer les données, les droits ou le contrat API.
 
 ## What Changes
 
-- Comparer méthodiquement, en mode desktop uniquement (≥1024 px, prioritairement 1440 px), chaque écran atteint après connexion à son équivalent dans `design/`, dans l'ordre réel de navigation de l'application : tableau de bord d'abord (point d'entrée après connexion), puis chaque destination du menu latéral dans son ordre d'affichage actuel.
-- Pour chaque écran : capturer une référence visuelle de l'état actuel, lister précisément les écarts avec le prototype (couleurs, espacements, typographies, composants manquants ou surnuméraires), puis corriger ces écarts avant de passer à l'écran suivant. Un écran/composant n'est considéré terminé que lorsque tous ses écarts identifiés sont traités.
-- Statuer explicitement sur l'absence du lien de navigation « Tableau de bord » : le change archivé `fidelite-sidebar-desktop-design` (T-111) avait volontairement exclu toute nouvelle destination de navigation du prototype pour rester purement graphique. Ce change réexamine ce point précis à la lumière de l'écart constaté, sans rouvrir le reste du périmètre déjà traité par T-111 (marque, présentation des liens existants, pied de sidebar).
-- Découper le travail en un ticket indépendant par écran/composant (une branche, une PR par ticket), traité dans l'ordre de navigation, pour permettre une revue et une validation incrémentales.
-- Exclure explicitement la tablette et le mobile de ce change : ils seront traités par un change OpenSpec ultérieur, une fois la totalité des écrans desktop alignée. Ce change ne modifie pas les seuils de responsive existants (821 px pour la sidebar, breakpoints Tailwind `min-[821px]`).
-- **BREAKING** : aucune. Ce change ne modifie ni les routes existantes, ni les contrats API, ni les droits par rôle ; il peut ajouter une destination de navigation (tableau de bord) si l'écart est confirmé et tranché en ce sens.
+- Aligner T-122 sur le design cible pour la page Utilisateurs et rôles à 1440 px et 1024 px, dans les deux thèmes.
+- Remplacer l'organisation actuelle de la barre d'outils par une recherche principale pleine largeur et un déclencheur de filtre de rôle compact, sans supprimer le filtrage API existant.
+- Conserver exactement les cinq colonnes métier actuelles, tout en harmonisant leur rendu : avatar et identité dans la colonne utilisateur, rôle applicatif, pastille d'autorisation financière, pastille d'état du compte et chevron d'action.
+- Aligner le dialogue de configuration sur le gabarit du design : kicker, identité du compte, sections numérotées, sélection du rôle, autorisation financière conditionnelle pour l'Opérateur, aide globale et pied d'actions commun.
+- Conserver l'ouverture du dialogue depuis une ligne, la présélection du rôle, la mise à jour via `PUT /users/{userId}`, la pagination, la recherche, le filtrage, les droits Administrateur et les états de chargement/erreur.
+- Ajouter ou ajuster uniquement les fixtures et tests nécessaires pour rendre les états du design observables, sans inventer de données métier ni modifier le contrat API.
+- **BREAKING** : aucune. Le changement est visuel et ne modifie ni les colonnes métier, ni les routes, ni les droits, ni les opérations API.
 
 ## Capabilities
 
@@ -23,7 +26,7 @@ La fidélité visuelle au prototype `design/` n'a jusqu'ici été vérifiée sys
 
 ## Impact
 
-- Zones concernées : `contribo-front/src/app/features/*` (dashboard, members, income-categories, campaigns, social-funds, roles-users, member-space), `shared/navigation-menu/`, `shared/form-dialog/`, et `core/navigation/` si le lien tableau de bord est ajouté (nouvelle entrée `NAVIGATION_PATHS.dashboard` et route associée le cas échéant).
-- Aucun impact backend, contrat API (`besoins/openapi.yaml`), migration ou dépendance npm.
-- Découpage en plusieurs tickets indépendants, tous `scope front` / `type fix`, un par écran/composant, réservés dans `openspec/tickets.json` lors de la rédaction de `tasks.md` de ce change.
-- Un futur change distinct couvrira la tablette et le mobile une fois ce change desktop terminé ; il n'est pas planifié ici.
+- Zones concernées pour T-122 : `contribo-front/src/app/features/roles-users/`, les traductions françaises associées, les mocks et les tests de composant.
+- Les composants partagés `action-button`, `custom-select` et `form-dialog` peuvent être réutilisés ou ajustés uniquement si l'alignement de T-122 l'exige, sans introduire de comportement spécifique aux rôles et utilisateurs dans `shared/`.
+- Aucun impact backend, contrat API `besoins/openapi.yaml`, migration ou dépendance npm.
+- La branche et la PR de T-122 restent `front/fix-122-alignement-visuel-roles-utilisateurs` vers `main`, après le prérequis T-121.
