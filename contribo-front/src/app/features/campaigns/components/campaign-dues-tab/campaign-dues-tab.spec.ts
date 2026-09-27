@@ -18,7 +18,7 @@ import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
 /*

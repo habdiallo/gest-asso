@@ -15,7 +15,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { MembersListPage } from './members-list-page';

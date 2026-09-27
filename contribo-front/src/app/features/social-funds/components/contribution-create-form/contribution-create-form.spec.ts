@@ -5,7 +5,7 @@ import type { CreateContributionRequest, MemberPage, MemberSummary } from '@api'
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { NEVER, of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { ContributionCreateForm } from './contribution-create-form';
 
 const members: MemberSummary[] = [

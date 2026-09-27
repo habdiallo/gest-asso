@@ -7,7 +7,7 @@ import { EspacePersonnelService } from '@api';
 import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { ProfilePage } from './profile-page';
 
 function buildCurrentUser(overrides: Partial<CurrentUser['member']> = {}): CurrentUser {

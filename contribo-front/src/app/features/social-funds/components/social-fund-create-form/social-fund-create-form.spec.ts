@@ -3,7 +3,7 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { SocialEventType } from '@api';
 import type { CreateSocialFundRequest } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SocialFundCreateForm } from './social-fund-create-form';
 
 async function createFixture(): Promise<ComponentFixture<SocialFundCreateForm>> {

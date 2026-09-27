@@ -5,7 +5,7 @@ import type { CurrentUser, DuePage, UserRole } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { MemberDuesTab } from './member-dues-tab';
 

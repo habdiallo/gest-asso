@@ -1,14 +1,4 @@
-/**
- * Formatage des dates du tableau de bord en français, sans dépendre du
- * `LOCALE_ID` Angular (non configuré pour `fr-FR` dans ce socle).
- */
-
-const calendarDateFormatter = new Intl.DateTimeFormat('fr-FR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
+import { formatCalendarDate as formatCoreCalendarDate } from '@core/formatting/calendar-date';
 
 /**
  * Formate une date de calendrier (`format: date`, par ex. `startDate`/`endDate`
@@ -16,7 +6,7 @@ const calendarDateFormatter = new Intl.DateTimeFormat('fr-FR', {
  * la valeur est interprétée à minuit UTC puis affichée dans le même fuseau.
  */
 export function formatCalendarDate(value: string): string {
-  return calendarDateFormatter.format(new Date(`${value}T00:00:00Z`));
+  return formatCoreCalendarDate(value);
 }
 
 const instantFormatter = new Intl.DateTimeFormat('fr-FR', {

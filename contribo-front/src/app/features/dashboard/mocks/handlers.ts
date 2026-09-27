@@ -17,8 +17,8 @@ import type {
   SocialFundSummary,
   SocialFundsAggregateOverview,
 } from '@api';
-import type { DemoAccount } from '../../../../mocks/demo-accounts';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import type { DemoAccount } from '@mocks/demo-accounts';
+import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
 import { demoSocialFunds } from '../../social-funds/mocks/handlers';
 
 /**

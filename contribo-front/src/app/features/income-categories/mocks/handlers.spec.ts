@@ -1,7 +1,7 @@
 import { setupServer } from 'msw/node';
 import { ErrorCode, UserRole } from '@api';
 import type { ErrorResponse } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { incomeCategoriesHandlers } from './handlers';
 
 const server = setupServer(...incomeCategoriesHandlers);

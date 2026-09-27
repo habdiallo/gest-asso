@@ -30,7 +30,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberEditForm } from '../components/member-edit-form/member-edit-form';
 import { MemberDetailPage } from './member-detail-page';
 

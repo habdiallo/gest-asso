@@ -1,6 +1,6 @@
 import { MemberStatus } from '@api';
 import type { ContributionPage, MemberDetails, MemberPage } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { buildMemberPageResponse, membersHandlers } from './handlers';
 
 async function runRequest(request: Request): Promise<Response> {

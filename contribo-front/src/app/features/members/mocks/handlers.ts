@@ -23,8 +23,8 @@ import type {
   UpdateMemberContactRequest,
   UpdateMemberRequest,
 } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
-import { getDemoDuesForMember } from '../../../../mocks/demo-dues';
+import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
+import { getDemoDuesForMember } from '@mocks/demo-dues';
 
 /**
  * Répertoire de démonstration pour `GET /api/v1/members` (T-21). Les données

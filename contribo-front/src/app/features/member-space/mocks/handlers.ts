@@ -9,7 +9,7 @@ import {
   SocialFundStatus,
 } from '@api';
 import type { Contribution, ContributionPage, Due, DuePage, ErrorResponse } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
 
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
