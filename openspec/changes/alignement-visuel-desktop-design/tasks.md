@@ -69,7 +69,7 @@ Scope/type : `front/fix`. Branche : `front/fix-122-alignement-visuel-roles-utili
 - [x] 6.5 [T-122] Recomposer le dialogue de configuration avec son kicker, son identité de compte, ses sections numérotées, son autorisation conditionnelle Opérateur, son encart d'information et son pied d'actions, en conservant `PUT /users/{userId}` et les validations existantes.
 - [x] 6.6 [T-122] Adapter les clés Transloco, les fixtures et les tests DOM/API nécessaires pour couvrir les avatars, pastilles, filtres, dialogue, présélections, succès, erreurs et contrainte d'autorisation.
 - [x] 6.7 [T-122] Exécuter les tests ciblés, la suite frontend, le lint, le build, le formatage et les contrôles de tickets/OpenSpec, puis vérifier visuellement les deux thèmes à 1440 px et 1024 px sans régression mobile.
-- [ ] 6.8 [T-122] Revoir le diff ciblé, documenter les captures avant/après, committer avec le titre T-122, pousser uniquement la branche du ticket et ouvrir une PR vers `main` sans fusionner.
+- [x] 6.8 [T-122] Revoir le diff ciblé, documenter les captures avant/après, committer avec le titre T-122, pousser uniquement la branche du ticket et ouvrir une PR vers `main` sans fusionner.
 
 ## 7. Mon espace [T-123]
 
