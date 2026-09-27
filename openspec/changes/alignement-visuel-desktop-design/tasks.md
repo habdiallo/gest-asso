@@ -52,10 +52,10 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-121 --json` (`front/fix-121-alignement-visuel-cagnottes`). Prérequis : T-120. Périmètre : `features/social-funds` (liste + détail, dialogues associés). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle des écrans Cagnottes »).
 
-- [ ] 5.1 [T-121] Résoudre et vérifier T-121, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 5.2 [T-121] Capturer la liste des cagnottes puis le détail d'une cagnotte à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 5.3 [T-121] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
-- [ ] 5.4 [T-121] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
+- [x] 5.1 [T-121] Résoudre et vérifier T-121, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 5.2 [T-121] Capturer la liste des cagnottes puis le détail d'une cagnotte à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 5.3 [T-121] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
+- [x] 5.4 [T-121] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
 - [ ] 5.5 [T-121] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 6. Rôles et utilisateurs [T-122]

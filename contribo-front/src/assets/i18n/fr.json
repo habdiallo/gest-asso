@@ -108,6 +108,7 @@
   "socialFunds.statusFilterAll": "Toutes",
   "socialFunds.statusFilterOpen": "Ouvertes",
   "socialFunds.statusFilterClosed": "Clôturées",
+  "socialFunds.info": "Les contributions aux cagnottes sont entièrement séparées des cotisations et ne réduisent jamais un montant dû.",
   "socialFunds.eventTypeFilterLabel": "Filtrer par type d'événement",
   "socialFunds.eventTypeFilterAll": "Tous les types d'événement",
   "socialFunds.card.subtitle": "{{beneficiary}} · Du {{start}} au {{end}}",

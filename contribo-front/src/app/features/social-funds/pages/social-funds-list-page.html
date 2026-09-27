@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-[1440px] px-5 pb-16 pt-8 sm:px-8 sm:pt-10 lg:px-12">
+<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'socialFunds.kicker' | transloco"
     [title]="'socialFunds.title' | transloco"
@@ -46,7 +46,9 @@
     </app-form-dialog>
   }
 
-  <div class="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+  <div
+    class="-mx-2 mb-3 flex flex-col gap-3 rounded-xl bg-[color:color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-[18px] lg:sticky lg:top-[86px] lg:z-[9] lg:flex-row lg:items-center"
+  >
     <label class="relative min-w-0 flex-1">
       <span class="sr-only">{{ 'socialFunds.searchLabel' | transloco }}</span>
       <svg
@@ -67,20 +69,20 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'socialFunds.searchPlaceholder' | transloco"
-        class="app-form-control min-h-12 w-full rounded-lg border border-line bg-surface-2 py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
+        class="app-form-control min-h-12 w-full rounded-lg border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
       />
     </label>
 
     <div
-      class="flex min-h-12 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface p-1"
+      class="flex min-h-12 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface-2 p-[3px]"
       role="group"
       [attr.aria-label]="'socialFunds.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-10 rounded-md px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-text-2 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
-          [class.bg-surface-2]="statusFilter() === option.value"
+          class="min-h-9 rounded-md px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
           (click)="onStatusFilterChange(option.value)"
@@ -132,7 +134,7 @@
         />
       }
       <ul
-        class="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-5 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="pageActionPending() || loading() ? 'true' : null"
       >
         @for (socialFund of socialFunds(); track socialFund.id) {
@@ -216,5 +218,20 @@
         {{ 'socialFunds.error' | transloco }}
       </p>
     }
+
+    <p class="mt-4 flex items-center gap-2 rounded-lg bg-info-wash px-4 py-3 text-xs text-info" role="note">
+      <svg
+        class="h-4 w-4 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v5M12 8h.01" />
+      </svg>
+      {{ 'socialFunds.info' | transloco }}
+    </p>
   }
 </main>
