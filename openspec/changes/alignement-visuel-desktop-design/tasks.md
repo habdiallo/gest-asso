@@ -46,7 +46,7 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 - [x] 4.2 [T-120] Capturer la liste des campagnes puis le détail d'une campagne (chaque onglet successivement) et ses dialogues à 1440 px, deux thèmes, et lister les écarts avec `design/`.
 - [x] 4.3 [T-120] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
 - [x] 4.4 [T-120] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 4.5 [T-120] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 4.5 [T-120] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 5. Cagnottes [T-121]
 
