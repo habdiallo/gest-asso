@@ -224,9 +224,21 @@
           </h2>
           <dl
             data-testid="member-financial-summary"
-            class="mt-4 grid grid-cols-3 gap-x-2 border-t border-line pt-4 sm:gap-x-4"
+            class="mt-4 grid grid-cols-3 gap-x-2 border-t border-line pt-4 min-[661px]:grid-cols-2 min-[661px]:gap-x-4 min-[661px]:gap-y-4"
           >
-            <div class="min-w-0 text-center">
+            <div
+              class="order-3 min-w-0 text-center min-[661px]:order-none min-[661px]:col-span-2 min-[661px]:border-b min-[661px]:pb-4 min-[661px]:text-left"
+            >
+              <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
+                {{ 'memberDetail.financial.remaining' | transloco }}
+              </dt>
+              <dd
+                class="responsive-body mt-1 break-words font-data text-gold min-[661px]:responsive-metric-value min-[661px]:mt-2 min-[661px]:font-display min-[661px]:tracking-wide min-[661px]:text-text"
+              >
+                {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
+              </dd>
+            </div>
+            <div class="order-1 min-w-0 text-center min-[661px]:order-none min-[661px]:text-left">
               <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.due' | transloco }}
               </dt>
@@ -234,20 +246,12 @@
                 {{ formatAmount(member.financialSummary.totalDueAmount) }}
               </dd>
             </div>
-            <div class="min-w-0 text-center">
+            <div class="order-2 min-w-0 text-center min-[661px]:order-none min-[661px]:text-left">
               <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.paid' | transloco }}
               </dt>
               <dd class="responsive-body mt-1 break-words font-data text-text">
                 {{ formatAmount(member.financialSummary.totalPaidAmount) }}
-              </dd>
-            </div>
-            <div class="min-w-0 text-center">
-              <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
-                {{ 'memberDetail.financial.remaining' | transloco }}
-              </dt>
-              <dd class="responsive-body mt-1 break-words font-data text-gold">
-                {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
               </dd>
             </div>
           </dl>

@@ -1462,7 +1462,11 @@ describe('MemberDetailPage', () => {
         '[data-testid="member-financial-summary"]',
       );
       expect(financialSummary?.className).toContain('grid-cols-3');
+      expect(financialSummary?.className).toContain('min-[661px]:grid-cols-2');
       expect(financialSummary?.querySelectorAll(':scope > div').length).toBe(3);
+      expect(financialSummary?.querySelector(':scope > div')?.className).toContain(
+        'min-[661px]:col-span-2',
+      );
     });
 
     it('shows "0 GNF" for zero financial amounts instead of a missing-value placeholder', async () => {
