@@ -600,7 +600,7 @@ describe('DashboardPage', () => {
     ]);
   });
 
-  it('shows the campaign and social fund synthesis panels from the selected scope', async () => {
+  it('removes the redundant synthesis panels while keeping the selected scope in the KPI cards', async () => {
     const dashboard = buildManagementDashboard({
       financialOverview: {
         selectedCampaign: {
@@ -640,14 +640,10 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('Synthèse des cotisations');
-    expect(root.textContent).toContain('12,4M GNF');
+    expect(root.textContent).not.toContain('Synthèse des cotisations');
+    expect(root.textContent).not.toContain('Synthèse de la cagnotte');
     expect(root.textContent).toContain('18,5M GNF');
-    expect(root.textContent).toContain('Synthèse de la cagnotte');
-    expect(root.textContent).toContain('Mariage de Fanta');
     expect(root.textContent).toContain('4,8M GNF');
-    expect(root.textContent).toContain('7M GNF');
-    expect(root.textContent).toContain('12 contributeur(s)');
   });
 
   it('shows the top stat cards scoped to the selected campaign and social fund (T-117)', async () => {
@@ -764,7 +760,7 @@ describe('DashboardPage', () => {
   });
 
   it('shows the Administrator quick actions (roles and categories)', async () => {
-    const dashboard = buildManagementDashboard();
+    const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
     const fixture = await createFixture(() => of(dashboard));
     fixture.detectChanges();
 
@@ -775,6 +771,21 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('Gérer les catégories');
     expect(root.textContent).toContain('Créer une campagne');
     expect(root.textContent).not.toContain('Créer une cagnotte');
+
+    const sectionTitles = Array.from(root.querySelectorAll('section h2')).map((heading) =>
+      heading.textContent?.trim(),
+    );
+    expect(sectionTitles).toEqual([
+      'Données affichées',
+      'Actions rapides',
+      'Campagnes récentes',
+      'Derniers règlements',
+    ]);
+
+    const quickActionsSection = Array.from(root.querySelectorAll('section')).find(
+      (section) => section.querySelector('h2')?.textContent?.trim() === 'Actions rapides',
+    );
+    expect(quickActionsSection?.querySelectorAll('a')).toHaveLength(4);
   });
 
   it('shows the Operator quick actions limited to consultation shortcuts', async () => {

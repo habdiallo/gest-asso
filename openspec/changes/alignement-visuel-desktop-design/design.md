@@ -23,6 +23,18 @@ Ce change formalise une méthode de revue reproductible, écran par écran, pour
 
 ## Decisions
 
+### T-122 : reproduire la hiérarchie visuelle de la page et du dialogue
+
+La page Utilisateurs et rôles conserve son modèle de données et ses cinq colonnes. Le travail porte sur la composition visuelle observée dans `design/app.js` et `design/styles.css` : titre « Utilisateurs & rôles », introduction orientée gestion, barre d'outils avec une recherche dominante et un filtre compact, puis panneau de tableau avec avatars, états sous forme de pastilles et chevron d'action.
+
+Le filtre de rôle reste relié au paramètre `role` déjà exposé par `GET /users`. Son déclencheur peut utiliser `app-custom-select` ou un contrôle partagé équivalent si celui-ci reproduit le bouton compact du prototype, mais il ne doit pas créer une seconde recherche ni modifier le contrat. La recherche utilisateur reste reliée au paramètre `q`, avec la pagination actuelle et le même comportement de chargement.
+
+Le clic sur une ligne ou sur son chevron ouvre le dialogue déjà utilisé pour T-53 et T-55. Le dialogue reprend l'agencement du prototype : en-tête avec kicker et titre, identité et statut du compte, section `01` pour le rôle applicatif, section `02` pour l'autorisation financière uniquement lorsque le rôle choisi est Opérateur, encart d'information globale et pied d'actions aligné. Les quatre rôles du contrat restent disponibles. La case d'autorisation conserve la contrainte existante : elle est envoyée uniquement comme valeur pertinente pour Opérateur et vaut `false` pour les autres rôles.
+
+La liste et le dialogue utilisent les tokens visuels existants du frontend et les clés Transloco de `fr.json`. Les avatars sont dérivés du nom affiché dans la vue, sans ajout de données personnelles dans le contrat. Les pastilles associent toujours le texte et la couleur afin de rester compréhensibles sans perception des couleurs.
+
+La validation visuelle compare les captures Angular au prototype à 1440 px puis 1024 px, dans Obsidian Midnight et Alabaster Gallery. La largeur, les espacements, les états hover/focus, les labels et les actions sont vérifiés sans modifier la responsivité mobile, qui reste traitée par un futur ticket.
+
 ### Un ticket par écran/composant, dans l'ordre de navigation
 
 Plutôt qu'un ticket unique couvrant tous les écrans (diff massif, revue difficile) ou un ticket par écart individuel (trop fin, dépendances croisées entre écarts d'un même écran), chaque écran/composant de la liste ci-dessus devient un ticket indépendant, traité dans l'ordre où l'utilisateur les rencontre en naviguant depuis le tableau de bord. Cet ordre correspond à la demande explicite du porteur du produit (« on commence à aller navigation en navigation [...] quand on finit les tickets on les traite puis on entame un autre composant ») et limite le risque de régression croisée entre écrans indépendants.

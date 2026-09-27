@@ -1,5 +1,5 @@
 @if (loading() && !socialFund()) {
-  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
     <app-loading-skeleton
       variant="detail"
       [rows]="4"
@@ -7,7 +7,7 @@
     />
   </main>
 } @else if (loadError() && !socialFund()) {
-  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10">
+  <main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.detail.error' | transloco }}</p>
   </main>
 } @else if (socialFund(); as socialFund) {
@@ -110,12 +110,20 @@
                 class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
               >
                 <td class="px-4 py-2 font-normal text-text">
-                  <span>{{ contributionDisplayName(contribution) }}</span>
-                  @if (contributionIsExternal(contribution)) {
-                    <span class="ml-2 text-[10px] uppercase tracking-[0.08em] text-text-3">
-                      {{ 'socialFunds.detail.columns.externalContributor' | transloco }}
+                  <span class="flex min-w-0 items-center gap-[11px]">
+                    <span
+                      class="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-[11px] font-semibold text-gold"
+                      aria-hidden="true"
+                    >
+                      {{ contributionInitials(contribution) }}
                     </span>
-                  }
+                    <span>{{ contributionDisplayName(contribution) }}</span>
+                    @if (contributionIsExternal(contribution)) {
+                      <span class="text-[10px] uppercase tracking-[0.08em] text-text-3">
+                        {{ 'socialFunds.detail.columns.externalContributor' | transloco }}
+                      </span>
+                    }
+                  </span>
                 </td>
                 <td class="px-4 py-2 font-data text-[13px] font-normal tabular-nums text-success">
                   + {{ formatCollectedAmount(contribution.amount) }}

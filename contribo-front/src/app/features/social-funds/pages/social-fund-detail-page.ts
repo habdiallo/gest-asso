@@ -212,6 +212,16 @@ export class SocialFundDetailPage {
     }
     return '-';
   };
+  readonly contributionInitials = (contribution: Contribution): string => {
+    const displayName = this.contributionDisplayName(contribution).trim();
+    const parts = displayName.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    return parts
+      .slice(0, 2)
+      .map((part) => part.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
   readonly contributionIsExternal = (contribution: Contribution): boolean =>
     contribution.member === null && contribution.externalContributor !== null;
 

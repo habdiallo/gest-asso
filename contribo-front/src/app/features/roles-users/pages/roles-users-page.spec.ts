@@ -121,6 +121,8 @@ describe('RolesUsersPage', () => {
     expect(root.textContent).toContain('Fatou Sow');
     expect(root.textContent).toContain('Opérateur');
     expect(root.textContent).toContain('Autorisé');
+    expect(root.textContent).toContain('FS');
+    expect(root.querySelector('.bg-success-wash')).not.toBeNull();
   });
 
   it('shows "-" for the operator authorization column outside the Operator role', async () => {
@@ -137,6 +139,28 @@ describe('RolesUsersPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Inactif');
+    expect(fixture.nativeElement.querySelector('.bg-surface-2')).not.toBeNull();
+  });
+
+  it('renders the compact toolbar and the structured role dialog', async () => {
+    const account = buildAccount({ role: UserRole.Operator, operatorCanRecordPayments: true });
+    const fixture = await createFixture(() => of(buildPage([account])) as never);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('#roles-users-search')?.getAttribute('aria-label')).toBe(
+      'Rechercher un utilisateur',
+    );
+    expect(root.querySelector('#roles-users-role-filter')).not.toBeNull();
+
+    const action = root.querySelector('button[aria-label*="Awa Camara"]') as HTMLButtonElement;
+    expect(action).toBeTruthy();
+    action.click();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('01');
+    expect(root.textContent).toContain('02');
+    expect(root.textContent).toContain('Cette autorisation est globale');
   });
 
   it('keeps keyboard focus on the pagination control while the next page loads', async () => {

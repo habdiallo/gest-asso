@@ -88,7 +88,7 @@ export class RolesUsersPage {
     label: userRoleLabel(role),
   }));
   readonly roleFilterSelectOptions: readonly CustomSelectOption[] = [
-    { value: '', label: '', translationKey: 'rolesUsers.roleFilterAll' },
+    { value: '', label: '', translationKey: 'rolesUsers.roleFilterCompact' },
     ...this.roleSelectOptions,
   ];
   /** Rôle pour lequel le contrôle `peut_enregistrer_paiements` (T-55) s'applique. */
@@ -115,6 +115,17 @@ export class RolesUsersPage {
 
   readonly userRoleLabel = userRoleLabel;
   readonly operatorAuthorizationLabel = operatorAuthorizationLabel;
+  readonly accountInitials = (account: UserAccount): string => {
+    const parts = account.member.displayName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) {
+      return '?';
+    }
+    return parts
+      .slice(0, 2)
+      .map((part) => part.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
 
   /** Compte dont la fiche de changement de rôle (T-53) est ouverte, ou `null` si fermée. */
   readonly roleDialogAccount = signal<UserAccount | null>(null);
