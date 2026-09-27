@@ -248,6 +248,11 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).toContain('Catégorie B');
     expect(root.textContent).toContain('Président');
     expect(root.textContent).toContain('Actif');
+
+    const personalDetails = root.querySelector<HTMLElement>(
+      '[data-testid="member-personal-details"]',
+    );
+    expect(personalDetails?.className).toContain('grid-cols-2');
   });
 
   it('arranges the member actions as a mobile grid with a full-width payment action', async () => {
@@ -1453,6 +1458,11 @@ describe('MemberDetailPage', () => {
       expect(root.textContent).toContain(formatGnfAmountDetailed(200_000));
       expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
       expect(root.textContent).toContain('Situation actuelle');
+      const financialSummary = root.querySelector<HTMLElement>(
+        '[data-testid="member-financial-summary"]',
+      );
+      expect(financialSummary?.className).toContain('grid-cols-2');
+      expect(financialSummary?.querySelector('.col-span-full')).not.toBeNull();
     });
 
     it('shows "0 GNF" for zero financial amounts instead of a missing-value placeholder', async () => {

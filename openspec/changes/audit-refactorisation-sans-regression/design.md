@@ -84,7 +84,9 @@ règlement occupe une ligne complète. Les trois tableaux des onglets de la fich
 membre gardent également ce même comportement.
 Les filtres catégorie et pays de la liste des membres partagent une ligne
 mobile lorsqu'ils sont tous les deux disponibles, tandis que le récapitulatif
-du règlement utilise trois colonnes compactes pour ses montants.
+du règlement utilise trois colonnes compactes pour ses montants. La grille des
+informations personnelles de la fiche membre utilise également deux colonnes
+sur mobile pour réduire la hauteur sans masquer les valeurs longues.
 La pagination reste pilotée par la réponse API et apparaît lorsque
 `totalPages > 1`, avec une taille de page de 10.
 

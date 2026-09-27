@@ -150,62 +150,67 @@
           </div>
         </div>
 
-        <dl class="relative z-10 mt-7 grid grid-cols-1 gap-x-8 border-t border-line sm:grid-cols-2">
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+        <dl
+          data-testid="member-personal-details"
+          class="relative z-10 mt-7 grid grid-cols-2 gap-x-4 border-t border-line sm:gap-x-8"
+        >
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.lastName' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">{{ member.lastName }}</dd>
+            <dd class="responsive-body mt-1 break-words text-text">{{ member.lastName }}</dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.firstName' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">{{ member.firstName }}</dd>
+            <dd class="responsive-body mt-1 break-words text-text">{{ member.firstName }}</dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.preferredName' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">
+            <dd class="responsive-body mt-1 break-words text-text">
               {{ member.preferredName || ('memberDetail.notProvided' | transloco) }}
             </dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.phone' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">
+            <dd class="responsive-body mt-1 break-words text-text">
               {{ member.phone || ('memberDetail.notProvided' | transloco) }}
             </dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.country' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">
+            <dd class="responsive-body mt-1 break-words text-text">
               {{ member.country || ('memberDetail.notProvided' | transloco) }}
             </dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.city' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">
+            <dd class="responsive-body mt-1 break-words text-text">
               {{ member.city || ('memberDetail.notProvided' | transloco) }}
             </dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.incomeCategory' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">{{ member.incomeCategory.label }}</dd>
+            <dd class="responsive-body mt-1 break-words text-text">
+              {{ member.incomeCategory.label }}
+            </dd>
           </div>
-          <div class="border-b border-line py-3">
-            <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+          <div class="min-w-0 border-b border-line py-3">
+            <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
               {{ 'memberDetail.associationFunction' | transloco }}
             </dt>
-            <dd class="responsive-body mt-1 text-text">
+            <dd class="responsive-body mt-1 break-words text-text">
               {{ member.associationFunction || ('memberDetail.notProvided' | transloco) }}
             </dd>
           </div>
@@ -217,26 +222,31 @@
           <h2 class="responsive-card-title font-medium text-text">
             {{ 'memberDetail.financial.title' | transloco }}
           </h2>
-          <p class="responsive-metric-value mt-3 font-display tracking-wide text-text">
-            {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
-          </p>
-          <p class="responsive-meta mt-1.5 text-text-3">
-            {{ 'memberDetail.financial.remaining' | transloco }}
-          </p>
-          <dl class="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-3">
-            <div>
+          <dl
+            data-testid="member-financial-summary"
+            class="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-line pt-4"
+          >
+            <div class="col-span-full border-b border-line pb-4">
               <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+                {{ 'memberDetail.financial.remaining' | transloco }}
+              </dt>
+              <dd class="responsive-metric-value mt-2 font-display tracking-wide text-text">
+                {{ formatAmount(member.financialSummary.totalRemainingAmount) }}
+              </dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.due' | transloco }}
               </dt>
-              <dd class="responsive-body mt-1 font-data text-text">
+              <dd class="responsive-body mt-1 break-words font-data text-text">
                 {{ formatAmount(member.financialSummary.totalDueAmount) }}
               </dd>
             </div>
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.12em] text-text-3">
+            <div class="min-w-0">
+              <dt class="responsive-label break-words uppercase tracking-[0.12em] text-text-3">
                 {{ 'memberDetail.financial.paid' | transloco }}
               </dt>
-              <dd class="responsive-body mt-1 font-data text-text">
+              <dd class="responsive-body mt-1 break-words font-data text-text">
                 {{ formatAmount(member.financialSummary.totalPaidAmount) }}
               </dd>
             </div>

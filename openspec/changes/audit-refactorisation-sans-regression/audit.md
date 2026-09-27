@@ -94,9 +94,9 @@ navigation et composants métier restent inchangés. Les seules évolutions
 visuelles ajoutées après le retour utilisateur sont ciblées sur mobile : actions
 réparties sans débordement, disposition adaptative des tablists selon leurs
 libellés, cartes des listes métier qui exposaient encore une table large,
-retour à la ligne des textes, filtres compacts et récapitulatifs de règlement
-en trois colonnes, ainsi que le maintien de la pagination à 10 éléments par
-page. Aucun changement
+retour à la ligne des textes, filtres compacts, informations personnelles en
+deux colonnes et récapitulatifs de règlement en trois colonnes, ainsi que le
+maintien de la pagination à 10 éléments par page. Aucun changement
 de dépendance externe, de contrat ou de stockage n'est nécessaire.
 
 ## Frontières conservées
