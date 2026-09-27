@@ -53,14 +53,14 @@ describe('CustomSelect', () => {
     expect(trigger.textContent).toContain('Option B');
   });
 
-  it('uses the button radius for compact non-pill controls', () => {
+  it('preserves the compact radius for non-pill controls', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.compact = true;
     fixture.detectChanges();
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(trigger.classList.contains('rounded')).toBe(true);
-    expect(trigger.classList.contains('rounded-lg')).toBe(false);
+    expect(trigger.classList.contains('rounded')).toBe(false);
+    expect(trigger.classList.contains('rounded-lg')).toBe(true);
     expect(trigger.classList.contains('rounded-full')).toBe(false);
   });
 
