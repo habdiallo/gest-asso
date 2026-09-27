@@ -21,11 +21,11 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-118 --json` (`front/fix-118-alignement-visuel-membres`). Prérequis : T-117. Périmètre : `features/members` (liste + fiche détail, onglets inclus). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle des écrans Membres »).
 
-- [ ] 2.1 [T-118] Résoudre et vérifier T-118, créer/réutiliser sa branche depuis `origin/main` en incluant T-117.
-- [ ] 2.2 [T-118] Capturer la liste des membres puis une fiche membre (chaque onglet) à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 2.3 [T-118] Corriger les écarts listés, sans changer les données affichées, les droits par rôle ni le comportement des actions existantes.
-- [ ] 2.4 [T-118] Exécuter les validations pertinentes et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà traités (groupe 1).
-- [ ] 2.5 [T-118] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 2.1 [T-118] Résoudre et vérifier T-118, créer/réutiliser sa branche depuis `origin/main` en incluant T-117.
+- [x] 2.2 [T-118] Capturer la liste des membres puis une fiche membre (chaque onglet) à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 2.3 [T-118] Corriger les écarts listés, sans changer les données affichées, les droits par rôle ni le comportement des actions existantes.
+- [x] 2.4 [T-118] Exécuter les validations pertinentes et vérifier à 1440 px et 1024 px, deux thèmes, l'absence de régression sur les écrans déjà traités (groupe 1).
+- [x] 2.5 [T-118] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 3. Catégories de revenu [T-119]
 
