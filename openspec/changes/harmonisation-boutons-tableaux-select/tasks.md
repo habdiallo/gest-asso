@@ -70,11 +70,11 @@ saisie et composants select de `contribo-front/src/app/features/*`, nouveaux com
       la réponse API ; leur absence (rôle non autorisé, ou aucune campagne/cagnotte sélectionnée)
       n'est jamais devinée ni compensée par une valeur par défaut côté frontend, conformément à
       `.claude/rules/frontend/api-client.md`.
-- [ ] 1.10 [T-126] Exécuter les validations pertinentes (`npm run build`,
+- [x] 1.10 [T-126] Exécuter les validations pertinentes (`npm run build`,
       `npm test -- --watch=false`, `npm run lint`) et vérifier à 1440 px et 1024 px, deux thèmes,
       l'absence de régression sur les écrans modifiés, le clavier/focus du nouveau select, et le
       rendu mobile existant (821 px et en dessous) inchangé.
-- [ ] 1.11 [T-126] Committer le périmètre du ticket, pousser la branche et ouvrir une PR en
+- [x] 1.11 [T-126] Committer le périmètre du ticket, pousser la branche et ouvrir une PR en
       brouillon vers `main` avec captures avant/après. Mentionner dans la description que
       l'infobulle en turc observée sur une capture d'écran fournie pendant la revue ne provient
       d'aucun fichier du dépôt (recherche exhaustive infructueuse sur le texte concerné dans
