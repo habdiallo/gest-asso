@@ -56,7 +56,7 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 - [x] 5.2 [T-121] Capturer la liste des cagnottes puis le détail d'une cagnotte à 1440 px, deux thèmes, et lister les écarts avec `design/`.
 - [x] 5.3 [T-121] Corriger les écarts listés, sans changer les actions ni les droits par rôle existants.
 - [x] 5.4 [T-121] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 5.5 [T-121] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 5.5 [T-121] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 6. Rôles et utilisateurs [T-122]
 
