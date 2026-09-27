@@ -250,6 +250,23 @@ describe('MemberDetailPage', () => {
     expect(root.textContent).toContain('Actif');
   });
 
+  it('arranges the member actions as a mobile grid with a full-width payment action', async () => {
+    const fixture = await createFixture(() =>
+      of(buildMemberDetails({ status: MemberStatus.Inactive })),
+    );
+
+    const root: HTMLElement = fixture.nativeElement;
+    const actions = root.querySelector<HTMLElement>('[data-testid="member-detail-actions"]');
+    const paymentAction = root.querySelector<HTMLElement>(
+      '[data-testid="member-detail-payment-action"]',
+    );
+
+    expect(actions?.className).toContain('grid-cols-1');
+    expect(actions?.className).toContain('min-[420px]:grid-cols-2');
+    expect(actions?.querySelectorAll('button')).toHaveLength(3);
+    expect(paymentAction?.className).toContain('col-span-full');
+  });
+
   it('shows a placeholder for optional fields left absent by the API', async () => {
     const fixture = await createFixture(() =>
       of(

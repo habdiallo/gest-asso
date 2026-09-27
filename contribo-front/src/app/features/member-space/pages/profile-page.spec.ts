@@ -110,6 +110,18 @@ describe('ProfilePage', () => {
     expect(root.querySelector('input')).toBeNull();
   });
 
+  it('keeps all profile tabs visible with the shared adaptive layout', async () => {
+    const fixture = await createFixture(buildCurrentUser());
+
+    const root: HTMLElement = fixture.nativeElement;
+    const tabList = root.querySelector('[role="tablist"]') as HTMLElement;
+    const tabs = root.querySelectorAll('[role="tab"]');
+
+    expect(tabs).toHaveLength(3);
+    expect(tabList.className).toContain('grid-cols-2');
+    expect(Array.from(tabs).every((tab) => tab.className.includes('min-w-0'))).toBe(true);
+  });
+
   it('shows an error state when no member profile is available', async () => {
     const fixture = await createFixture(null);
 

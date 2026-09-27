@@ -88,3 +88,38 @@ Chaque groupe significatif MUST être validé avant le groupe suivant et la livr
 
 - **WHEN** une validation échoue ou qu'un écart visuel ou fonctionnel est constaté
 - **THEN** le groupe concerné est isolé, corrigé ou reverti avant toute publication de la suite
+
+### Requirement: Parcours à onglets et tableaux accessibles sur mobile
+
+Les composants qui exposent plusieurs onglets MUST rendre tous les onglets
+visibles et sélectionnables sur mobile sans dépendre d'un défilement horizontal
+non signalé. La disposition mobile MUST être adaptée au nombre d'onglets et à
+la longueur de leurs libellés : trois libellés courts tiennent sur une seule
+ligne en colonnes égales, tandis que les ensembles plus longs ou plus nombreux
+utilisent une disposition de repli lisible. Les tablists locaux qui exposaient
+le même parcours MUST réutiliser le composant partagé ou appliquer les mêmes
+règles. Les tableaux des onglets de la
+fiche membre MUST proposer une présentation en cartes sur les petites
+largeurs, tandis que le tableau desktop et ses données restent inchangés. Les
+actions mobiles de la fiche membre MUST rester entièrement visibles et
+utilisables sans débordement.
+
+#### Scenario: Trois onglets courts sur mobile
+
+- **WHEN** un tablist contient trois onglets courts comme « Cotisations », « Règlements » et « Contributions » sur une largeur mobile
+- **THEN** les onglets sont affichés sur une seule ligne en trois colonnes égales, sans défilement horizontal, chaque onglet reste focusable et les relations ARIA `tab`, `tablist` et `tabpanel` sont conservées
+
+#### Scenario: Libellés longs ou nombreux sur mobile
+
+- **WHEN** les libellés d'un tablist ne tiennent pas proprement en trois colonnes ou que le tablist contient plus de trois onglets
+- **THEN** une disposition de repli lisible est utilisée sans masquer d'onglet, sans imposer un défilement horizontal et sans modifier l'ordre DOM ou l'indicateur actif
+
+#### Scenario: Tableau d'un onglet de fiche membre sur mobile
+
+- **WHEN** des cotisations, règlements ou contributions sont disponibles sur une petite largeur
+- **THEN** chaque élément est présenté sous forme de carte avec ses valeurs métier, sans perte de montant, date, statut ou mode de règlement
+
+#### Scenario: Pagination d'un onglet
+
+- **WHEN** la réponse API contient plus d'une page avec une taille de page de 10
+- **THEN** les contrôles de pagination sont affichés et permettent de naviguer entre les pages, sur desktop comme sur mobile

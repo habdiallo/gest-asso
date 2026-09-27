@@ -79,7 +79,10 @@
             </div>
           </div>
 
-          <div class="flex w-full flex-wrap gap-2.5 min-[661px]:w-auto">
+          <div
+            data-testid="member-detail-actions"
+            class="grid w-full grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 min-[661px]:flex min-[661px]:w-auto max-[660px]:[&>app-action-button>button]:w-full"
+          >
             @if (canEdit()) {
               <app-action-button variant="secondary" type="button" (click)="openEditDialog()">
                 <svg
@@ -122,22 +125,27 @@
               </app-action-button>
             }
             @if (canRecordPayments()) {
-              <app-action-button type="button" (click)="openRecordPaymentDialog()">
-                <svg
-                  class="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="2" y="5" width="20" height="14" rx="2" />
-                  <path d="M2 10h20M6 15h2" />
-                </svg>
-                {{ 'members.recordPayment.button' | transloco }}
-              </app-action-button>
+              <div
+                data-testid="member-detail-payment-action"
+                class="col-span-full min-w-0 min-[661px]:contents max-[660px]:[&>app-action-button>button]:w-full"
+              >
+                <app-action-button type="button" (click)="openRecordPaymentDialog()">
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <path d="M2 10h20M6 15h2" />
+                  </svg>
+                  {{ 'members.recordPayment.button' | transloco }}
+                </app-action-button>
+              </div>
             }
           </div>
         </div>

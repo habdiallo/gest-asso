@@ -11,12 +11,12 @@ Le changement part de `main`, qui contient déjà T-139. Le workspace principal 
 - Produire une cartographie vérifiable des responsabilités, flux, dépendances, conventions et parcours critiques.
 - Identifier les duplications accidentelles, responsabilités mélangées, incohérences de types, dépendances inutilisées et code mort avec des preuves traçables.
 - Prioriser les refactorisations par bénéfice, portée et risque, puis les livrer par petits groupes réversibles.
-- Préserver le comportement observable, le rendu visuel, les contrats API, les routes, les permissions, les données stockées et les formats existants.
+- Préserver le comportement observable, le rendu desktop, les contrats API, les routes, les permissions, les données stockées et les formats existants. Autoriser uniquement les adaptations mobiles ciblées des actions, onglets et tableaux identifiés par l'audit.
 - Renforcer les tests uniquement lorsque cela améliore la preuve de conservation du comportement.
 
 **Non-Goals:**
 
-- Ajouter une fonctionnalité, modifier un parcours, corriger une règle métier ou améliorer l'interface.
+- Ajouter une fonctionnalité, modifier un parcours, corriger une règle métier ou repenser globalement l'interface. Les corrections mobiles explicitement identifiées restent dans le périmètre.
 - Introduire une architecture hexagonale frontend, un store tiers, une bibliothèque UI ou une nouvelle dépendance sans ticket distinct.
 - Remplacer massivement Angular, TypeScript, Tailwind, le client API ou le runner de tests.
 - Appliquer `OnPush`, `computed`, `memoization` ou une abstraction partagée lorsque l'audit ne démontre pas un bénéfice concret.
@@ -59,6 +59,30 @@ Les groupes concernés relanceront les tests ciblés puis les contrôles proport
 Les alias déjà déclarés (`@core/*`, `@shared/*`, `@features/*` et `@api`) seront réutilisés selon leurs frontières. L'audit pourra ajouter `@assets/*` vers `src/assets/*` et `@mocks/*` vers `src/mocks/*` afin de remplacer les traversées profondes observées dans les tests et handlers. Un import qui reste dans la même feature conservera un chemin relatif lorsque celui-ci exprime mieux la proximité locale. `@features/*` ne servira pas à créer ou dissimuler une dépendance entre features.
 
 Alternative écartée : ajouter un alias global `@app/*` ou remplacer mécaniquement tous les imports relatifs. Cette solution raccourcirait les chemins mais masquerait les frontières et pourrait rendre les dépendances plus difficiles à contrôler.
+
+### 8. Rendre les parcours à onglets et les listes métier utilisables sur mobile
+
+Les onglets partagés calculent leur disposition mobile à partir du nombre
+d'onglets et de la longueur réelle de leurs libellés. Trois libellés courts,
+comme « Cotisations », « Règlements » et « Contributions », restent sur une
+seule ligne en trois colonnes égales. Les ensembles plus longs ou plus
+nombreux utilisent une grille à deux colonnes afin de rester lisibles, sans
+défilement horizontal systématique ni retour à la ligne imposé à tous les
+cas. Le profil membre réutilise désormais le composant partagé, ce qui lui
+applique la même adaptation pour ses libellés plus longs. L'ordre DOM, le
+roving tabindex,
+les relations ARIA et l'indicateur actif restent portés par le même composant.
+Le comportement desktop reste inchangé. Sur la fiche membre, les trois actions
+du bandeau sont regroupées en grille : les actions secondaires partagent la
+largeur lorsque l'espace le permet et l'enregistrement d'un règlement occupe
+une ligne complète. Les trois tableaux des onglets de la fiche membre gardent
+leur table sémantique sur desktop et proposent des cartes lisibles sur mobile.
+La pagination reste pilotée par la réponse API et apparaît lorsque
+`totalPages > 1`, avec une taille de page de 10.
+
+Alternative écartée : conserver un défilement horizontal silencieux pour les
+onglets et les tables. Cette solution cache des actions et oblige l'utilisateur
+mobile à deviner qu'un contenu existe hors écran.
 
 ## Risks / Trade-offs
 

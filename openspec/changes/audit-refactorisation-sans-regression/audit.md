@@ -90,7 +90,11 @@ Le groupe T-140 est limité aux corrections internes démontrées et réversible
 4. ajouter un test ciblé du helper partagé et relancer les contrôles.
 
 Les routes, permissions, appels API, données, formulaires, états globaux,
-styles, navigation et composants visuels ne sont pas modifiés. Aucun changement
+navigation et composants métier restent inchangés. Les seules évolutions
+visuelles ajoutées après le retour utilisateur sont ciblées sur mobile : grille
+des actions de fiche membre, disposition adaptative des tablists selon leurs
+libellés, cartes des trois listes d'onglets et maintien de la pagination à 10
+éléments par page. Aucun changement
 de dépendance externe, de contrat ou de stockage n'est nécessaire.
 
 ## Frontières conservées
@@ -113,11 +117,13 @@ Les imports statiques, routes lazy, configurations, scripts et tests ont été
 inspectés avant toute suppression. Aucun fichier n'est supprimé par T-140 :
 la preuve de code mort n'est pas suffisante.
 
-Le groupe livré ne modifie ni HTML ni CSS, donc aucun changement de rendu n'est
-attendu sur mobile, tablette ou desktop, en thème clair ou sombre. Les tests,
-le lint et le build couvrent la résolution des imports et la compilation. Une
-vérification navigateur manuelle complète reste une limite documentée, car le
-changement est exclusivement interne et ne change pas les parcours.
+Le groupe initial ne modifiait ni HTML ni CSS. Le complément demandé modifie
+les templates mobiles de la fiche membre et des tablists, sans changer le rendu
+desktop, les données ni les parcours. Les tables desktop restent sémantiques et
+les cartes mobiles reprennent toutes les valeurs métier. La vérification
+navigateur manuelle couvre la largeur mobile via le parcours de fiche membre ;
+les variations exactes de navigateur et de thème restent couvertes par la
+validation responsive existante et les limites documentées.
 
 ## Reversibilité
 
@@ -127,7 +133,7 @@ migration de données ni changement du contrat API.
 
 ## Validation après implémentation
 
-- `npm test -- --watch=false` : 76 fichiers et 773 tests réussis.
+- `npm test -- --watch=false` : 76 fichiers et 781 tests réussis.
 - `npm run lint` : réussi.
 - `npm run build` : réussi, avec l'avertissement CSS préexistant décrit plus
   haut.
@@ -138,5 +144,6 @@ migration de données ni changement du contrat API.
   réussis.
 - `openspec validate audit-refactorisation-sans-regression --strict` : réussi.
 - `git diff --check` : réussi.
-- Aucun fichier HTML ou CSS n'est modifié, et aucun chemin T-138 ou
+- Les changements HTML ciblent uniquement les actions, tablists et cartes
+  mobiles de la fiche membre et du profil membre. Aucun chemin T-138 ou
   `source-command-opsx-*` n'est inclus.

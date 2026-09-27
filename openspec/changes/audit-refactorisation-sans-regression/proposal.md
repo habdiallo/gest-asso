@@ -11,6 +11,8 @@ Le codebase frontend a grandi par ajouts successifs et peut contenir des duplica
 - Consolider les patterns existants lorsque cela réduit réellement la duplication, sans introduire d'architecture parallèle ni de sur-abstraction.
 - Définir et utiliser des alias TypeScript pour les imports qui traversent plusieurs racines du frontend, notamment `@assets/*` et `@mocks/*`, en réutilisant `@core/*`, `@shared/*`, `@features/*` et `@api` selon les frontières existantes.
 - Conserver les imports relatifs lorsqu'ils restent strictement locaux à une feature et ne pas utiliser les alias pour masquer une dépendance directe entre features.
+- Adapter la fiche membre et tous les composants à onglets pour mobile : actions réparties sans débordement, disposition des onglets calculée selon leur nombre et leurs libellés, et tableaux métier présentés sous forme de cartes.
+- Conserver les tableaux desktop et afficher la pagination des onglets à partir de la deuxième page, avec une taille de page de 10 éléments.
 - Supprimer uniquement le code mort dont l'absence d'utilisation est démontrée, après vérification des routes, imports, configurations, scripts et tests.
 - Ajouter ou ajuster les tests nécessaires pour prouver la conservation du comportement observable.
 - Documenter les limites et les opportunités volontairement reportées lorsqu'elles impliqueraient une évolution fonctionnelle, visuelle, contractuelle ou architecturale majeure.
@@ -30,5 +32,5 @@ Le codebase frontend a grandi par ajouts successifs et peut contenir des duplica
 
 - Frontend Angular/TypeScript sous `contribo-front/`, incluant les features, `core/`, `shared/`, tests, styles, scripts et configuration de validation.
 - Documentation OpenSpec et registre local des tickets, avec T-140 sur la branche `front/refactor-140-audit-refactorisation-sans-regression`.
-- Aucun changement prévu du contrat `besoins/openapi.yaml`, des routes, des permissions, des données stockées, des dépendances externes ou du rendu visuel. La configuration TypeScript et les imports pourront évoluer uniquement pour les alias internes validés par l'audit.
+- Aucun changement prévu du contrat `besoins/openapi.yaml`, des routes, des permissions, des données stockées ou des dépendances externes. Le rendu desktop reste inchangé ; les adaptations visuelles sont limitées aux actions et onglets mobiles identifiés pendant l'audit, ainsi qu'aux cartes mobiles des trois tableaux de la fiche membre. La configuration TypeScript et les imports pourront évoluer uniquement pour les alias internes validés par l'audit.
 - La livraison sera découpée en commits cohérents et une seule PR T-140 vers `main`.
