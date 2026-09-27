@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { StatusBadge } from '../status-badge/status-badge';
 
 export interface FinancialCardAmount {
   readonly text: string;
@@ -11,7 +12,7 @@ export type FinancialCardStatusTone = 'success' | 'info' | 'neutral';
 /** Carte financière partagée par les listes Campagnes et Cagnottes. */
 @Component({
   selector: 'app-financial-card',
-  imports: [RouterLink],
+  imports: [RouterLink, StatusBadge],
   templateUrl: './financial-card.html',
   styleUrl: './financial-card.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

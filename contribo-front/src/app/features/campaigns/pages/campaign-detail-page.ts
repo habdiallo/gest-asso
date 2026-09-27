@@ -33,6 +33,7 @@ import type { DetailMetric } from '@shared/detail-metrics/detail-metrics';
 import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
 import { DetailShell } from '@shared/detail-shell/detail-shell';
 import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
@@ -125,6 +126,7 @@ function parseInitialTab(value: string | null): CampaignDetailTab | undefined {
     DetailMetrics,
     DetailShell,
     DetailTabs,
+    StatusBadge,
   ],
   templateUrl: './campaign-detail-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

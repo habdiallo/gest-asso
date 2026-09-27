@@ -17,15 +17,31 @@ function flushMicrotasks(): Promise<void> {
 @Component({
   selector: 'app-host',
   imports: [ReactiveFormsModule, CustomSelect],
-  template: `<app-custom-select [formControl]="control" [options]="options" [required]="true" />`,
+  template: `<app-custom-select
+    [formControl]="control"
+    [options]="options"
+    [required]="true"
+    [pill]="pill"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {
   readonly control = new FormControl<string | null>(null);
   options = OPTIONS;
+  pill = false;
 }
 
 describe('CustomSelect', () => {
+  it('supports a pill trigger for toolbar filters', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.pill = true;
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.classList.contains('rounded-full')).toBe(true);
+    expect(trigger.classList.contains('rounded-lg')).toBe(false);
+  });
+
   it('reflects an initial value from the bound reactive form control on the trigger', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.control.setValue('b');

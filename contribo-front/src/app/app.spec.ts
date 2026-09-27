@@ -169,15 +169,20 @@ describe('App', () => {
     },
   );
 
-  it('opens the personal space from the desktop profile footer', async () => {
-    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+  it.each<[CurrentUser['role'], string]>([
+    ['ADMINISTRATOR', '/mon-compte'],
+    ['TREASURER', '/mon-compte'],
+    ['OPERATOR', '/mon-compte'],
+    ['MEMBER', '/mon-espace'],
+  ])('opens the contextual personal destination for %s', async (role, expectedPath) => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse(role));
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     (fixture.nativeElement.querySelector('aside .sidebar-profile') as HTMLButtonElement).click();
     await fixture.whenStable();
 
-    expect(TestBed.inject(Router).url).toBe('/mon-espace');
+    expect(TestBed.inject(Router).url).toBe(expectedPath);
   });
 
   it('keeps the sidebar profile control without a fabricated identity while the user is loading', () => {

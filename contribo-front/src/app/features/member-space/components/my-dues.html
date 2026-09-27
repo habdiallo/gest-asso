@@ -35,14 +35,16 @@
                 {{ formatDate(due.campaign.endDate) }}
               </p>
             </div>
-            <span
-              class="rounded-full border border-line px-3 py-1 text-xs text-text"
-              [class.text-success]="due.status === dueStatus.Paid"
-              [class.text-warning]="due.status === dueStatus.PartiallyPaid"
-              [class.text-error]="due.status === dueStatus.Overdue"
-            >
-              {{ statusLabels[due.status] | transloco }}
-            </span>
+            <app-status-badge
+              [label]="statusLabels[due.status] | transloco"
+              [tone]="
+                due.status === dueStatus.Paid
+                  ? 'success'
+                  : due.status === dueStatus.Overdue
+                    ? 'error'
+                    : 'warning'
+              "
+            />
           </div>
           <dl class="mt-5 grid gap-4 sm:grid-cols-3">
             <div>

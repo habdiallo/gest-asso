@@ -593,21 +593,10 @@
                       </p>
                     </div>
                     <div>
-                      <span
-                        [class]="
-                          'inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
-                          statusToneClasses(campaignStatusTone(campaign.status))
-                        "
-                      >
-                        <span
-                          [class]="
-                            'h-1.5 w-1.5 rounded-full ' +
-                            statusToneDotClasses(campaignStatusTone(campaign.status))
-                          "
-                          aria-hidden="true"
-                        ></span>
-                        {{ campaignStatusLabel(campaign.status) }}
-                      </span>
+                      <app-status-badge
+                        [label]="campaignStatusLabel(campaign.status)"
+                        [tone]="campaignStatusTone(campaign.status)"
+                      />
                     </div>
                     <div>
                       @if (campaign.financialSummary; as financialSummary) {
@@ -924,21 +913,10 @@
                     <p class="text-sm font-medium text-text">{{ due.campaign.name }}</p>
                   </div>
                   <div>
-                    <span
-                      [class]="
-                        'inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
-                        statusToneClasses(dueStatusTone(due.status))
-                      "
-                    >
-                      <span
-                        [class]="
-                          'h-1.5 w-1.5 rounded-full ' +
-                          statusToneDotClasses(dueStatusTone(due.status))
-                        "
-                        aria-hidden="true"
-                      ></span>
-                      {{ dueStatusLabel(due.status) }}
-                    </span>
+                    <app-status-badge
+                      [label]="dueStatusLabel(due.status)"
+                      [tone]="dueStatusTone(due.status)"
+                    />
                   </div>
                   <div>
                     <div class="flex justify-between font-data text-[10px] text-text-3">
