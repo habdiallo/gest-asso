@@ -27,3 +27,22 @@ avec la CLI `openspec archive`, en synchronisant leurs specs delta vers
       `docs/chore-136-archiver-changes-openspec-termines-2` et ouvrir une PR
       vers `main` avec le modèle du dépôt, seulement si la livraison est
       explicitement demandée. PR #135 ouverte.
+
+## 3. Extension : neuvième change désormais terminé
+
+Périmètre : depuis l'ouverture de la PR #135, `harmonisation-boutons-tableaux-select`
+(T-126) a vu ses deux dernières tâches cochées par la PR #141 fusionnée sur
+`main`. Toutes ses tâches sont donc désormais cochées ; l'archiver à son tour
+sous ce même ticket T-136, sans rouvrir un nouveau ticket, avant fusion de la
+PR #135.
+
+- [x] 3.1 [T-136] Synchroniser la branche avec `origin/main` (fusion) pour
+      récupérer la finalisation de T-126 et les autres tickets fusionnés
+      depuis l'ouverture de la PR #135.
+- [x] 3.2 [T-136] Archiver `harmonisation-boutons-tableaux-select` avec
+      `openspec archive harmonisation-boutons-tableaux-select -y`, ce qui le
+      déplace vers `openspec/changes/archive/AAAA-MM-JJ-<change>/` et
+      synchronise sa spec delta `composants-interaction-visual` vers
+      `openspec/specs/`.
+- [x] 3.3 [T-136] Committer cette extension et pousser la branche mise à jour
+      sur la PR #135 déjà ouverte.

@@ -15,14 +15,21 @@ jamais été rédigés (il fait doublon avec le change
 historique-reglements-tableau-de-bord, déjà complet). Archivé quand même,
 avec mention explicite de cette incomplétude.
 
+Depuis l'ouverture de la PR #135 de ce ticket, un neuvième change a lui aussi
+terminé toutes ses tâches : `harmonisation-boutons-tableaux-select` (T-126),
+dont les deux dernières tâches (validations et ouverture de PR) ont été
+cochées par la PR #141 fusionnée sur `main`. Il est archivé à son tour sous
+ce même ticket T-136, avant la fusion de la PR #135, plutôt que d'ouvrir un
+nouveau ticket pour un seul change supplémentaire.
+
 ## What Changes
 
-- Archiver ces huit changes avec `openspec archive <change> -y`, ce qui les
+- Archiver ces neuf changes avec `openspec archive <change> -y`, ce qui les
   déplace vers `openspec/changes/archive/AAAA-MM-JJ-<change>/` et synchronise
   leurs spécifications delta vers `openspec/specs/` quand elles existent.
 - Ne pas archiver les changes dont des tâches restent à cocher
   (alignement-visuel-desktop-design, aligner-fiche-membre-design,
-  harmoniser-details-campagnes-cagnottes, harmonisation-boutons-tableaux-select,
+  harmoniser-details-campagnes-cagnottes, refonte-agencement-tableau-de-bord,
   cloturer-archivage-changes-openspec).
 - Aucune modification de code applicatif : uniquement des artefacts OpenSpec.
 
@@ -36,7 +43,7 @@ avec mention explicite de cette incomplétude.
 
 ## Impact
 
-- `openspec/changes/` : huit changes déplacés vers `openspec/changes/archive/`.
+- `openspec/changes/` : neuf changes déplacés vers `openspec/changes/archive/`.
 - `openspec/specs/` : création/mise à jour des spécifications principales à
   partir des specs delta des changes archivés.
 - Aucun impact sur le code applicatif, les tests ou la CI.

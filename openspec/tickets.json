@@ -2745,7 +2745,7 @@
     },
     {
       "id": 136,
-      "title": "Archiver les huit changes OpenSpec dont toutes les taches sont cochees (dont historique-reglements-tableau-de-bord-t127, artefacts proposal/design/specs incomplets malgre ses taches cochees) et synchroniser leurs specs delta vers openspec/specs/.",
+      "title": "Archiver les neuf changes OpenSpec dont toutes les taches sont cochees (dont historique-reglements-tableau-de-bord-t127, artefacts proposal/design/specs incomplets malgre ses taches cochees, et harmonisation-boutons-tableaux-select finalise apres coup par la PR #141) et synchroniser leurs specs delta vers openspec/specs/.",
       "priority": "P2",
       "scope": "docs",
       "type": "chore",
@@ -2756,7 +2756,10 @@
         "1.2",
         "1.3",
         "2.1",
-        "2.2"
+        "2.2",
+        "3.1",
+        "3.2",
+        "3.3"
       ],
       "dependencies": [],
       "planningStatus": "planned",
