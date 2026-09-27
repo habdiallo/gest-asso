@@ -18,6 +18,7 @@ import { PageHeader } from '@shared/page-header/page-header';
 import { PaginationControls } from '@shared/pagination-controls/pagination-controls';
 import { CreateIncomeCategoryDialog } from '../components/create-income-category-dialog/create-income-category-dialog';
 import { EditIncomeCategoryDialog } from '../components/edit-income-category-dialog/edit-income-category-dialog';
+import { formatCategoryUpdatedAt } from '../income-categories-dates';
 
 const PAGE_SIZE = 10;
 
@@ -40,9 +41,8 @@ const PAGE_SIZE = 10;
  * localement.
  *
  * Propose aussi la modification du libellé d'une catégorie existante (T-51,
- * `EditIncomeCategoryDialog`), avec un avertissement rappelant l'absence
- * d'effet rétroactif sur les cotisations déjà établies (US-REV-002). Après
- * modification, la liste est également rechargée depuis l'API.
+ * `EditIncomeCategoryDialog`). Après modification, la liste est également
+ * rechargée depuis l'API.
  */
 @Component({
   selector: 'app-income-categories-page',
@@ -81,6 +81,12 @@ export class IncomeCategoriesPage {
   });
   readonly previousPageDisabled = computed(() => this.currentPage() === 0);
   readonly nextPageDisabled = computed(() => this.currentPage() + 1 >= this.totalPages());
+  readonly formatCategoryUpdatedAt = formatCategoryUpdatedAt;
+
+  getCategoryInitial(label: string): string {
+    const words = label.trim().split(/\s+/);
+    return words.at(-1)?.charAt(0).toUpperCase() ?? '';
+  }
 
   constructor() {
     this.loadCategories();

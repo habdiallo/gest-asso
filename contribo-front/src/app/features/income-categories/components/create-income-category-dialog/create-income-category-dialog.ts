@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { CatgoriesDeRevenuService, ErrorCode } from '@api';
 import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
-import { ActionButton } from '@shared/action-button/action-button';
-import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { IncomeCategoryForm } from '../income-category-form/income-category-form';
 
 /**
  * Formulaire de création d'une catégorie de revenu (T-50), réservé à
@@ -21,7 +20,7 @@ import { FormDialog } from '@shared/form-dialog/form-dialog';
  */
 @Component({
   selector: 'app-create-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, ApiErrorRetry, FormDialog],
+  imports: [TranslocoPipe, FormDialog, IncomeCategoryForm],
   templateUrl: './create-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
