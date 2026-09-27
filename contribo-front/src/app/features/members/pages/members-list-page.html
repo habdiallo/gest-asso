@@ -50,7 +50,9 @@
   }
 
   <div
-    class="sticky top-[78px] z-10 -mx-2 mb-3 mt-[-8px] flex flex-wrap items-center gap-2.5 rounded-xl bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl"
+    class="min-[821px]:sticky min-[821px]:top-[78px] min-[821px]:z-10 -mx-2 mb-3 {{
+      createdConfirmation() ? 'mt-6' : 'mt-3 min-[821px]:mt-[-8px]'
+    }} flex flex-wrap items-center gap-2.5 rounded-xl bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl"
   >
     <div class="relative min-w-[240px] flex-1">
       <label for="members-search" class="sr-only">
