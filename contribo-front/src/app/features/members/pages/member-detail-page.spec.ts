@@ -1461,8 +1461,8 @@ describe('MemberDetailPage', () => {
       const financialSummary = root.querySelector<HTMLElement>(
         '[data-testid="member-financial-summary"]',
       );
-      expect(financialSummary?.className).toContain('grid-cols-2');
-      expect(financialSummary?.querySelector('.col-span-full')).not.toBeNull();
+      expect(financialSummary?.className).toContain('grid-cols-3');
+      expect(financialSummary?.querySelectorAll(':scope > div').length).toBe(3);
     });
 
     it('shows "0 GNF" for zero financial amounts instead of a missing-value placeholder', async () => {
