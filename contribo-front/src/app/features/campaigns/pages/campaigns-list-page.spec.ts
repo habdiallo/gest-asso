@@ -227,6 +227,24 @@ describe('CampaignsListPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Aucune campagne.');
   });
 
+  it('does not show pagination when six or fewer campaigns are available', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).toBeNull();
+  });
+
+  it('shows pagination when more than six campaigns are available', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildCampaignPage({
+          page: { number: 0, size: 6, totalElements: 7, totalPages: 2 },
+        }),
+      ),
+    );
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).not.toBeNull();
+  });
+
   it('requests campaigns filtered by status when the status filter changes', async () => {
     const requestedStatuses: (CampaignStatus | undefined)[] = [];
     const fixture = await createFixture((_page, _size, _q, status) => {

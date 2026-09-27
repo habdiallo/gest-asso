@@ -2,6 +2,140 @@
   display: block;
 }
 
+.mobile-header {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+.mobile-brand,
+.mobile-header-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mobile-brand {
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.mobile-brand-mark {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-icon);
+  color: var(--gold-ink);
+  background: var(--gold);
+  box-shadow: inset 0 1px rgb(255 255 255 / 35%);
+}
+
+.mobile-brand-mark svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.mobile-brand-name {
+  overflow: hidden;
+  font: 500 1.55rem/1 var(--font-display);
+  letter-spacing: 0.12em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mobile-header-actions {
+  position: relative;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.mobile-profile-button {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-icon);
+  color: var(--text);
+  background: transparent;
+}
+
+.mobile-profile-button:hover,
+.mobile-profile-button:focus-visible {
+  border-color: var(--line-strong);
+  color: var(--gold-hover);
+}
+
+.mobile-profile-button:focus-visible {
+  outline: 3px solid var(--gold-wash);
+  outline-offset: 2px;
+}
+
+.mobile-profile-button svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.mobile-profile-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 15rem;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-menu);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.mobile-profile-menu > button,
+.mobile-profile-menu app-logout-button {
+  width: 100%;
+}
+
+.mobile-profile-menu > button {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.mobile-profile-menu > button:hover,
+.mobile-profile-menu > button:focus-visible {
+  background: var(--surface-2);
+}
+
+.mobile-profile-menu app-logout-button button {
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  justify-content: flex-start;
+  border-radius: var(--radius);
+}
+
+.mobile-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface);
+}
+
+.app-content {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1181px) {
+  .app-content {
+    padding-bottom: 0;
+  }
+}
+
 .desktop-sidebar {
   --sidebar-accent: var(--gold-hover);
   position: fixed;
@@ -21,7 +155,7 @@
   --sidebar-accent: #8a692e;
 }
 
-@media (min-width: 821px) {
+@media (min-width: 1181px) {
   .desktop-sidebar {
     display: flex;
   }

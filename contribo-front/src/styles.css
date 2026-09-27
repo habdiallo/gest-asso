@@ -137,6 +137,46 @@
   /* Ombre des cartes/panneaux (section Shapes, `--shadow` de design/styles.css) :
      expose l'utilitaire `shadow-card`, suivant le thème actif comme `rounded-card`. */
   --shadow-card: var(--shadow);
+
+  /* Echelle typographique responsive. Le mobile et la tablette conservent la
+     hierarchie du desktop avec une densite adaptee a leur largeur utile. */
+  --type-page-intro: 15px;
+  --type-body: 14px;
+  --type-meta: 12px;
+  --type-label: 9px;
+  --type-section-title: 18px;
+  --type-card-title: 18px;
+  --type-detail-title: 27px;
+  --type-detail-intro: 15px;
+  --type-metric-value: 25px;
+}
+
+@media (max-width: 660px) {
+  :root {
+    --type-page-intro: 13px;
+    --type-body: 13px;
+    --type-meta: 11px;
+    --type-label: 8px;
+    --type-section-title: 17px;
+    --type-card-title: 15px;
+    --type-detail-title: 24px;
+    --type-detail-intro: 13px;
+    --type-metric-value: 22px;
+  }
+}
+
+@media (min-width: 661px) and (max-width: 1180px) {
+  :root {
+    --type-page-intro: 14px;
+    --type-body: 14px;
+    --type-meta: 12px;
+    --type-label: 9px;
+    --type-section-title: 19px;
+    --type-card-title: 16px;
+    --type-detail-title: 26px;
+    --type-detail-intro: 14px;
+    --type-metric-value: 24px;
+  }
 }
 
 /* Aligne sur design/styles.css (.app-shell overflow-x: hidden) : un tableau ou une
@@ -152,6 +192,51 @@ body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
+}
+
+.responsive-page-intro {
+  font-size: var(--type-page-intro);
+  line-height: 1.45;
+}
+
+.responsive-body {
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+
+.responsive-meta {
+  font-size: var(--type-meta);
+  line-height: 1.35;
+}
+
+.responsive-label {
+  font-size: var(--type-label);
+  line-height: 1.2;
+}
+
+.responsive-section-title {
+  font-size: var(--type-section-title);
+  line-height: 1.25;
+}
+
+.responsive-card-title {
+  font-size: var(--type-card-title);
+  line-height: 1.3;
+}
+
+.responsive-detail-title {
+  font-size: var(--type-detail-title);
+  line-height: 1.15;
+}
+
+.responsive-detail-intro {
+  font-size: var(--type-detail-intro);
+  line-height: 1.4;
+}
+
+.responsive-metric-value {
+  font-size: var(--type-metric-value);
+  line-height: 1;
 }
 
 /* --gold-hover plutôt que --gold : en thème clair, --gold (#b38f4d sur #faf8f5) ne fournit

@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'rolesUsers.kicker' | transloco"
     [title]="'rolesUsers.title' | transloco"
@@ -65,7 +65,7 @@
       <table class="w-full min-w-[640px] text-left">
         <thead>
           <tr
-            class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+            class="responsive-label h-11 border-b border-line bg-surface-2 font-data font-medium uppercase tracking-[0.13em] text-text-3"
           >
             <th scope="col" class="px-4 py-0 font-medium">
               {{ 'rolesUsers.columnUser' | transloco }}
@@ -87,7 +87,7 @@
         <tbody>
           @for (account of users(); track account.id) {
             <tr
-              class="h-[72px] border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
+              class="responsive-body h-[72px] border-b border-line text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
             >
               <td class="px-4 py-2 font-normal text-text">
                 <span class="flex min-w-0 items-center gap-[11px]">
@@ -155,7 +155,7 @@
 
     @if (pageMetadata(); as metadata) {
       @if (metadata.totalPages > 1) {
-        <div class="mt-4 flex items-center justify-between text-sm text-text-2">
+        <div class="responsive-body mt-4 flex items-center justify-between text-text-2">
           <p>
             {{
               'rolesUsers.pageIndicator'
@@ -197,7 +197,7 @@
       (closed)="closeRoleDialog()"
     >
       <form (submit)="confirmRoleChange($event, account)">
-        <p class="text-[15px] text-text-2">
+        <p class="responsive-page-intro text-text-2">
           {{
             (account.active
               ? 'rolesUsers.roleDialogIdentityActive'
@@ -214,7 +214,7 @@
             >
               01
             </span>
-            <h3 class="font-sans text-base font-medium text-text">
+            <h3 class="responsive-card-title font-sans font-medium text-text">
               {{ 'rolesUsers.roleDialogSectionRole' | transloco }}
             </h3>
           </div>
@@ -244,7 +244,7 @@
               >
                 02
               </span>
-              <h3 class="font-sans text-base font-medium text-text">
+              <h3 class="responsive-card-title font-sans font-medium text-text">
                 {{ 'rolesUsers.operatorAuthorizationTitle' | transloco }}
               </h3>
             </div>
@@ -253,7 +253,7 @@
               class="mt-4 flex items-center justify-between gap-4 rounded-card border border-line bg-surface-2 px-4 py-3"
             >
               <span class="flex min-w-0 items-center gap-3">
-                <span class="text-sm font-medium text-text">
+                <span class="responsive-body font-medium text-text">
                   {{ 'rolesUsers.operatorAuthorizationToggleLabel' | transloco }}
                 </span>
               </span>

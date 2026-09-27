@@ -1,24 +1,31 @@
 <nav
-  class="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm"
+  class="responsive-body mt-6 flex items-center justify-between gap-3"
   [attr.aria-label]="navigationLabel()"
 >
   <button
     type="button"
-    class="min-h-11 rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong hover:bg-surface-2 focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42]"
+    class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] min-[661px]:min-w-0"
     [disabled]="previousDisabled()"
     [attr.aria-disabled]="previousDisabled() ? 'true' : null"
     (click)="previousPage.emit()"
   >
-    {{ previousLabel() }}
+    <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">‹</span>
+    <span class="sr-only min-[661px]:not-sr-only">{{ previousLabel() }}</span>
   </button>
-  <p class="text-text-2" role="status">{{ statusLabel() }}</p>
+  <p class="min-w-12 text-center text-text-2" role="status">
+    <span class="min-[661px]:hidden" aria-hidden="true"
+      >{{ currentPage() }}/{{ totalPages() }}</span
+    >
+    <span class="sr-only min-[661px]:not-sr-only">{{ statusLabel() }}</span>
+  </p>
   <button
     type="button"
-    class="min-h-11 rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong hover:bg-surface-2 focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42]"
+    class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text outline-none transition-[border-color,background-color,color,opacity] duration-[180ms] hover:border-line-strong focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] min-[661px]:min-w-0"
     [disabled]="nextDisabled()"
     [attr.aria-disabled]="nextDisabled() ? 'true' : null"
     (click)="nextPage.emit()"
   >
-    {{ nextLabel() }}
+    <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">›</span>
+    <span class="sr-only min-[661px]:not-sr-only">{{ nextLabel() }}</span>
   </button>
 </nav>

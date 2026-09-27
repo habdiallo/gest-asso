@@ -103,7 +103,10 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('app-logout-button')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('header app-logout-button')).toBeNull();
+    (fixture.nativeElement.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('header app-logout-button')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-navigation-menu nav')).toBeTruthy();
   });
 
@@ -116,6 +119,8 @@ describe('App', () => {
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
+      (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
+      fixture.detectChanges();
       const logout = root.querySelector('header app-logout-button button') as HTMLButtonElement;
       expect(logout.textContent?.trim()).toBe('Se déconnecter');
       expect(logout.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
@@ -156,6 +161,9 @@ describe('App', () => {
       expect(root.querySelector('header .sidebar-profile')).toBeNull();
       expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
       expect(root.querySelector('aside app-logout-button')).toBeNull();
+      expect(root.querySelector('header app-logout-button')).toBeNull();
+      (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
+      fixture.detectChanges();
       expect(root.querySelector('header app-logout-button button')?.textContent?.trim()).toBe(
         'Se déconnecter',
       );

@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
+<main class="mx-auto min-w-0 max-w-4xl px-4 py-8 sm:px-6 lg:px-10">
   <app-page-header
     [kicker]="'account.kicker' | transloco"
     [title]="'account.title' | transloco"
@@ -7,7 +7,7 @@
 
   @if (user(); as user) {
     <section
-      class="rounded-card border border-line bg-surface p-5 sm:p-7"
+      class="rounded-card border border-line bg-surface p-4 sm:p-7"
       aria-labelledby="account-card-title"
     >
       <div class="flex flex-wrap items-center gap-4 pb-8">
@@ -18,7 +18,10 @@
           {{ initials() }}
         </div>
         <div class="min-w-0">
-          <h2 id="account-card-title" class="font-sans text-2xl font-medium text-text">
+          <h2
+            id="account-card-title"
+            class="responsive-section-title font-sans font-medium text-text"
+          >
             {{ user.member.displayName }}
           </h2>
           <div class="mt-2 flex flex-wrap items-center gap-2 text-text-2">
@@ -30,28 +33,36 @@
 
       <dl class="mt-8 grid gap-x-8 sm:grid-cols-2">
         <div class="border-b border-line py-4">
-          <dt class="font-data text-[8px] font-medium uppercase tracking-[0.12em] text-text-2">
+          <dt
+            class="responsive-label font-data font-medium uppercase tracking-[0.12em] text-text-2"
+          >
             {{ 'account.fields.association' | transloco }}
           </dt>
-          <dd class="mt-2 text-sm text-text">{{ user.association.name }}</dd>
+          <dd class="responsive-body mt-2 text-text">{{ user.association.name }}</dd>
         </div>
         <div class="border-b border-line py-4">
-          <dt class="font-data text-[8px] font-medium uppercase tracking-[0.12em] text-text-2">
+          <dt
+            class="responsive-label font-data font-medium uppercase tracking-[0.12em] text-text-2"
+          >
             {{ 'account.fields.role' | transloco }}
           </dt>
-          <dd class="mt-2 text-sm text-text">{{ roleLabelKey() | transloco }}</dd>
+          <dd class="responsive-body mt-2 text-text">{{ roleLabelKey() | transloco }}</dd>
         </div>
         <div class="border-b border-line py-4">
-          <dt class="font-data text-[8px] font-medium uppercase tracking-[0.12em] text-text-2">
+          <dt
+            class="responsive-label font-data font-medium uppercase tracking-[0.12em] text-text-2"
+          >
             {{ 'account.fields.theme' | transloco }}
           </dt>
-          <dd class="mt-2 text-sm text-text">{{ themeLabelKey() | transloco }}</dd>
+          <dd class="responsive-body mt-2 text-text">{{ themeLabelKey() | transloco }}</dd>
         </div>
         <div class="border-b border-line py-4">
-          <dt class="font-data text-[8px] font-medium uppercase tracking-[0.12em] text-text-2">
+          <dt
+            class="responsive-label font-data font-medium uppercase tracking-[0.12em] text-text-2"
+          >
             {{ 'account.fields.currency' | transloco }}
           </dt>
-          <dd class="mt-2 text-sm text-text">
+          <dd class="responsive-body mt-2 text-text">
             @if (currencyLabelKey(); as currencyLabelKey) {
               {{ currencyLabelKey | transloco }}
             } @else {
@@ -61,7 +72,9 @@
         </div>
       </dl>
 
-      <div class="mt-8 flex flex-wrap items-center justify-end gap-3 pt-6">
+      <div
+        class="mt-8 flex flex-col items-stretch justify-end gap-3 pt-6 sm:flex-row sm:items-center"
+      >
         <app-action-button variant="secondary" type="button" (click)="toggleTheme()">
           @if (theme() === 'dark') {
             <svg

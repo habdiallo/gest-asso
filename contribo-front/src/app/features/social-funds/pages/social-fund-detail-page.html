@@ -1,5 +1,5 @@
 @if (loading() && !socialFund()) {
-  <main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+  <main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
     <app-loading-skeleton
       variant="detail"
       [rows]="4"
@@ -7,7 +7,7 @@
     />
   </main>
 } @else if (loadError() && !socialFund()) {
-  <main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+  <main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
     <p class="mt-6 text-error" role="alert">{{ 'socialFunds.detail.error' | transloco }}</p>
   </main>
 } @else if (socialFund(); as socialFund) {
@@ -50,10 +50,10 @@
     <section id="social-fund-detail-panel-contributions" class="mt-8">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 class="font-display text-xl text-text">
+          <h2 class="responsive-section-title font-display text-text">
             {{ 'socialFunds.detail.contributionsTitle' | transloco }}
           </h2>
-          <p class="mt-1 text-sm text-text-3">
+          <p class="responsive-body mt-1 text-text-3">
             {{ 'socialFunds.detail.contributionsDescription' | transloco }}
           </p>
         </div>
@@ -88,7 +88,7 @@
         >
           <thead>
             <tr
-              class="h-11 border-b border-line bg-surface-2 font-data text-[8px] font-medium uppercase tracking-[0.13em] text-text-3"
+              class="responsive-label h-11 border-b border-line bg-surface-2 font-data font-medium uppercase tracking-[0.13em] text-text-3"
             >
               <th scope="col" class="px-4 py-0 font-medium">
                 {{ 'socialFunds.detail.columns.member' | transloco }}
@@ -107,7 +107,7 @@
           <tbody>
             @for (contribution of contributions(); track contribution.id) {
               <tr
-                class="h-16 border-b border-line text-[13px] text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
+                class="responsive-body h-16 border-b border-line text-text-2 transition-colors last:border-b-0 hover:bg-gold-wash focus-within:bg-gold-wash"
               >
                 <td class="px-4 py-2 font-normal text-text">
                   <span class="flex min-w-0 items-center gap-[11px]">
