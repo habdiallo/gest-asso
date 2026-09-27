@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { CurrentUser, LoginResponse } from '@api';
 import { authenticatedMatch } from './authenticated.guard';
@@ -11,9 +11,6 @@ import { SessionService } from './session.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class DashboardStub {}
-
-@Component({ template: '<p>Accueil visiteur</p>', changeDetection: ChangeDetectionStrategy.OnPush })
-class HomeStub {}
 
 function buildLoginResponse(role: CurrentUser['role']): LoginResponse {
   return {
@@ -48,23 +45,25 @@ describe('authenticatedMatch', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([
-          { path: '', canMatch: [authenticatedMatch], component: DashboardStub },
-          { path: '', component: HomeStub },
+          { path: 'dashboard', canMatch: [authenticatedMatch], component: DashboardStub },
+          { path: 'login', component: DashboardStub },
+          { path: '**', redirectTo: 'login' },
         ]),
       ],
     });
   });
 
-  it('falls through to the next "" route when no session is active', async () => {
-    const harness = await RouterTestingHarness.create('/');
+  it('does not match the dashboard route when no session is active', async () => {
+    const harness = await RouterTestingHarness.create('/dashboard');
 
-    expect(harness.routeNativeElement?.textContent).toContain('Accueil visiteur');
+    expect(TestBed.inject(Router).url).toBe('/login');
+    expect(harness.routeNativeElement?.textContent).toContain('Tableau de bord');
   });
 
   it('matches the dashboard route once a session is active', async () => {
     TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER'));
 
-    const harness = await RouterTestingHarness.create('/');
+    const harness = await RouterTestingHarness.create('/dashboard');
 
     expect(harness.routeNativeElement?.textContent).toContain('Tableau de bord');
   });

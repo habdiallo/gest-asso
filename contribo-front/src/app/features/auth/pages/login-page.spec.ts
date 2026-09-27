@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import fr from '../../../../assets/i18n/fr.json';
 import { LoginPage } from './login-page';
 
@@ -133,7 +134,7 @@ describe('LoginPage', () => {
       },
     });
 
-    expect(navigateSpy).toHaveBeenCalledWith('/');
+    expect(navigateSpy).toHaveBeenCalledWith(NAVIGATION_PATHS.dashboard);
     expect(localStorage.getItem('contribo-session-token')).toBe('token');
   });
 

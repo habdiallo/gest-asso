@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-shell px-4 py-8 pb-9 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto min-w-0 max-w-shell px-4 py-7 pb-9 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <a
     [routerLink]="backRouterLink()"
     class="inline-flex min-h-0 items-center gap-2 rounded px-1 py-1 text-control font-medium uppercase tracking-control text-gold outline-none transition-colors hover:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash"
@@ -20,7 +20,7 @@
 
   @if (showHero()) {
     <section
-      class="relative mt-8 overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-[30px]"
+      class="relative mt-7 overflow-hidden rounded-card border border-line bg-surface p-4 shadow-card sm:mt-8 sm:p-[30px]"
     >
       <div
         class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
@@ -33,10 +33,10 @@
           <p class="font-data text-eyebrow font-medium uppercase tracking-eyebrow text-gold">
             {{ kicker() }}
           </p>
-          <h1 class="mt-2 font-sans text-[27px] font-medium leading-tight text-text">
+          <h1 class="responsive-detail-title mt-2 font-sans font-medium text-text">
             {{ title() }}
           </h1>
-          <p class="mt-1 text-[15px] font-light leading-normal text-text-2">
+          <p class="responsive-detail-intro mt-1 font-light text-text-2">
             {{ intro() }}
           </p>
         </div>

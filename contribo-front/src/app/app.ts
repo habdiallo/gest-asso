@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { ActivatedRouteSnapshot } from '@angular/router';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -55,6 +55,7 @@ export class App {
   private readonly router = inject(Router);
 
   readonly isAuthenticated = this.sessionService.isAuthenticated;
+  readonly mobileProfileOpen = signal(false);
   /** Libellé du fil d'Ariane (T-117) : dérivé du titre de la route active, mis à jour à chaque navigation. */
   readonly breadcrumbLabel = toSignal(
     this.router.events.pipe(
@@ -85,6 +86,11 @@ export class App {
   });
 
   openSidebarProfile(): void {
+    this.mobileProfileOpen.set(false);
     void this.router.navigateByUrl(sidebarProfilePath(this.sessionService.user()?.role ?? null));
+  }
+
+  toggleMobileProfile(): void {
+    this.mobileProfileOpen.update((open) => !open);
   }
 }

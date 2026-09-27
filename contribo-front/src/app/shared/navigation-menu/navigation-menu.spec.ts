@@ -59,6 +59,7 @@ describe('NavigationMenu', () => {
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Accueil',
       'Membres',
       'Cotisations',
       'Cagnottes',
@@ -66,6 +67,7 @@ describe('NavigationMenu', () => {
       'Catégories',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
@@ -82,12 +84,14 @@ describe('NavigationMenu', () => {
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Accueil',
       'Membres',
       'Cotisations',
       'Cagnottes',
       'Mon espace',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
@@ -103,12 +107,14 @@ describe('NavigationMenu', () => {
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Accueil',
       'Membres',
       'Cotisations',
       'Cagnottes',
       'Mon espace',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
@@ -123,8 +129,8 @@ describe('NavigationMenu', () => {
     fixture.detectChanges();
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
-    expect(links.map((link) => link.textContent?.trim())).toEqual(['Mon espace']);
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/mon-espace']);
+    expect(links.map((link) => link.textContent?.trim())).toEqual(['Accueil', 'Mon espace']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/dashboard', '/mon-espace']);
   });
 
   it.each([
@@ -141,9 +147,8 @@ describe('NavigationMenu', () => {
     fixture.componentRef.setInput('orientation', 'vertical');
     fixture.detectChanges();
 
-    // Le lien « Tableau de bord » (T-117) n'est ajouté qu'en tête de la
-    // navigation verticale, jamais de la barre basse mobile horizontale.
-    const verticalPaths = ['/', ...paths];
+    // Le lien « Tableau de bord » (T-117) reste commun aux deux compositions.
+    const verticalPaths = ['/dashboard', ...paths];
     const root: HTMLElement = fixture.nativeElement;
     const links = Array.from(root.querySelectorAll('nav a'));
     expect(links.map((link) => link.getAttribute('href'))).toEqual(verticalPaths);
@@ -157,12 +162,26 @@ describe('NavigationMenu', () => {
     fixture.componentRef.setInput('orientation', 'horizontal');
     fixture.detectChanges();
     expect(root.querySelector('.sidebar-nav-section')).toBeNull();
-    expect(root.querySelector('svg')).toBeNull();
+    expect(root.querySelector('nav')?.classList.contains('mobile-nav')).toBe(true);
+    const mobilePaths = ['/dashboard', ...paths];
+    expect(root.querySelectorAll('.mobile-nav-link')).toHaveLength(mobilePaths.length);
+    expect(root.querySelector('.mobile-nav-link')?.textContent?.trim()).toBe('Accueil');
+    const rolesLink = root.querySelector('a[href="/roles-utilisateurs"]');
+    if (rolesLink) {
+      expect(rolesLink.querySelector('.mobile-nav-label-long')?.textContent?.trim()).toBe(
+        'Utilisateurs & rôles',
+      );
+    }
+    expect(
+      Array.from(root.querySelectorAll('nav a')).every(
+        (link) => link.querySelector('svg')?.getAttribute('aria-hidden') === 'true',
+      ),
+    ).toBe(true);
     expect(
       Array.from(root.querySelectorAll('nav a'))
         .map((link) => link.getAttribute('href'))
         .sort(),
-    ).toEqual([...paths].sort());
+    ).toEqual(mobilePaths.sort());
   });
 
   it('shows the Tableau de bord link first in the vertical menu, with the active state on the dashboard route only', async () => {
@@ -171,14 +190,14 @@ describe('NavigationMenu', () => {
       imports: [NavigationMenu],
       providers: [
         provideRouter([
-          { path: '', pathMatch: 'full', component: BlankPage },
+          { path: 'dashboard', pathMatch: 'full', component: BlankPage },
           { path: 'membres', component: BlankPage },
         ]),
       ],
     });
     TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/');
+    await router.navigateByUrl('/dashboard');
 
     const fixture = TestBed.createComponent(NavigationMenu);
     fixture.componentRef.setInput('orientation', 'vertical');
@@ -188,7 +207,7 @@ describe('NavigationMenu', () => {
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
     expect(links[0].textContent?.trim()).toBe('Tableau de bord');
-    expect(links[0].getAttribute('href')).toBe('/');
+    expect(links[0].getAttribute('href')).toBe('/dashboard');
     expect(links[0].classList.contains('sidebar-link-active')).toBe(true);
     expect(links[0].getAttribute('aria-current')).toBe('page');
     expect(links.slice(1).some((link) => link.classList.contains('sidebar-link-active'))).toBe(
@@ -198,5 +217,38 @@ describe('NavigationMenu', () => {
     await router.navigateByUrl('/membres');
     fixture.detectChanges();
     expect(links[0].classList.contains('sidebar-link-active')).toBe(false);
+  });
+
+  it('shows the active state on the current item in the horizontal mobile menu', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [NavigationMenu],
+      providers: [
+        provideRouter([
+          { path: 'dashboard', pathMatch: 'full', component: BlankPage },
+          { path: 'membres', component: BlankPage },
+        ]),
+      ],
+    });
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/membres');
+
+    const fixture = TestBed.createComponent(NavigationMenu);
+    fixture.componentRef.setInput('orientation', 'horizontal');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const membersLink = fixture.nativeElement.querySelector(
+      'a[href="/membres"]',
+    ) as HTMLAnchorElement;
+    expect(membersLink.classList.contains('mobile-nav-link-active')).toBe(true);
+    expect(membersLink.getAttribute('aria-current')).toBe('page');
+    expect(
+      (
+        fixture.nativeElement.querySelector('a[href="/dashboard"]') as HTMLAnchorElement
+      ).classList.contains('mobile-nav-link-active'),
+    ).toBe(false);
   });
 });

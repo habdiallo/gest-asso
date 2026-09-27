@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'socialFunds.kicker' | transloco"
     [title]="'socialFunds.title' | transloco"
@@ -134,7 +134,7 @@
         />
       }
       <ul
-        class="mt-5 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-5 grid grid-cols-1 items-stretch gap-4 min-[661px]:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="pageActionPending() || loading() ? 'true' : null"
       >
         @for (socialFund of socialFunds(); track socialFund.id) {
@@ -180,34 +180,45 @@
 
       @if (totalPages() > 1) {
         <nav
-          class="mt-6 flex items-center justify-between gap-4"
+          class="responsive-body mt-6 flex items-center justify-between gap-3"
           [attr.aria-label]="'socialFunds.pagination.nav' | transloco"
         >
           <button
             type="button"
-            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
             [class.opacity-40]="previousPageDisabled()"
             [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
             (click)="goToPreviousPage()"
           >
-            {{ 'socialFunds.pagination.previous' | transloco }}
+            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">‹</span>
+            <span class="sr-only min-[661px]:not-sr-only">{{
+              'socialFunds.pagination.previous' | transloco
+            }}</span>
           </button>
 
-          <p class="text-sm text-text-2" role="status">
-            {{
-              'socialFunds.pagination.status'
-                | transloco: { current: currentPageNumber(), total: totalPages() }
-            }}
+          <p class="min-w-12 text-center text-text-2" role="status">
+            <span class="min-[661px]:hidden" aria-hidden="true"
+              >{{ currentPageNumber() }}/{{ totalPages() }}</span
+            >
+            <span class="sr-only min-[661px]:not-sr-only">
+              {{
+                'socialFunds.pagination.status'
+                  | transloco: { current: currentPageNumber(), total: totalPages() }
+              }}
+            </span>
           </p>
 
           <button
             type="button"
-            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text min-[661px]:min-w-0 min-[661px]:px-4"
             [class.opacity-40]="nextPageDisabled()"
             [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
             (click)="goToNextPage()"
           >
-            {{ 'socialFunds.pagination.next' | transloco }}
+            <span class="text-xl leading-none min-[661px]:hidden" aria-hidden="true">›</span>
+            <span class="sr-only min-[661px]:not-sr-only">{{
+              'socialFunds.pagination.next' | transloco
+            }}</span>
           </button>
         </nav>
       }
@@ -219,7 +230,10 @@
       </p>
     }
 
-    <p class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
+    <p
+      class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info"
+      role="note"
+    >
       <svg
         class="h-4 w-4 shrink-0"
         viewBox="0 0 24 24"

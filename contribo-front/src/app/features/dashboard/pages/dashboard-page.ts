@@ -106,6 +106,7 @@ interface SocialFundScopeView {
     StatusBadge,
   ],
   templateUrl: './dashboard-page.html',
+  styleUrl: './dashboard-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {
