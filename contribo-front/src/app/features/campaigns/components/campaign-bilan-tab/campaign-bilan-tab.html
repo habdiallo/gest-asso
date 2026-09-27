@@ -3,7 +3,7 @@
   @let collectedAmount = formatAmount(summary.collectedAmount);
   @let remainingAmount = formatAmount(summary.remainingAmount);
   <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-    <div class="rounded-lg border border-line p-4">
+    <div class="rounded-card border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.expectedAmount' | transloco }}
       </dt>
@@ -14,7 +14,7 @@
         </span>
       </dd>
     </div>
-    <div class="rounded-lg border border-line p-4">
+    <div class="rounded-card border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.collectedAmount' | transloco }}
       </dt>
@@ -25,7 +25,7 @@
         </span>
       </dd>
     </div>
-    <div class="rounded-lg border border-line p-4">
+    <div class="rounded-card border border-line p-4">
       <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
         {{ 'campaigns.detail.bilan.remainingAmount' | transloco }}
       </dt>
@@ -43,19 +43,19 @@
       {{ 'campaigns.detail.bilan.memberStatus.title' | transloco }}
     </h3>
     <dl class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <div class="rounded-lg border border-line p-4">
+      <div class="rounded-card border border-line p-4">
         <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
           {{ 'campaigns.detail.bilan.memberStatus.paid' | transloco }}
         </dt>
         <dd class="mt-1 text-xl text-text">{{ summary.dueCounts.paid }}</dd>
       </div>
-      <div class="rounded-lg border border-line p-4">
+      <div class="rounded-card border border-line p-4">
         <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
           {{ 'campaigns.detail.bilan.memberStatus.partiallyPaid' | transloco }}
         </dt>
         <dd class="mt-1 text-xl text-text">{{ summary.dueCounts.partiallyPaid }}</dd>
       </div>
-      <div class="rounded-lg border border-line p-4">
+      <div class="rounded-card border border-line p-4">
         <dt class="text-xs uppercase tracking-[0.08em] text-text-2">
           {{ 'campaigns.detail.bilan.memberStatus.unpaid' | transloco }}
         </dt>

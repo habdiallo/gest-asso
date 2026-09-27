@@ -22,6 +22,7 @@ function flushMicrotasks(): Promise<void> {
     [options]="options"
     [required]="true"
     [pill]="pill"
+    [compact]="compact"
   />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,6 +30,7 @@ class HostComponent {
   readonly control = new FormControl<string | null>(null);
   options = OPTIONS;
   pill = false;
+  compact = false;
 }
 
 describe('CustomSelect', () => {
@@ -49,6 +51,17 @@ describe('CustomSelect', () => {
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     expect(trigger.textContent).toContain('Option B');
+  });
+
+  it('preserves the compact radius for non-pill controls', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.compact = true;
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.classList.contains('rounded')).toBe(false);
+    expect(trigger.classList.contains('rounded-lg')).toBe(true);
+    expect(trigger.classList.contains('rounded-full')).toBe(false);
   });
 
   it('opens the menu on trigger click, selects an option on click, propagates it and closes', () => {

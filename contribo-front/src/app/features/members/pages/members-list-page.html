@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   @let summary = memberPage()?.summary;
   <app-page-header
     [kicker]="'members.kicker' | transloco"
@@ -52,7 +52,7 @@
   <div
     class="min-[821px]:sticky min-[821px]:top-[78px] min-[821px]:z-10 -mx-2 mb-3 {{
       createdConfirmation() ? 'mt-6' : 'mt-3 min-[821px]:mt-[-8px]'
-    }} flex flex-wrap items-center gap-2.5 rounded-xl bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl"
+    }} flex flex-wrap items-center gap-2.5 rounded-card bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] p-2 backdrop-blur-xl"
   >
     <div class="relative min-w-[240px] flex-1">
       <label for="members-search" class="sr-only">
@@ -76,7 +76,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'members.searchPlaceholder' | transloco"
-        class="app-form-control min-h-11 w-full rounded-lg border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
+        class="app-form-control min-h-11 w-full rounded border border-line bg-surface px-4 pl-11 text-text placeholder:text-text-3"
       />
     </div>
     @if (showFinancialDetail() && incomeCategoryOptions().length > 0) {
@@ -106,14 +106,14 @@
       </div>
     }
     <div
-      class="flex shrink-0 rounded-lg border border-line bg-surface-2 p-1"
+      class="flex shrink-0 rounded border border-line bg-surface-2 p-1"
       role="group"
       [attr.aria-label]="'members.statusFilterLabel' | transloco"
     >
       @for (filter of statusFilterOptions; track filter.value) {
         <button
           type="button"
-          class="min-h-9 rounded-md px-3 text-[9px] font-normal uppercase tracking-[0.08em] transition-colors"
+          class="min-h-9 rounded px-3 text-[9px] font-normal uppercase tracking-[0.08em] transition-colors"
           [class.bg-surface]="statusFilter() === filter.value"
           [class.text-text]="statusFilter() === filter.value"
           [class.text-text-3]="statusFilter() !== filter.value"

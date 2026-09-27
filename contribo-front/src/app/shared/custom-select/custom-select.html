@@ -20,7 +20,7 @@
     [class.min-h-12]="!compact()"
     [class.rounded-full]="pill()"
     [class.rounded-lg]="compact() && !pill()"
-    [class.rounded]="!compact()"
+    [class.rounded]="!compact() && !pill()"
     [class.bg-surface]="compact()"
     [class.bg-surface-2]="!compact()"
     (click)="toggleOpen()"
@@ -67,7 +67,7 @@
   </button>
   @if (open()) {
     <div
-      class="absolute left-0 right-0 top-full z-[60] mt-[7px] rounded-[10px] border border-line-strong bg-surface-glass p-1.5 shadow-[0_18px_48px_-10px_rgba(0,0,0,0.48)] backdrop-blur-xl"
+      class="absolute left-0 right-0 top-full z-[60] mt-[7px] rounded-menu border border-line-strong bg-surface-glass p-1.5 shadow-[0_18px_48px_-10px_rgba(0,0,0,0.48)] backdrop-blur-xl"
     >
       @if (searchable()) {
         <div class="border-b border-line px-1 pb-1.5">
@@ -102,7 +102,7 @@
             [attr.tabindex]="index === activeOptionIndex() ? 0 : -1"
             [attr.data-value]="option.value"
             [attr.aria-selected]="option.value === value()"
-            class="flex min-h-[42px] w-full items-center justify-between gap-2.5 rounded-[7px] px-2.5 text-left text-text-2 outline-none hover:bg-surface-2 hover:text-text focus-visible:bg-surface-2 focus-visible:text-text"
+            class="flex min-h-[42px] w-full items-center justify-between gap-2.5 rounded-option px-2.5 text-left text-text-2 outline-none hover:bg-surface-2 hover:text-text focus-visible:bg-surface-2 focus-visible:text-text"
             [class.text-gold]="option.value === value()"
             [class.bg-gold-wash]="option.value === value()"
             (click)="selectOption(option)"

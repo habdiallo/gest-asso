@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'incomeCategories.kicker' | transloco"
     [title]="'incomeCategories.title' | transloco"
@@ -66,7 +66,7 @@
           >
             <td class="px-4 py-2">
               <span
-                class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gold-wash font-data text-xs font-medium text-gold"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-icon bg-gold-wash font-data text-xs font-medium text-gold"
                 aria-hidden="true"
               >
                 {{ getCategoryInitial(category.label) }}
@@ -126,7 +126,7 @@
       />
     }
 
-    <p class="mt-4 flex items-center gap-2 rounded-lg bg-info-wash px-4 py-3 text-xs text-info" role="note">
+    <p class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
       <svg
         class="h-4 w-4 shrink-0"
         viewBox="0 0 24 24"
