@@ -46,6 +46,19 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
     }
 
     @Test
+    void publicEndpointsIgnoreAnInvalidBearerToken() throws Exception {
+        mockMvc.perform(get("/actuator/health/liveness")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/auth/login")
+                        .header("Authorization", "Bearer invalid-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"identifier\":\"missing\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
     void invalidCredentialsUseContractErrorResponse() throws Exception {
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
