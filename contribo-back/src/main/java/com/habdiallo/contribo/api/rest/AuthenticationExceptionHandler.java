@@ -20,6 +20,7 @@ import com.habdiallo.contribo.application.access.AccessDeniedException;
 import com.habdiallo.contribo.application.access.BusinessConflictException;
 import com.habdiallo.contribo.application.access.ResourceNotFoundException;
 import com.habdiallo.contribo.application.auth.InvalidCredentialsException;
+import com.habdiallo.contribo.application.socialfund.SocialFundException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
@@ -72,6 +73,12 @@ public class AuthenticationExceptionHandler {
             return ResponseEntity.badRequest().body(response);
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(SocialFundException.class)
+    ResponseEntity<ErrorResponse> socialFundException(SocialFundException exception) {
+        return ResponseEntity.status(exception.status())
+                .body(new ErrorResponse(exception.code(), exception.getMessage()));
     }
 
     @ExceptionHandler({ConstraintViolationException.class, MethodArgumentTypeMismatchException.class})

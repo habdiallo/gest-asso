@@ -1,0 +1,9 @@
+.git
+.git/**
+**/node_modules
+**/dist
+contribo-back/target
+contribo-front/src/app/core/api/generated
+.claude
+.codex
+.agents

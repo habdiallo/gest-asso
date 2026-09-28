@@ -66,44 +66,44 @@ contient des entrées.
 
 ### Requirement: Identité et actions existantes en pied
 
-Le frontend SHALL reproduire la présentation `.profile*` du prototype avec un
-séparateur, un avatar, une ligne de nom et le rôle applicatif à partir des seules
-données disponibles dans `SessionService.user()`. Le pied SHALL conserver les
-actions de thème et de déconnexion sous une forme accessible, avec le même contrat
-visuel d'action partagé lorsqu'elles sont rendues comme boutons. Le bloc SHALL être
-informatif et ne SHALL déclencher aucune nouvelle requête API.
+Le frontend SHALL reproduire la presentation `.profile*` du prototype avec avatar 36 px, nom 13 px et role applicatif 11 px a partir des seules donnees deja disponibles dans `SessionService.user`. Le bloc SHALL etre une action de navigation contextuelle : il SHALL ouvrir « Mon profil » pour un Membre et « Mon acces » pour un Administrateur, Tresorier ou Operateur. Le pied SHALL conserver les actions theme et deconnexion existantes sous l'identite, avec leurs noms accessibles et leur fonctionnement actuels.
 
-#### Scenario: Identité issue de la session
+#### Scenario: Identite disponible pour un role de gestion
 
-- **WHEN** les données de session sont disponibles
-- **THEN** le pied affiche les initiales dérivées du nom, le nom du membre et son
-  rôle applicatif
-- **AND** il n'utilise pas les identités de démonstration codées dans le prototype
+- **WHEN** un Administrateur, Tresorier ou Operateur est authentifie et les donnees utilisateur sont disponibles
+- **THEN** le pied affiche les initiales derivees du nom, le nom du membre et son role applicatif sans donnees fictives
+- **AND** l'activation du bloc ouvre la page « Mon acces »
 
-#### Scenario: Actions de pied conservées
+#### Scenario: Identite disponible pour un Membre
 
-- **WHEN** l'utilisateur consulte la sidebar desktop
-- **THEN** le changement de thème et la déconnexion restent atteignables au clavier
-  avec des noms accessibles
-- **AND** leurs effets restent identiques après l'alignement visuel
+- **WHEN** un Membre est authentifie et les donnees utilisateur sont disponibles
+- **THEN** le pied affiche les initiales derivees du nom, le nom du membre et son role applicatif sans donnees fictives
+- **AND** l'activation du bloc ouvre « Mon profil » dans l'espace personnel
 
-#### Scenario: Hauteur réduite et texte agrandi
+#### Scenario: Donnees utilisateur pas encore chargees
 
-- **WHEN** la hauteur disponible diminue ou le texte est agrandi à 200 %
-- **THEN** les liens et les actions du pied restent atteignables avec défilement si
-  nécessaire
-- **AND** aucun libellé de navigation n'est coupé de manière inaccessible
+- **WHEN** la session est authentifiee mais ses donnees utilisateur ne sont pas encore disponibles
+- **THEN** le bloc conserve son emplacement sans afficher une identite fictive ni declencher une requete supplementaire
+- **AND** les actions theme et deconnexion restent accessibles
 
-### Requirement: Périmètre strictement limité à la sidebar
+#### Scenario: Hauteur reduite et acces clavier
 
-La correction SHALL se limiter à la présentation de la sidebar existante et aux données de présentation nécessaires. Elle SHALL préserver les routes, gardes, droits, logique de session, contrat API, jetons globaux, pages métier, topbar et navigation horizontale mobile, notamment la correction de déconnexion T-110. Elle SHALL conserver le seuil de visibilité existant sans créer de comportement tablette distinct.
+- **WHEN** la hauteur disponible diminue ou le texte est agrandi a 200 % et l'utilisateur navigue au clavier
+- **THEN** les liens et les actions du pied restent atteignables, avec defilement si necessaire, sans recouvrement ni texte de lien tronque
+- **AND** le changement de theme, la navigation du bloc et la deconnexion produisent les effets attendus
 
-#### Scenario: Absence de régression hors sidebar
-- **WHEN** l'application est comparée avant/après à 820 px et à une largeur mobile de 375 px, dans les deux thèmes
-- **THEN** la sidebar reste masquée et l'en-tête ainsi que la navigation mobile gardent leur rendu et leurs interactions actuels
-- **AND** à 821 px la sidebar apparaît sans changement de destination ni recouvrement du contenu principal
+### Requirement: Perimetre limite a la sidebar et a sa destination
+
+La correction SHALL se limiter a la presentation de la sidebar existante, a la destination de son bloc d'identite et a la page de compte necessaire pour le parcours cible. Elle SHALL preserver les autres routes, gardes, droits, logique de session, contrat API, jetons globaux, pages metier, topbar et navigation horizontale mobile, notamment la correction de deconnexion T-110. Elle SHALL conserver le seuil de visibilite existant sans creer de comportement tablette distinct.
+
+#### Scenario: Absence de regression hors sidebar
+
+- **WHEN** l'application est comparee avant et apres a 820 px et a une largeur mobile de 375 px, dans les deux themes
+- **THEN** la sidebar reste masquee et l'en-tete ainsi que la navigation mobile gardent leur rendu et leurs interactions actuels
+- **AND** a 821 px la sidebar apparait sans changement de destination metier ni recouvrement du contenu principal
 
 #### Scenario: Session absente
-- **WHEN** aucun utilisateur n'est authentifié
-- **THEN** la sidebar reste absente et le rendu de connexion reste inchangé
+
+- **WHEN** aucun utilisateur n'est authentifie
+- **THEN** la sidebar et la page de compte restent absentes et le rendu de connexion reste inchange
 
