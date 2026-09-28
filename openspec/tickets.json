@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 152,
+  "nextTicketId": 153,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3051,6 +3051,20 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "infra/chore-000-deploiement-integration",
       "branchAfterInitialization": "infra/chore-151-deploiement-integration"
+    },
+    {
+      "id": 152,
+      "title": "Publier le decoupage des tickets backend et deploiement issus du cadrage T-142.",
+      "priority": "P0",
+      "scope": "fullstack",
+      "type": "chore",
+      "slug": "planification-backend-deploiement",
+      "change": "implementer-backend-deploiement-mvp",
+      "tasks": ["4.0"],
+      "dependencies": [142],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "fullstack/chore-000-planification-backend-deploiement",
+      "branchAfterInitialization": "fullstack/chore-152-planification-backend-deploiement"
     }
   ]
 }
