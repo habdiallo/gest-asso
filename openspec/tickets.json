@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 153,
+  "nextTicketId": 154,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3065,6 +3065,26 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "fullstack/chore-000-planification-backend-deploiement",
       "branchAfterInitialization": "fullstack/chore-152-planification-backend-deploiement"
+    },
+    {
+      "id": 153,
+      "title": "Archiver les cinq changes OpenSpec dont toutes les taches sont cochees et les PR fusionnees (T-136, T-137, T-139, T-140, T-141) et synchroniser leurs specs delta vers openspec/specs/.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "archiver-changes-openspec-termines-3",
+      "change": "archiver-changes-openspec-termines-3",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-archiver-changes-openspec-termines-3",
+      "branchAfterInitialization": "docs/chore-153-archiver-changes-openspec-termines-3"
     }
   ]
 }
