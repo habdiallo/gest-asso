@@ -19,12 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
-    private final AuthenticationRepository repository;
+    private static final String DUMMY_PASSWORD_HASH =
+            "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
+    private final AuthenticationAccountPort repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService tokenService;
 
     public AuthenticationService(
-            AuthenticationRepository repository,
+            AuthenticationAccountPort repository,
             PasswordEncoder passwordEncoder,
             JwtTokenService tokenService) {
         this.repository = repository;
@@ -33,10 +36,12 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        AuthenticatedAccount account = repository.findByIdentifier(request.getIdentifier())
-                .filter(AuthenticatedAccount::active)
-                .filter(candidate -> passwordEncoder.matches(request.getPassword(), candidate.passwordHash()))
-                .orElseThrow(InvalidCredentialsException::new);
+        AuthenticatedAccount account = repository.findByIdentifier(request.getIdentifier()).orElse(null);
+        String passwordHash = account == null ? DUMMY_PASSWORD_HASH : account.passwordHash();
+        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), passwordHash);
+        if (account == null || !account.active() || !passwordMatches) {
+            throw new InvalidCredentialsException();
+        }
         return new LoginResponse(
                 tokenService.issue(account.userId()),
                 LoginResponse.TokenTypeEnum.BEARER,

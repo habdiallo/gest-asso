@@ -1,4 +1,4 @@
-package com.habdiallo.contribo.application.auth;
+package com.habdiallo.contribo.outbound.persistence.auth;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,8 +8,11 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
+import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
+
 @Repository
-public class AuthenticationRepository {
+public class AuthenticationRepository implements AuthenticationAccountPort {
 
     private static final String ACCOUNT_QUERY = """
             SELECT ua.id AS user_id, ua.password_hash, ua.active, ua.role,
@@ -35,10 +38,12 @@ public class AuthenticationRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
     public Optional<AuthenticatedAccount> findByIdentifier(String identifier) {
         return queryOne(ACCOUNT_QUERY, identifier);
     }
 
+    @Override
     public Optional<AuthenticatedAccount> findById(UUID userId) {
         return queryOne(ACCOUNT_BY_ID_QUERY, userId);
     }

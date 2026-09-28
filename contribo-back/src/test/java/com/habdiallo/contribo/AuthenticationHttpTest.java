@@ -22,7 +22,16 @@ class AuthenticationHttpTest {
     @Test
     void protectedCurrentUserRequiresBearerToken() throws Exception {
         mockMvc.perform(get("/me"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
+    }
+
+    @Test
+    void healthProbesArePublic() throws Exception {
+        mockMvc.perform(get("/actuator/health/liveness"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/actuator/health/readiness"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -32,5 +41,14 @@ class AuthenticationHttpTest {
                         .content("{\"identifier\":\"missing\",\"password\":\"wrong\"}"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    void invalidLoginPayloadUsesContractErrorResponse() throws Exception {
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"identifier\":\"\",\"password\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 }
