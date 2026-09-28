@@ -57,7 +57,7 @@ public class SocialFundService {
 
     @Transactional
     public SocialFund createFund(UUID userId, CreateSocialFundRequest request) {
-        AuthenticatedAccount account = requireManager(userId, false);
+        AuthenticatedAccount account = requireFundManager(userId);
         validateDateRange(request.getStartDate(), request.getEndDate());
         UUID fundId = repository.createFund(
                 account.associationId(), request.getTitle(), request.getEventType().getValue(),
@@ -73,7 +73,7 @@ public class SocialFundService {
 
     @Transactional
     public SocialFund closeFund(UUID userId, UUID fundId) {
-        AuthenticatedAccount account = requireManager(userId, false);
+        AuthenticatedAccount account = requireFundManager(userId);
         SocialFundRepository.SocialFundData fund = requireFund(account.associationId(), fundId);
         if ("CLOSED".equals(fund.status())) {
             throw conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.SOCIAL_FUND_ALREADY_CLOSED,
@@ -168,6 +168,15 @@ public class SocialFundService {
         boolean allowed = role == UserRole.ADMINISTRATOR || role == UserRole.TREASURER
                 || (role == UserRole.OPERATOR && (!operatorPermissionRequired || account.operatorCanRecordPayments()));
         if (!allowed) {
+            throw forbidden();
+        }
+        return account;
+    }
+
+    private AuthenticatedAccount requireFundManager(UUID userId) {
+        AuthenticatedAccount account = requireAccount(userId);
+        UserRole role = role(account);
+        if (role != UserRole.ADMINISTRATOR && role != UserRole.TREASURER) {
             throw forbidden();
         }
         return account;

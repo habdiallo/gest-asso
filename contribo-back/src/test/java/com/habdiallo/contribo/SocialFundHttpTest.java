@@ -28,6 +28,8 @@ class SocialFundHttpTest {
     private static final UUID CONTRIBUTOR_MEMBER_ID = UUID.fromString("10000000-0000-0000-0000-000000000004");
     private static final UUID USER_ID = UUID.fromString("10000000-0000-0000-0000-000000000005");
     private static final UUID FUND_ID = UUID.fromString("10000000-0000-0000-0000-000000000006");
+    private static final UUID OPERATOR_MEMBER_ID = UUID.fromString("10000000-0000-0000-0000-000000000007");
+    private static final UUID OPERATOR_USER_ID = UUID.fromString("10000000-0000-0000-0000-000000000008");
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,6 +44,10 @@ class SocialFundHttpTest {
     void setUp() {
         jdbcTemplate.update("DELETE FROM contributions");
         jdbcTemplate.update("DELETE FROM social_funds");
+        jdbcTemplate.update("DELETE FROM payments");
+        jdbcTemplate.update("DELETE FROM dues");
+        jdbcTemplate.update("DELETE FROM campaign_category_amounts");
+        jdbcTemplate.update("DELETE FROM campaigns");
         jdbcTemplate.update("DELETE FROM user_accounts");
         jdbcTemplate.update("DELETE FROM members");
         jdbcTemplate.update("DELETE FROM income_categories");
@@ -57,9 +63,18 @@ class SocialFundHttpTest {
                 """, RECORDER_MEMBER_ID, ASSOCIATION_ID, CATEGORY_ID,
                 CONTRIBUTOR_MEMBER_ID, ASSOCIATION_ID, CATEGORY_ID);
         jdbcTemplate.update("""
+                INSERT INTO members (id, association_id, first_name, last_name, income_category_id, status)
+                VALUES (?, ?, 'Oumar', 'Operator', ?, 'ACTIVE')
+                """, OPERATOR_MEMBER_ID, ASSOCIATION_ID, CATEGORY_ID);
+        jdbcTemplate.update("""
                 INSERT INTO user_accounts (id, association_id, member_id, identifier, password_hash, role)
                 VALUES (?, ?, ?, 'recorder', 'ignored', 'TREASURER')
                 """, USER_ID, ASSOCIATION_ID, RECORDER_MEMBER_ID);
+        jdbcTemplate.update("""
+                INSERT INTO user_accounts (id, association_id, member_id, identifier, password_hash, role,
+                    operator_can_record_payments)
+                VALUES (?, ?, ?, 'operator', 'ignored', 'OPERATOR', FALSE)
+                """, OPERATOR_USER_ID, ASSOCIATION_ID, OPERATOR_MEMBER_ID);
         jdbcTemplate.update("""
                 INSERT INTO social_funds (id, association_id, title, event_type, beneficiary, start_date, end_date, status, target_amount)
                 VALUES (?, ?, 'Soutien famille', 'WEDDING', 'Famille Camara', '2026-09-01', '2026-09-30', 'OPEN', 1000)
@@ -111,5 +126,35 @@ class SocialFundHttpTest {
                         .content(memberContribution))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("RESOURCE_CLOSED"));
+    }
+
+    @Test
+    void operatorWithoutFinancialPermissionCannotCreateOrCloseAFund() throws Exception {
+        String authorization = "Bearer " + tokenService.issue(OPERATOR_USER_ID);
+        String request = """
+                {"title":"Collecte interdite","eventType":"WEDDING","beneficiary":"Famille Bah",
+                 "startDate":"2026-09-01","endDate":"2026-09-30"}
+                """;
+
+        mockMvc.perform(post("/social-funds")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+
+        mockMvc.perform(post("/social-funds/{id}/closure", FUND_ID)
+                        .header("Authorization", authorization))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+    }
+
+    @Test
+    void largeSocialFundPageReturnsAnEmptyPage() throws Exception {
+        mockMvc.perform(get("/social-funds?page=2147483647&size=100")
+                        .header("Authorization", "Bearer " + tokenService.issue(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.page.totalElements").value(1));
     }
 }

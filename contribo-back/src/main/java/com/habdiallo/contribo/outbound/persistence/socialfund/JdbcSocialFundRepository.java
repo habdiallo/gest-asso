@@ -66,7 +66,7 @@ public class JdbcSocialFundRepository implements SocialFundRepository {
         long total = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM social_funds sf WHERE " + where, Long.class, params.toArray());
         params.add(size);
-        params.add(page * size);
+        params.add((long) page * size);
         List<SocialFundData> items = jdbcTemplate.query(
                 FUND_SELECT + " WHERE " + where
                         + " GROUP BY sf.id, sf.association_id, sf.title, sf.event_type, sf.description,"
@@ -120,7 +120,7 @@ public class JdbcSocialFundRepository implements SocialFundRepository {
                         + " LEFT JOIN members m ON m.id = c.member_id WHERE " + where,
                 Long.class, params.toArray());
         params.add(size);
-        params.add(page * size);
+        params.add((long) page * size);
         List<ContributionData> items = jdbcTemplate.query(
                 CONTRIBUTION_SELECT + " WHERE " + where
                         + " ORDER BY c.recorded_at DESC, c.id DESC LIMIT ? OFFSET ?",
