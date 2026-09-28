@@ -47,7 +47,7 @@ non terminés. Il inspecte les dépendances transitives et les changes préalabl
 Vérifier aussi les PR et la présence de leurs changements dans l'ascendance :
 des cases cochées ne prouvent pas une fusion. Sans ticket déductible sans ambiguïté,
 l'agent demande sa sélection. Il ne contourne pas les prérequis en implémentant
-d'autres tickets, ne traite que les étapes de ce ticket et prépare sa PR vers `main`.
+d'autres tickets, ne traite que les étapes de ce ticket et prépare sa PR vers `develop`.
 
 ## Fin de la phase d'initialisation
 
@@ -97,4 +97,5 @@ cette adoption : les contrôles de fichiers ne remplacent pas une revue.
 Titres locaux : `feat(front): T-3 ajouter l'écran de connexion`.
 Ne pas écrire `Closes #3` pour un ticket local. Référencer séparément une issue
 GitHub réelle si elle existe. L'adoption historique du registre reste sous `000`
-avec une branche et une PR propres. Aucun push direct sur `main`.
+avec une branche et une PR propres. Aucun push direct sur `main` ou `develop`. Les
+releases et hotfixes passent par une PR dédiée vers `main`.

@@ -6,10 +6,11 @@ références complètes vers des tags de release immuables publiés par la CI, o
 vers des digests d'image. Les tags `latest`, les tags de branche et toute autre
 référence mutable sont interdits.
 
-Les secrets `db_password` et `jwt_secret` sont fournis par des fichiers externes
-au dépôt. Le gestionnaire de secrets de l'environnement doit créer ces fichiers
-avant le démarrage de la stack, puis leurs chemins absolus doivent être indiqués
-par `DB_PASSWORD_FILE_PATH` et `JWT_SECRET_FILE_PATH` dans
+Les secrets `db_password`, `rsa_public_key` et `rsa_private_key` sont fournis par
+des fichiers externes au dépôt. Le gestionnaire de secrets de l'environnement
+doit créer ces fichiers avant le démarrage de la stack, puis leurs chemins
+absolus doivent être indiqués par `DB_PASSWORD_FILE_PATH`,
+`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH` dans
 `contribo-deploiement/integration.env`. Aucun secret réel ne doit être ajouté au
 dépôt. Cette configuration est compatible avec `docker compose up` et ne dépend
 pas des secrets Docker Swarm.
@@ -23,9 +24,10 @@ docker compose --env-file contribo-deploiement/integration.env \
   -f contribo-deploiement/compose.integration.yaml up -d
 ```
 
-Les fichiers référencés par `DB_PASSWORD_FILE_PATH` et `JWT_SECRET_FILE_PATH`
-restent hors du dépôt et sont montés en lecture seule dans les conteneurs. Le
-script d'entrée du backend les lit au démarrage.
+Les fichiers référencés par `DB_PASSWORD_FILE_PATH`,
+`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH` restent hors du dépôt.
+Le mot de passe PostgreSQL est lu par le script d'entrée et les clés RSA sont
+consommées directement comme ressources `file:` par Spring Security.
 
 ## Rollback
 

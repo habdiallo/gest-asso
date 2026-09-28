@@ -20,7 +20,7 @@ import com.habdiallo.contribo.security.JwtTokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CampaignPaymentHttpTest {
+class CampaignPaymentHttpTest extends RsaIntegrationTestSupport {
 
     private final UUID associationId = UUID.randomUUID();
     private final UUID categoryId = UUID.randomUUID();

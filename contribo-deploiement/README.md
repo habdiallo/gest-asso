@@ -12,9 +12,21 @@ Depuis la racine du dépôt :
 docker compose -f contribo-deploiement/compose.yaml up --build
 ```
 
-Les valeurs par défaut servent uniquement au développement local. Pour un autre
-contexte, injecter `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
-`JWT_SECRET`, `BACKEND_PORT` et `FRONTEND_PORT` sans les versionner.
+Les valeurs par défaut servent uniquement au développement local. Générer une
+paire RSA locale, puis injecter `RSA_PUBLIC_KEY_FILE_PATH` et
+`RSA_PRIVATE_KEY_FILE_PATH` avec `POSTGRES_DB`, `POSTGRES_USER`,
+`POSTGRES_PASSWORD`, `BACKEND_PORT` et `FRONTEND_PORT` sans les versionner.
+
+```bash
+mkdir -p .local-secrets
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+  -out .local-secrets/rsa_private.pem
+openssl rsa -pubout -in .local-secrets/rsa_private.pem \
+  -out .local-secrets/rsa_public.pem
+RSA_PUBLIC_KEY_FILE_PATH="$PWD/.local-secrets/rsa_public.pem" \
+RSA_PRIVATE_KEY_FILE_PATH="$PWD/.local-secrets/rsa_private.pem" \
+docker compose -f contribo-deploiement/compose.yaml up --build
+```
 
 ## Arrêter
 

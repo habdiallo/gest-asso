@@ -2,14 +2,16 @@
 
 ## Principe de livraison
 
-Toute évolution passe par **un ticket, une branche dédiée et une merge request
-vers `main`**. Le dépôt est sur GitHub : la merge request est appelée pull request
-(PR). `main` contient uniquement le travail intégré par PR et doit rester fonctionnelle.
+Toute évolution passe par **un ticket, une branche dédiée et une pull request (PR)**.
+Le dépôt utilise `develop` comme branche d'intégration et `main` comme branche de
+production. Les PR de ticket ciblent `develop`. Une branche `release/vX.Y.Z` ou
+`hotfix/<description>` cible `main` après validation. `main` et `develop` doivent
+rester fonctionnelles selon leur rôle.
 Cette règle s'applique au code écrit ou généré, aux corrections, aux configurations,
 aux contrats API et à la documentation, y compris les artefacts OpenSpec.
 
-Ne jamais générer, modifier ou committer du code sur `main`, ni pousser directement
-vers `main`. Ne pas utiliser de refspec tel que `HEAD:main`, de push forcé,
+Ne jamais générer, modifier ou committer du code sur `main` ou `develop`, ni pousser directement
+vers ces branches. Ne pas utiliser de refspec tel que `HEAD:main`, de push forcé,
 d'automatisation ou de désactivation de hook pour contourner cette règle.
 La fusion s'effectue sur GitHub après les validations et la revue prévues.
 Un agent ne fusionne pas une PR et n'active pas l'auto-merge sans demande explicite.
@@ -52,6 +54,12 @@ Un ticket correspond à une branche et à une PR. Choisir `fullstack` si la livr
 front/back est indissociable ; sinon créer des tickets liés et des PR distinctes.
 Ne pas réutiliser une branche fusionnée pour un autre ticket.
 
+Les branches de flux sont réservées à la livraison : `release/vX.Y.Z` est créée
+depuis `develop` pour stabiliser une version, et `hotfix/<description>` est créée
+depuis `main` pour une correction urgente. Elles ne remplacent pas une branche de
+ticket. Une release ou un hotfix fusionné dans `main` doit ensuite être réintégré
+dans `develop`.
+
 ### Exception historique : initialisation du projet (terminée)
 
 Pendant l'initialisation du projet, le mainteneur avait autorisé le marqueur
@@ -83,14 +91,16 @@ ou une tâche `2.1` en numéro de ticket.
    qui appartiennent au ticket.
 2. Confirmer le ticket, son périmètre et ses critères d'acceptation. Vérifier les
    dépendances avec d'autres tickets et les éventuels impacts API ou migrations.
-3. Dans un dépôt propre, récupérer `origin/main` et créer la branche du ticket à
-   partir de cette référence. Si des modifications sont déjà présentes, ne pas les
+3. Dans un dépôt propre, récupérer `origin/develop` et créer la branche du ticket à
+   partir de cette référence. Si `develop` n'existe pas encore, le mainteneur la
+   crée une fois depuis `main` avant les premiers tickets. Si des modifications sont déjà présentes, ne pas les
    effacer ou les stasher automatiquement : créer une branche locale qui les
    préserve, ou utiliser un worktree propre pour isoler le ticket.
 4. Créer/réutiliser le change OpenSpec et préparer les artefacts nécessaires.
 5. Implémenter uniquement le ticket, puis vérifier son comportement et le diff.
 6. Ajouter explicitement les fichiers du ticket, committer, pousser cette branche
-   et ouvrir une PR vers `main`. Utiliser le modèle du dépôt ; une PR incomplète
+   et ouvrir une PR vers `develop`. Pour une release ou un hotfix, la PR cible
+   `main` selon le flux décrit ci-dessus. Utiliser le modèle du dépôt ; une PR incomplète
    doit rester en brouillon.
 
 Exemple fictif, dans un dépôt propre et pour un ticket existant :
@@ -99,15 +109,15 @@ Exemple fictif, dans un dépôt propre et pour un ticket existant :
 git status --short
 git branch --show-current
 git fetch origin
-git switch -c front/feat-123-ajout-membre origin/main
+git switch -c front/feat-123-ajout-membre origin/develop
 # Préparation OpenSpec, implémentation et validations du ticket.
 git add <fichiers-du-ticket>
 git commit -m "feat(front): T-123 ajouter un membre"
 git push -u origin front/feat-123-ajout-membre
-gh pr create --base main --head front/feat-123-ajout-membre --draft
+gh pr create --base develop --head front/feat-123-ajout-membre --draft
 ```
 
-Si `origin/main` est inaccessible, partir de `main` locale en indiquant que sa
+Si `origin/develop` est inaccessible, partir de `develop` locale en indiquant que sa
 synchronisation reste à vérifier ; ne pas prétendre avoir récupéré les nouveautés.
 Ne jamais utiliser `git add .` sans vérifier et sélectionner le périmètre.
 
@@ -202,11 +212,11 @@ Ne pas annoncer un lint, des tests backend ou un outil E2E non configurés.
 Pour les documents/OpenSpec, vérifier la syntaxe et la lecture des instructions
 avec le CLI ; pas de build applicatif imposé pour une modification documentaire.
 
-## Contrôles locaux et protection de main
+## Contrôles locaux et protection des branches de flux
 
 Les hooks versionnés dans `.githooks/` refusent les commits sur une branche non
-conforme et les pushes de branches non conformes ou dirigés vers `main`. Le hook
-de push examine chaque ref : un push explicite `HEAD:main` est également refusé.
+conforme et les pushes de branches non conformes ou dirigés vers `main` ou `develop`.
+Le hook de push examine chaque ref : un push explicite `HEAD:main` est également refusé.
 Ils s'appliquent à tous les contributeurs de ce clone, y compris les agents.
 
 Après chaque nouveau clone, vérifier les hooks déjà installés puis activer ceux
@@ -220,21 +230,21 @@ git config --local core.hooksPath .githooks
 Les hooks sont une protection locale et ne sont pas automatiquement installés
 par Git. Ne pas les désactiver ni utiliser `--no-verify`. Le workflow GitHub
 `.github/workflows/workflow-conventions.yml` contrôle le nom de la branche et
-la cible `main` pour chaque PR ; il ne remplace pas les tests du produit.
+la cible `develop` ou `main` pour chaque PR ; il ne remplace pas les tests du produit.
 
 Vérifier les hooks avec `node --test tests/git-workflow.test.cjs`. Les tests utilisent
 des dépôts temporaires et un remote local ; ils ne poussent rien sur GitHub.
 
 **La garantie côté serveur nécessite une protection de branche GitHub.** Les
 fichiers du dépôt ne peuvent pas, à eux seuls, interdire les pushes directs.
-Configurer une règle de protection/ruleset active ciblant `main` :
+Configurer une règle de protection/ruleset active ciblant `main` et `develop` :
 
 - imposer une PR avant fusion, sans exception de contournement pour les agents
   ou les administrateurs ;
 - rendre obligatoire le statut `Workflow conventions` après sa première exécution,
   puis les contrôles applicatifs effectivement disponibles ;
 - exiger la résolution des conversations, interdire les force-pushes et la
-  suppression de `main` ;
+  suppression de `main` et `develop` ;
 - avec plusieurs mainteneurs, exiger au moins une approbation et invalider les
   approbations devenues obsolètes après de nouveaux commits.
 
