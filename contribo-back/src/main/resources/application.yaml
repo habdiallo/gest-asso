@@ -28,3 +28,8 @@ info:
   app:
     name: Contribo backend
     version: 0.1.0-SNAPSHOT
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:3600}

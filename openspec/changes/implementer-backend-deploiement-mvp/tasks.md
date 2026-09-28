@@ -5,7 +5,7 @@
 
 ## 2. Authentification et domaines MVP
 
-- [ ] 2.1 [T-145] Sur `back/feat-145-authentification-mvp`, implémenter le login, le bearer token, l'utilisateur courant et les refus prévus par le contrat, après `T-144`.
+- [x] 2.1 [T-145] Sur `back/feat-145-authentification-mvp`, implémenter le login, le bearer token, l'utilisateur courant et les refus prévus par le contrat, après `T-144`.
 - [ ] 2.2 [T-146] Sur `back/feat-146-api-membres`, implémenter les opérations MVP membres, catégories de revenu et comptes couvertes par le contrat, avec règles et autorisations issues du projet actuel uniquement.
 - [ ] 2.3 [T-147] Sur `back/feat-147-api-campagnes-paiements`, implémenter les opérations campagnes, cotisations et règlements du MVP avec leurs transitions et erreurs contractuelles.
 - [ ] 2.4 [T-148] Sur `back/feat-148-api-cagnottes-contributions`, implémenter les opérations cagnottes et contributions du MVP, sans reprendre les événements ou règles de la référence qui ne figurent pas dans Contribo.
@@ -21,7 +21,7 @@
 - [x] 4.0 [T-152] Publier le découpage des tickets backend et déploiement, vérifier le registre et préparer la PR de planification vers `main`, sans implémenter de code applicatif.
 - [x] 4.1 [T-143] Exécuter les validations de `T-143`, relire le diff ciblé, pousser uniquement `back/chore-143-socle-backend-api` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [x] 4.2 [T-144] Exécuter les validations de `T-144`, relire le diff ciblé, pousser uniquement `back/chore-144-persistance-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
-- [ ] 4.3 [T-145] Exécuter les validations de `T-145`, relire le diff ciblé, pousser uniquement `back/feat-145-authentification-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
+- [x] 4.3 [T-145] Exécuter les validations de `T-145`, relire le diff ciblé, pousser uniquement `back/feat-145-authentification-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.4 [T-146] Exécuter les validations de `T-146`, relire le diff ciblé, pousser uniquement `back/feat-146-api-membres` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.5 [T-147] Exécuter les validations de `T-147`, relire le diff ciblé, pousser uniquement `back/feat-147-api-campagnes-paiements` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.6 [T-148] Exécuter les validations de `T-148`, relire le diff ciblé, pousser uniquement `back/feat-148-api-cagnottes-contributions` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
