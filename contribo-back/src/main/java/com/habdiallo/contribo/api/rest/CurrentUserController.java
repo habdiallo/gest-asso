@@ -15,16 +15,22 @@ import com.habdiallo.contribo.api.generated.model.DuePage;
 import com.habdiallo.contribo.api.generated.model.DueStatus;
 import com.habdiallo.contribo.application.auth.AuthenticationService;
 import com.habdiallo.contribo.application.campaign.CampaignService;
+import com.habdiallo.contribo.application.socialfund.SocialFundService;
 
 @RestController
 public class CurrentUserController implements EspacePersonnelApi {
 
     private final AuthenticationService authenticationService;
     private final CampaignService campaignService;
+    private final SocialFundService socialFundService;
 
-    public CurrentUserController(AuthenticationService authenticationService, CampaignService campaignService) {
+    public CurrentUserController(
+            AuthenticationService authenticationService,
+            CampaignService campaignService,
+            SocialFundService socialFundService) {
         this.authenticationService = authenticationService;
         this.campaignService = campaignService;
+        this.socialFundService = socialFundService;
     }
 
     @Override
@@ -34,7 +40,7 @@ public class CurrentUserController implements EspacePersonnelApi {
 
     @Override
     public ResponseEntity<ContributionPage> listMyContributions(Integer page, Integer size) {
-        throw notImplemented();
+        return ResponseEntity.ok(socialFundService.listMyContributions(currentUserId(), page, size));
     }
 
     @Override

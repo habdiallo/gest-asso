@@ -435,6 +435,7 @@ export const socialFundsHandlers = [
       const body = (await request.json()) as CreateContributionRequest;
       const isExternal = isExternalContributionRequest(body);
       const hasMember = 'memberId' in body;
+      const memberId = 'memberId' in body ? body.memberId : undefined;
       if (isExternal === hasMember) {
         return contributionValidationError(
           'Une contribution doit être rattachée à un membre ou à un contributeur externe.',
@@ -452,13 +453,12 @@ export const socialFundsHandlers = [
       if (!isExternal && !body.memberId) {
         return contributionValidationError('Le membre est obligatoire.');
       }
-
       const summary = demoSocialFunds[summaryIndex];
       const existingContributions = demoContributionsBySocialFundId[socialFundId] ?? [];
       const contributionDate = body.contributionDate;
       const contribution: Contribution = {
         id: crypto.randomUUID(),
-        member: isExternal ? null : { id: body.memberId, displayName: 'Membre sélectionné' },
+        member: isExternal ? null : { id: memberId!, displayName: 'Membre sélectionné' },
         externalContributor: isExternal ? body.externalContributor : null,
         socialFund: {
           id: summary.id,

@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - integration-db-data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE must be set to an immutable tag}
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+    secrets:
+      - db_password
+      - jwt_secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - edge-network
+      - backend-network
+
+  frontend:
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE must be set to an immutable tag}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - edge-network
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+networks:
+  edge-network:
+  backend-network:
+    internal: true
+
+volumes:
+  integration-db-data:
+
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_FILE_PATH:?DB_PASSWORD_FILE_PATH must be set}
+  jwt_secret:
+    file: ${JWT_SECRET_FILE_PATH:?JWT_SECRET_FILE_PATH must be set}

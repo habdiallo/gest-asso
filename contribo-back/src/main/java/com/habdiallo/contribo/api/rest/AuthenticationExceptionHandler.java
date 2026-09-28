@@ -15,6 +15,7 @@ import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.ErrorResponse;
 import com.habdiallo.contribo.api.generated.model.FieldError;
 import com.habdiallo.contribo.application.auth.InvalidCredentialsException;
+import com.habdiallo.contribo.application.socialfund.SocialFundException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
@@ -51,6 +52,12 @@ public class AuthenticationExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResponse(
                 ErrorCode.VALIDATION_ERROR,
                 "La requête contient des valeurs invalides."));
+    }
+
+    @ExceptionHandler(SocialFundException.class)
+    ResponseEntity<ErrorResponse> socialFundException(SocialFundException exception) {
+        return ResponseEntity.status(exception.status())
+                .body(new ErrorResponse(exception.code(), exception.getMessage()));
     }
 
     @ExceptionHandler({ConstraintViolationException.class, MethodArgumentTypeMismatchException.class})
