@@ -55,6 +55,7 @@ jobs:
       - run: npm ci
       - run: npm run validate:api
       - run: npm run generate:api
+      - run: npm test -- --watch=false
       - run: npm run build
       - run: npm run build:mock
 
@@ -92,11 +93,12 @@ jobs:
         with:
           context: .
           file: contribo-deploiement/backend.Dockerfile
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: false
+          load: true
           tags: ${{ steps.backend-meta.outputs.tags }}
           labels: ${{ steps.backend-meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
 
       - name: Extract frontend image metadata
         id: frontend-meta
@@ -109,8 +111,31 @@ jobs:
         with:
           context: .
           file: contribo-deploiement/frontend.Dockerfile
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: false
+          load: true
           tags: ${{ steps.frontend-meta.outputs.tags }}
           labels: ${{ steps.frontend-meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Push backend image
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          IMAGE_TAGS: ${{ steps.backend-meta.outputs.tags }}
+        run: |
+          while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              docker push "$tag"
+            fi
+          done <<< "$IMAGE_TAGS"
+
+      - name: Push frontend image
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          IMAGE_TAGS: ${{ steps.frontend-meta.outputs.tags }}
+        run: |
+          while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              docker push "$tag"
+            fi
+          done <<< "$IMAGE_TAGS"
