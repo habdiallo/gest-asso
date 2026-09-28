@@ -1,11 +1,14 @@
 FROM node:22-alpine AS build
 
+RUN apk add --no-cache openjdk21-jre-headless
+
 WORKDIR /workspace/contribo-front
 COPY contribo-front/package.json contribo-front/package-lock.json ./
 RUN npm ci
+COPY besoins/openapi.yaml /workspace/besoins/openapi.yaml
 COPY contribo-front/ ./
 
-RUN npm run build
+RUN npm run generate:api && npm run build
 
 FROM nginx:1.27-alpine
 
