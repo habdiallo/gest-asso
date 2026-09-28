@@ -1,7 +1,7 @@
 import { HttpResponse, delay, http } from 'msw';
 import { ErrorCode, UserRole } from '@api';
 import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@api';
-import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 const demoIncomeCategories: IncomeCategory[] = [
   {
@@ -91,7 +91,7 @@ function categoryNotFound(): Response {
 export const incomeCategoriesHandlers = [
   http.get('/api/v1/income-categories', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -101,7 +101,7 @@ export const incomeCategoriesHandlers = [
 
   http.post('/api/v1/income-categories', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -137,7 +137,7 @@ export const incomeCategoriesHandlers = [
     '/api/v1/income-categories/:incomeCategoryId',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }

@@ -20,9 +20,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService tokenService;
+    private final SessionCookieService sessionCookieService;
+    private final RevokedTokenRegistry revokedTokenRegistry;
+    private final SecurityAuditLogger auditLogger;
+    private final ClientAddressResolver clientAddressResolver;
 
-    public JwtAuthenticationFilter(JwtTokenService tokenService) {
+    public JwtAuthenticationFilter(
+            JwtTokenService tokenService,
+            SessionCookieService sessionCookieService,
+            RevokedTokenRegistry revokedTokenRegistry,
+            SecurityAuditLogger auditLogger,
+            ClientAddressResolver clientAddressResolver) {
         this.tokenService = tokenService;
+        this.sessionCookieService = sessionCookieService;
+        this.revokedTokenRegistry = revokedTokenRegistry;
+        this.auditLogger = auditLogger;
+        this.clientAddressResolver = clientAddressResolver;
     }
 
     @Override
@@ -30,16 +43,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        String sessionToken = sessionCookieService.readSession(request);
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorization != null && authorization.startsWith("Bearer ")
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
+        String token = sessionToken != null
+                ? sessionToken
+                : authorization != null && authorization.startsWith("Bearer ")
+                        ? authorization.substring(7)
+                        : null;
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                UUID userId = tokenService.parseUserId(authorization.substring(7));
+                if (revokedTokenRegistry.isRevoked(token)) {
+                    throw new InvalidTokenException(new IllegalArgumentException("Revoked token"));
+                }
+                UUID userId = tokenService.parseUserId(token);
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (InvalidTokenException ignored) {
                 SecurityContextHolder.clearContext();
+                auditLogger.invalidToken(clientAddressResolver.resolve(request));
             }
         }
         filterChain.doFilter(request, response);

@@ -2,6 +2,7 @@ package com.habdiallo.contribo;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +36,19 @@ class AuthenticationHttpTest {
     }
 
     @Test
+    void nonHealthActuatorEndpointsAreNotPublic() throws Exception {
+        mockMvc.perform(get("/actuator/info"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void csrfEndpointIssuesAReadableCsrfCookie() throws Exception {
+        mockMvc.perform(get("/auth/csrf"))
+                .andExpect(status().isNoContent())
+                .andExpect(cookie().exists("XSRF-TOKEN"));
+    }
+
+    @Test
     void invalidCredentialsUseContractErrorResponse() throws Exception {
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -50,5 +64,29 @@ class AuthenticationHttpTest {
                         .content("{\"identifier\":\"\",\"password\":\"\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void loginIsRateLimitedByIdentifierAndReturns429() throws Exception {
+        for (int attempt = 0; attempt < 5; attempt++) {
+            mockMvc.perform(post("/auth/login")
+                            .with(request -> {
+                                request.setRemoteAddr("198.51.100.77");
+                                return request;
+                            })
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"identifier\":\"rate-limit-test\",\"password\":\"wrong\"}"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        mockMvc.perform(post("/auth/login")
+                        .with(request -> {
+                            request.setRemoteAddr("198.51.100.77");
+                            return request;
+                        })
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"identifier\":\"rate-limit-test\",\"password\":\"wrong\"}"))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.code").value("RATE_LIMITED"));
     }
 }

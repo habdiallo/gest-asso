@@ -21,6 +21,7 @@ import com.habdiallo.contribo.application.access.BusinessConflictException;
 import com.habdiallo.contribo.application.access.ResourceNotFoundException;
 import com.habdiallo.contribo.application.auth.InvalidCredentialsException;
 import com.habdiallo.contribo.application.socialfund.SocialFundException;
+import com.habdiallo.contribo.security.RateLimitExceededException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
@@ -35,6 +36,12 @@ public class AuthenticationExceptionHandler {
     ResponseEntity<ErrorResponse> invalidCredentials(InvalidCredentialsException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(ErrorCode.INVALID_CREDENTIALS, exception.getMessage()));
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    ResponseEntity<ErrorResponse> rateLimited(RateLimitExceededException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new ErrorResponse(ErrorCode.RATE_LIMITED, exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -100,6 +100,7 @@ describe('LoginPage', () => {
 
     submitForm(fixture);
 
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     const req = httpMock.expectOne('/api/v1/auth/login');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ identifier: 'moussa.bah', password: 'secret' });
@@ -113,10 +114,9 @@ describe('LoginPage', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
     submitForm(fixture);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     httpMock.expectOne('/api/v1/auth/login').flush({
-      accessToken: 'token',
-      tokenType: 'Bearer',
-      expiresIn: 3600,
+      expiresIn: 900,
       user: {
         userId: 'user-1',
         association: { id: 'assoc-1', name: 'Association Démo', currency: 'GNF' },
@@ -135,7 +135,7 @@ describe('LoginPage', () => {
     });
 
     expect(navigateSpy).toHaveBeenCalledWith(NAVIGATION_PATHS.dashboard);
-    expect(localStorage.getItem('contribo-session-token')).toBe('token');
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 
   it('shows a generic error message when authentication fails, without navigating', () => {
@@ -146,6 +146,7 @@ describe('LoginPage', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
     submitForm(fixture);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     httpMock
       .expectOne('/api/v1/auth/login')
       .flush(

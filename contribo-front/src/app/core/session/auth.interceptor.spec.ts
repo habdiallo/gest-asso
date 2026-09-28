@@ -25,15 +25,16 @@ describe('authInterceptor', () => {
     httpMock.verify();
   });
 
-  it('adds no Authorization header when there is no active session', () => {
+  it('sends credentials for cookie-based sessions without an Authorization header', () => {
     httpClient.get('/api/v1/members').subscribe();
 
     const request = httpMock.expectOne('/api/v1/members');
     expect(request.request.headers.has('Authorization')).toBe(false);
+    expect(request.request.withCredentials).toBe(true);
     request.flush({});
   });
 
-  it('adds the Bearer Authorization header when a session token is present', () => {
+  it('does not expose a session token through an Authorization header', () => {
     TestBed.inject(SessionService).setSession({
       accessToken: 'session-token-value',
       tokenType: 'Bearer',
@@ -62,7 +63,8 @@ describe('authInterceptor', () => {
     httpClient.get('/api/v1/members').subscribe();
 
     const request = httpMock.expectOne('/api/v1/members');
-    expect(request.request.headers.get('Authorization')).toBe('Bearer session-token-value');
+    expect(request.request.headers.has('Authorization')).toBe(false);
+    expect(request.request.withCredentials).toBe(true);
     request.flush({});
   });
 });
