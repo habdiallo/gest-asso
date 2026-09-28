@@ -14,16 +14,22 @@ import com.habdiallo.contribo.api.generated.model.CurrentUser;
 import com.habdiallo.contribo.api.generated.model.DuePage;
 import com.habdiallo.contribo.api.generated.model.DueStatus;
 import com.habdiallo.contribo.application.auth.AuthenticationService;
+import com.habdiallo.contribo.application.campaign.CampaignService;
 import com.habdiallo.contribo.application.socialfund.SocialFundService;
 
 @RestController
 public class CurrentUserController implements EspacePersonnelApi {
 
     private final AuthenticationService authenticationService;
+    private final CampaignService campaignService;
     private final SocialFundService socialFundService;
 
-    public CurrentUserController(AuthenticationService authenticationService, SocialFundService socialFundService) {
+    public CurrentUserController(
+            AuthenticationService authenticationService,
+            CampaignService campaignService,
+            SocialFundService socialFundService) {
         this.authenticationService = authenticationService;
+        this.campaignService = campaignService;
         this.socialFundService = socialFundService;
     }
 
@@ -39,7 +45,7 @@ public class CurrentUserController implements EspacePersonnelApi {
 
     @Override
     public ResponseEntity<DuePage> listMyDues(Integer page, Integer size, DueStatus status) {
-        throw notImplemented();
+        return ResponseEntity.ok(campaignService.listMyDues(page, size, status));
     }
 
     private UUID currentUserId() {
@@ -54,4 +60,5 @@ public class CurrentUserController implements EspacePersonnelApi {
     private ResponseStatusException notImplemented() {
         return new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Cette opération sera livrée par un ticket métier.");
     }
+
 }

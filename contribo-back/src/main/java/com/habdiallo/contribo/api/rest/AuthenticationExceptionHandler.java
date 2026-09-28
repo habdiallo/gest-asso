@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import jakarta.validation.ConstraintViolationException;
 
 import com.habdiallo.contribo.api.generated.model.ErrorCode;
@@ -20,6 +19,12 @@ import com.habdiallo.contribo.application.socialfund.SocialFundException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
+
+    @ExceptionHandler(ApiException.class)
+    ResponseEntity<ErrorResponse> apiError(ApiException exception) {
+        return ResponseEntity.status(exception.status())
+                .body(new ErrorResponse(exception.code(), exception.getMessage()));
+    }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     ResponseEntity<ErrorResponse> invalidCredentials(InvalidCredentialsException exception) {
