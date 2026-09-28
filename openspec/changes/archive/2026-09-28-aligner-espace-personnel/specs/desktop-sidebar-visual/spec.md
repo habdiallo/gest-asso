@@ -1,6 +1,11 @@
+## RENAMED Requirements
+
+- FROM: `### Requirement: Périmètre strictement limité à la sidebar`
+- TO: `### Requirement: Perimetre limite a la sidebar et a sa destination`
+
 ## MODIFIED Requirements
 
-### Requirement: Identite et actions existantes en pied
+### Requirement: Identité et actions existantes en pied
 
 Le frontend SHALL reproduire la presentation `.profile*` du prototype avec avatar 36 px, nom 13 px et role applicatif 11 px a partir des seules donnees deja disponibles dans `SessionService.user`. Le bloc SHALL etre une action de navigation contextuelle : il SHALL ouvrir « Mon profil » pour un Membre et « Mon acces » pour un Administrateur, Tresorier ou Operateur. Le pied SHALL conserver les actions theme et deconnexion existantes sous l'identite, avec leurs noms accessibles et leur fonctionnement actuels.
 
