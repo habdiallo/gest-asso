@@ -24,6 +24,8 @@ services:
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD_FILE: /run/secrets/db_password
       JWT_SECRET_FILE: /run/secrets/jwt_secret
+      TRUSTED_PROXY_HEADERS: "true"
+      TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:?TRUSTED_PROXY_ADDRESSES must be set}
     secrets:
       - db_password
       - jwt_secret
@@ -42,7 +44,11 @@ services:
     networks:
       - edge-network
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_HTTP_PORT:-8080}:80"
+      - "${FRONTEND_HTTPS_PORT:-8443}:443"
+    secrets:
+      - tls_certificate
+      - tls_private_key
 
 networks:
   edge-network:
@@ -57,3 +63,7 @@ secrets:
     file: ${DB_PASSWORD_FILE_PATH:?DB_PASSWORD_FILE_PATH must be set}
   jwt_secret:
     file: ${JWT_SECRET_FILE_PATH:?JWT_SECRET_FILE_PATH must be set}
+  tls_certificate:
+    file: ${TLS_CERTIFICATE_FILE_PATH:?TLS_CERTIFICATE_FILE_PATH must be set}
+  tls_private_key:
+    file: ${TLS_PRIVATE_KEY_FILE_PATH:?TLS_PRIVATE_KEY_FILE_PATH must be set}

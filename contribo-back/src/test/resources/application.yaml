@@ -10,4 +10,4 @@ spring:
 security:
   jwt:
     secret: contribo-test-secret-change-me-32-bytes
-    expiration-seconds: 3600
+    expiration-seconds: 900

@@ -85,7 +85,7 @@ describe('sessionExpiredInterceptor', () => {
         { status: 403, statusText: 'Forbidden' },
       );
 
-    expect(session.token()).toBe('session-token-value');
+    expect(session.token()).toBeNull();
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
@@ -100,6 +100,6 @@ describe('sessionExpiredInterceptor', () => {
       );
 
     expect(navigateSpy).not.toHaveBeenCalled();
-    expect(session.token()).toBe('session-token-value');
+    expect(session.token()).toBeNull();
   });
 });

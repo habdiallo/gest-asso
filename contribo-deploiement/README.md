@@ -12,9 +12,11 @@ Depuis la racine du dépôt :
 docker compose -f contribo-deploiement/compose.yaml up --build
 ```
 
-Les valeurs par défaut servent uniquement au développement local. Pour un autre
-contexte, injecter `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
-`JWT_SECRET`, `BACKEND_PORT` et `FRONTEND_PORT` sans les versionner.
+Le Compose local exige `POSTGRES_PASSWORD` et `JWT_SECRET`, même en développement,
+afin qu'aucune valeur secrète connue ne soit embarquée dans le manifest. Pour un
+autre contexte, injecter `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+`JWT_SECRET`, `BACKEND_PORT` et `FRONTEND_PORT` via un gestionnaire de secrets ou
+un fichier d'environnement non versionné.
 
 ## Arrêter
 

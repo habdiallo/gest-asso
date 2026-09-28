@@ -19,12 +19,22 @@ import org.springframework.stereotype.Component;
 public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final SecurityAuditLogger auditLogger;
+    private final ClientAddressResolver clientAddressResolver;
+
+    public JsonAuthenticationEntryPoint(
+            SecurityAuditLogger auditLogger,
+            ClientAddressResolver clientAddressResolver) {
+        this.auditLogger = auditLogger;
+        this.clientAddressResolver = clientAddressResolver;
+    }
 
     @Override
     public void commence(
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
+        auditLogger.authorizationDenied(clientAddressResolver.resolve(request), null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), new ErrorResponse(

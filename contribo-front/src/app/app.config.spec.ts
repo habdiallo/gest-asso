@@ -59,7 +59,7 @@ describe('hydrateCurrentUser', () => {
     await promise;
 
     expect(session.user()).toEqual(currentUser);
-    expect(session.token()).toBe('session-token-value');
+    expect(session.token()).toBeNull();
   });
 
   it('clears the session on a 401 response', async () => {
@@ -80,9 +80,9 @@ describe('hydrateCurrentUser', () => {
       .flush(null, { status: 500, statusText: 'Internal Server Error' });
     await promise;
 
-    expect(session.token()).toBe('session-token-value');
+    expect(session.token()).toBeNull();
     expect(session.user()).toEqual(currentUser);
-    expect(localStorage.getItem('contribo-session-token')).toBe('session-token-value');
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 
   it('keeps the session on a network error', async () => {
@@ -93,8 +93,8 @@ describe('hydrateCurrentUser', () => {
       .error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
     await promise;
 
-    expect(session.token()).toBe('session-token-value');
+    expect(session.token()).toBeNull();
     expect(session.user()).toEqual(currentUser);
-    expect(localStorage.getItem('contribo-session-token')).toBe('session-token-value');
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 });

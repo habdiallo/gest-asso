@@ -18,12 +18,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtTokenService {
 
+    private static final long MAX_EXPIRATION_SECONDS = 900;
+
     private final SecretKey key;
     private final long expirationSeconds;
 
     public JwtTokenService(
             @Value("${security.jwt.secret}") String secret,
             @Value("${security.jwt.expiration-seconds}") long expirationSeconds) {
+        if (expirationSeconds < 1 || expirationSeconds > MAX_EXPIRATION_SECONDS) {
+            throw new IllegalArgumentException("JWT expiration must be between 1 and 900 seconds");
+        }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationSeconds = expirationSeconds;
     }
@@ -40,11 +45,22 @@ public class JwtTokenService {
 
     public UUID parseUserId(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-            return UUID.fromString(claims.getPayload().getSubject());
+            return UUID.fromString(parseClaims(token).getPayload().getSubject());
         } catch (JwtException | IllegalArgumentException exception) {
             throw new InvalidTokenException(exception);
         }
+    }
+
+    public Instant parseExpiration(String token) {
+        try {
+            return parseClaims(token).getPayload().getExpiration().toInstant();
+        } catch (JwtException | IllegalArgumentException exception) {
+            throw new InvalidTokenException(exception);
+        }
+    }
+
+    private Jws<Claims> parseClaims(String token) {
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
     }
 
     public int expirationSeconds() {

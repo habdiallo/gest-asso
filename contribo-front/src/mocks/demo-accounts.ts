@@ -71,3 +71,15 @@ export function findDemoAccountByAuthorization(
   const match = /^Bearer ([^\s]+)$/i.exec(authorization ?? '');
   return match ? demoAccounts.find((account) => account.accessToken === match[1]) : undefined;
 }
+
+export function findDemoAccountBySessionCookie(cookie: string | null): DemoAccount | undefined {
+  const match = /(?:^|;\s*)__Host-contribo-session=([^;]+)/.exec(cookie ?? '');
+  return match ? demoAccounts.find((account) => account.accessToken === match[1]) : undefined;
+}
+
+export function findDemoAccountByRequest(request: Request): DemoAccount | undefined {
+  return (
+    findDemoAccountBySessionCookie(request.headers.get('Cookie')) ??
+    findDemoAccountByAuthorization(request.headers.get('Authorization'))
+  );
+}
