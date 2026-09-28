@@ -42,6 +42,8 @@ class CampaignPaymentHttpTest {
         jdbcTemplate.update("DELETE FROM dues");
         jdbcTemplate.update("DELETE FROM campaign_category_amounts");
         jdbcTemplate.update("DELETE FROM campaigns");
+        jdbcTemplate.update("DELETE FROM contributions");
+        jdbcTemplate.update("DELETE FROM social_funds");
         jdbcTemplate.update("DELETE FROM user_accounts");
         jdbcTemplate.update("DELETE FROM members");
         jdbcTemplate.update("DELETE FROM income_categories");
@@ -129,5 +131,15 @@ class CampaignPaymentHttpTest {
                                 + "\",\"method\":\"CASH\"}"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("CAMPAIGN_NOT_OPEN"));
+    }
+
+    @Test
+    void largeCampaignPageReturnsAnEmptyPage() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(
+                        "/campaigns?page=2147483647&size=100")
+                        .header("Authorization", "Bearer " + tokenService.issue(userId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.page.totalElements").value(0));
     }
 }

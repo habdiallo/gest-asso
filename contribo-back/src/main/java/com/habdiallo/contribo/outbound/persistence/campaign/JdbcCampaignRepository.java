@@ -67,7 +67,7 @@ public class JdbcCampaignRepository implements CampaignRepository {
         long total = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM campaigns c " + filters, Long.class, parameters.toArray());
         parameters.add(size);
-        parameters.add(page * size);
+        parameters.add((long) page * size);
         List<CampaignSummary> items = jdbcTemplate.query(
                 "SELECT c.id, c.name, c.description, c.start_date, c.end_date, c.status, "
                         + "c.opened_at, c.opened_by, c.closed_at, c.closed_by, "
@@ -211,10 +211,10 @@ public class JdbcCampaignRepository implements CampaignRepository {
                         + "JOIN members m ON m.id = d.member_id " + filters,
                 Long.class, parameters.toArray());
         parameters.add(size);
-        parameters.add(page * size);
+        parameters.add((long) page * size);
         List<Due> items = jdbcTemplate.query(
                 dueSelect() + filters + " GROUP BY d.id, c.id, m.id, ic.id "
-                        + "ORDER BY m.last_name, m.first_name LIMIT ? OFFSET ?",
+                        + "ORDER BY m.last_name, m.first_name, d.id LIMIT ? OFFSET ?",
                 DUE_ROW_MAPPER,
                 parameters.toArray()).stream().map(DueRow::toDue).toList();
         return new DuePage(items, pageMetadata(page, size, total));
@@ -244,10 +244,10 @@ public class JdbcCampaignRepository implements CampaignRepository {
                         + "JOIN members m ON m.id = d.member_id " + filters,
                 Long.class, parameters.toArray());
         parameters.add(size);
-        parameters.add(page * size);
+        parameters.add((long) page * size);
         List<Due> items = jdbcTemplate.query(
                 dueSelect() + filters + " GROUP BY d.id, c.id, m.id, ic.id "
-                        + "ORDER BY c.start_date DESC LIMIT ? OFFSET ?",
+                        + "ORDER BY c.start_date DESC, d.id DESC LIMIT ? OFFSET ?",
                 DUE_ROW_MAPPER,
                 parameters.toArray()).stream().map(DueRow::toDue).toList();
         return new DuePage(items, pageMetadata(page, size, total));
@@ -334,9 +334,9 @@ public class JdbcCampaignRepository implements CampaignRepository {
                         + filters,
                 Long.class, parameters.toArray());
         parameters.add(size);
-        parameters.add(page * size);
+        parameters.add((long) page * size);
         List<Payment> items = jdbcTemplate.query(
-                paymentSelect() + filters + " ORDER BY p.recorded_at DESC LIMIT ? OFFSET ?",
+                paymentSelect() + filters + " ORDER BY p.recorded_at DESC, p.id DESC LIMIT ? OFFSET ?",
                 PAYMENT_ROW_MAPPER,
                 parameters.toArray()).stream().map(PaymentRow::toPayment).toList();
         return new PaymentPage(items, pageMetadata(page, size, total));
