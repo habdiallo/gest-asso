@@ -6,7 +6,7 @@
 ## 2. Authentification et domaines MVP
 
 - [x] 2.1 [T-145] Sur `back/feat-145-authentification-mvp`, implémenter le login, le bearer token, l'utilisateur courant et les refus prévus par le contrat, après `T-144`.
-- [ ] 2.2 [T-146] Sur `back/feat-146-api-membres`, implémenter les opérations MVP membres, catégories de revenu et comptes couvertes par le contrat, avec règles et autorisations issues du projet actuel uniquement.
+- [x] 2.2 [T-146] Sur `back/feat-146-api-membres`, implémenter les opérations MVP membres, catégories de revenu et comptes couvertes par le contrat, avec règles et autorisations issues du projet actuel uniquement.
 - [ ] 2.3 [T-147] Sur `back/feat-147-api-campagnes-paiements`, implémenter les opérations campagnes, cotisations et règlements du MVP avec leurs transitions et erreurs contractuelles.
 - [ ] 2.4 [T-148] Sur `back/feat-148-api-cagnottes-contributions`, implémenter les opérations cagnottes et contributions du MVP, sans reprendre les événements ou règles de la référence qui ne figurent pas dans Contribo.
 
