@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 141,
+  "nextTicketId": 142,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -2883,6 +2883,26 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "front/refactor-000-audit-refactorisation-sans-regression",
       "branchAfterInitialization": "front/refactor-140-audit-refactorisation-sans-regression"
+    },
+    {
+      "id": 141,
+      "title": "Remplacer les marqueurs (s) dans les libelles de comptage par une pluralisation francaise geree par l'i18n.",
+      "priority": "P1",
+      "scope": "front",
+      "type": "feat",
+      "slug": "pluriels-interface",
+      "change": "gerer-pluriels-interface",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "3.1"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "front/feat-000-pluriels-interface",
+      "branchAfterInitialization": "front/feat-141-pluriels-interface"
     }
   ]
 }

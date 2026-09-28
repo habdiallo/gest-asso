@@ -17,6 +17,7 @@ import type {
   UserRole,
 } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -134,6 +135,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CagnottesService,
@@ -238,7 +240,7 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).toContain('Mariage');
     expect(root.textContent).toContain('Ouverte');
     expect(root.textContent).toContain('Famille Camara');
-    expect(root.textContent).toContain('43 contributeur(s)');
+    expect(root.textContent).toContain('43 contributeurs');
 
     const progressBar = root.querySelector<HTMLElement>(
       '[data-testid="financial-card-progress-bar"]',

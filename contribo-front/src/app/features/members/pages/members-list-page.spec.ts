@@ -13,6 +13,7 @@ import type {
 } from '@api';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -150,6 +151,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       {
         provide: MembresService,
         useValue: { listMembers, createMember } as unknown as MembresService,
@@ -280,7 +282,7 @@ describe('MembersListPage', () => {
     expect(row?.textContent).toContain('Catégorie B');
     expect(row?.textContent).toContain('Président');
     expect(row?.textContent).toContain('Actif');
-    expect(root.textContent).toContain('86 membre(s) actif(s) sur 91 membre(s) enregistré(s)');
+    expect(root.textContent).toContain('86 membres actifs sur 91 membres enregistrés');
   });
 
   it('shows a placeholder for optional fields left absent by the API', async () => {

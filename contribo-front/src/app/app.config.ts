@@ -9,6 +9,7 @@ import { HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular
 import { provideRouter } from '@angular/router';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { TranslocoHttpLoader } from '@core/i18n/transloco-http.loader';
 import { EspacePersonnelService } from '@api';
 import { authInterceptor } from '@core/session/auth.interceptor';
@@ -56,6 +57,7 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
+    provideTranslocoMessageformat({ locales: 'fr' }),
     provideAppInitializer(() => {
       const transloco = inject(TranslocoService);
       return firstValueFrom(transloco.load(transloco.getActiveLang()));
