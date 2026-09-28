@@ -19,7 +19,7 @@
 ## 4. Livraison
 
 - [x] 4.0 [T-152] Publier le découpage des tickets backend et déploiement, vérifier le registre et préparer la PR de planification vers `main`, sans implémenter de code applicatif.
-- [ ] 4.1 [T-143] Exécuter les validations de `T-143`, relire le diff ciblé, pousser uniquement `back/chore-143-socle-backend-api` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
+- [x] 4.1 [T-143] Exécuter les validations de `T-143`, relire le diff ciblé, pousser uniquement `back/chore-143-socle-backend-api` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.2 [T-144] Exécuter les validations de `T-144`, relire le diff ciblé, pousser uniquement `back/chore-144-persistance-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.3 [T-145] Exécuter les validations de `T-145`, relire le diff ciblé, pousser uniquement `back/feat-145-authentification-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.4 [T-146] Exécuter les validations de `T-146`, relire le diff ciblé, pousser uniquement `back/feat-146-api-membres` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
