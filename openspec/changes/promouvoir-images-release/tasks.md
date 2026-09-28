@@ -18,5 +18,5 @@
 ## 4. Vérification et livraison
 
 - [x] 4.1 [T-157] Adapter les tests de conventions et de pipeline pour couvrir les branches release/hotfix, l'absence de push sur pull request et l'absence de build d'image sur `main`, pour le ticket infra/chore/promouvoir-images-release sur la branche `infra/chore-157-promouvoir-images-release`.
-- [ ] 4.2 [T-157] Exécuter les validations YAML, OpenSpec, catalogue des tickets, composition Docker, tests backend/frontend et contrôles de diff, pour le ticket infra/chore/promouvoir-images-release sur la branche `infra/chore-157-promouvoir-images-release`.
-- [ ] 4.3 [T-157] Mettre à jour les artefacts OpenSpec, préparer la pull request vers `develop`, puis consigner les limites et l'étape de validation staging avant toute promotion vers `main`, pour le ticket infra/chore/promouvoir-images-release sur la branche `infra/chore-157-promouvoir-images-release`.
+- [x] 4.2 [T-157] Exécuter les validations YAML, OpenSpec, catalogue des tickets, composition Docker, tests backend/frontend et contrôles de diff, pour le ticket infra/chore/promouvoir-images-release sur la branche `infra/chore-157-promouvoir-images-release`.
+- [x] 4.3 [T-157] Mettre à jour les artefacts OpenSpec, préparer la pull request vers `develop`, puis consigner les limites et l'étape de validation staging avant toute promotion vers `main`, pour le ticket infra/chore/promouvoir-images-release sur la branche `infra/chore-157-promouvoir-images-release`.
