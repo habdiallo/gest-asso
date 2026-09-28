@@ -1,7 +1,7 @@
 ## 1. Socle backend et données
 
 - [x] 1.1 [T-143] Sur `back/chore-143-socle-backend-api`, créer le socle backend, vérifier la branche et les prérequis de `T-142`, brancher la validation OpenAPI et ajouter un démarrage minimal testable sans logique métier.
-- [ ] 1.2 [T-144] Sur `back/chore-144-persistance-mvp`, ajouter la configuration de persistance retenue, les migrations initiales et le socle de tests d'intégration, après intégration de `T-143`.
+- [x] 1.2 [T-144] Sur `back/chore-144-persistance-mvp`, ajouter la configuration de persistance retenue, les migrations initiales et le socle de tests d'intégration, après intégration de `T-143`.
 
 ## 2. Authentification et domaines MVP
 
@@ -20,7 +20,7 @@
 
 - [x] 4.0 [T-152] Publier le découpage des tickets backend et déploiement, vérifier le registre et préparer la PR de planification vers `main`, sans implémenter de code applicatif.
 - [x] 4.1 [T-143] Exécuter les validations de `T-143`, relire le diff ciblé, pousser uniquement `back/chore-143-socle-backend-api` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
-- [ ] 4.2 [T-144] Exécuter les validations de `T-144`, relire le diff ciblé, pousser uniquement `back/chore-144-persistance-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
+- [x] 4.2 [T-144] Exécuter les validations de `T-144`, relire le diff ciblé, pousser uniquement `back/chore-144-persistance-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.3 [T-145] Exécuter les validations de `T-145`, relire le diff ciblé, pousser uniquement `back/feat-145-authentification-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.4 [T-146] Exécuter les validations de `T-146`, relire le diff ciblé, pousser uniquement `back/feat-146-api-membres` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.5 [T-147] Exécuter les validations de `T-147`, relire le diff ciblé, pousser uniquement `back/feat-147-api-campagnes-paiements` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
