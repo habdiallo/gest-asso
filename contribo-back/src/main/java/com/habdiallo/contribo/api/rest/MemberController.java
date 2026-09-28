@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.habdiallo.contribo.api.generated.MembresApi;
 import com.habdiallo.contribo.api.generated.model.CreateMemberRequest;
@@ -47,8 +46,7 @@ public class MemberController implements MembresApi {
     @Override
     public ResponseEntity<DuePage> listMemberDues(
             UUID memberId, Integer page, Integer size, DueStatus status) {
-        throw new ResponseStatusException(
-                HttpStatus.NOT_IMPLEMENTED, "Cette opération sera livrée par le ticket des cotisations.");
+        return ResponseEntity.ok(memberService.listDues(CurrentUserId.get(), memberId, page, size, status));
     }
 
     @Override

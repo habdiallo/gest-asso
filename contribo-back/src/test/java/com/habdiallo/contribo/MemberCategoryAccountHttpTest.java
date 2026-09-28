@@ -119,6 +119,15 @@ class MemberCategoryAccountHttpTest {
     }
 
     @Test
+    void memberDuesEndpointReturnsAnEmptyPageWhenTheMemberHasNoDues() throws Exception {
+        mockMvc.perform(get("/members/{memberId}/dues", ADMIN_MEMBER_ID)
+                        .header("Authorization", bearer(ADMIN_USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.page.totalElements").value(0));
+    }
+
+    @Test
     void memberStatusTransitionsAreIdempotencyConflicts() throws Exception {
         mockMvc.perform(post("/members/{memberId}/deactivation", ADMIN_MEMBER_ID)
                         .header("Authorization", bearer(ADMIN_USER_ID)))
@@ -151,6 +160,32 @@ class MemberCategoryAccountHttpTest {
                         .content("{\"preferredName\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.preferredName").doesNotExist());
+    }
+
+    @Test
+    void memberValidationErrorsUseBadRequestContract() throws Exception {
+        mockMvc.perform(patch("/members/{memberId}", ADMIN_MEMBER_ID)
+                        .header("Authorization", bearer(ADMIN_USER_ID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+
+        mockMvc.perform(post("/members")
+                        .header("Authorization", bearer(ADMIN_USER_ID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":"Invalide","lastName":"Categorie",
+                                 "incomeCategoryId":"00000000-0000-0000-0000-000000000099"}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("incomeCategoryId"));
+
+        mockMvc.perform(get("/members?size=1000")
+                        .header("Authorization", bearer(ADMIN_USER_ID)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test

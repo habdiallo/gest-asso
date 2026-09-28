@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.habdiallo.contribo.api.generated.model.CurrencyCode;
+import com.habdiallo.contribo.api.generated.model.DuePage;
+import com.habdiallo.contribo.api.generated.model.DueStatus;
+import com.habdiallo.contribo.api.generated.model.FieldError;
 import com.habdiallo.contribo.api.generated.model.IncomeCategorySummary;
 import com.habdiallo.contribo.api.generated.model.MemberCountSummary;
 import com.habdiallo.contribo.api.generated.model.MemberDetails;
@@ -30,14 +33,17 @@ import com.habdiallo.contribo.api.generated.model.UserRole;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberDuesRepository memberDuesRepository;
     private final AuthorizationService authorizationService;
     private final PasswordEncoder passwordEncoder;
 
     public MemberService(
             MemberRepository memberRepository,
+            MemberDuesRepository memberDuesRepository,
             AuthorizationService authorizationService,
             PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
+        this.memberDuesRepository = memberDuesRepository;
         this.authorizationService = authorizationService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -69,12 +75,26 @@ public class MemberService {
         return toDetails(find(actor.associationId(), memberId));
     }
 
+    public DuePage listDues(UUID actorId, UUID memberId, Integer page, Integer size, DueStatus status) {
+        var actor = authorizationService.requireRole(
+                actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER, UserRole.OPERATOR);
+        if (!memberDuesRepository.exists(actor.associationId(), memberId)) {
+            throw new ResourceNotFoundException();
+        }
+        return memberDuesRepository.findPage(
+                actor.associationId(), memberId, page == null ? 0 : page, size == null ? 20 : size, status);
+    }
+
     @Transactional
     public MemberDetails create(UUID actorId, CreateMemberRequest request) {
         var actor = authorizationService.requireRole(
                 actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER);
         if (!memberRepository.incomeCategoryExists(actor.associationId(), request.getIncomeCategoryId())) {
-            throw new ResourceNotFoundException();
+            throw new BusinessConflictException(
+                    ErrorCode.VALIDATION_ERROR,
+                    "La catégorie de revenu est invalide.",
+                    List.of(new FieldError(
+                            "incomeCategoryId", "VALIDATION_ERROR", "La catégorie de revenu est inconnue.")));
         }
         String identifier = request.getPhone() == null || request.getPhone().isBlank()
                 ? "member-" + UUID.randomUUID()

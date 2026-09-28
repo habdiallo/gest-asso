@@ -8,7 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import jakarta.validation.ConstraintViolationException;
 
 import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.ErrorResponse;
@@ -63,8 +66,19 @@ public class AuthenticationExceptionHandler {
 
     @ExceptionHandler(BusinessConflictException.class)
     ResponseEntity<ErrorResponse> businessConflict(BusinessConflictException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(exception.code(), exception.getMessage()));
+        ErrorResponse response = new ErrorResponse(exception.code(), exception.getMessage());
+        response.setFieldErrors(exception.fieldErrors());
+        if (exception.code() == ErrorCode.VALIDATION_ERROR) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class, MethodArgumentTypeMismatchException.class})
+    ResponseEntity<ErrorResponse> invalidParameter(Exception exception) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(
+                ErrorCode.VALIDATION_ERROR,
+                "La requête contient des valeurs invalides."));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
