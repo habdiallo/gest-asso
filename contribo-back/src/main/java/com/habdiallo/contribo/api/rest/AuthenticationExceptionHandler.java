@@ -25,6 +25,12 @@ import com.habdiallo.contribo.application.socialfund.SocialFundException;
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
 
+    @ExceptionHandler(ApiException.class)
+    ResponseEntity<ErrorResponse> apiError(ApiException exception) {
+        return ResponseEntity.status(exception.status())
+                .body(new ErrorResponse(exception.code(), exception.getMessage()));
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     ResponseEntity<ErrorResponse> invalidCredentials(InvalidCredentialsException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
