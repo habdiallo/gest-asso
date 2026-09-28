@@ -22,5 +22,5 @@ Aucun code applicatif, aucun autre change touché.
 - [x] 2.1 [T-153] Committer avec le message `docs(docs): T-153 archiver les
       changes openspec termines`, en ajoutant uniquement les fichiers de ce
       ticket.
-- [ ] 2.2 [T-153] Pousser la branche et ouvrir une PR vers `main` avec le
-      modèle du dépôt, seulement si la livraison est explicitement demandée.
+- [x] 2.2 [T-153] Pousser la branche et ouvrir une PR vers `main` avec le
+      modèle du dépôt, seulement si la livraison est explicitement demandée. PR #156 ouverte.
