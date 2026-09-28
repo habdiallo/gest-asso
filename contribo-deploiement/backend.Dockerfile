@@ -15,9 +15,11 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY --from=build /workspace/contribo-back/target/contribo-back-0.1.0-SNAPSHOT.jar app.jar
+COPY contribo-deploiement/backend-entrypoint.sh /usr/local/bin/backend-entrypoint.sh
+RUN chmod 0755 /usr/local/bin/backend-entrypoint.sh
 
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=5 \
     CMD curl --fail --silent http://localhost:8080/actuator/health/readiness || exit 1
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["/usr/local/bin/backend-entrypoint.sh"]
