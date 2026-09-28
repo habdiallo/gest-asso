@@ -5,8 +5,8 @@
 
 ## 2. Migration des traductions et des tests
 
-- [x] 2.1 [T-141] Migrer les clés de `contribo-front/src/assets/i18n/fr.json` qui contiennent `(s)` vers des messages pluralisables couvrant zéro, un et plusieurs, puis contrôler que chaque template transmet les paramètres numériques attendus sans logique grammaticale locale.
-- [x] 2.2 [T-141] Mettre à jour et compléter les tests des features dashboard, cagnottes et membres, ainsi que les autres usages découverts, avec des assertions de rendu pour 0, 1 et plusieurs et une vérification de l'absence de `(s)`.
+- [x] 2.1 [T-141] Migrer les clés de `contribo-front/src/assets/i18n/fr.json` qui contiennent `(s)` vers des messages pluralisables couvrant zéro, un et plusieurs, migrer les interpolations dynamiques vers les arguments ICU, puis contrôler que chaque template transmet les paramètres attendus sans logique grammaticale locale.
+- [x] 2.2 [T-141] Mettre à jour et compléter les tests des features dashboard, cagnottes et membres, ainsi que les autres usages découverts, avec des assertions de rendu pour 0, 1 et plusieurs, une vérification de l'absence de `(s)` et une couverture des valeurs dynamiques contenant des accolades.
 
 ## 3. Validation et livraison
 

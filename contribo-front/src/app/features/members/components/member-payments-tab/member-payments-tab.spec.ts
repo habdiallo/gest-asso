@@ -3,6 +3,7 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { RglementsService, PaymentMethod } from '@api';
 import type { Payment, PaymentPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -60,6 +61,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
     ],
   }).compileComponents();

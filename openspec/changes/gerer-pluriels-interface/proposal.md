@@ -5,6 +5,7 @@ Plusieurs libellés de l'interface affichent encore des formes comme « 1 membre
 ## What Changes
 
 - Remplacer les marqueurs `(s)` repérés dans les libellés de comptage par des messages pluralisables.
+- Migrer les interpolations dynamiques françaises vers les arguments ICU afin que les valeurs saisies par les associations restent du texte, même lorsqu'elles contiennent des accolades.
 - Centraliser la règle de pluralisation dans les traductions françaises, avec au minimum les cas `one` et `other` et une convention explicite pour zéro.
 - Conserver les paramètres numériques existants et le contenu métier des libellés.
 - Étendre la configuration i18n avec le mécanisme de formatage plural compatible avec la version Transloco du frontend, sans ajouter de sélecteur de langue ni de deuxième fichier de traduction.

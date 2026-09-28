@@ -3,6 +3,7 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { CurrencyCode } from '@api';
 import type { CampaignFinancialSummary } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import fr from '@assets/i18n/fr.json';
 import { CampaignBilanTab } from './campaign-bilan-tab';
 
@@ -32,6 +33,7 @@ async function createFixture(
         preloadLangs: true,
       }),
     ],
+    providers: [provideTranslocoMessageformat({ locales: 'fr' })],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(CampaignBilanTab);

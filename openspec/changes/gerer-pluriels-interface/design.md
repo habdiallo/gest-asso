@@ -30,6 +30,8 @@ Le frontend ajoutera le plugin `@jsverse/transloco-messageformat`, aligné sur l
 
 Cette décision permet de garder la sélection singulier/pluriel dans `fr.json`, de profiter des règles de pluralisation de la locale française et d'éviter une condition dispersée dans chaque feature. Le numéro exact de la dépendance sera résolu pendant l'implémentation selon les peer dependencies réellement installées, puis verrouillé dans `package-lock.json`.
 
+Toutes les interpolations dynamiques de `fr.json` utilisent également la syntaxe ICU `{param}`. Cette migration évite que le transpileur Transloco traite une valeur utilisateur contenant des accolades comme une nouvelle expression ICU.
+
 Alternative écartée : choisir une clé `singular` ou `plural` dans chaque template avec un ternaire. Cette approche fonctionnerait sans dépendance mais dupliquerait la logique linguistique, multiplierait les clés et deviendrait fragile avec les phrases composées comme « actif sur enregistré ».
 
 ### Garder les clés de libellés et passer des nombres explicites
@@ -53,6 +55,7 @@ L'implémentation commencera par un inventaire de `fr.json` et des usages des cl
 - [Dépendance supplémentaire] Le plugin et sa version doivent être compatibles avec Angular 21 et Transloco 8. -> Vérifier les peer dependencies, installer la version alignée et exécuter l'installation, les tests et le build avant livraison.
 - [Syntaxe de traduction invalide] Une erreur ICU peut être détectée tardivement au chargement d'une vue. -> Ajouter des tests de rendu couvrant chaque clé pluralisée et vérifier le build de production.
 - [Régression de paramètre] Une clé peut être utilisée avec un nom de paramètre différent de celui attendu par le message. -> Auditer les usages par clé et tester les paramètres effectivement passés par les templates.
+- [Valeur dynamique interprétée] Un nom saisi par une association peut contenir des accolades et être interprété comme une expression ICU si les anciennes interpolations sont conservées. -> Utiliser des arguments ICU pour toutes les valeurs dynamiques et couvrir les accolades dans les tests.
 - [Rendu de zéro inattendu] La catégorie française de pluralisation peut surprendre si la locale n'est pas transmise au plugin. -> Configurer explicitement `locales: 'fr'` et formaliser les sorties 0, 1 et 2 dans les spécifications et les tests.
 - [Fausse couverture] Une recherche textuelle peut manquer un libellé construit autrement. -> Compléter l'inventaire par une recherche des clés Transloco recevant `count`, `active`, `total`, `displayed` ou un nom numérique équivalent.
 

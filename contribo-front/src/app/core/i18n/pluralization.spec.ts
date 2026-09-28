@@ -75,4 +75,28 @@ describe('French pluralized translations', () => {
       }),
     ).toBe('2 derniers règlements affichés sur 4');
   });
+
+  it('keeps braces in dynamic names and beneficiaries', () => {
+    const transloco = TestBed.inject(TranslocoService);
+
+    expect(
+      transloco.translate('dashboard.management.scopeCampaignLabel', {
+        name: 'Cotisation {2026}',
+      }),
+    ).toBe('Campagne · Cotisation {2026}');
+    expect(
+      transloco.translate('socialFunds.card.subtitle', {
+        beneficiary: 'Famille {Diallo',
+        start: '1er janvier',
+        end: '2 janvier',
+      }),
+    ).toBe('Famille {Diallo · Du 1er janvier au 2 janvier');
+    expect(
+      transloco.translate('socialFunds.detail.subtitle', {
+        beneficiary: "Fête de l'{année}",
+        start: '1er janvier',
+        end: '2 janvier',
+      }),
+    ).toBe("Fête de l'{année} · Du 1er janvier au 2 janvier");
+  });
 });

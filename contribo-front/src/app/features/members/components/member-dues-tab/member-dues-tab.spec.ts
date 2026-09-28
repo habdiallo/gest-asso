@@ -3,6 +3,7 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { CampaignStatus, CurrencyCode, DueStatus, MemberStatus, MembresService } from '@api';
 import type { CurrentUser, DuePage, UserRole } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -70,7 +71,10 @@ async function createFixture(
         preloadLangs: true,
       }),
     ],
-    providers: [{ provide: MembresService, useValue: { listMemberDues } }],
+    providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
+      { provide: MembresService, useValue: { listMemberDues } },
+    ],
   }).compileComponents();
 
   if (options.role) {

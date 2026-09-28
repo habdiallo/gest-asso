@@ -47,6 +47,15 @@ La migration SHALL conserver les clés réutilisées, les valeurs numériques et
 - **WHEN** une vue n'a pas de donnée numérique à afficher
 - **THEN** elle conserve son état vide, de chargement ou d'erreur existant et ne rend pas un libellé pluralisé avec une valeur inventée
 
+### Requirement: Les valeurs dynamiques restent du texte
+
+Les messages français SHALL injecter les valeurs textuelles dynamiques avec des arguments ICU explicites. Le contenu fourni par une association SHALL NOT être interprété comme une expression MessageFormat.
+
+#### Scenario: Nom contenant des accolades
+
+- **WHEN** un nom de campagne, un bénéficiaire ou un autre texte saisi contient `{` ou `}`
+- **THEN** l'interface affiche ces caractères tels quels sans erreur et sans valeur `undefined`
+
 ### Requirement: Les libellés concernés sont couverts par des tests de rendu
 
 Les tests frontend SHALL couvrir les cas `0`, `1` et plusieurs pour les familles de libellés migrées, ainsi que l'absence de la notation `(s)` dans les sorties visibles concernées.
