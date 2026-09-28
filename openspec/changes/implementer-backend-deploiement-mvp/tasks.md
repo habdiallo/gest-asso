@@ -13,7 +13,7 @@
 ## 3. Déploiement et publication
 
 - [x] 3.1 [T-149] Sur `infra/chore-149-deploiement-local`, créer les Dockerfiles, le Compose local, le routage `/api/v1`, les healthchecks et la configuration sans secret pour le développement.
-- [ ] 3.2 [T-150] Sur `infra/chore-150-ci-images`, ajouter les validations CI et la publication versionnée des images backend et frontend après succès des contrôles applicatifs et conteneurs.
+- [x] 3.2 [T-150] Sur `infra/chore-150-ci-images`, ajouter les validations CI et la publication versionnée des images backend et frontend après succès des contrôles applicatifs et conteneurs.
 - [ ] 3.3 [T-151] Sur `infra/chore-151-deploiement-integration`, préparer l'environnement d'intégration, les secrets externes, les réseaux minimaux, le déploiement par tag immuable et le rollback.
 
 ## 4. Livraison
