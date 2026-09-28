@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import jakarta.validation.ConstraintViolationException;
 
 import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.ErrorResponse;
@@ -16,6 +18,12 @@ import com.habdiallo.contribo.application.auth.InvalidCredentialsException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler {
+
+    @ExceptionHandler(ApiException.class)
+    ResponseEntity<ErrorResponse> apiError(ApiException exception) {
+        return ResponseEntity.status(exception.status())
+                .body(new ErrorResponse(exception.code(), exception.getMessage()));
+    }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     ResponseEntity<ErrorResponse> invalidCredentials(InvalidCredentialsException exception) {
@@ -40,6 +48,13 @@ public class AuthenticationExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<ErrorResponse> malformedRequest(HttpMessageNotReadableException exception) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(
+                ErrorCode.VALIDATION_ERROR,
+                "La requête contient des valeurs invalides."));
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class, MethodArgumentTypeMismatchException.class})
+    ResponseEntity<ErrorResponse> invalidParameter(Exception exception) {
         return ResponseEntity.badRequest().body(new ErrorResponse(
                 ErrorCode.VALIDATION_ERROR,
                 "La requête contient des valeurs invalides."));
