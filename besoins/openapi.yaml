@@ -2599,9 +2599,27 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyCode'
     CreateContributionRequest:
-      oneOf:
-        - $ref: '#/components/schemas/CreateMemberContributionRequest'
-        - $ref: '#/components/schemas/CreateExternalContributionRequest'
+      type: object
+      additionalProperties: false
+      required: [amount, contributionDate, method]
+      description: La requête doit contenir exactement une identité, memberId ou externalContributor.
+      properties:
+        memberId:
+          type: string
+          format: uuid
+          description: Identifiant du membre associé.
+        externalContributor:
+          $ref: '#/components/schemas/ExternalContributor'
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
     CreateMemberContributionRequest:
       type: object
       additionalProperties: false
