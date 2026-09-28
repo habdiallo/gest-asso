@@ -20,9 +20,13 @@ public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SecurityAuditLogger auditLogger;
+    private final ClientAddressResolver clientAddressResolver;
 
-    public JsonAuthenticationEntryPoint(SecurityAuditLogger auditLogger) {
+    public JsonAuthenticationEntryPoint(
+            SecurityAuditLogger auditLogger,
+            ClientAddressResolver clientAddressResolver) {
         this.auditLogger = auditLogger;
+        this.clientAddressResolver = clientAddressResolver;
     }
 
     @Override
@@ -30,7 +34,7 @@ public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
-        auditLogger.authorizationDenied(request.getRemoteAddr(), null);
+        auditLogger.authorizationDenied(clientAddressResolver.resolve(request), null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), new ErrorResponse(

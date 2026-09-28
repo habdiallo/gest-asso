@@ -10,7 +10,9 @@ public class RevokedTokenRegistry {
 
     private final ConcurrentHashMap<String, Instant> revoked = new ConcurrentHashMap<>();
 
-    public void revoke(String token, Instant expiresAt) {
+    public synchronized void revoke(String token, Instant expiresAt) {
+        Instant now = Instant.now();
+        revoked.entrySet().removeIf(entry -> entry.getValue().isBefore(now));
         revoked.put(token, expiresAt);
     }
 

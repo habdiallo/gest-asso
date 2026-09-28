@@ -18,6 +18,7 @@ public class LoginRateLimiter {
     private final Duration window;
     private final Clock clock;
     private final ConcurrentHashMap<String, WindowCounter> counters = new ConcurrentHashMap<>();
+    private long lastPurgeAt;
 
     @Autowired
     public LoginRateLimiter(
@@ -35,9 +36,11 @@ public class LoginRateLimiter {
         this.identifierLimit = identifierLimit;
         this.window = window;
         this.clock = clock;
+        this.lastPurgeAt = clock.millis();
     }
 
-    public void check(String clientAddress, String identifier) {
+    public synchronized void check(String clientAddress, String identifier) {
+        purgeExpiredCounters(clock.millis());
         String normalizedIdentifier = identifier == null
                 ? "<missing>"
                 : identifier.trim().toLowerCase(Locale.ROOT);
@@ -57,6 +60,18 @@ public class LoginRateLimiter {
         if (counter.count().get() > limit) {
             throw new RateLimitExceededException();
         }
+    }
+
+    private void purgeExpiredCounters(long now) {
+        if (now - lastPurgeAt < window.toMillis()) {
+            return;
+        }
+        counters.entrySet().removeIf(entry -> now - entry.getValue().startedAt() >= window.toMillis());
+        lastPurgeAt = now;
+    }
+
+    int counterCount() {
+        return counters.size();
     }
 
     private record WindowCounter(long startedAt, AtomicInteger count) {

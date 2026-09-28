@@ -6,12 +6,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.UUID;
+
+import jakarta.servlet.http.Cookie;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.habdiallo.contribo.security.JwtTokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -19,6 +26,9 @@ class AuthenticationHttpTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtTokenService tokenService;
 
     @Test
     void protectedCurrentUserRequiresBearerToken() throws Exception {
@@ -46,6 +56,24 @@ class AuthenticationHttpTest {
         mockMvc.perform(get("/auth/csrf"))
                 .andExpect(status().isNoContent())
                 .andExpect(cookie().exists("XSRF-TOKEN"));
+    }
+
+    @Test
+    void cookieSessionAcceptsTheRawAngularCsrfToken() throws Exception {
+        MvcResult csrfResponse = mockMvc.perform(get("/auth/csrf")).andReturn();
+        String csrfToken = csrfResponse.getResponse().getCookie("XSRF-TOKEN").getValue();
+        String sessionToken = tokenService.issue(UUID.randomUUID());
+
+        mockMvc.perform(post("/auth/logout")
+                        .cookie(
+                                new Cookie("XSRF-TOKEN", csrfToken),
+                                new Cookie("__Host-contribo-session", sessionToken))
+                        .header("X-XSRF-TOKEN", csrfToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/auth/logout")
+                        .cookie(new Cookie("__Host-contribo-session", sessionToken)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
