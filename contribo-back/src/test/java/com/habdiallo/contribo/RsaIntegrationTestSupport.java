@@ -31,7 +31,7 @@ abstract class RsaIntegrationTestSupport {
         KeyPair otherKeys = TestRsaKeyMaterial.generate();
         return new com.habdiallo.contribo.security.JwtTokenService(
                 (java.security.interfaces.RSAPublicKey) otherKeys.getPublic(),
-                (java.security.interfaces.RSAPrivateKey) otherKeys.getPrivate(), 3600)
+                (java.security.interfaces.RSAPrivateKey) otherKeys.getPrivate(), 900)
                 .issue(userId);
     }
 

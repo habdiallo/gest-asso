@@ -15,9 +15,9 @@
 
 - [x] 3.1 [T-155] Adapter le workflow GitHub Actions pour générer une paire RSA éphémère dans les tests, publier les images après validation sur `develop` et `main`, gérer les tags de release et produire des tags cohérents.
 - [x] 3.2 [T-155] Formaliser le flux `develop`, `release/vX.Y.Z`, `hotfix/*` et `main` dans les règles, hooks, contrôles de PR, modèle de PR et documentation du dépôt.
-- [ ] 3.3 [T-155] Valider les compositions, les Dockerfiles, la configuration de démarrage et les contrôles de sécurité sans secret réel ni clé versionnée.
+- [x] 3.3 [T-155] Valider les compositions, les Dockerfiles, la configuration de démarrage et les contrôles de sécurité sans secret réel ni clé versionnée.
 
 ## 4. Livraison
 
-- [ ] 4.1 [T-155] Exécuter les tests Maven, les validations frontend, les builds d'images, `openspec validate`, `node scripts/tickets.mjs check` et les contrôles adaptés, puis relire le diff.
-- [ ] 4.2 [T-155] Mettre à jour les artefacts OpenSpec selon les actions réellement réalisées, committer avec `chore(fullstack): T-155 ...`, pousser la branche et ouvrir une PR vers `develop` sans fusion automatique.
+- [x] 4.1 [T-155] Exécuter les tests Maven, les validations frontend, les builds d'images, `openspec validate`, `node scripts/tickets.mjs check` et les contrôles adaptés, puis relire le diff.
+- [x] 4.2 [T-155] Mettre à jour les artefacts OpenSpec selon les actions réellement réalisées, committer avec `chore(fullstack): T-155 ...`, pousser la branche et ouvrir une PR vers `develop` sans fusion automatique.

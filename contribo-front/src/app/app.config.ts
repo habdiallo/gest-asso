@@ -5,7 +5,12 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import type { ApplicationConfig } from '@angular/core';
-import { HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  provideHttpClient,
+  withInterceptors,
+  withXsrfConfiguration,
+} from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
@@ -20,8 +25,8 @@ import { routes } from './app.routes';
 
 /**
  * Hydrate l'utilisateur courant depuis /api/v1/me. Seule une erreur 401 invalide la
- * session persistée : une panne transitoire (5xx, erreur réseau) ne doit pas déconnecter
- * un utilisateur dont le jeton reste valide.
+ * session portée par cookie : une panne transitoire (5xx, erreur réseau) ne doit pas
+ * déconnecter un utilisateur dont la session reste valide.
  */
 export function hydrateCurrentUser(
   session: SessionService,
@@ -46,7 +51,10 @@ export function hydrateCurrentUser(
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authInterceptor, sessionExpiredInterceptor])),
+    provideHttpClient(
+      withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
+      withInterceptors([authInterceptor, sessionExpiredInterceptor]),
+    ),
     provideRouter(routes),
     provideTransloco({
       config: {
@@ -64,10 +72,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAppInitializer(() => {
       const session = inject(SessionService);
-      if (!session.token()) {
-        return Promise.resolve();
-      }
-
       const espacePersonnel = inject(EspacePersonnelService);
       return hydrateCurrentUser(session, espacePersonnel);
     }),

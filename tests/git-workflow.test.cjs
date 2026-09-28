@@ -153,6 +153,7 @@ test('le contrôle CI respecte les cibles develop et main selon le type de branc
     ['hotfix/corriger-login', 'main', 0],
     ['release/v1.2.3', 'develop', 0],
     ['hotfix/corriger-login', 'develop', 0],
+    ['infra/chore-156-activer-flux-release', 'main', 0],
     ['front/feat-123-ajout-membre', 'main', 1],
     ['docs/chore-local-workflow', 'main', 1],
     ['docs/chore-000-regles-git-openspec', 'develop', 1],

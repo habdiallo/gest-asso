@@ -12,10 +12,12 @@ Depuis la racine du dépôt :
 docker compose -f contribo-deploiement/compose.yaml up --build
 ```
 
-Les valeurs par défaut servent uniquement au développement local. Générer une
-paire RSA locale, puis injecter `RSA_PUBLIC_KEY_FILE_PATH` et
-`RSA_PRIVATE_KEY_FILE_PATH` avec `POSTGRES_DB`, `POSTGRES_USER`,
-`POSTGRES_PASSWORD`, `BACKEND_PORT` et `FRONTEND_PORT` sans les versionner.
+Les valeurs par défaut servent uniquement au développement local. Le mot de
+passe PostgreSQL doit être fourni explicitement et aucune clé RSA ne doit être
+versionnée. Générer une paire RSA locale, puis injecter
+`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH` avec `POSTGRES_DB`,
+`POSTGRES_USER`, `POSTGRES_PASSWORD`, `BACKEND_PORT` et `FRONTEND_PORT` sans
+les versionner.
 
 ```bash
 mkdir -p .local-secrets
@@ -25,6 +27,7 @@ openssl rsa -pubout -in .local-secrets/rsa_private.pem \
   -out .local-secrets/rsa_public.pem
 RSA_PUBLIC_KEY_FILE_PATH="$PWD/.local-secrets/rsa_public.pem" \
 RSA_PRIVATE_KEY_FILE_PATH="$PWD/.local-secrets/rsa_private.pem" \
+POSTGRES_PASSWORD='change-me-locally' \
 docker compose -f contribo-deploiement/compose.yaml up --build
 ```
 

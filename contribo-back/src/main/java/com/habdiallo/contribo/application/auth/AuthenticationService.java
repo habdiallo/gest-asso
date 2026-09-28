@@ -12,6 +12,7 @@ import com.habdiallo.contribo.api.generated.model.MemberStatus;
 import com.habdiallo.contribo.api.generated.model.MemberSummary;
 import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.security.JwtTokenService;
+import com.habdiallo.contribo.security.SecurityAuditLogger;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,28 +26,34 @@ public class AuthenticationService {
     private final AuthenticationAccountPort repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService tokenService;
+    private final SecurityAuditLogger auditLogger;
 
     public AuthenticationService(
             AuthenticationAccountPort repository,
             PasswordEncoder passwordEncoder,
-            JwtTokenService tokenService) {
+            JwtTokenService tokenService,
+            SecurityAuditLogger auditLogger) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.auditLogger = auditLogger;
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public AuthenticatedSession login(LoginRequest request, String clientAddress) {
         AuthenticatedAccount account = repository.findByIdentifier(request.getIdentifier()).orElse(null);
         String passwordHash = account == null ? DUMMY_PASSWORD_HASH : account.passwordHash();
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), passwordHash);
         if (account == null || !account.active() || !passwordMatches) {
+            auditLogger.loginFailure(request.getIdentifier(), clientAddress);
             throw new InvalidCredentialsException();
         }
-        return new LoginResponse(
-                tokenService.issue(account.userId()),
-                LoginResponse.TokenTypeEnum.BEARER,
-                tokenService.expirationSeconds(),
-                toCurrentUser(account));
+        String token = tokenService.issue(account.userId());
+        auditLogger.loginSuccess(request.getIdentifier(), clientAddress, account.userId().toString());
+        return new AuthenticatedSession(
+                token,
+                new LoginResponse()
+                        .expiresIn(tokenService.expirationSeconds())
+                        .user(toCurrentUser(account)));
     }
 
     public CurrentUser currentUser(UUID userId) {
@@ -89,5 +96,8 @@ public class AuthenticationService {
         return account.preferredName() == null || account.preferredName().isBlank()
                 ? account.firstName() + " " + account.lastName()
                 : account.preferredName() + " " + account.lastName();
+    }
+
+    public record AuthenticatedSession(String token, LoginResponse response) {
     }
 }

@@ -1,31 +1,34 @@
 package com.habdiallo.contribo.security;
 
-import java.time.Instant;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import java.time.Duration;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.stereotype.Service;
+
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class JwtTokenService {
+
+    private static final long MAX_EXPIRATION_SECONDS = 900;
 
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;
@@ -36,18 +39,20 @@ public class JwtTokenService {
             JwtEncoder encoder,
             JwtDecoder decoder,
             @Value("${security.jwt.expiration-seconds}") long expirationSeconds) {
+        validateExpiration(expirationSeconds);
         this.encoder = encoder;
         this.decoder = decoder;
         this.expirationSeconds = expirationSeconds;
     }
 
     public JwtTokenService(RSAPublicKey publicKey, RSAPrivateKey privateKey, long expirationSeconds) {
+        validateExpiration(expirationSeconds);
         RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         this.encoder = new NimbusJwtEncoder(new ImmutableJWKSet<SecurityContext>(new JWKSet(rsaKey)));
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
+        NimbusJwtDecoder rsaDecoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
         JwtTimestampValidator timestampValidator = new JwtTimestampValidator(Duration.ZERO);
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(timestampValidator));
-        this.decoder = decoder;
+        rsaDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(timestampValidator));
+        this.decoder = rsaDecoder;
         this.expirationSeconds = expirationSeconds;
     }
 
@@ -71,7 +76,21 @@ public class JwtTokenService {
         }
     }
 
+    public Instant parseExpiration(String token) {
+        try {
+            return decoder.decode(token).getExpiresAt();
+        } catch (JwtException | IllegalArgumentException exception) {
+            throw new InvalidTokenException(exception);
+        }
+    }
+
     public int expirationSeconds() {
         return Math.toIntExact(expirationSeconds);
+    }
+
+    private static void validateExpiration(long expirationSeconds) {
+        if (expirationSeconds < 1 || expirationSeconds > MAX_EXPIRATION_SECONDS) {
+            throw new IllegalArgumentException("JWT expiration must be between 1 and 900 seconds");
+        }
     }
 }
