@@ -27,4 +27,4 @@
 - [ ] 4.6 [T-148] Exécuter les validations de `T-148`, relire le diff ciblé, pousser uniquement `back/feat-148-api-cagnottes-contributions` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [x] 4.7 [T-149] Exécuter les validations de `T-149`, relire le diff ciblé, pousser uniquement `infra/chore-149-deploiement-local` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [x] 4.8 [T-150] Exécuter les validations de `T-150`, relire le diff ciblé, pousser uniquement `infra/chore-150-ci-images` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
-- [ ] 4.9 [T-151] Exécuter les validations de `T-151`, relire le diff ciblé, pousser uniquement `infra/chore-151-deploiement-integration` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
+- [x] 4.9 [T-151] Exécuter les validations de `T-151`, relire le diff ciblé, pousser uniquement `infra/chore-151-deploiement-integration` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.

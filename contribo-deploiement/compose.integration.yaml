@@ -54,6 +54,6 @@ volumes:
 
 secrets:
   db_password:
-    external: true
+    file: ${DB_PASSWORD_FILE_PATH:?DB_PASSWORD_FILE_PATH must be set}
   jwt_secret:
-    external: true
+    file: ${JWT_SECRET_FILE_PATH:?JWT_SECRET_FILE_PATH must be set}
