@@ -10,6 +10,7 @@ import type {
   SocialFundPage,
 } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -122,6 +123,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: TableauDeBordService,
@@ -298,8 +300,8 @@ describe('DashboardPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelectorAll('a[href^="/campagnes/"]').length).toBe(3);
     expect(root.textContent).not.toContain('Campagne D');
-    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
-    expect(root.textContent).toContain('3 dernier(s) règlement(s) affiché(s) sur 4');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
+    expect(root.textContent).toContain('3 derniers règlements affichés sur 4');
 
     const historyLinks = Array.from(root.querySelectorAll('a')).filter(
       (link) => link.textContent?.trim() === "Voir l'historique",
@@ -742,9 +744,9 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('59 % de 28,3M GNF');
-    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
     expect(root.textContent).toContain('76 % de 17M GNF');
-    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnotte(s)');
+    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnottes');
   });
 
   it('keeps the non-financial stat cards when financialOverview is absent', async () => {

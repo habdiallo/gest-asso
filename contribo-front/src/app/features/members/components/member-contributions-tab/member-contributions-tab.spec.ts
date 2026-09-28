@@ -9,6 +9,7 @@ import {
 } from '@api';
 import type { ContributionPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -57,7 +58,10 @@ async function createFixture(
         preloadLangs: true,
       }),
     ],
-    providers: [{ provide: ContributionsService, useValue: { listContributions } }],
+    providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
+      { provide: ContributionsService, useValue: { listContributions } },
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(MemberContributionsTab);

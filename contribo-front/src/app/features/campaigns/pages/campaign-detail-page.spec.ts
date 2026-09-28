@@ -12,6 +12,7 @@ import type {
   UpdateCampaignCategoryAmountsRequest,
 } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
@@ -137,6 +138,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CampagnesService,
