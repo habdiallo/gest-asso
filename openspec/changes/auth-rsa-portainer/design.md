@@ -28,6 +28,8 @@ Le projet de référence utilise Spring Security OAuth2 Resource Server, Nimbus 
 - **Configuration par ressources PEM** : accepter des emplacements de ressources `classpath:` et `file:` pour les deux clés. La configuration doit échouer rapidement si une clé est absente, illisible ou incompatible, sans fallback vers un secret HMAC.
 - **Secrets Docker fichiers** : la stack Portainer monte `rsa_private_key` et `rsa_public_key` sous `/run/secrets`, puis transmet leurs emplacements au backend. La clé privée reste absente du réseau public et des variables multi-lignes Portainer.
 - **Workflow versionné** : conserver les validations pull request, puis publier sur `main` avec un tag semver et un alias d'intégration, en générant les clés uniquement dans le job de test. Les images sont taguées avec des noms stables et versionnés pour permettre le rollback.
+- **Branches d'intégration et de production** : utiliser `develop` comme cible des PR de ticket. Créer `release/vX.Y.Z` depuis `develop`, la valider vers `main`, puis réintégrer la release dans `develop`. Les hotfixes suivent le même retour depuis `main`.
+- **Publication par branche** : publier `latest-int` et le SHA sur `develop`, `latest` et le SHA sur `main`, puis les tags semver et le SHA sur un tag `vX.Y.Z`. Les PR construisent les images sans les publier.
 
 ## Risks / Trade-offs
 
@@ -42,6 +44,11 @@ Le projet de référence utilise Spring Security OAuth2 Resource Server, Nimbus 
 2. Déployer la configuration et les images avec les emplacements RSA configurés.
 3. Vérifier le login, une requête authentifiée et le refus d'un ancien ou d'un JWT mal signé.
 4. Pour un rollback, redéployer une image précédente avec sa paire RSA correspondante ; ne jamais réintroduire `JWT_SECRET` dans la stack.
+
+Pour le flux Git, créer `develop` depuis `main` avant la première PR de ticket,
+protéger les deux branches sur GitHub, puis utiliser `release/vX.Y.Z` pour chaque
+promotion en production. Une release ou un hotfix fusionné dans `main` est ensuite
+réintégré dans `develop`.
 
 ## Open Questions
 

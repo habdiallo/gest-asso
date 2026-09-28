@@ -12,9 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthenticationHttpTest {
+class AuthenticationHttpTest extends RsaIntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -22,6 +24,15 @@ class AuthenticationHttpTest {
     @Test
     void protectedCurrentUserRequiresBearerToken() throws Exception {
         mockMvc.perform(get("/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
+    }
+
+    @Test
+    void protectedCurrentUserRejectsTokenSignedByAnotherKey() throws Exception {
+        mockMvc.perform(get("/me")
+                        .header("Authorization", "Bearer "
+                                + tokenSignedByAnotherKey(UUID.randomUUID())))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
     }

@@ -24,7 +24,7 @@ import com.habdiallo.contribo.security.JwtTokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class MemberCategoryAccountHttpTest {
+class MemberCategoryAccountHttpTest extends RsaIntegrationTestSupport {
 
     private static final UUID ASSOCIATION_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CATEGORY_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");

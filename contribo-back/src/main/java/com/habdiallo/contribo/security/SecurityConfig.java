@@ -8,7 +8,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.core.convert.converter.Converter;
+import java.util.UUID;
 
 @Configuration
 public class SecurityConfig {
@@ -16,7 +21,6 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            JwtAuthenticationFilter jwtAuthenticationFilter,
             JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint)
             throws Exception {
         http
@@ -32,8 +36,22 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(jsonAuthenticationEntryPoint))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(jsonAuthenticationEntryPoint)
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(uuidJwtAuthenticationConverter())));
         return http.build();
+    }
+
+    private Converter<Jwt, ? extends AbstractAuthenticationToken> uuidJwtAuthenticationConverter() {
+        return jwt -> {
+            try {
+                UUID userId = UUID.fromString(jwt.getSubject());
+                return new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        userId, jwt, AuthorityUtils.NO_AUTHORITIES);
+            } catch (IllegalArgumentException exception) {
+                throw new BadCredentialsException("Le sujet UUID du jeton est invalide.", exception);
+            }
+        };
     }
 
     @Bean

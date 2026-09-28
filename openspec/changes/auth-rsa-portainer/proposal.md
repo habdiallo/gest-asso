@@ -13,6 +13,7 @@ La référence `saas-asso` utilise une paire RSA pour signer et vérifier les JW
 - Remplacer les variables et secrets `JWT_SECRET` par les paramètres de clés RSA dans les compositions d'intégration.
 - Ajouter une stack Portainer backend/frontend utilisant des images GHCR versionnées, les réseaux Docker externes existants et un réseau interne privé.
 - Documenter la génération des clés, les variables Portainer, le déploiement et le rollback par changement de tag.
+- Formaliser le flux `develop` pour l'intégration, `release/vX.Y.Z` pour la stabilisation et `main` pour la production, avec les cibles de PR et le retour vers `develop`.
 
 ## Capabilities
 
@@ -21,6 +22,7 @@ La référence `saas-asso` utilise une paire RSA pour signer et vérifier les JW
 - `rsa-jwt-authentication`: émission et validation de JWT Bearer signés en RS256 avec clés PEM séparées.
 - `ci-image-publishing`: génération de clés de test et publication d'images backend/frontend avec tags versionnés.
 - `portainer-deployment`: déploiement Portainer avec secrets fichiers, réseaux externes et rollback par tag d'image.
+- `branching-release-workflow`: règles de PR, branches de release et publication des images selon l'environnement.
 
 ### Modified Capabilities
 

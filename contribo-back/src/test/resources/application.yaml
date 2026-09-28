@@ -9,5 +9,7 @@ spring:
 
 security:
   jwt:
-    secret: contribo-test-secret-change-me-32-bytes
     expiration-seconds: 3600
+  rsa:
+    public-key: ${RSA_PUBLIC_KEY:classpath:certs/public.pem}
+    private-key: ${RSA_PRIVATE_KEY:classpath:certs/private.pem}
