@@ -6,3 +6,8 @@ spring:
     driver-class-name: org.h2.Driver
   flyway:
     enabled: true
+
+security:
+  jwt:
+    secret: contribo-test-secret-change-me-32-bytes
+    expiration-seconds: 3600
