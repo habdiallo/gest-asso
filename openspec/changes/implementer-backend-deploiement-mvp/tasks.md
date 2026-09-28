@@ -1,7 +1,7 @@
 ## 1. Socle backend et données
 
 - [x] 1.1 [T-143] Sur `back/chore-143-socle-backend-api`, créer le socle backend, vérifier la branche et les prérequis de `T-142`, brancher la validation OpenAPI et ajouter un démarrage minimal testable sans logique métier.
-- [ ] 1.2 [T-144] Sur `back/chore-144-persistance-mvp`, ajouter la configuration de persistance retenue, les migrations initiales et le socle de tests d'intégration, après intégration de `T-143`.
+- [x] 1.2 [T-144] Sur `back/chore-144-persistance-mvp`, ajouter la configuration de persistance retenue, les migrations initiales et le socle de tests d'intégration, après intégration de `T-143`.
 
 ## 2. Authentification et domaines MVP
 
