@@ -22,7 +22,7 @@
 - [x] 4.1 [T-143] Exécuter les validations de `T-143`, relire le diff ciblé, pousser uniquement `back/chore-143-socle-backend-api` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [x] 4.2 [T-144] Exécuter les validations de `T-144`, relire le diff ciblé, pousser uniquement `back/chore-144-persistance-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [x] 4.3 [T-145] Exécuter les validations de `T-145`, relire le diff ciblé, pousser uniquement `back/feat-145-authentification-mvp` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
-- [ ] 4.4 [T-146] Exécuter les validations de `T-146`, relire le diff ciblé, pousser uniquement `back/feat-146-api-membres` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
+- [x] 4.4 [T-146] Exécuter les validations de `T-146`, relire le diff ciblé, pousser uniquement `back/feat-146-api-membres` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.5 [T-147] Exécuter les validations de `T-147`, relire le diff ciblé, pousser uniquement `back/feat-147-api-campagnes-paiements` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.6 [T-148] Exécuter les validations de `T-148`, relire le diff ciblé, pousser uniquement `back/feat-148-api-cagnottes-contributions` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
 - [ ] 4.7 [T-149] Exécuter les validations de `T-149`, relire le diff ciblé, pousser uniquement `infra/chore-149-deploiement-local` et ouvrir sa PR vers `main`, sans fusion ni auto-merge.
