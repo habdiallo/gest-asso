@@ -171,3 +171,16 @@ test('le contrôle CI respecte les cibles develop et main selon le type de branc
   }
   assert.equal(existsSync(marker), false, 'Une entrée de PR ne doit jamais être exécutée.');
 });
+
+test('le workflow publie les candidates release et ne reconstruit pas sur main', () => {
+  const workflow = readFileSync(resolve(__dirname, '../.github/workflows/backend-frontend-images.yml'), 'utf8');
+  assert.match(workflow, /- 'release\/v\*\.\*\.\*'/);
+  assert.match(workflow, /- 'hotfix\/\*\*'/);
+  assert.match(workflow, /if: github\.event_name == 'pull_request' \|\| github\.ref != 'refs\/heads\/main'/);
+  assert.match(workflow, /candidate_tag="candidate-\$\{GITHUB_REF_NAME\/\/\\\//);
+  assert.match(workflow, /type=raw,value=\$\{\{ steps\.image-tag\.outputs\.candidate_tag \}\}/);
+  assert.match(workflow, /push: \$\{\{ github\.event_name == 'push' && github\.ref != 'refs\/heads\/main' \}\}/);
+  assert.match(workflow, /GITHUB_STEP_SUMMARY/);
+  assert.doesNotMatch(workflow, /type=raw,value=latest,enable=/);
+  assert.doesNotMatch(workflow, /type=semver,/);
+});

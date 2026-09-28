@@ -25,23 +25,41 @@ Le fichier `db_password` doit être créé au même endroit. Dans Portainer, les
 chemins peuvent être remplacés par `DB_PASSWORD_FILE_PATH`,
 `RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH`.
 
-## Déployer
+## Déployer une candidate en staging
 
-Définir `GHCR_OWNER`, `IMAGE_TAG`, `DB_HOST`, `DB_PORT`, `DB_NAME` et
-`DB_USERNAME` dans les variables de la stack. `IMAGE_TAG` vaut `latest-int` par
-défaut, mais un tag SHA ou semver immuable est recommandé.
+Le workflow GitHub Actions publie une candidate depuis une branche
+`release/vX.Y.Z` ou `hotfix/*` après les validations backend et frontend. Le
+résumé du workflow fournit les deux digests à utiliser ensemble :
+
+```text
+BACKEND_IMAGE=ghcr.io/habdiallo/contribo-back@sha256:<digest-backend>
+FRONTEND_IMAGE=ghcr.io/habdiallo/contribo-front@sha256:<digest-frontend>
+```
+
+Définir ces deux variables ainsi que `DB_HOST`, `DB_PORT`, `DB_NAME` et
+`DB_USERNAME` dans la stack staging. Les deux digests doivent provenir du même
+run CI. Les tags `latest`, les tags de branche et les références absentes sont
+interdits par la composition.
 
 Les réseaux externes peuvent être renommés avec `DATABASE_NETWORK` et
 `PROXY_NETWORK`. Le proxy doit joindre le service `frontend` sur le réseau
 `frontend`; le frontend joint le backend uniquement sur
 `contribo-internal`.
 
+## Promouvoir en production
+
+Après les smoke tests staging et la fusion de la release vers `main`, reprendre
+exactement les deux mêmes digests dans la stack de production. Le push vers
+`main` ne reconstruit pas une autre image. Le dépôt
+`gest-asso-deploiement` contient la même composition sans symlink et peut être
+utilisé comme source Git de la stack Portainer.
+
 ## Vérifier et revenir en arrière
 
 Vérifier le healthcheck du backend, l'accès à l'application via le proxy et une
 connexion suivie d'une requête authentifiée. Après chaque déploiement, conserver
-le tag précédent.
+les deux digests précédents.
 
-Pour un rollback, remplacer `IMAGE_TAG` par le tag précédent et redéployer la
-stack. Les deux images reviennent alors à la même version. Les secrets RSA et les
-données PostgreSQL restent inchangés.
+Pour un rollback, remplacer `BACKEND_IMAGE` et `FRONTEND_IMAGE` par la paire de
+digests précédente puis redéployer la stack. Les deux images reviennent alors à
+la même version. Les secrets RSA et les données PostgreSQL restent inchangés.
