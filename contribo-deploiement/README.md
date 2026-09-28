@@ -12,11 +12,24 @@ Depuis la racine du dépôt :
 docker compose -f contribo-deploiement/compose.yaml up --build
 ```
 
-Le Compose local exige `POSTGRES_PASSWORD` et `JWT_SECRET`, même en développement,
-afin qu'aucune valeur secrète connue ne soit embarquée dans le manifest. Pour un
-autre contexte, injecter `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
-`JWT_SECRET`, `BACKEND_PORT` et `FRONTEND_PORT` via un gestionnaire de secrets ou
-un fichier d'environnement non versionné.
+Les valeurs par défaut servent uniquement au développement local. Le mot de
+passe PostgreSQL doit être fourni explicitement et aucune clé RSA ne doit être
+versionnée. Générer une paire RSA locale, puis injecter
+`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH` avec `POSTGRES_DB`,
+`POSTGRES_USER`, `POSTGRES_PASSWORD`, `BACKEND_PORT` et `FRONTEND_PORT` sans
+les versionner.
+
+```bash
+mkdir -p .local-secrets
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+  -out .local-secrets/rsa_private.pem
+openssl rsa -pubout -in .local-secrets/rsa_private.pem \
+  -out .local-secrets/rsa_public.pem
+RSA_PUBLIC_KEY_FILE_PATH="$PWD/.local-secrets/rsa_public.pem" \
+RSA_PRIVATE_KEY_FILE_PATH="$PWD/.local-secrets/rsa_private.pem" \
+POSTGRES_PASSWORD='change-me-locally' \
+docker compose -f contribo-deploiement/compose.yaml up --build
+```
 
 ## Arrêter
 

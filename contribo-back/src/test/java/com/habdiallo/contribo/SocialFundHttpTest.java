@@ -20,7 +20,7 @@ import com.habdiallo.contribo.security.JwtTokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class SocialFundHttpTest {
+class SocialFundHttpTest extends RsaIntegrationTestSupport {
 
     private static final UUID ASSOCIATION_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
     private static final UUID CATEGORY_ID = UUID.fromString("10000000-0000-0000-0000-000000000002");

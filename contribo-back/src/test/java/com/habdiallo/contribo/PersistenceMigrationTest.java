@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootTest
-class PersistenceMigrationTest {
+class PersistenceMigrationTest extends RsaIntegrationTestSupport {
 
     @Test
     void allMigrationsAreApplied(@Autowired DataSource dataSource) {

@@ -12,17 +12,17 @@ import jakarta.servlet.http.Cookie;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.habdiallo.contribo.security.JwtTokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthenticationHttpTest {
+class AuthenticationHttpTest extends RsaIntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -33,6 +33,14 @@ class AuthenticationHttpTest {
     @Test
     void protectedCurrentUserRequiresBearerToken() throws Exception {
         mockMvc.perform(get("/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
+    }
+
+    @Test
+    void protectedCurrentUserRejectsTokenSignedByAnotherKey() throws Exception {
+        mockMvc.perform(get("/me")
+                        .header("Authorization", "Bearer " + tokenSignedByAnotherKey(UUID.randomUUID())))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
     }
@@ -49,6 +57,19 @@ class AuthenticationHttpTest {
     void nonHealthActuatorEndpointsAreNotPublic() throws Exception {
         mockMvc.perform(get("/actuator/info"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void publicEndpointsIgnoreAnInvalidBearerToken() throws Exception {
+        mockMvc.perform(get("/actuator/health/liveness")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/auth/login")
+                        .header("Authorization", "Bearer invalid-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"identifier\":\"missing\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
     }
 
     @Test

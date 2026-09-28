@@ -21,7 +21,13 @@ services:
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-contribo}
       DB_USERNAME: ${POSTGRES_USER:-contribo}
       DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
+      RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      TRUSTED_PROXY_HEADERS: ${TRUSTED_PROXY_HEADERS:-false}
+      TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:-}
+    secrets:
+      - rsa_public_key
+      - rsa_private_key
     depends_on:
       db:
         condition: service_healthy
@@ -43,3 +49,9 @@ services:
 
 volumes:
   contribo-db-data:
+
+secrets:
+  rsa_public_key:
+    file: ${RSA_PUBLIC_KEY_FILE_PATH:?RSA_PUBLIC_KEY_FILE_PATH must be set}
+  rsa_private_key:
+    file: ${RSA_PRIVATE_KEY_FILE_PATH:?RSA_PRIVATE_KEY_FILE_PATH must be set}

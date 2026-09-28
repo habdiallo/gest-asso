@@ -21,7 +21,7 @@ ou « Aucun impact particulier » si pertinent. -->
 
 ## Avant revue
 
-- [ ] Branche conforme au ticket ; cible `main`.
+- [ ] Branche conforme au flux ; cible `develop` pour un ticket, `main` pour une release ou un hotfix.
 - [ ] Périmètre limité au ticket et diff relu.
 - [ ] Critères d'acceptation couverts et validations pertinentes exécutées.
 - [ ] Artefacts/tâches OpenSpec mis à jour selon les actions réellement effectuées.

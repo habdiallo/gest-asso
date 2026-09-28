@@ -1,12 +1,13 @@
 #!/bin/sh
 set -eu
 
-pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$'
+ticket_pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$'
+flow_pattern='^(release/v[0-9]+\.[0-9]+\.[0-9]+|hotfix/[a-z0-9]+(-[a-z0-9]+)*)$'
 
 # Git transmet toutes les refs réellement poussées, même pour HEAD:main.
 while read -r local_ref local_oid remote_ref remote_oid; do
-  if [ "$remote_ref" = refs/heads/main ]; then
-    printf '%s\n' 'Push refusé vers main : publier la branche du ticket et ouvrir une PR vers main.' >&2
+  if [ "$remote_ref" = refs/heads/main ] || [ "$remote_ref" = refs/heads/develop ]; then
+    printf '%s\n' 'Push refusé vers main ou develop : publier une branche autorisée et ouvrir une PR.' >&2
     exit 1
   fi
 
@@ -17,7 +18,7 @@ while read -r local_ref local_oid remote_ref remote_oid; do
       if [ "$local_ref" = '(delete)' ]; then
         continue
       fi
-      if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$pattern"; then
+      if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$ticket_pattern" && ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$flow_pattern"; then
         printf '%s\n' "Push refusé : branche distante '$branch' non conforme. Voir CONTRIBUTING.md." >&2
         exit 1
       fi
@@ -34,8 +35,8 @@ while read -r local_ref local_oid remote_ref remote_oid; do
           exit 1
           ;;
       esac
-      if ! printf '%s\n' "$source_branch" | LC_ALL=C grep -Eq "$pattern"; then
-        printf '%s\n' "Push refusé depuis '$source_branch' : utiliser la branche du ticket." >&2
+      if ! printf '%s\n' "$source_branch" | LC_ALL=C grep -Eq "$ticket_pattern" && ! printf '%s\n' "$source_branch" | LC_ALL=C grep -Eq "$flow_pattern"; then
+        printf '%s\n' "Push refusé depuis '$source_branch' : utiliser une branche de ticket, release ou hotfix." >&2
         exit 1
       fi
       ;;
