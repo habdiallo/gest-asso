@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 157,
+  "nextTicketId": 158,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3149,6 +3149,32 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "infra/chore-000-activer-flux-release",
       "branchAfterInitialization": "infra/chore-156-activer-flux-release"
+    },
+    {
+      "id": 157,
+      "title": "Construire les images candidates une seule fois et promouvoir les mêmes digests de staging vers la production.",
+      "priority": "P1",
+      "scope": "infra",
+      "type": "chore",
+      "slug": "promouvoir-images-release",
+      "change": "promouvoir-images-release",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "dependencies": [156],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "infra/chore-000-promouvoir-images-release",
+      "branchAfterInitialization": "infra/chore-157-promouvoir-images-release"
     }
   ]
 }
