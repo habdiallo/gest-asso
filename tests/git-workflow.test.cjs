@@ -138,7 +138,7 @@ test('la suppression de main est refusée, celle des anciennes branches de trava
   assert.equal(oldBranch.status, 0, oldBranch.stderr);
 });
 
-test('le contrôle CI accepte la PR conforme et refuse mauvaise cible, branche provisoire et injection', (t) => {
+test('le contrôle CI respecte les cibles develop et main selon le type de branche', (t) => {
   const workflow = readFileSync(resolve(__dirname, '../.github/workflows/workflow-conventions.yml'), 'utf8');
   const runBlock = workflow.split('        run: |\n')[1];
   assert.ok(runBlock, 'Le workflow doit contenir le script de contrôle.');
@@ -147,17 +147,22 @@ test('le contrôle CI accepte la PR conforme et refuse mauvaise cible, branche p
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const marker = join(directory, 'injection');
   for (const [branch, base, expected] of [
-    ['front/feat-123-ajout-membre', 'main', 0],
-    ['back/fix-124-refus-surpaiement', 'main', 0],
-    ['front/feat-123-ajout-membre', 'develop', 1],
+    ['front/feat-123-ajout-membre', 'develop', 0],
+    ['back/fix-124-refus-surpaiement', 'develop', 0],
+    ['release/v1.2.3', 'main', 0],
+    ['hotfix/corriger-login', 'main', 0],
+    ['release/v1.2.3', 'develop', 0],
+    ['hotfix/corriger-login', 'develop', 0],
+    ['infra/chore-156-activer-flux-release', 'main', 0],
+    ['front/feat-123-ajout-membre', 'main', 1],
     ['docs/chore-local-workflow', 'main', 1],
-    ['docs/chore-000-regles-git-openspec', 'main', 1],
-    ['front/feat-000-socle-applicatif', 'main', 1],
-    ['front/feat-0-membre', 'main', 1],
-    ['front/feat-00-membre', 'main', 1],
-    ['front/feat-0000-membre', 'main', 1],
-    ['front/feat-001-membre', 'main', 1],
-    [`front/feat-123-$(touch ${marker})`, 'main', 1],
+    ['docs/chore-000-regles-git-openspec', 'develop', 1],
+    ['front/feat-000-socle-applicatif', 'develop', 1],
+    ['front/feat-0-membre', 'develop', 1],
+    ['front/feat-00-membre', 'develop', 1],
+    ['front/feat-0000-membre', 'develop', 1],
+    ['front/feat-001-membre', 'develop', 1],
+    [`front/feat-123-$(touch ${marker})`, 'develop', 1],
   ]) {
     const result = run('bash', ['-c', script], {
       env: { ...process.env, PR_BRANCH: branch, PR_BASE: base },

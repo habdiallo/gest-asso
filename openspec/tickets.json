@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 155,
+  "nextTicketId": 157,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3121,6 +3121,34 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "fullstack/chore-000-durcissement-securite-production",
       "branchAfterInitialization": "fullstack/chore-154-durcissement-securite-production"
+    },
+    {
+      "id": 155,
+      "title": "Remplacer le secret JWT partagé par une signature RSA et préparer le déploiement Portainer.",
+      "priority": "P0",
+      "scope": "fullstack",
+      "type": "chore",
+      "slug": "auth-rsa-portainer",
+      "change": "auth-rsa-portainer",
+      "tasks": ["1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "3.1", "3.2", "3.3", "4.1", "4.2"],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "fullstack/chore-000-auth-rsa-portainer",
+      "branchAfterInitialization": "fullstack/chore-155-auth-rsa-portainer"
+    },
+    {
+      "id": 156,
+      "title": "Activer le flux develop, release et hotfix dans le controle CI des pull requests.",
+      "priority": "P0",
+      "scope": "infra",
+      "type": "chore",
+      "slug": "activer-flux-release",
+      "change": "activer-flux-release",
+      "tasks": ["1.1", "1.2", "2.1", "2.2", "2.3"],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "infra/chore-000-activer-flux-release",
+      "branchAfterInitialization": "infra/chore-156-activer-flux-release"
     }
   ]
 }
