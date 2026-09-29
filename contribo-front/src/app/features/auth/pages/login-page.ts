@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { switchMap } from 'rxjs';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
@@ -51,7 +52,7 @@ export class LoginPage {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login(this.form.getRawValue()).subscribe({
+    this.authService.getCsrfToken().pipe(switchMap(() => this.authService.login(this.form.getRawValue()))).subscribe({
       next: (response) => {
         this.submitting.set(false);
         this.sessionService.setSession(response);

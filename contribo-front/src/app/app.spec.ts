@@ -218,17 +218,13 @@ describe('App', () => {
     expect(TestBed.inject(Router).url).toBe(expectedPath);
   });
 
-  it('keeps the sidebar profile control without a fabricated identity while the user is loading', () => {
-    TestBed.inject(SessionService).token.set('session-token-value');
+  it('keeps the public shell while the cookie session is loading', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('aside .sidebar-profile strong')).toBeNull();
-    expect(root.querySelector('aside .sidebar-avatar')).toBeNull();
-    expect(root.querySelector('.desktop-topbar app-theme-toggle button')).toBeTruthy();
-    expect(root.querySelector('aside .sidebar-profile-chevron')).toBeTruthy();
-    expect(root.querySelector('aside app-logout-button')).toBeNull();
+    expect(root.querySelector('aside .sidebar-profile')).toBeNull();
+    expect(root.querySelector('.fixed app-theme-toggle button')).toBeTruthy();
   });
 
   it('updates the desktop breadcrumb label as the route changes (T-117)', async () => {

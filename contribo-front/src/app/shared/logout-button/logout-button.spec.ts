@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
 import { SessionService } from '@core/session/session.service';
 import { LogoutButton } from './logout-button';
@@ -11,7 +13,7 @@ describe('LogoutButton', () => {
     localStorage.clear();
     TestBed.configureTestingModule({
       imports: [LogoutButton],
-      providers: [provideRouter([])],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
 
     session = TestBed.inject(SessionService);
@@ -43,6 +45,10 @@ describe('LogoutButton', () => {
     });
   });
 
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+  });
+
   it('renders an explicit "Se déconnecter" action', () => {
     const fixture = TestBed.createComponent(LogoutButton);
     fixture.detectChanges();
@@ -58,6 +64,12 @@ describe('LogoutButton', () => {
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();
+
+    const httpMock = TestBed.inject(HttpTestingController);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
+    const request = httpMock.expectOne('/api/v1/auth/logout');
+    expect(request.request.method).toBe('POST');
+    request.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(session.token()).toBeNull();
     expect(session.user()).toBeNull();

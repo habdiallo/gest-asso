@@ -12,7 +12,7 @@ import type {
   SocialFundPage,
   SocialFundSummary,
 } from '@api';
-import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 /**
  * Cagnottes de démonstration (T-117) : deux cagnottes ouvertes (`...500`, `...502`)
@@ -232,7 +232,7 @@ function isExternalContributionRequest(
 }
 
 function canRecordContribution(
-  account: ReturnType<typeof findDemoAccountByAuthorization>,
+  account: ReturnType<typeof findDemoAccountByRequest>,
 ): boolean {
   if (!account) {
     return false;
@@ -272,7 +272,7 @@ function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -314,7 +314,7 @@ export const socialFundsHandlers = [
 
   http.post('/api/v1/social-funds', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -353,7 +353,7 @@ export const socialFundsHandlers = [
    */
   http.get('/api/v1/social-funds/:socialFundId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -375,7 +375,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/contributions',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -415,7 +415,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/contributions',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -521,7 +521,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/closure',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }

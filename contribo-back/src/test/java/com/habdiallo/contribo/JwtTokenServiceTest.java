@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.habdiallo.contribo.security.InvalidTokenException;
 import com.habdiallo.contribo.security.JwtTokenService;
 
 class JwtTokenServiceTest {
@@ -17,7 +18,7 @@ class JwtTokenServiceTest {
         KeyPair keyPair = TestRsaKeyMaterial.generate();
         JwtTokenService tokenService = new JwtTokenService(
                 (java.security.interfaces.RSAPublicKey) keyPair.getPublic(),
-                (java.security.interfaces.RSAPrivateKey) keyPair.getPrivate(), 3600);
+                (java.security.interfaces.RSAPrivateKey) keyPair.getPrivate(), 900);
         UUID userId = UUID.randomUUID();
 
         assertThat(tokenService.parseUserId(tokenService.issue(userId))).isEqualTo(userId);
@@ -29,13 +30,13 @@ class JwtTokenServiceTest {
         KeyPair otherKeys = TestRsaKeyMaterial.generate();
         JwtTokenService trustedService = new JwtTokenService(
                 (java.security.interfaces.RSAPublicKey) trustedKeys.getPublic(),
-                (java.security.interfaces.RSAPrivateKey) trustedKeys.getPrivate(), 3600);
+                (java.security.interfaces.RSAPrivateKey) trustedKeys.getPrivate(), 900);
         JwtTokenService otherService = new JwtTokenService(
                 (java.security.interfaces.RSAPublicKey) otherKeys.getPublic(),
-                (java.security.interfaces.RSAPrivateKey) otherKeys.getPrivate(), 3600);
+                (java.security.interfaces.RSAPrivateKey) otherKeys.getPrivate(), 900);
 
         assertThatThrownBy(() -> trustedService.parseUserId(otherService.issue(UUID.randomUUID())))
-                .isInstanceOf(com.habdiallo.contribo.security.InvalidTokenException.class);
+                .isInstanceOf(InvalidTokenException.class);
     }
 
     @Test
@@ -48,6 +49,6 @@ class JwtTokenServiceTest {
 
         org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(3))
                 .untilAsserted(() -> assertThatThrownBy(() -> tokenService.parseUserId(token))
-                .isInstanceOf(com.habdiallo.contribo.security.InvalidTokenException.class));
+                        .isInstanceOf(InvalidTokenException.class));
     }
 }

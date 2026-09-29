@@ -31,7 +31,7 @@ tags:
   - name: Contributions
     description: Contributions constatées sur les cagnottes.
 security:
-  - bearerAuth: []
+  - cookieAuth: []
 paths:
   /auth/login:
     post:
@@ -57,8 +57,34 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
+
+  /auth/csrf:
+    get:
+      tags: [Authentification]
+      summary: Initialiser le token CSRF
+      description: Initialise le cookie CSRF non secret avant une requête mutante.
+      operationId: getCsrfToken
+      security: []
+      responses:
+        '204':
+          description: Token CSRF initialisé dans un cookie.
+
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Fermer la session
+      operationId: logout
+      responses:
+        '204':
+          description: Session fermée et cookie expiré.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /dashboard:
     get:
@@ -1089,11 +1115,11 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Jeton d'accès obtenu avec POST /auth/login.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: __Host-contribo-session
+      description: Cookie de session HttpOnly émis par POST /auth/login.
 
   parameters:
     Page:
@@ -1272,6 +1298,15 @@ components:
           example:
             code: AUTHENTICATION_REQUIRED
             message: Une authentification valide est requise.
+    TooManyRequests:
+      description: Trop de tentatives ou de requêtes sur la fenêtre courante.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RATE_LIMITED
+            message: Trop de tentatives. Réessayez plus tard.
     Forbidden:
       description: Le rôle ou l'autorisation du compte ne permet pas cette action.
       content:
@@ -1379,20 +1414,22 @@ components:
     LoginResponse:
       type: object
       additionalProperties: false
-      required: [accessToken, tokenType, expiresIn, user]
+      required: [expiresIn, user]
       properties:
         accessToken:
           type: string
-          minLength: 1
-          description: Jeton à transmettre dans l'en-tête Authorization.
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer, la session utilise un cookie HttpOnly.
         tokenType:
           type: string
           enum: [Bearer]
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer.
         expiresIn:
           type: integer
           minimum: 1
-          description: Durée de validité du jeton en secondes.
-          example: 3600
+          description: Durée de validité de la session en secondes.
+          example: 900
         user:
           $ref: '#/components/schemas/CurrentUser'
 
@@ -2713,6 +2750,7 @@ components:
         - DATE_RANGE_INVALID
         - AUTHENTICATION_REQUIRED
         - INVALID_CREDENTIALS
+        - RATE_LIMITED
         - ACCESS_DENIED
         - RESOURCE_NOT_FOUND
         - BUSINESS_CONFLICT

@@ -4,6 +4,7 @@ import { CurrencyCode } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SIDEBAR_ROLE_LABEL_KEYS } from '@core/navigation/sidebar-profile';
 import { SessionService } from '@core/session/session.service';
+import { SessionLogoutService } from '@core/session/session-logout.service';
 import { ThemeService } from '@core/theme/theme.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { PageHeader } from '@shared/page-header/page-header';
@@ -21,6 +22,7 @@ const CURRENCY_LABEL_KEYS: Record<CurrencyCode, string> = {
 })
 export class AccountPage {
   private readonly session = inject(SessionService);
+  private readonly sessionLogoutService = inject(SessionLogoutService);
   private readonly router = inject(Router);
   private readonly themeService = inject(ThemeService);
 
@@ -58,7 +60,8 @@ export class AccountPage {
   }
 
   logout(): void {
-    this.session.clear();
-    void this.router.navigateByUrl('/login');
+    this.sessionLogoutService.logout().subscribe({
+      complete: () => void this.router.navigateByUrl('/login'),
+    });
   }
 }

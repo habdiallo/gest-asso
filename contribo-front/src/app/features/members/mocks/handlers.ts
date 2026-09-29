@@ -23,7 +23,7 @@ import type {
   UpdateMemberContactRequest,
   UpdateMemberRequest,
 } from '@api';
-import { findDemoAccountByAuthorization } from '@mocks/demo-accounts';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { getDemoDuesForMember } from '@mocks/demo-dues';
 
 /**
@@ -332,7 +332,7 @@ export function buildMemberPageResponse(
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -357,7 +357,7 @@ export const membersHandlers = [
    */
   http.post('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -400,7 +400,7 @@ export const membersHandlers = [
   }),
   http.patch('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -442,7 +442,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/contact',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -488,7 +488,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/deactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -520,7 +520,7 @@ export const membersHandlers = [
   ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -544,7 +544,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/reactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -586,7 +586,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/payments', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -616,7 +616,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -651,7 +651,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/contributions', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

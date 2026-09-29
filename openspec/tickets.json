@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 156,
+  "nextTicketId": 158,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3088,17 +3088,39 @@
     },
     {
       "id": 154,
-      "title": "Finaliser les validations visuelles et la clôture OpenSpec des tickets T-116, T-129, T-130, T-135 et T-138.",
-      "priority": "P2",
+      "title": "Durcir la sécurité de production sur l'authentification, la session, le reverse proxy, les secrets, Actuator et la journalisation.",
+      "priority": "P0",
       "scope": "fullstack",
       "type": "chore",
-      "slug": "finaliser-alignements-visuels",
-      "change": "finaliser-alignements-visuels-restants",
-      "tasks": ["1.1", "1.2"],
-      "dependencies": [],
-      "planningStatus": "cancelled",
-      "branchDuringInitialization": "fullstack/chore-000-finaliser-alignements-visuels",
-      "branchAfterInitialization": "fullstack/chore-154-finaliser-alignements-visuels"
+      "slug": "durcissement-securite-production",
+      "change": "durcissement-securite-production",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "3.1",
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "dependencies": [
+        145,
+        149,
+        151
+      ],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "fullstack/chore-000-durcissement-securite-production",
+      "branchAfterInitialization": "fullstack/chore-154-durcissement-securite-production"
     },
     {
       "id": 155,
@@ -3113,6 +3135,46 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "fullstack/chore-000-auth-rsa-portainer",
       "branchAfterInitialization": "fullstack/chore-155-auth-rsa-portainer"
+    },
+    {
+      "id": 156,
+      "title": "Activer le flux develop, release et hotfix dans le controle CI des pull requests.",
+      "priority": "P0",
+      "scope": "infra",
+      "type": "chore",
+      "slug": "activer-flux-release",
+      "change": "activer-flux-release",
+      "tasks": ["1.1", "1.2", "2.1", "2.2", "2.3"],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "infra/chore-000-activer-flux-release",
+      "branchAfterInitialization": "infra/chore-156-activer-flux-release"
+    },
+    {
+      "id": 157,
+      "title": "Construire les images candidates une seule fois et promouvoir les mêmes digests de staging vers la production.",
+      "priority": "P1",
+      "scope": "infra",
+      "type": "chore",
+      "slug": "promouvoir-images-release",
+      "change": "promouvoir-images-release",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "dependencies": [156],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "infra/chore-000-promouvoir-images-release",
+      "branchAfterInitialization": "infra/chore-157-promouvoir-images-release"
     }
   ]
 }

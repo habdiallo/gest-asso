@@ -2,7 +2,7 @@ name: contribo
 
 services:
   backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/${GHCR_OWNER:-habdiallo}/contribo-back:${IMAGE_TAG:-latest-int}}
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE must be set to a tested immutable image}
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-int}
       DB_URL: jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-contribo}
@@ -25,7 +25,7 @@ services:
       retries: 5
 
   frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/${GHCR_OWNER:-habdiallo}/contribo-front:${IMAGE_TAG:-latest-int}}
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE must be set to a tested immutable image}
     depends_on:
       backend:
         condition: service_healthy

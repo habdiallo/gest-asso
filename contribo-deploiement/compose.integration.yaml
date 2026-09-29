@@ -25,6 +25,8 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
       RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
       RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      TRUSTED_PROXY_HEADERS: "true"
+      TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:?TRUSTED_PROXY_ADDRESSES must be set}
     secrets:
       - db_password
       - rsa_public_key
@@ -44,7 +46,11 @@ services:
     networks:
       - edge-network
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_HTTP_PORT:-8080}:80"
+      - "${FRONTEND_HTTPS_PORT:-8443}:443"
+    secrets:
+      - tls_certificate
+      - tls_private_key
 
 networks:
   edge-network:
@@ -61,3 +67,7 @@ secrets:
     file: ${RSA_PUBLIC_KEY_FILE_PATH:?RSA_PUBLIC_KEY_FILE_PATH must be set}
   rsa_private_key:
     file: ${RSA_PRIVATE_KEY_FILE_PATH:?RSA_PRIVATE_KEY_FILE_PATH must be set}
+  tls_certificate:
+    file: ${TLS_CERTIFICATE_FILE_PATH:?TLS_CERTIFICATE_FILE_PATH must be set}
+  tls_private_key:
+    file: ${TLS_PRIVATE_KEY_FILE_PATH:?TLS_PRIVATE_KEY_FILE_PATH must be set}

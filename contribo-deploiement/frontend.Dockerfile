@@ -13,8 +13,9 @@ RUN npm run generate:api && npm run build
 FROM nginx:1.27-alpine
 
 COPY contribo-deploiement/nginx.conf /etc/nginx/conf.d/default.conf
+COPY contribo-deploiement/proxy-common.conf /etc/nginx/conf.d/proxy-common.conf
 COPY --from=build /workspace/contribo-front/dist/contribo-front/browser /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 80 443
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
-    CMD wget --quiet --spider http://localhost/ || exit 1
+    CMD wget --quiet --no-check-certificate --spider https://localhost/ || wget --quiet --spider http://localhost/ || exit 1
