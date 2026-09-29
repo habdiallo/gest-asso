@@ -65,7 +65,8 @@ public class AuthenticationService {
         return toCurrentUser(account);
     }
 
-    public AuthenticatedSession changePassword(UUID userId, String newPassword) {
+    public AuthenticatedSession changePassword(
+            UUID userId, String currentPassword, String newPassword, boolean passwordChangeOnly) {
         if (newPassword == null || newPassword.length() < 12 || newPassword.length() > 128) {
             throw new BusinessConflictException(
                     ErrorCode.VALIDATION_ERROR,
@@ -74,6 +75,10 @@ public class AuthenticationService {
         AuthenticatedAccount account = repository.findById(userId)
                 .filter(AuthenticatedAccount::active)
                 .orElseThrow(InvalidCredentialsException::new);
+        if (!passwordChangeOnly && (currentPassword == null || currentPassword.isBlank()
+                || !passwordEncoder.matches(currentPassword, account.passwordHash()))) {
+            throw new InvalidCredentialsException();
+        }
         if (!repository.updatePassword(userId, passwordEncoder.encode(newPassword))) {
             throw new InvalidCredentialsException();
         }

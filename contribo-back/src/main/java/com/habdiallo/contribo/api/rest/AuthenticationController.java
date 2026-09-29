@@ -82,7 +82,10 @@ public class AuthenticationController {
             @Valid @RequestBody ChangePasswordRequest changePasswordRequest,
             HttpServletRequest request) {
         AuthenticationService.AuthenticatedSession session = authenticationService.changePassword(
-                CurrentUserId.get(), changePasswordRequest.getNewPassword());
+                CurrentUserId.get(),
+                changePasswordRequest.getCurrentPassword(),
+                changePasswordRequest.getNewPassword(),
+                isPasswordChangeOnly(request));
         revokeCurrentToken(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, sessionCookieService.issue(session.token()))
@@ -101,6 +104,18 @@ public class AuthenticationController {
     }
 
     private void revokeCurrentToken(HttpServletRequest request) {
+        String token = currentToken(request);
+        if (token != null) {
+            revokedTokenRegistry.revoke(token, tokenService.parseExpiration(token));
+        }
+    }
+
+    private boolean isPasswordChangeOnly(HttpServletRequest request) {
+        String token = currentToken(request);
+        return token != null && tokenService.parsePasswordChangeOnly(token);
+    }
+
+    private String currentToken(HttpServletRequest request) {
         String token = sessionCookieService.readSession(request);
         if (token == null) {
             String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -108,8 +123,6 @@ public class AuthenticationController {
                 token = authorization.substring(7);
             }
         }
-        if (token != null) {
-            revokedTokenRegistry.revoke(token, tokenService.parseExpiration(token));
-        }
+        return token;
     }
 }

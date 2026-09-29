@@ -1491,6 +1491,13 @@ components:
       additionalProperties: false
       required: [newPassword]
       properties:
+        currentPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          writeOnly: true
+          description: Mot de passe actuel, requis pour une session normale et omis lors de la première connexion.
         newPassword:
           type: string
           format: password

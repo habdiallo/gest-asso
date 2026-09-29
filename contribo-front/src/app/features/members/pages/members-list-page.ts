@@ -179,6 +179,7 @@ export class MembersListPage {
     credentials: TemporaryCredentials;
     copied: boolean;
   } | null>(null);
+  readonly confirmationDismissed = signal(false);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -321,6 +322,7 @@ export class MembersListPage {
     this.creating.set(false);
     this.createError.set(false);
     this.createdConfirmation.set(null);
+    this.confirmationDismissed.set(false);
     this.createDialogOpen.set(true);
   }
 
@@ -357,6 +359,7 @@ export class MembersListPage {
             credentials,
             copied: false,
           });
+          this.confirmationDismissed.set(false);
           this.closeCreateDialog();
         },
         error: () => {
@@ -377,6 +380,11 @@ export class MembersListPage {
     void navigator.clipboard.writeText(confirmation.credentials.temporaryPassword).then(() => {
       this.createdConfirmation.update((current) => current ? { ...current, copied: true } : current);
     });
+  }
+
+  dismissCreatedConfirmation(): void {
+    this.createdConfirmation.set(null);
+    this.confirmationDismissed.set(true);
   }
 
   /**

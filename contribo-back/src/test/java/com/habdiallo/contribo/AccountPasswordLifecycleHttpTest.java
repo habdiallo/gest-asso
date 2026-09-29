@@ -133,6 +133,32 @@ class AccountPasswordLifecycleHttpTest extends RsaIntegrationTestSupport {
     }
 
     @Test
+    void normalSessionMustProvideTheCurrentPasswordBeforeChangingIt() throws Exception {
+        String administratorToken = tokenService.issue(ADMIN_USER_ID);
+
+        mockMvc.perform(post("/auth/password/change")
+                        .header("Authorization", bearer(administratorToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"newPassword\":\"Changed-Password-123!\"}"))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/auth/password/change")
+                        .header("Authorization", bearer(administratorToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"Wrong-Password-123!\","
+                                + "\"newPassword\":\"Changed-Password-123!\"}"))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/auth/password/change")
+                        .header("Authorization", bearer(administratorToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"" + INITIAL_PASSWORD + "\","
+                                + "\"newPassword\":\"Changed-Password-123!\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.user.mustChangePassword").value(false));
+    }
+
+    @Test
     void administratorCanResetCredentialsAndThePreviousTokenIsRevoked() throws Exception {
         String administratorToken = tokenService.issue(ADMIN_USER_ID);
 

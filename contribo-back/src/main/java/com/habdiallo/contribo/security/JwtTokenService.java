@@ -66,6 +66,7 @@ public class JwtTokenService {
                 .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expirationSeconds))
+                .id(UUID.randomUUID().toString())
                 .claim("password_change_only", passwordChangeOnly)
                 .build();
         return encoder.encode(JwtEncoderParameters.from(

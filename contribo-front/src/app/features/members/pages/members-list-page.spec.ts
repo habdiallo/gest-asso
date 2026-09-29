@@ -1016,6 +1016,35 @@ describe('MembersListPage', () => {
     expect(root.textContent).toContain('Copié');
   });
 
+  it('hides temporary credentials after dismissal and explains how to regenerate them', async () => {
+    const credentials: TemporaryCredentials = {
+      identifier: 'member-mariama',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const creation: MemberCreationResponse = {
+      member: buildMemberDetails({ displayName: 'Mariama Barry' }),
+      credentials,
+    };
+    const fixture = await createFixture(() => of(buildMemberPage()), {
+      createMember: vi.fn(() => of(creation)),
+    });
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.componentInstance.handleCreateMember({
+      firstName: 'Mariama',
+      lastName: 'Barry',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"] button')).toBeTruthy();
+    fixture.componentInstance.dismissCreatedConfirmation();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Temporaire-1234!');
+    expect(fixture.nativeElement.textContent).toContain('Administrateur peut le régénérer');
+  });
+
   it('clears the creation confirmation when reopening the dialog', async () => {
     const listMembers = vi.fn(() => of(buildMemberPage()));
     const createMember = vi.fn((request: CreateMemberRequest) =>

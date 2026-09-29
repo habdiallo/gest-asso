@@ -574,6 +574,8 @@
   "members.create.copy": "Copier",
   "members.create.copied": "Copié",
   "members.create.firstSessionInstruction": "Ce mot de passe est valable pour la première session. Le membre devra en choisir un nouveau dès sa première connexion.",
+  "members.create.dismiss": "Fermer",
+  "members.create.dismissed": "Le mot de passe temporaire n'est plus affiché. Un Administrateur peut le régénérer si nécessaire.",
   "members.create.submit": "Enregistrer",
   "members.create.submitting": "Enregistrement…",
   "members.create.cancel": "Annuler",

@@ -67,7 +67,20 @@
         </div>
       </dl>
       <p>{{ 'members.create.firstSessionInstruction' | transloco }}</p>
+      <button
+        type="button"
+        class="justify-self-start rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-surface"
+        (click)="dismissCreatedConfirmation()"
+      >
+        {{ 'members.create.dismiss' | transloco }}
+      </button>
     </section>
+  }
+
+  @if (confirmationDismissed()) {
+    <p class="mt-4 rounded-card bg-surface-2 px-4 py-3 text-sm text-text-2" role="status">
+      {{ 'members.create.dismissed' | transloco }}
+    </p>
   }
 
   <div
