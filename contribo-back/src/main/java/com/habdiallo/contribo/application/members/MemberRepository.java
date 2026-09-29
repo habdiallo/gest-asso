@@ -23,7 +23,7 @@ public interface MemberRepository {
 
     UUID create(UUID associationId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction,
-            String identifier, String passwordHash);
+            String identifier, String passwordHash, boolean mustChangePassword);
 
     void update(UUID associationId, UUID memberId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction);

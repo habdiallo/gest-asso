@@ -14,6 +14,10 @@ export function roleGuard(...allowedRoles: UserRole[]): CanMatchFn {
       return router.createUrlTree(['/login']);
     }
 
+    if (session.mustChangePassword()) {
+      return router.createUrlTree(['/changer-mot-de-passe']);
+    }
+
     if (!allowedRoles.includes(user.role)) {
       return router.createUrlTree(['/acces-refuse']);
     }

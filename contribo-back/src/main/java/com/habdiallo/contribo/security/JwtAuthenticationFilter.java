@@ -55,15 +55,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (revokedTokenRegistry.isRevoked(token)) {
                     throw new InvalidTokenException(new IllegalArgumentException("Revoked token"));
                 }
-                UUID userId = tokenService.parseUserId(token);
+                JwtTokenService.ParsedToken parsedToken = tokenService.parse(token);
+                UUID userId = parsedToken.userId();
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                revokedTokenRegistry.register(userId, token, tokenService.parseExpiration(token));
+                if (parsedToken.passwordChangeOnly() && !isAllowedDuringPasswordChange(request)) {
+                    SecurityContextHolder.clearContext();
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write(
+                            "{\"code\":\"PASSWORD_CHANGE_REQUIRED\",\"message\":\"Le mot de passe doit être changé avant cette action.\"}");
+                    return;
+                }
             } catch (InvalidTokenException ignored) {
                 SecurityContextHolder.clearContext();
                 auditLogger.invalidToken(clientAddressResolver.resolve(request));
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isAllowedDuringPasswordChange(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return "/auth/password/change".equals(path)
+                || "/auth/logout".equals(path)
+                || "/auth/csrf".equals(path)
+                || "/me".equals(path);
     }
 }

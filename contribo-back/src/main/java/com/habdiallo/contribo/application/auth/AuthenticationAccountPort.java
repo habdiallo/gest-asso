@@ -8,4 +8,6 @@ public interface AuthenticationAccountPort {
     Optional<AuthenticatedAccount> findByIdentifier(String identifier);
 
     Optional<AuthenticatedAccount> findById(UUID userId);
+
+    boolean updatePassword(UUID userId, String passwordHash);
 }

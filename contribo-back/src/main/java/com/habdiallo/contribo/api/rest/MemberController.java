@@ -11,6 +11,7 @@ import com.habdiallo.contribo.api.generated.model.CreateMemberRequest;
 import com.habdiallo.contribo.api.generated.model.DuePage;
 import com.habdiallo.contribo.api.generated.model.DueStatus;
 import com.habdiallo.contribo.api.generated.model.MemberDetails;
+import com.habdiallo.contribo.api.generated.model.MemberCreationResponse;
 import com.habdiallo.contribo.api.generated.model.MemberPage;
 import com.habdiallo.contribo.api.generated.model.MemberStatus;
 import com.habdiallo.contribo.api.generated.model.UpdateMemberContactRequest;
@@ -28,7 +29,7 @@ public class MemberController implements MembresApi {
     }
 
     @Override
-    public ResponseEntity<MemberDetails> createMember(CreateMemberRequest request) {
+    public ResponseEntity<MemberCreationResponse> createMember(CreateMemberRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(memberService.create(CurrentUserId.get(), request));
     }

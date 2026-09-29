@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { UserRole, UtilisateursEtRlesService } from '@api';
-import type { UserAccount, UserAccountPage } from '@api';
+import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { Subject, of, throwError } from 'rxjs';
@@ -53,6 +53,9 @@ async function createFixture(
   updateUserAccess?: (
     ...args: Parameters<UtilisateursEtRlesService['updateUserAccess']>
   ) => ReturnType<UtilisateursEtRlesService['updateUserAccess']>,
+  resetUserCredentials?: (
+    ...args: Parameters<UtilisateursEtRlesService['resetUserCredentials']>
+  ) => ReturnType<UtilisateursEtRlesService['resetUserCredentials']>,
 ): Promise<ComponentFixture<RolesUsersPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -67,7 +70,7 @@ async function createFixture(
       provideTranslocoMessageformat({ locales: 'fr' }),
       {
         provide: UtilisateursEtRlesService,
-        useValue: { listUsers, updateUserAccess } as unknown as UtilisateursEtRlesService,
+        useValue: { listUsers, updateUserAccess, resetUserCredentials } as unknown as UtilisateursEtRlesService,
       },
     ],
   }).compileComponents();
@@ -142,6 +145,35 @@ describe('RolesUsersPage', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Inactif');
     expect(fixture.nativeElement.querySelector('.bg-surface-2')).not.toBeNull();
+  });
+
+  it('regenerates and displays a temporary password for the selected account', async () => {
+    const account = buildAccount();
+    const credentials: TemporaryCredentials = {
+      identifier: 'awa.camara',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const resetUserCredentials = vi.fn(() => of(credentials) as never);
+    const fixture = await createFixture(
+      () => of(buildPage([account])) as never,
+      undefined,
+      resetUserCredentials,
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    (root.querySelector('button[aria-label*="Awa Camara"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const resetButton = Array.from(root.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Régénérer le mot de passe'),
+    ) as HTMLButtonElement;
+    resetButton.click();
+    fixture.detectChanges();
+
+    expect(resetUserCredentials).toHaveBeenCalledWith(account.id);
+    expect(root.textContent).toContain('Temporaire-1234!');
+    expect(root.textContent).toContain('Transmettez-le au membre');
   });
 
   it('renders the compact toolbar and the structured role dialog', async () => {

@@ -10,6 +10,7 @@ import com.habdiallo.contribo.api.generated.model.UpdateUserAccessRequest;
 import com.habdiallo.contribo.api.generated.model.UserAccount;
 import com.habdiallo.contribo.api.generated.model.UserAccountPage;
 import com.habdiallo.contribo.api.generated.model.UserRole;
+import com.habdiallo.contribo.api.generated.model.TemporaryCredentials;
 import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.application.users.UserAccountService;
 
@@ -39,5 +40,11 @@ public class UserAccountController implements UtilisateursEtRlesApi {
             UUID userId, UpdateUserAccessRequest request) {
         return ResponseEntity.ok(
                 userAccountService.updateAccess(CurrentUserId.get(), userId, request));
+    }
+
+    @Override
+    public ResponseEntity<TemporaryCredentials> resetUserCredentials(UUID userId) {
+        return ResponseEntity.ok(
+                userAccountService.resetCredentials(CurrentUserId.get(), userId));
     }
 }

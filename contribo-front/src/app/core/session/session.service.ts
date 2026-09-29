@@ -9,6 +9,7 @@ export class SessionService {
   readonly user = signal<CurrentUser | null>(null);
 
   readonly isAuthenticated = computed(() => this.user() !== null);
+  readonly mustChangePassword = computed(() => this.user()?.mustChangePassword === true);
   readonly canRecordPayments = computed(() => canUserRecordPayments(this.user()));
 
   setSession(response: LoginResponse): void {

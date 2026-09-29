@@ -21,6 +21,7 @@ public record MemberRecord(
         String accountRole,
         boolean operatorCanRecordPayments,
         boolean accountActive,
+        boolean mustChangePassword,
         long totalDueAmount,
         long totalPaidAmount,
         OffsetDateTime updatedAt) {

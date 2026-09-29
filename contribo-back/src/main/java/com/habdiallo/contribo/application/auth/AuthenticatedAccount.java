@@ -21,5 +21,6 @@ public record AuthenticatedAccount(
         UUID incomeCategoryId,
         String incomeCategoryLabel,
         String role,
-        boolean operatorCanRecordPayments) {
+        boolean operatorCanRecordPayments,
+        boolean mustChangePassword) {
 }

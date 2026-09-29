@@ -15,4 +15,6 @@ public interface UserAccountRepository {
     Optional<UserAccountRecord> findById(UUID associationId, UUID userId);
 
     boolean updateAccess(UUID associationId, UUID userId, String role, boolean operatorCanRecordPayments);
+
+    boolean updateCredentials(UUID associationId, UUID userId, String passwordHash);
 }

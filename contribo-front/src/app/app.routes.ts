@@ -1,13 +1,24 @@
 import { inject } from '@angular/core';
 import type { RedirectFunction, Routes } from '@angular/router';
 import { UserRole } from '@api';
-import { authenticatedMatch } from '@core/session/authenticated.guard';
+import {
+  activeSessionMatch,
+  authenticatedMatch,
+  passwordChangeMatch,
+} from '@core/session/authenticated.guard';
 import { roleGuard } from '@core/session/role.guard';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 
-const sessionEntryRedirect: RedirectFunction = () =>
-  inject(SessionService).isAuthenticated() ? NAVIGATION_PATHS.dashboard.slice(1) : 'login';
+const sessionEntryRedirect: RedirectFunction = () => {
+  const session = inject(SessionService);
+  if (!session.isAuthenticated()) {
+    return 'login';
+  }
+  return session.mustChangePassword()
+    ? NAVIGATION_PATHS.passwordChange.slice(1)
+    : NAVIGATION_PATHS.dashboard.slice(1);
+};
 
 export const routes: Routes = [
   {
@@ -20,9 +31,15 @@ export const routes: Routes = [
   },
   {
     path: NAVIGATION_PATHS.dashboard.slice(1),
-    canMatch: [authenticatedMatch],
+    canMatch: [activeSessionMatch],
     loadChildren: () =>
       import('@features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+  },
+  {
+    path: NAVIGATION_PATHS.passwordChange.slice(1),
+    canMatch: [passwordChangeMatch],
+    loadComponent: () =>
+      import('@features/auth/pages/change-password-page').then((m) => m.ChangePasswordPage),
   },
   {
     // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
@@ -30,7 +47,7 @@ export const routes: Routes = [
     // est répétée dans `income-categories.routes.ts` pour couvrir l'écran de
     // façon transverse, indépendamment de sa composition (RG-ROLE-002, T-49).
     path: NAVIGATION_PATHS.incomeCategories.slice(1),
-    canMatch: [authenticatedMatch, roleGuard('ADMINISTRATOR')],
+    canMatch: [activeSessionMatch, roleGuard('ADMINISTRATOR')],
     loadChildren: () =>
       import('@features/income-categories/income-categories.routes').then(
         (m) => m.INCOME_CATEGORIES_ROUTES,
