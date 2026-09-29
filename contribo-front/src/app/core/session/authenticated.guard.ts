@@ -10,3 +10,13 @@ import { SessionService } from './session.service';
  * rôle applicatif.
  */
 export const authenticatedMatch: CanMatchFn = () => inject(SessionService).isAuthenticated();
+
+export const activeSessionMatch: CanMatchFn = () => {
+  const session = inject(SessionService);
+  return session.isAuthenticated() && !session.mustChangePassword();
+};
+
+export const passwordChangeMatch: CanMatchFn = () => {
+  const session = inject(SessionService);
+  return session.isAuthenticated() && session.mustChangePassword();
+};

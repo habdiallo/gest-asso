@@ -56,7 +56,11 @@ export class LoginPage {
       next: (response) => {
         this.submitting.set(false);
         this.sessionService.setSession(response);
-        void this.router.navigateByUrl(NAVIGATION_PATHS.dashboard);
+        void this.router.navigateByUrl(
+          response.user.mustChangePassword
+            ? NAVIGATION_PATHS.passwordChange
+            : NAVIGATION_PATHS.dashboard,
+        );
       },
       error: () => {
         this.submitting.set(false);

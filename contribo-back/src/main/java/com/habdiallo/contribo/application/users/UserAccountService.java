@@ -10,23 +10,37 @@ import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.PageMetadata;
 import com.habdiallo.contribo.api.generated.model.PersonSummary;
 import com.habdiallo.contribo.api.generated.model.UpdateUserAccessRequest;
+import com.habdiallo.contribo.api.generated.model.TemporaryCredentials;
 import com.habdiallo.contribo.api.generated.model.UserAccount;
 import com.habdiallo.contribo.api.generated.model.UserAccountPage;
 import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.application.access.AuthorizationService;
 import com.habdiallo.contribo.application.access.BusinessConflictException;
 import com.habdiallo.contribo.application.access.ResourceNotFoundException;
+import com.habdiallo.contribo.application.auth.TemporaryPasswordGenerator;
+import com.habdiallo.contribo.security.RevokedTokenRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserAccountService {
 
     private final UserAccountRepository repository;
     private final AuthorizationService authorizationService;
+    private final PasswordEncoder passwordEncoder;
+    private final TemporaryPasswordGenerator temporaryPasswordGenerator;
+    private final RevokedTokenRegistry revokedTokenRegistry;
 
     public UserAccountService(
-            UserAccountRepository repository, AuthorizationService authorizationService) {
+            UserAccountRepository repository,
+            AuthorizationService authorizationService,
+            PasswordEncoder passwordEncoder,
+            TemporaryPasswordGenerator temporaryPasswordGenerator,
+            RevokedTokenRegistry revokedTokenRegistry) {
         this.repository = repository;
         this.authorizationService = authorizationService;
+        this.passwordEncoder = passwordEncoder;
+        this.temporaryPasswordGenerator = temporaryPasswordGenerator;
+        this.revokedTokenRegistry = revokedTokenRegistry;
     }
 
     public UserAccountPage list(UUID actorId, Integer page, Integer size, String query, UserRole role) {
@@ -69,12 +83,27 @@ public class UserAccountService {
         return get(actorId, userId);
     }
 
+    @Transactional
+    public TemporaryCredentials resetCredentials(UUID actorId, UUID userId) {
+        var actor = authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR);
+        UserAccountRecord account = repository.findById(actor.associationId(), userId)
+                .orElseThrow(ResourceNotFoundException::new);
+        String temporaryPassword = temporaryPasswordGenerator.generate();
+        if (!repository.updateCredentials(
+                actor.associationId(), userId, passwordEncoder.encode(temporaryPassword))) {
+            throw new ResourceNotFoundException();
+        }
+        revokedTokenRegistry.revokeUser(userId);
+        return new TemporaryCredentials(account.identifier(), temporaryPassword);
+    }
+
     private UserAccount toModel(UserAccountRecord account) {
         return new UserAccount(
                 account.id(),
                 UserRole.fromValue(account.role()),
                 account.operatorCanRecordPayments(),
                 account.active(),
-                new PersonSummary(account.memberId(), account.firstName() + " " + account.lastName()));
+                new PersonSummary(account.memberId(), account.firstName() + " " + account.lastName()))
+                .mustChangePassword(account.mustChangePassword());
     }
 }

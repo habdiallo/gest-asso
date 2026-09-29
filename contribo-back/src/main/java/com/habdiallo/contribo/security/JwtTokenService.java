@@ -57,11 +57,16 @@ public class JwtTokenService {
     }
 
     public String issue(UUID userId) {
+        return issue(userId, false);
+    }
+
+    public String issue(UUID userId, boolean passwordChangeOnly) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expirationSeconds))
+                .claim("password_change_only", passwordChangeOnly)
                 .build();
         return encoder.encode(JwtEncoderParameters.from(
                 org.springframework.security.oauth2.jwt.JwsHeader.with(SignatureAlgorithm.RS256).build(),
@@ -69,8 +74,19 @@ public class JwtTokenService {
     }
 
     public UUID parseUserId(String token) {
+        return parse(token).userId();
+    }
+
+    public boolean parsePasswordChangeOnly(String token) {
+        return parse(token).passwordChangeOnly();
+    }
+
+    public ParsedToken parse(String token) {
         try {
-            return UUID.fromString(decoder.decode(token).getSubject());
+            var jwt = decoder.decode(token);
+            return new ParsedToken(
+                    UUID.fromString(jwt.getSubject()),
+                    Boolean.TRUE.equals(jwt.getClaim("password_change_only")));
         } catch (JwtException | IllegalArgumentException exception) {
             throw new InvalidTokenException(exception);
         }
@@ -92,5 +108,8 @@ public class JwtTokenService {
         if (expirationSeconds < 1 || expirationSeconds > MAX_EXPIRATION_SECONDS) {
             throw new IllegalArgumentException("JWT expiration must be between 1 and 900 seconds");
         }
+    }
+
+    public record ParsedToken(UUID userId, boolean passwordChangeOnly) {
     }
 }

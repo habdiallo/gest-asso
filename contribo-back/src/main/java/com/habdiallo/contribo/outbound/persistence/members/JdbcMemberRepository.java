@@ -24,6 +24,7 @@ public class JdbcMemberRepository implements MemberRepository {
                    m.association_function, m.status, m.updated_at,
                    ua.id AS account_id, ua.role AS account_role,
                    ua.operator_can_record_payments, ua.active AS account_active,
+                   ua.must_change_password,
                    COALESCE((SELECT SUM(d.due_amount) FROM dues d WHERE d.member_id = m.id), 0)
                        AS total_due_amount,
                    COALESCE((SELECT SUM(p.amount) FROM payments p
@@ -100,7 +101,7 @@ public class JdbcMemberRepository implements MemberRepository {
     @Override
     public UUID create(UUID associationId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction,
-            String identifier, String passwordHash) {
+            String identifier, String passwordHash, boolean mustChangePassword) {
         UUID memberId = UUID.randomUUID();
         jdbcTemplate.update("""
                 INSERT INTO members (id, association_id, first_name, last_name, preferred_name,
@@ -111,10 +112,10 @@ public class JdbcMemberRepository implements MemberRepository {
                 incomeCategoryId, associationFunction);
         jdbcTemplate.update("""
                 INSERT INTO user_accounts (id, association_id, member_id, identifier, password_hash,
-                    role, operator_can_record_payments, active)
-                VALUES (?, ?, ?, ?, ?, 'MEMBER', FALSE, TRUE)
+                    role, operator_can_record_payments, active, must_change_password)
+                VALUES (?, ?, ?, ?, ?, 'MEMBER', FALSE, TRUE, ?)
                 """,
-                UUID.randomUUID(), associationId, memberId, identifier, passwordHash);
+                UUID.randomUUID(), associationId, memberId, identifier, passwordHash, mustChangePassword);
         return memberId;
     }
 
@@ -192,6 +193,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 resultSet.getString("account_role"),
                 resultSet.getBoolean("operator_can_record_payments"),
                 resultSet.getBoolean("account_active"),
+                resultSet.getBoolean("must_change_password"),
                 resultSet.getLong("total_due_amount"),
                 resultSet.getLong("total_paid_amount"),
                 DbTime.offsetDateTime(resultSet, "updated_at"));

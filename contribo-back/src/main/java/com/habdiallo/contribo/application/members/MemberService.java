@@ -14,6 +14,7 @@ import com.habdiallo.contribo.api.generated.model.FieldError;
 import com.habdiallo.contribo.api.generated.model.IncomeCategorySummary;
 import com.habdiallo.contribo.api.generated.model.MemberCountSummary;
 import com.habdiallo.contribo.api.generated.model.MemberDetails;
+import com.habdiallo.contribo.api.generated.model.MemberCreationResponse;
 import com.habdiallo.contribo.api.generated.model.MemberFinancialSummary;
 import com.habdiallo.contribo.api.generated.model.MemberPage;
 import com.habdiallo.contribo.api.generated.model.MemberStatus;
@@ -28,6 +29,8 @@ import com.habdiallo.contribo.api.generated.model.CreateMemberRequest;
 import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.UserAccountSummary;
 import com.habdiallo.contribo.api.generated.model.UserRole;
+import com.habdiallo.contribo.api.generated.model.TemporaryCredentials;
+import com.habdiallo.contribo.application.auth.TemporaryPasswordGenerator;
 
 @Service
 public class MemberService {
@@ -36,16 +39,19 @@ public class MemberService {
     private final MemberDuesRepository memberDuesRepository;
     private final AuthorizationService authorizationService;
     private final PasswordEncoder passwordEncoder;
+    private final TemporaryPasswordGenerator temporaryPasswordGenerator;
 
     public MemberService(
             MemberRepository memberRepository,
             MemberDuesRepository memberDuesRepository,
             AuthorizationService authorizationService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            TemporaryPasswordGenerator temporaryPasswordGenerator) {
         this.memberRepository = memberRepository;
         this.memberDuesRepository = memberDuesRepository;
         this.authorizationService = authorizationService;
         this.passwordEncoder = passwordEncoder;
+        this.temporaryPasswordGenerator = temporaryPasswordGenerator;
     }
 
     public MemberPage list(
@@ -86,7 +92,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDetails create(UUID actorId, CreateMemberRequest request) {
+    public MemberCreationResponse create(UUID actorId, CreateMemberRequest request) {
         var actor = authorizationService.requireRole(
                 actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER);
         if (!memberRepository.incomeCategoryExists(actor.associationId(), request.getIncomeCategoryId())) {
@@ -99,7 +105,8 @@ public class MemberService {
         String identifier = request.getPhone() == null || request.getPhone().isBlank()
                 ? "member-" + UUID.randomUUID()
                 : request.getPhone();
-        String passwordHash = passwordEncoder.encode(UUID.randomUUID().toString());
+        String temporaryPassword = temporaryPasswordGenerator.generate();
+        String passwordHash = passwordEncoder.encode(temporaryPassword);
         UUID memberId = memberRepository.create(
                 actor.associationId(),
                 request.getFirstName(),
@@ -111,8 +118,11 @@ public class MemberService {
                 request.getIncomeCategoryId(),
                 request.getAssociationFunction(),
                 identifier,
-                passwordHash);
-        return toDetails(find(actor.associationId(), memberId));
+                passwordHash,
+                true);
+        return new MemberCreationResponse(
+                toDetails(find(actor.associationId(), memberId)),
+                new TemporaryCredentials(identifier, temporaryPassword));
     }
 
     @Transactional
@@ -218,7 +228,8 @@ public class MemberService {
                 member.accountId(),
                 UserRole.fromValue(member.accountRole()),
                 member.operatorCanRecordPayments(),
-                member.accountActive());
+                member.accountActive())
+                .mustChangePassword(member.mustChangePassword());
         long remaining = Math.max(0L, member.totalDueAmount() - member.totalPaidAmount());
         MemberFinancialSummary financialSummary = new MemberFinancialSummary(
                 member.totalDueAmount(), member.totalPaidAmount(), remaining,

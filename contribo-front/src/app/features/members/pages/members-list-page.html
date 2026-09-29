@@ -41,12 +41,33 @@
   }
 
   @if (createdConfirmation(); as confirmation) {
-    <p class="mt-4 rounded-card bg-success-wash px-4 py-3 text-sm text-success" role="status">
-      {{
-        'members.create.success'
-          | transloco: { name: confirmation.name, status: confirmation.statusLabel }
-      }}
-    </p>
+    <section class="mt-4 grid gap-3 rounded-card bg-success-wash px-4 py-4 text-sm text-success" role="status">
+      <p>
+        {{
+          'members.create.success'
+            | transloco: { name: confirmation.name, status: confirmation.statusLabel }
+        }}
+      </p>
+      <p>{{ 'members.create.credentialsInstruction' | transloco }}</p>
+      <dl class="grid gap-2 text-text">
+        <div class="flex flex-wrap items-center gap-2">
+          <dt class="font-medium">{{ 'members.create.identifier' | transloco }}</dt>
+          <dd><code>{{ confirmation.credentials.identifier }}</code></dd>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <dt class="font-medium">{{ 'members.create.temporaryPassword' | transloco }}</dt>
+          <dd><code>{{ confirmation.credentials.temporaryPassword }}</code></dd>
+          <button
+            type="button"
+            class="rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-surface"
+            (click)="copyTemporaryPassword()"
+          >
+            {{ (confirmation.copied ? 'members.create.copied' : 'members.create.copy') | transloco }}
+          </button>
+        </div>
+      </dl>
+      <p>{{ 'members.create.firstSessionInstruction' | transloco }}</p>
+    </section>
   }
 
   <div

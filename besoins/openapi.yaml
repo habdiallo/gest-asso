@@ -73,6 +73,36 @@ paths:
         '204':
           description: Token CSRF initialisé dans un cookie.
 
+  /auth/password/change:
+    post:
+      tags: [Authentification]
+      summary: Changer le mot de passe obligatoire
+      description: |
+        Remplace le mot de passe temporaire ou le mot de passe imposé à la première session.
+        La session courante reste limitée tant que cette opération n'a pas réussi.
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Mot de passe changé et session normale ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /auth/logout:
     post:
       tags: [Authentification]
@@ -219,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemberDetails'
+                $ref: '#/components/schemas/MemberCreationResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -595,6 +625,30 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{userId}/credentials/reset:
+    post:
+      tags: [Utilisateurs et rôles]
+      summary: Régénérer le mot de passe temporaire
+      description: Réservé aux Administrateurs. Le secret retourné ne doit être affiché qu'une seule fois.
+      operationId: resetUserCredentials
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Nouveau secret temporaire généré.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryCredentials'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1432,6 +1486,44 @@ components:
           example: 900
         user:
           $ref: '#/components/schemas/CurrentUser'
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [newPassword]
+      properties:
+        newPassword:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+          writeOnly: true
+          description: Nouveau mot de passe, entre 12 et 128 caractères.
+    TemporaryCredentials:
+      type: object
+      additionalProperties: false
+      required: [identifier, temporaryPassword]
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          maxLength: 150
+          readOnly: true
+        temporaryPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          readOnly: true
+          description: Secret temporaire retourné une seule fois.
+    MemberCreationResponse:
+      type: object
+      additionalProperties: false
+      required: [member, credentials]
+      properties:
+        member:
+          $ref: '#/components/schemas/MemberDetails'
+        credentials:
+          $ref: '#/components/schemas/TemporaryCredentials'
 
     UserRole:
       type: string
@@ -1493,6 +1585,11 @@ components:
         accountActive:
           type: boolean
           readOnly: true
+          example: true
+        mustChangePassword:
+          type: boolean
+          readOnly: true
+          description: Indique qu'un changement de mot de passe est obligatoire avant les autres opérations.
           example: true
 
     DashboardResponse:
@@ -2002,6 +2099,9 @@ components:
           type: boolean
           description: Doit valoir false si le rôle n'est pas OPERATOR.
         active:
+          type: boolean
+          readOnly: true
+        mustChangePassword:
           type: boolean
           readOnly: true
     UserAccount:
@@ -2750,6 +2850,7 @@ components:
         - DATE_RANGE_INVALID
         - AUTHENTICATION_REQUIRED
         - INVALID_CREDENTIALS
+        - PASSWORD_CHANGE_REQUIRED
         - RATE_LIMITED
         - ACCESS_DENIED
         - RESOURCE_NOT_FOUND

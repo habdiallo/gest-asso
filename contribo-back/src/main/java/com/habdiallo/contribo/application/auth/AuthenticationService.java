@@ -3,6 +3,7 @@ package com.habdiallo.contribo.application.auth;
 import java.util.UUID;
 
 import com.habdiallo.contribo.api.generated.model.AssociationSummary;
+import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.CurrentUser;
 import com.habdiallo.contribo.api.generated.model.CurrencyCode;
 import com.habdiallo.contribo.api.generated.model.IncomeCategorySummary;
@@ -13,6 +14,7 @@ import com.habdiallo.contribo.api.generated.model.MemberSummary;
 import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.security.JwtTokenService;
 import com.habdiallo.contribo.security.SecurityAuditLogger;
+import com.habdiallo.contribo.application.access.BusinessConflictException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,7 +49,7 @@ public class AuthenticationService {
             auditLogger.loginFailure(request.getIdentifier(), clientAddress);
             throw new InvalidCredentialsException();
         }
-        String token = tokenService.issue(account.userId());
+        String token = tokenService.issue(account.userId(), account.mustChangePassword());
         auditLogger.loginSuccess(request.getIdentifier(), clientAddress, account.userId().toString());
         return new AuthenticatedSession(
                 token,
@@ -61,6 +63,29 @@ public class AuthenticationService {
                 .filter(AuthenticatedAccount::active)
                 .orElseThrow(InvalidCredentialsException::new);
         return toCurrentUser(account);
+    }
+
+    public AuthenticatedSession changePassword(UUID userId, String newPassword) {
+        if (newPassword == null || newPassword.length() < 12 || newPassword.length() > 128) {
+            throw new BusinessConflictException(
+                    ErrorCode.VALIDATION_ERROR,
+                    "Le mot de passe doit contenir entre 12 et 128 caractères.");
+        }
+        AuthenticatedAccount account = repository.findById(userId)
+                .filter(AuthenticatedAccount::active)
+                .orElseThrow(InvalidCredentialsException::new);
+        if (!repository.updatePassword(userId, passwordEncoder.encode(newPassword))) {
+            throw new InvalidCredentialsException();
+        }
+        AuthenticatedAccount updated = repository.findById(userId)
+                .filter(AuthenticatedAccount::active)
+                .orElseThrow(InvalidCredentialsException::new);
+        String token = tokenService.issue(userId, false);
+        return new AuthenticatedSession(
+                token,
+                new LoginResponse()
+                        .expiresIn(tokenService.expirationSeconds())
+                        .user(toCurrentUser(updated)));
     }
 
     private CurrentUser toCurrentUser(AuthenticatedAccount account) {
@@ -89,7 +114,8 @@ public class AuthenticationService {
                 member,
                 role,
                 role == UserRole.OPERATOR && account.operatorCanRecordPayments(),
-                account.active());
+                account.active())
+                .mustChangePassword(account.mustChangePassword());
     }
 
     private String displayName(AuthenticatedAccount account) {

@@ -14,10 +14,16 @@ export const sessionExpiredInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: unknown) => {
       const isAuthenticationError = error instanceof HttpErrorResponse && error.status === 401;
+      const requiresPasswordChange =
+        error instanceof HttpErrorResponse &&
+        error.status === 403 &&
+        error.error?.code === 'PASSWORD_CHANGE_REQUIRED';
 
       if (isAuthenticationError && !req.url.endsWith(LOGIN_REQUEST_PATH)) {
         session.clear();
         void router.navigateByUrl('/login');
+      } else if (requiresPasswordChange) {
+        void router.navigateByUrl('/changer-mot-de-passe');
       }
 
       return throwError(() => error);

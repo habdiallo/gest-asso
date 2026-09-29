@@ -21,9 +21,22 @@ chmod 600 /opt/contribo/secrets/rsa_private.pem
 chmod 644 /opt/contribo/secrets/rsa_public.pem
 ```
 
-Le fichier `db_password` doit être créé au même endroit. Dans Portainer, les
-chemins peuvent être remplacés par `DB_PASSWORD_FILE_PATH`,
-`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH`.
+Le fichier `db_password` doit être créé au même endroit. Pour créer le premier
+administrateur, créer aussi `bootstrap_admin_password` avec au moins 12
+caractères et activer `BOOTSTRAP_ADMIN_ENABLED=true` dans les variables de la
+stack. Le secret est lu dans le conteneur via
+`/run/secrets/bootstrap_admin_password`, puis il n'est jamais réutilisé pour
+réinitialiser un compte existant.
+
+Dans Portainer, les chemins peuvent être remplacés par
+`DB_PASSWORD_FILE_PATH`, `RSA_PUBLIC_KEY_FILE_PATH`,
+`RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
+
+Le bootstrap ne s'exécute que si aucun compte administrateur ni autre compte
+utilisateur n'existe. Il crée l'association, une catégorie de revenu, le
+membre technique et son compte administrateur avec `must_change_password`.
+Après la première connexion, changer le mot de passe. Ensuite, laisser
+`BOOTSTRAP_ADMIN_ENABLED=false` pour les redémarrages normaux.
 
 ## Déployer une candidate en staging
 

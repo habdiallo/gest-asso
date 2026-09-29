@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 
 import com.habdiallo.contribo.api.generated.model.LoginRequest;
 import com.habdiallo.contribo.api.generated.model.LoginResponse;
+import com.habdiallo.contribo.api.generated.model.ChangePasswordRequest;
 import com.habdiallo.contribo.application.auth.AuthenticationService;
+import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.security.ClientAddressResolver;
 import com.habdiallo.contribo.security.LoginRateLimiter;
 import com.habdiallo.contribo.security.RateLimitExceededException;
@@ -75,6 +77,18 @@ public class AuthenticationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/auth/password/change")
+    public ResponseEntity<LoginResponse> changePassword(
+            @Valid @RequestBody ChangePasswordRequest changePasswordRequest,
+            HttpServletRequest request) {
+        AuthenticationService.AuthenticatedSession session = authenticationService.changePassword(
+                CurrentUserId.get(), changePasswordRequest.getNewPassword());
+        revokeCurrentToken(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, sessionCookieService.issue(session.token()))
+                .body(session.response());
+    }
+
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String token = sessionCookieService.readSession(request);
@@ -84,5 +98,18 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .header(HttpHeaders.SET_COOKIE, sessionCookieService.clear())
                 .build();
+    }
+
+    private void revokeCurrentToken(HttpServletRequest request) {
+        String token = sessionCookieService.readSession(request);
+        if (token == null) {
+            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                token = authorization.substring(7);
+            }
+        }
+        if (token != null) {
+            revokedTokenRegistry.revoke(token, tokenService.parseExpiration(token));
+        }
     }
 }

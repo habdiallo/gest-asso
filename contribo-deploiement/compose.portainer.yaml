@@ -10,10 +10,14 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
       RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
       RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_IDENTIFIER: ${BOOTSTRAP_ADMIN_IDENTIFIER:-admin}
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password
     secrets:
       - db_password
       - rsa_public_key
       - rsa_private_key
+      - bootstrap_admin_password
     networks:
       - database-network
       - internal-network
@@ -57,3 +61,5 @@ secrets:
     file: ${RSA_PUBLIC_KEY_FILE_PATH:-/opt/contribo/secrets/rsa_public.pem}
   rsa_private_key:
     file: ${RSA_PRIVATE_KEY_FILE_PATH:-/opt/contribo/secrets/rsa_private.pem}
+  bootstrap_admin_password:
+    file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH:-/opt/contribo/secrets/bootstrap_admin_password}

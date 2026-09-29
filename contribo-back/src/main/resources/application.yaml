@@ -43,3 +43,13 @@ security:
       ip-limit: ${LOGIN_RATE_LIMIT_IP:10}
       identifier-limit: ${LOGIN_RATE_LIMIT_IDENTIFIER:5}
       window-seconds: ${LOGIN_RATE_LIMIT_WINDOW_SECONDS:60}
+
+bootstrap:
+  admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+    identifier: ${BOOTSTRAP_ADMIN_IDENTIFIER:admin}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    password-file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE:}
+    association-name: ${BOOTSTRAP_ASSOCIATION_NAME:Contribo}
+    currency: ${BOOTSTRAP_ASSOCIATION_CURRENCY:GNF}
+    income-category-label: ${BOOTSTRAP_INCOME_CATEGORY_LABEL:Membre}

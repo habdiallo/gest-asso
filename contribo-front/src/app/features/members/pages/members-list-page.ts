@@ -10,7 +10,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MembresService, MemberStatus } from '@api';
-import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } from '@api';
+import type {
+  CreateMemberRequest,
+  MemberCreationResponse,
+  MemberDetails,
+  MemberPage,
+  MemberSummary,
+  TemporaryCredentials,
+} from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
@@ -166,7 +173,12 @@ export class MembersListPage {
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
   readonly createError = signal(false);
-  readonly createdConfirmation = signal<{ name: string; statusLabel: string } | null>(null);
+  readonly createdConfirmation = signal<{
+    name: string;
+    statusLabel: string;
+    credentials: TemporaryCredentials;
+    copied: boolean;
+  } | null>(null);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -330,7 +342,11 @@ export class MembersListPage {
       .createMember(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (member: MemberDetails) => {
+        next: (creation: MemberCreationResponse | MemberDetails) => {
+          const member = 'member' in creation ? creation.member : creation;
+          const credentials = 'credentials' in creation
+            ? creation.credentials
+            : { identifier: '', temporaryPassword: '' };
           this.loadPage(0);
           if (session !== this.createDialogSession) {
             return;
@@ -338,6 +354,8 @@ export class MembersListPage {
           this.createdConfirmation.set({
             name: member.displayName,
             statusLabel: memberStatusLabel(member.status),
+            credentials,
+            copied: false,
           });
           this.closeCreateDialog();
         },
@@ -349,6 +367,16 @@ export class MembersListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  copyTemporaryPassword(): void {
+    const confirmation = this.createdConfirmation();
+    if (!confirmation) {
+      return;
+    }
+    void navigator.clipboard.writeText(confirmation.credentials.temporaryPassword).then(() => {
+      this.createdConfirmation.update((current) => current ? { ...current, copied: true } : current);
+    });
   }
 
   /**
