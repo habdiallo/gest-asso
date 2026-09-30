@@ -14,7 +14,7 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  * `due` sélectionnée), Montant, Date et Mode de règlement saisis. Construit la
  * requête `CreatePaymentRequest` (openapi:`createPayment`, `POST
  * /dues/{dueId}/payments`) et l'émet via `submitted` ; n'appelle pas l'API
- * lui-même, l'appel `RglementsService.createPayment(due.id, ...)` et le
+ * lui-même, l'appel `ReglementsService.createPayment(due.id, ...)` et le
  * rafraîchissement de la cotisation affichée restent à la charge du composant
  * appelant (même répartition des responsabilités que `CampaignCreateForm`,
  * T-65, et `SocialFundCreateForm`, T-84).

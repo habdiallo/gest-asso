@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService, ErrorCode } from '@api';
+import { CategoriesDeRevenuService, ErrorCode } from '@api';
 import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -13,7 +13,7 @@ import { IncomeCategoryForm } from '../income-category-form/income-category-form
  * l'Administrateur : un unique champ libellé obligatoire (RG-REV-001), sans
  * champ de montant (RG-REV-002), une catégorie n'ayant pas de montant de
  * cotisation permanent. Appelle `POST /income-categories` (`@api`,
- * `CatgoriesDeRevenuService.createIncomeCategory`).
+ * `CategoriesDeRevenuService.createIncomeCategory`).
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15) ; ce
  * composant porte le formulaire et l'appel API, `FormDialog` reste neutre.
@@ -26,7 +26,7 @@ import { IncomeCategoryForm } from '../income-category-form/income-category-form
 })
 export class CreateIncomeCategoryDialog {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
 
   /** Pilote l'ouverture/fermeture du dialogue. */
   readonly open = input(false);

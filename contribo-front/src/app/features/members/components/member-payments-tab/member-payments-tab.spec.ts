@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { RglementsService, PaymentMethod } from '@api';
+import { ReglementsService, PaymentMethod } from '@api';
 import type { Payment, PaymentPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
@@ -62,7 +62,7 @@ async function createFixture(
     ],
     providers: [
       provideTranslocoMessageformat({ locales: 'fr' }),
-      { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+      { provide: ReglementsService, useValue: { listPayments } as unknown as ReglementsService },
     ],
   }).compileComponents();
 

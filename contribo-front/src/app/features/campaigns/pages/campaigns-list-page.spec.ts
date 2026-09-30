@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import {
   CampagnesService,
   CampaignStatus,
-  CatgoriesDeRevenuService,
+  CategoriesDeRevenuService,
   CurrencyCode,
   MemberStatus,
   UserRole,
@@ -128,8 +128,8 @@ async function createFixture(
         useValue: { listCampaigns, createCampaign } as unknown as CampagnesService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       ...(options.queryParams
         ? [

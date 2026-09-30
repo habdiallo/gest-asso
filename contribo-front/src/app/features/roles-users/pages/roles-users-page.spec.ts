@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { UserRole, UtilisateursEtRlesService } from '@api';
+import { UserRole, UtilisateursEtRolesService } from '@api';
 import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
@@ -49,13 +49,13 @@ function buildPage(
 }
 
 async function createFixture(
-  listUsers: () => ReturnType<UtilisateursEtRlesService['listUsers']>,
+  listUsers: () => ReturnType<UtilisateursEtRolesService['listUsers']>,
   updateUserAccess?: (
-    ...args: Parameters<UtilisateursEtRlesService['updateUserAccess']>
-  ) => ReturnType<UtilisateursEtRlesService['updateUserAccess']>,
+    ...args: Parameters<UtilisateursEtRolesService['updateUserAccess']>
+  ) => ReturnType<UtilisateursEtRolesService['updateUserAccess']>,
   resetUserCredentials?: (
-    ...args: Parameters<UtilisateursEtRlesService['resetUserCredentials']>
-  ) => ReturnType<UtilisateursEtRlesService['resetUserCredentials']>,
+    ...args: Parameters<UtilisateursEtRolesService['resetUserCredentials']>
+  ) => ReturnType<UtilisateursEtRolesService['resetUserCredentials']>,
 ): Promise<ComponentFixture<RolesUsersPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -69,8 +69,8 @@ async function createFixture(
     providers: [
       provideTranslocoMessageformat({ locales: 'fr' }),
       {
-        provide: UtilisateursEtRlesService,
-        useValue: { listUsers, updateUserAccess, resetUserCredentials } as unknown as UtilisateursEtRlesService,
+        provide: UtilisateursEtRolesService,
+        useValue: { listUsers, updateUserAccess, resetUserCredentials } as unknown as UtilisateursEtRolesService,
       },
     ],
   }).compileComponents();

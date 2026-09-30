@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.habdiallo.contribo.api.generated.UtilisateursEtRlesApi;
+import com.habdiallo.contribo.api.generated.UtilisateursEtRolesApi;
 import com.habdiallo.contribo.api.generated.model.UpdateUserAccessRequest;
 import com.habdiallo.contribo.api.generated.model.UserAccount;
 import com.habdiallo.contribo.api.generated.model.UserAccountPage;
@@ -15,7 +15,7 @@ import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.application.users.UserAccountService;
 
 @RestController
-public class UserAccountController implements UtilisateursEtRlesApi {
+public class UserAccountController implements UtilisateursEtRolesApi {
 
     private final UserAccountService userAccountService;
 

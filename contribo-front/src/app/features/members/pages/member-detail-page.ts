@@ -18,7 +18,7 @@ import {
   ErrorCode,
   MemberStatus,
   MembresService,
-  RglementsService,
+  ReglementsService,
   UserRole,
 } from '@api';
 import type {
@@ -84,7 +84,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
  * Action "Enregistrer un règlement" (T-130) : ouvre un modal `Nouveau
  * règlement` qui charge les cotisations ouvertes et non soldées du membre
  * (`listMemberDues`, campagne `OPEN` et statut différent de Payé) pour peupler
- * un sélecteur de campagne, puis délègue à `RglementsService.createPayment(due.id, ...)`,
+ * un sélecteur de campagne, puis délègue à `ReglementsService.createPayment(due.id, ...)`,
  * même appel que `CampaignDuesTab` (T-71). Après succès, le membre est
  * rechargé pour rafraîchir la situation financière affichée (`financialSummary`,
  * non renvoyée par la mutation de règlement) et `dataRefreshToken` est
@@ -121,7 +121,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
 export class MemberDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly membersService = inject(MembresService);
-  private readonly paymentsService = inject(RglementsService);
+  private readonly paymentsService = inject(ReglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly transloco = inject(TranslocoService);

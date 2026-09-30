@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService } from '@api';
+import { CategoriesDeRevenuService } from '@api';
 import type { CreateMemberRequest, IncomeCategory } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -21,7 +21,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 /**
  * Formulaire de création de membre (T-33, US-MEM-001) : Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie de revenu, Fonction. Charge les
- * catégories via `GET /income-categories` (`CatgoriesDeRevenuService`) pour
+ * catégories via `GET /income-categories` (`CategoriesDeRevenuService`) pour
  * peupler le sélecteur.
  *
  * N'appelle pas `POST /members` lui-même : émet `submitted` avec la requête
@@ -41,7 +41,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 })
 export class MemberCreateForm {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly submitting = input(false);
