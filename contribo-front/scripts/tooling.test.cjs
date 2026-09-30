@@ -5,6 +5,22 @@ const { dirname, join, resolve } = require('node:path');
 const { readFileSync, readdirSync } = require('node:fs');
 
 const eslint = new ESLint();
+const importSpecifierPattern = /\b(?:from|import|require)\s*(?:\(\s*)?(['"])([^'"]+)\1/g;
+
+function findDirectApiImports(filePath, source) {
+  if (filePath.endsWith('core/api/index.ts')) {
+    return [];
+  }
+
+  const imports = [...source.matchAll(importSpecifierPattern)].map((match) => match[2]);
+  const hasDirectApiImport = imports.some(
+    (specifier) =>
+      specifier === '@api' ||
+      specifier.startsWith('@api/') ||
+      /(^|\/)generated(?:\/|$)/.test(specifier),
+  );
+  return hasDirectApiImport ? [filePath] : [];
+}
 
 test('le socle refuse une dépendance vers une feature, par alias et chemin relatif', async () => {
   for (const filePath of ['src/app/core/example.ts', 'src/app/shared/example.ts']) {
@@ -64,6 +80,18 @@ test('le code généré reste exclu du lint', async () => {
   );
 });
 
+test('la frontière API détecte un import généré sans sous-chemin', () => {
+  const filePath = 'src/app/features/example.ts';
+  const sources = [
+    "import { UserRole } from '@core/api/generated';",
+    "import { UserRole } from\n  '@core/api/generated';",
+  ];
+
+  for (const source of sources) {
+    assert.deepEqual(findDirectApiImports(filePath, source), [filePath]);
+  }
+});
+
 test('la frontière API est le seul point qui connaît le client généré', () => {
   const sourceRoot = resolve('src');
   const sourceFiles = [];
@@ -81,15 +109,9 @@ test('la frontière API est le seul point qui connaît le client généré', () 
   };
   visit(sourceRoot);
 
-  const directImports = sourceFiles.flatMap((path) => {
-    const source = readFileSync(path, 'utf8');
-    if (path.endsWith('core/api/index.ts')) {
-      return [];
-    }
-    return source.includes("'@api'") || source.includes("'@api/") || source.includes('/generated/')
-      ? [path]
-      : [];
-  });
+  const directImports = sourceFiles.flatMap((path) =>
+    findDirectApiImports(path, readFileSync(path, 'utf8')),
+  );
 
   assert.deepEqual(directImports, []);
 });
