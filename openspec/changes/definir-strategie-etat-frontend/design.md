@@ -16,7 +16,19 @@ Décider et documenter quand un état global est justifié, puis fournir le socl
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-172.
+- L'état reste local ou colocalisé dans `features/<feature>/` par défaut, avec les
+  Signals Angular et des services de feature lorsque plusieurs composants doivent
+  partager une même donnée.
+- `core/` conserve uniquement l'état transversal déjà nécessaire, notamment la
+  session, le thème et la configuration HTTP/API. Un cache métier global n'est pas
+  introduit pour compenser une absence de stratégie d'invalidation.
+- La source de vérité des données serveur reste l'API. Après une mutation, la
+  feature recharge ou invalide explicitement les données concernées.
+- Une promotion vers `core/` nécessite un usage par plusieurs features, une durée
+  de vie transversale et une justification documentée avec ses tests.
+
+Ces choix évitent un store global prématuré tout en laissant un critère explicite
+pour les besoins futurs. Les changements dépendants attendent T-172.
 
 ## Risks / Trade-offs
 
@@ -24,4 +36,15 @@ Implémenter le plus petit découpage cohérent, avec une validation automatisé
 
 ## Migration Plan
 
-Vérifier le ticket, implémenter uniquement son périmètre, exécuter les validations, mettre à jour les tâches, puis préparer une PR vers develop.
+Le changement est documentaire et n'impose pas de migration de données. Les
+features existantes conservent leur état actuel. Lorsqu'une nouvelle feature est
+créée ou qu'un état est déplacé, appliquer la stratégie, ajouter les tests
+colocalisés, puis vérifier la documentation et le build frontend. Le retour
+arrière consiste à retirer la documentation et la décision ajoutées si aucune
+feature ne les référence encore.
+
+## Open Questions
+
+- Aucun store global supplémentaire n'est requis par les features actuelles.
+- Une future synchronisation temps réel devra préciser sa source de vérité et sa
+  politique d'invalidation avant d'être promue dans `core/`.

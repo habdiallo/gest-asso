@@ -85,6 +85,11 @@ Les tests sont colocalisés. Ne pas créer tous les sous-dossiers ni un store/se
 pour une fonctionnalité qui n'existe pas encore. Utiliser les DTO générés ; un
 modèle/mapping local se justifie seulement par un besoin IHM distinct.
 
+La stratégie d'état frontend est documentée dans
+[`docs/state-management.md`](docs/state-management.md). Par défaut, l'état reste
+local ou colocalisé dans sa feature ; `core/` ne reçoit que l'état réellement
+transversal et dispose d'une stratégie d'invalidation explicite.
+
 Les features peuvent utiliser `core`, `shared` et la frontière `core/api`. Elles ne
 s'importent pas directement entre elles. `core` et `shared` ne dépendent jamais
 des features ; ces imports sont interdits par ESLint. Aucun consommateur ne doit
