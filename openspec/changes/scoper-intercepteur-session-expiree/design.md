@@ -11,6 +11,7 @@ Le ticket doit rester frontend et préserver le contrat backend. Il doit aussi c
 - Déclencher l'invalidation globale uniquement pour les appels explicitement identifiés comme une vérification d'authentification ou de session.
 - Laisser les `401` des endpoints métier dans le flux d'erreur de la feature appelante, sans effacer la session ni naviguer globalement.
 - Conserver le comportement de la requête de connexion et la redirection dédiée `PASSWORD_CHANGE_REQUIRED`.
+- Donner au tableau de bord un chemin de reconnexion déclenché par l'utilisateur lorsqu'un `401` est reçu après l'hydratation initiale de la session.
 - Couvrir les deux branches de comportement par des tests d'intercepteur.
 
 **Non-Goals:**
@@ -41,6 +42,7 @@ Les tests resteront dans `contribo-front/src/app/core/session/session-expired.in
 - [Risque] Un nouvel endpoint de vérification de session pourrait être oublié dans la liste explicite. → Documenter la liste et exiger un test lors de l'ajout d'un endpoint d'authentification.
 - [Risque] Un backend peut renvoyer `401` pour une raison différente sur un endpoint de session. → Conserver la responsabilité de la sémantique d'authentification côté contrat et vérifier le code d'erreur dans les tests d'intégration frontend si le contrat l'expose.
 - [Risque] Une feature peut recevoir un `401` sans message global. → Préserver la propagation de l'erreur et laisser la feature décider de son affichage.
+- [Risque] Un `401` du tableau de bord peut laisser l'utilisateur sur une page inutilisable si aucune action n'est proposée. → Le tableau de bord affiche une action de reconnexion, efface l'état local sur activation, puis navigue vers `/login`.
 
 ## Migration Plan
 

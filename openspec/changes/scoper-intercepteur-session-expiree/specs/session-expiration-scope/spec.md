@@ -16,6 +16,13 @@ Le frontend SHALL effacer la session locale et naviguer vers `/login` uniquement
 - **THEN** le frontend ne navigue pas vers `/login` à cause de cet appel
 - **THEN** l'erreur HTTP originale reste propagée à la feature appelante
 
+#### Scenario: Reconnexion explicite depuis le tableau de bord
+- **WHEN** le tableau de bord reçoit un `401` après l'hydratation initiale de la session
+- **THEN** il affiche une action permettant à l'utilisateur de se reconnecter
+- **WHEN** l'utilisateur active cette action
+- **THEN** le frontend efface la session locale
+- **THEN** le frontend navigue vers `/login`
+
 ### Requirement: Requête de connexion exclue de l'expiration de session
 
 Le frontend SHALL traiter une réponse `401` de la requête de connexion comme une erreur d'identifiants, sans effacer une session existante ni provoquer une navigation globale vers `/login` par l'intercepteur d'expiration.
