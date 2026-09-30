@@ -20,4 +20,4 @@
 
 - [x] 4.1 Exécuter les tests frontend ciblés, le build frontend et les validations pertinentes du dépôt. [T-182] (tests et build réussis ; le contrôle Prettier global signale des fichiers préexistants hors périmètre)
 - [x] 4.2 Mettre à jour les cases de ce fichier pour les seules tâches réellement réalisées. [T-182]
-- [ ] 4.3 Préparer une PR de `front/fix-182-scoper-intercepteur-session-expiree` vers `develop` avec le modèle du dépôt, sans pousser ni fusionner sans demande explicite. [T-182]
+- [x] 4.3 Préparer une PR de `front/fix-182-scoper-intercepteur-session-expiree` vers `develop` avec le modèle du dépôt, sans pousser ni fusionner sans demande explicite. [T-182]
