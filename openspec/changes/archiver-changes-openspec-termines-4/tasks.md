@@ -39,5 +39,6 @@ touché.
 - [x] 2.1 [T-161] Committer avec le message `docs(docs): T-161 archiver les
       changes openspec termines`, en ajoutant uniquement les fichiers de ce
       ticket.
-- [ ] 2.2 [T-161] Pousser la branche et ouvrir une PR vers `develop` avec le
+- [x] 2.2 [T-161] Pousser la branche et ouvrir une PR vers `develop` avec le
       modèle du dépôt, seulement si la livraison est explicitement demandée.
+      (PR #169.)
