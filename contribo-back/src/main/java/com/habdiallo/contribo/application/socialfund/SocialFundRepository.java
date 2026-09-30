@@ -18,6 +18,10 @@ public interface SocialFundRepository {
 
     SocialFundData findFund(UUID associationId, UUID fundId);
 
+    java.util.List<SocialFundData> findOpenFunds(UUID associationId);
+
+    SocialFundData findOpenFund(UUID associationId, UUID fundId);
+
     UUID createFund(
             UUID associationId,
             String title,

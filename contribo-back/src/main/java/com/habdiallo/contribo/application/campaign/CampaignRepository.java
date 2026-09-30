@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.habdiallo.contribo.api.generated.model.Campaign;
 import com.habdiallo.contribo.api.generated.model.CampaignPage;
 import com.habdiallo.contribo.api.generated.model.CampaignStatus;
+import com.habdiallo.contribo.api.generated.model.CampaignSummary;
 import com.habdiallo.contribo.api.generated.model.Due;
 import com.habdiallo.contribo.api.generated.model.DueDetails;
 import com.habdiallo.contribo.api.generated.model.DuePage;
@@ -20,6 +21,10 @@ import com.habdiallo.contribo.api.generated.model.PaymentPage;
 public interface CampaignRepository {
 
     CampaignPage findCampaigns(UUID associationId, int page, int size, String query, CampaignStatus status);
+
+    Optional<CampaignSummary> findOpenCampaign(UUID associationId, UUID campaignId);
+
+    CampaignCatalogRepository.CampaignAggregate aggregateOpenCampaigns(UUID associationId);
 
     Campaign createCampaign(
             UUID associationId,
@@ -61,6 +66,8 @@ public interface CampaignRepository {
             String query,
             UUID memberId,
             UUID campaignId);
+
+    PaymentPage findRecentOpenPayments(UUID associationId, UUID campaignId);
 
     record CampaignState(
             UUID id,
