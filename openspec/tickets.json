@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 163,
+  "nextTicketId": 164,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3294,6 +3294,26 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "infra/chore-000-reintegrer-main-develop",
       "branchAfterInitialization": "infra/chore-162-reintegrer-main-develop"
+    },
+    {
+      "id": 163,
+      "title": "Corriger la synchronisation de la spec frontend-shell apres l archivage du cycle de vie des comptes.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "fix",
+      "slug": "synchroniser-spec-frontend-shell",
+      "change": "synchroniser-spec-frontend-shell",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5"
+      ],
+      "dependencies": [158, 161],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/fix-000-synchroniser-spec-frontend-shell",
+      "branchAfterInitialization": "docs/fix-163-synchroniser-spec-frontend-shell"
     }
   ]
 }
