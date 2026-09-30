@@ -13,8 +13,6 @@
 
 - [x] 3.1 [T-166] Régénérer le client Angular (`npm run generate:api`) et confirmer que `catgories-de-revenu`, `rglements`, `utilisateurs-et-rles` sont remplacés par leurs équivalents ASCII dans `src/app/core/api/generated/`.
 - [x] 3.2 [T-166] Rechercher-remplacer les 23 fichiers applicatifs identifiés référençant `CatgoriesDeRevenuService`/`RglementsService`/`UtilisateursEtRlesService` (features `income-categories`, `roles-users`, `campaigns`, `members`, `app.spec.ts`) vers les nouveaux noms de classes.
-- [x] 3.3 [T-166] Compiler et lancer le lint frontend (`ng build`, `npm run lint`) pour confirmer l'absence de référence résiduelle.
-
 ## 4. Validation
 
 - [x] 4.1 [T-166] Exécuter la suite de tests frontend affectée (`npm test`, périmètre income-categories/roles-users/campaigns/members) et la suite backend affectée (contrôleurs renommés).
