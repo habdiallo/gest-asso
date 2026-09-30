@@ -1,0 +1,29 @@
+## ADDED Requirements
+
+### Requirement: Réintégrer une release livrée dans develop
+
+Lorsqu'une branche `release/vX.Y.Z` ou `hotfix/<description>` est fusionnée dans
+`main`, son contenu SHALL être réintégré dans `develop` par une PR dédiée avant
+la prochaine livraison.
+
+#### Scenario: Release fusionnée dans main
+
+- **WHEN** la release `v0.1.0` est présente dans `main` et que `develop` contient
+  des commits ultérieurs
+- **THEN** une PR de réintégration de `main` vers `develop` est ouverte sans
+  écraser les commits propres à `develop`
+
+#### Scenario: Historique réintégré
+
+- **WHEN** la PR de réintégration est fusionnée
+- **THEN** le commit de production de `main` est ancêtre de `develop`
+
+### Requirement: Contrôle du flux
+
+La branche de réintégration SHALL respecter les contrôles de nommage et cibler
+`develop`.
+
+#### Scenario: Branche de ticket vers develop
+
+- **WHEN** `infra/chore-162-reintegrer-main-develop` cible `develop`
+- **THEN** le contrôle `Workflow conventions` réussit
