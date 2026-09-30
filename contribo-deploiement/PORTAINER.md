@@ -61,6 +61,12 @@ Les réseaux externes peuvent être renommés avec `DATABASE_NETWORK` et
 
 ## Source de vérité et synchronisation
 
+Les routes API, le fallback de l'application et les limites de débit sont
+partagés par les configurations Nginx locale et de production via les includes
+`nginx-application-locations.conf` et `nginx-rate-limits.conf`. La configuration
+de production conserve ses différences nécessaires : redirection HTTP vers
+HTTPS, certificats TLS et HSTS.
+
 Le dépôt `habdiallo/gest-asso-deploiement`, branche `main`, est la source de
 vérité consommée par Portainer pour la composition de production. La copie
 `contribo-deploiement/compose.portainer.yaml` de ce dépôt applicatif est un

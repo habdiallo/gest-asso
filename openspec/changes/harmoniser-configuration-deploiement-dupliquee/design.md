@@ -16,7 +16,7 @@ Factoriser Nginx, healthchecks et nommage des variables. Le ticket est isolé po
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-170.
+Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les routes API, le fallback SPA et les limites de débit sont placés dans des includes Nginx communs, stockés hors de `conf.d` afin de ne pas être chargés automatiquement à un mauvais niveau de configuration. Les différences de transport propres à la production restent dans `nginx.conf`.
 
 ## Risks / Trade-offs
 
