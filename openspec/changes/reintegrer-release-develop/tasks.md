@@ -25,4 +25,5 @@ release `v0.1.0`, sans modifier le comportement applicatif.
       origin/main HEAD` réussit ; les différences applicatives sont celles déjà
       présentes sur `develop`, et les changements T-162 sont limités à la
       traçabilité OpenSpec et à l'ascendance Git.)
-- [ ] 1.6 [T-162] Commiter, pousser la branche et ouvrir une PR vers `develop`.
+- [x] 1.6 [T-162] Commiter, pousser la branche et ouvrir une PR vers `develop`.
+      (PR #170 ouverte en brouillon, dépendante de la PR #169.)
