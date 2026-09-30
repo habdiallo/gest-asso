@@ -3,7 +3,6 @@
 ## Purpose
 TBD - created by archiving change frontend-tickets-mvp-association. Update Purpose after archive.
 ## Requirements
-
 ### Requirement: Liste des utilisateurs et de leurs rôles
 Le frontend SHALL afficher, pour l'Administrateur uniquement, la liste des comptes utilisateurs avec leur rôle applicatif courant.
 
@@ -40,3 +39,19 @@ Le frontend SHALL permettre uniquement à l'Administrateur d'activer ou désacti
 #### Scenario: Contrôle non affiché pour les autres rôles
 - **WHEN** un utilisateur consulte un compte de rôle Administrateur, Trésorier ou Membre
 - **THEN** le frontend n'affiche aucun contrôle `peut_enregistrer_paiements`, cet attribut étant propre au rôle Opérateur
+
+### Requirement: Régénération d'un mot de passe temporaire
+Le frontend SHALL permettre uniquement à l'Administrateur de régénérer le mot de passe temporaire d'un compte utilisateur et SHALL afficher le nouveau secret une seule fois dans une confirmation copiable.
+
+#### Scenario: Régénération par un Administrateur
+- **WHEN** un Administrateur demande la régénération d'un compte de son association
+- **THEN** le frontend appelle l'API, affiche l'identifiant et le nouveau mot de passe temporaire, puis rappelle que l'ancien secret est invalide
+
+#### Scenario: Régénération interdite aux autres rôles
+- **WHEN** un Trésorier, Opérateur ou Membre consulte la gestion des utilisateurs
+- **THEN** le frontend ne propose aucune action de régénération de mot de passe
+
+#### Scenario: Copie et fermeture du secret régénéré
+- **WHEN** l'Administrateur copie puis ferme la confirmation
+- **THEN** le frontend affiche l'état de copie et ne conserve pas le mot de passe dans un stockage persistant
+
