@@ -16,7 +16,16 @@ Rendre explicite le rôle distinct du cahier fonctionnel et d OpenAPI. Le ticket
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-164.
+Le cahier métier reste la référence des parcours, acteurs et invariants. Le
+fichier `besoins/openapi.yaml` reste la référence de la forme des échanges HTTP.
+Les specs OpenSpec relient une décision aux deux documents lorsque le besoin a
+un impact d'interface. Aucun client ou modèle généré ne devient une source de
+vérité indépendante.
+
+La documentation de référence sera reliée depuis la racine `besoins/`, le
+frontend et le backend. Elle décrira aussi l'ordre de validation et de génération
+pour que les deux consommateurs utilisent le même contrat et des versions de
+générateur alignées.
 
 ## Risks / Trade-offs
 
@@ -24,4 +33,7 @@ Implémenter le plus petit découpage cohérent, avec une validation automatisé
 
 ## Migration Plan
 
-Vérifier le ticket, implémenter uniquement son périmètre, exécuter les validations, mettre à jour les tâches, puis préparer une PR vers develop.
+Vérifier le ticket et la présence du contrat partagé, documenter les frontières,
+exécuter les validations de documentation et de génération disponibles, mettre à
+jour les tâches T-174, puis préparer une PR vers develop. Le contrat OpenAPI et
+le code applicatif restent inchangés dans ce ticket.

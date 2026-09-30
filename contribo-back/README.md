@@ -1,8 +1,18 @@
 # Contribo backend
 
-Le backend est construit à partir du contrat OpenAPI partagé dans
-`../besoins/openapi.yaml`. La génération des interfaces et modèles OpenAPI est
-exécutée pendant `generate-sources`, ce qui valide le contrat avant compilation.
+Le backend est construit à partir du contrat HTTP OpenAPI partagé dans
+[`../besoins/openapi.yaml`](../besoins/openapi.yaml). Le besoin fonctionnel et les
+règles de gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md) :
+le backend ne doit pas déduire une nouvelle règle d'un DTO généré. La séparation
+des responsabilités et la chaîne complète sont détaillées dans
+[`besoins/README.md`](../besoins/README.md).
+
+La génération des interfaces et modèles OpenAPI est exécutée pendant
+`generate-sources`, ce qui valide le contrat avant compilation. La version Maven
+du générateur doit rester alignée avec
+[`contribo-front/openapitools.json`](../contribo-front/openapitools.json) ; le
+contrôle commun est `node ../scripts/check-openapi-generator-version.mjs` depuis
+`contribo-back/`.
 
 La persistance MVP utilise PostgreSQL avec Flyway. Le schéma initial est
 versionné dans `src/main/resources/db/migration` et ne contient pas de données
@@ -23,9 +33,15 @@ migration progressive dans leurs tickets dédiés.
 Depuis `contribo-back/` :
 
 ```bash
+mvn generate-sources
 mvn test
 mvn verify
 ```
+
+Les sources générées sous `target/` ne sont pas éditées manuellement. Une
+modification d'interface commence dans `besoins/openapi.yaml`, après clarification
+du besoin métier, puis le client Angular, les adaptateurs et les tests concernés
+sont régénérés ou alignés avant la livraison.
 
 Le service écoute sur le port `8080` par défaut. Le contrôle de santé est exposé
 par Spring Boot Actuator sur `/actuator/health`. Ce socle ne contient encore
