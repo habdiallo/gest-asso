@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.habdiallo.contribo.api.generated.model.UserRole;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.user.UserAccountRecord;
 
 public interface UserAccountRepository {
 

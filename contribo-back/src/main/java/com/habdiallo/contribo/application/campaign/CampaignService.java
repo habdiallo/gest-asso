@@ -22,7 +22,7 @@ import com.habdiallo.contribo.api.generated.model.PaymentCreationResponse;
 import com.habdiallo.contribo.api.generated.model.PaymentPage;
 import com.habdiallo.contribo.api.generated.model.UpdateCampaignCategoryAmountsRequest;
 import com.habdiallo.contribo.api.rest.ApiErrors;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Service
 public class CampaignService {

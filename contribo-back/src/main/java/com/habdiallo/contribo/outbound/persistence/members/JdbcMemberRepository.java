@@ -9,9 +9,9 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.MemberStatus;
-import com.habdiallo.contribo.application.members.MemberRecord;
 import com.habdiallo.contribo.application.members.MemberRepository;
+import com.habdiallo.contribo.domain.member.MemberRecord;
+import com.habdiallo.contribo.domain.member.MemberStatus;
 import com.habdiallo.contribo.outbound.persistence.DbTime;
 
 @Repository

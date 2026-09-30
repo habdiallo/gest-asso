@@ -1,7 +1,8 @@
-package com.habdiallo.contribo.application.users;
+package com.habdiallo.contribo.domain.user;
 
 import java.util.UUID;
 
+/** User account data returned by the persistence port. */
 public record UserAccountRecord(
         UUID id,
         UUID memberId,

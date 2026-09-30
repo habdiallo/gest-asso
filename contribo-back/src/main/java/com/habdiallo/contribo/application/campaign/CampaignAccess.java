@@ -4,10 +4,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.api.rest.ApiErrors;
 import com.habdiallo.contribo.application.access.AuthorizationService;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Component
 public class CampaignAccess {

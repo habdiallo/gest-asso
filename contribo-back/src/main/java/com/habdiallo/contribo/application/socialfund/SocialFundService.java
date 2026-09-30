@@ -27,10 +27,10 @@ import com.habdiallo.contribo.api.generated.model.SocialFundPage;
 import com.habdiallo.contribo.api.generated.model.SocialFundReference;
 import com.habdiallo.contribo.api.generated.model.SocialFundStatus;
 import com.habdiallo.contribo.api.generated.model.SocialFundSummary;
-import com.habdiallo.contribo.api.generated.model.UserRole;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
 import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
 import com.habdiallo.contribo.application.common.PageResult;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Service
 public class SocialFundService {
