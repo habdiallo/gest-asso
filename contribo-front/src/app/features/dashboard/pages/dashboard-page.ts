@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   CagnottesService,
   CampagnesService,
@@ -30,6 +31,7 @@ import type { Observable } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
 import { formatGnfAmountCondensed, formatGnfAmountDetailed } from '@core/formatting/currency';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { EmptyState } from '@shared/empty-state/empty-state';
@@ -114,9 +116,12 @@ export class DashboardPage {
   private readonly campaignsService = inject(CampagnesService);
   private readonly socialFundsService = inject(CagnottesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly sessionService = inject(SessionService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
+  readonly sessionExpired = signal(false);
   readonly scopeLoading = signal(false);
   readonly scopeError = signal(false);
   private readonly dashboard = signal<DashboardResponse | null>(null);
@@ -265,6 +270,11 @@ export class DashboardPage {
     this.loadDashboard();
   }
 
+  reconnect(): void {
+    this.sessionService.clear();
+    void this.router.navigateByUrl('/login');
+  }
+
   private loadDashboard(): void {
     const requestId = ++this.dashboardRequestId;
     const isInitialLoad = this.dashboard() === null;
@@ -288,6 +298,7 @@ export class DashboardPage {
           }
           this.dashboard.set(dashboard);
           this.loadError.set(false);
+          this.sessionExpired.set(false);
           this.loading.set(false);
           this.scopeLoading.set(false);
           if (
@@ -299,14 +310,18 @@ export class DashboardPage {
             this.loadScopeOptions();
           }
         },
-        error: () => {
+        error: (error: unknown) => {
           if (requestId !== this.dashboardRequestId) {
             return;
           }
+          const isSessionExpired = error instanceof HttpErrorResponse && error.status === 401;
+          this.sessionExpired.set(isSessionExpired);
           if (isInitialLoad) {
-            this.loadError.set(true);
-          } else {
+            this.loadError.set(!isSessionExpired);
+          } else if (!isSessionExpired) {
             this.scopeError.set(true);
+          } else {
+            this.loadError.set(false);
           }
           this.loading.set(false);
           this.scopeLoading.set(false);

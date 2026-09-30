@@ -61,6 +61,8 @@
   "dashboard.asOf": "Données au {date}",
   "dashboard.loading": "Chargement du tableau de bord…",
   "dashboard.error": "Impossible de charger le tableau de bord. Réessayez plus tard.",
+  "dashboard.sessionExpired": "Votre session a expiré. Reconnectez-vous pour accéder au tableau de bord.",
+  "dashboard.reconnect": "Se reconnecter",
   "dashboard.management.activeMembers": "Membres actifs",
   "dashboard.management.activeMembersMeta": "sur {count} membres inscrits",
   "dashboard.management.newMembers": "Nouveaux membres ce mois",

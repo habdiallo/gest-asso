@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 182,
+  "nextTicketId": 183,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3332,6 +3332,7 @@
     {"id":178,"title":"Équilibrer la traçabilité OpenSpec entre frontend et backend.","priority":"P2","scope":"docs","type":"chore","slug":"equilibrer-tracabilite-openspec-front-back","change":"equilibrer-tracabilite-openspec-front-back","tasks":["1.1","1.2","2.1","2.2","3.1","2.3"],"dependencies":[167,172,174,175,177],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-equilibrer-tracabilite-openspec-front-back","branchAfterInitialization":"docs/chore-178-equilibrer-tracabilite-openspec-front-back"},
     {"id":179,"title":"Documenter la couverture des 22 problèmes de l'audit architecture.","priority":"P1","scope":"docs","type":"chore","slug":"documenter-couverture-audit-architecture","change":"documenter-couverture-audit-architecture","tasks":["1.1","1.2","2.1","2.2","2.3"],"dependencies":[164,165,166,167,168,169,170,171,172,173,174,175,176,177,178],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-documenter-couverture-audit-architecture","branchAfterInitialization":"docs/chore-179-documenter-couverture-audit-architecture"},
     {"id":180,"title":"Finaliser la traçabilité des tickets fusionnés avant de lancer leurs dépendants.","priority":"P1","scope":"docs","type":"chore","slug":"reconcilier-tracabilite-tickets","change":"reconcilier-tracabilite-tickets","tasks":["1.1","1.2","2.1","2.2","2.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-reconcilier-tracabilite-tickets","branchAfterInitialization":"docs/chore-180-reconcilier-tracabilite-tickets"},
-    {"id":181,"title":"Implémenter l'endpoint backend GET /dashboard (tableau de bord), absent et bloquant la redirection post-connexion pour tous les rôles.","priority":"P0","scope":"back","type":"feat","slug":"endpoint-tableau-de-bord","change":"implementer-endpoint-tableau-de-bord","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","3.5","4.1","4.2","5.1","5.2","6.1","6.2","6.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/feat-000-endpoint-tableau-de-bord","branchAfterInitialization":"back/feat-181-endpoint-tableau-de-bord"}
+    {"id":181,"title":"Implémenter l'endpoint backend GET /dashboard (tableau de bord), absent et bloquant la redirection post-connexion pour tous les rôles.","priority":"P0","scope":"back","type":"feat","slug":"endpoint-tableau-de-bord","change":"implementer-endpoint-tableau-de-bord","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","3.5","4.1","4.2","5.1","5.2","6.1","6.2","6.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/feat-000-endpoint-tableau-de-bord","branchAfterInitialization":"back/feat-181-endpoint-tableau-de-bord"},
+    {"id":182,"title":"Limiter la déconnexion globale sur 401 aux réponses d'authentification ou de session.","priority":"P1","scope":"front","type":"fix","slug":"scoper-intercepteur-session-expiree","change":"scoper-intercepteur-session-expiree","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","3.1","3.2","3.3","4.1","4.2","4.3","5.1","5.2"],"dependencies":[181],"planningStatus":"planned","branchDuringInitialization":"front/fix-000-scoper-intercepteur-session-expiree","branchAfterInitialization":"front/fix-182-scoper-intercepteur-session-expiree"}
   ]
 }
