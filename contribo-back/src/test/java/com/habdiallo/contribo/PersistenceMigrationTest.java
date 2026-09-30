@@ -20,7 +20,7 @@ class PersistenceMigrationTest extends RsaIntegrationTestSupport {
                 "select count(*) from \"flyway_schema_history\"",
                 Integer.class)).isGreaterThanOrEqualTo(2);
         assertThat(jdbcTemplate.queryForObject(
-                "select count(*) from information_schema.tables where table_schema = 'PUBLIC' and table_name = 'MEMBERS'",
+                "select count(*) from information_schema.tables where table_schema = 'public' and table_name = 'members'",
                 Integer.class)).isEqualTo(1);
     }
 }
