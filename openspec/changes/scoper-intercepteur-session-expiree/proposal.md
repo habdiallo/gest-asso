@@ -1,6 +1,6 @@
 ## Why
 
-`session-expired.interceptor.ts` traite actuellement toute réponse HTTP `401` comme une session invalide. Un endpoint métier indisponible, incomplet ou refusant l'accès peut donc effacer une session pourtant valide et rediriger l'utilisateur vers `/login`. T-181 rétablit l'endpoint `/dashboard`, mais le comportement global de l'intercepteur reste une source de déconnexion abusive et de diagnostic trompeur.
+`session-expired.interceptor.ts` traite actuellement toute réponse HTTP `401` comme une session invalide. Un endpoint métier indisponible, incomplet ou refusant l'accès peut donc effacer une session pourtant valide et rediriger l'utilisateur vers `/login`. T-181 rétablit l'endpoint `/dashboard`, mais le comportement global de l'intercepteur reste une source de déconnexion abusive et de diagnostic trompeur. T-182 est livré après T-181, dont il dépend pour le parcours de tableau de bord et l'ordre d'intégration.
 
 ## What Changes
 
@@ -9,6 +9,7 @@
 - Conserver la redirection vers `/login` lorsqu'une vérification d'authentification ou de session confirme l'invalidité de la session.
 - Ajouter des tests couvrant les réponses `401` d'authentification, les erreurs `401` métier, les erreurs `403` et les requêtes de connexion.
 - Documenter la règle de portée de l'intercepteur afin que les futurs endpoints n'en dépendent pas implicitement.
+- Fournir au tableau de bord une reconnexion explicite lorsqu'il reçoit un `401` métier qui confirme une session expirée, sans déclencher de navigation globale depuis l'intercepteur.
 
 ## Capabilities
 

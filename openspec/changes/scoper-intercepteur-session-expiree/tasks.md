@@ -21,3 +21,8 @@
 - [x] 4.1 Exécuter les tests frontend ciblés, le build frontend et les validations pertinentes du dépôt. [T-182] (tests et build réussis ; le contrôle Prettier global signale des fichiers préexistants hors périmètre)
 - [x] 4.2 Mettre à jour les cases de ce fichier pour les seules tâches réellement réalisées. [T-182]
 - [x] 4.3 Préparer une PR de `front/fix-182-scoper-intercepteur-session-expiree` vers `develop` avec le modèle du dépôt, sans pousser ni fusionner sans demande explicite. [T-182]
+
+## 5. Corrections de revue PR 190
+
+- [x] 5.1 Déclarer la dépendance de T-182 envers T-181 et documenter l'ordre d'intégration de la PR empilée. [T-182]
+- [x] 5.2 Ajouter au tableau de bord une reconnexion explicite après un `401` et couvrir ce parcours par un test frontend. [T-182]

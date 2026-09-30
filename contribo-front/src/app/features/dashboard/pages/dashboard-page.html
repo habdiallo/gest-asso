@@ -34,6 +34,13 @@
 
   @if (loading()) {
     <app-loading-skeleton variant="grid" [rows]="4" [label]="'dashboard.loading' | transloco" />
+  } @else if (sessionExpired()) {
+    <div class="mt-6 rounded-card border border-line bg-surface p-6 shadow-card">
+      <p class="text-error" role="alert">{{ 'dashboard.sessionExpired' | transloco }}</p>
+      <app-action-button class="mt-4" variant="secondary" (click)="reconnect()">
+        {{ 'dashboard.reconnect' | transloco }}
+      </app-action-button>
+    </div>
   } @else if (loadError()) {
     <p class="mt-6 text-error" role="alert">{{ 'dashboard.error' | transloco }}</p>
   } @else {

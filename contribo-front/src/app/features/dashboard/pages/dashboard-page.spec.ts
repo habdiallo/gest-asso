@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { CagnottesService, CampagnesService, TableauDeBordService } from '@core/api';
 import type {
   CampaignPage,
@@ -15,6 +16,7 @@ import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
 import { DashboardPage } from './dashboard-page';
+import { SessionService } from '@core/session/session.service';
 
 const viewer: ManagementDashboard['viewer'] = {
   userId: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -170,6 +172,34 @@ describe('DashboardPage', () => {
     expect(root.querySelector('[role="alert"]')?.textContent).toContain(
       'Impossible de charger le tableau de bord',
     );
+  });
+
+  it('offers an explicit reconnection when the dashboard confirms an expired session', async () => {
+    const fixture = await createFixture(() =>
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            statusText: 'Unauthorized',
+            url: '/api/v1/dashboard',
+          }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const session = TestBed.inject(SessionService);
+    session.setUser(viewer);
+    const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+
+    expect(fixture.componentInstance.sessionExpired()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain(
+      'Votre session a expiré. Reconnectez-vous pour continuer.',
+    );
+
+    fixture.componentInstance.reconnect();
+
+    expect(session.user()).toBeNull();
+    expect(navigateSpy).toHaveBeenCalledWith('/login');
   });
 
   it('renders the management indicators and formats GNF amounts', async () => {
