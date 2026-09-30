@@ -2,9 +2,9 @@
 
 ### Requirement: Réintégrer une release livrée dans develop
 
-Lorsqu'une branche `release/vX.Y.Z` ou `hotfix/<description>` est fusionnée dans
-`main`, son contenu SHALL être réintégré dans `develop` par une PR dédiée avant
-la prochaine livraison.
+The workflow MUST reintegrate the content of a `release/vX.Y.Z` or
+`hotfix/<description>` branch into `develop` through a dedicated PR after that
+branch is merged into `main` and before the next delivery.
 
 #### Scenario: Release fusionnée dans main
 
@@ -20,8 +20,7 @@ la prochaine livraison.
 
 ### Requirement: Contrôle du flux
 
-La branche de réintégration SHALL respecter les contrôles de nommage et cibler
-`develop`.
+The reintegration branch MUST respect the naming checks and target `develop`.
 
 #### Scenario: Branche de ticket vers develop
 
