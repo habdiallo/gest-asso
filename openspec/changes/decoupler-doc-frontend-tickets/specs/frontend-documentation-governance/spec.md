@@ -1,10 +1,18 @@
 ## ADDED Requirements
 
-### Requirement: Découpler la documentation frontend des tickets
+### Requirement: Découpler la documentation frontend des travaux
 
-Le dépôt SHALL traiter ce sujet de façon explicite, testable lorsque possible, et documentée.
+La documentation de référence du frontend SHALL décrire les comportements,
+responsabilités et contrats stables sans dépendre des identifiants de travaux.
 
-#### Scenario: Contrôle de livraison
+#### Scenario: Documentation sans identifiant volatile
 
-- **WHEN** le ticket est validé
-- **THEN** son périmètre est couvert par le code ou une décision documentée, ses validations sont tracées et ses dépendances sont respectées
+- **WHEN** le contrôle de documentation s'exécute
+- **THEN** le README et les documents frontend de référence ne contiennent pas de
+  numéro de ticket ou d'identifiant de user story
+
+#### Scenario: Traçabilité séparée
+
+- **WHEN** un mainteneur doit retrouver l'origine d'un comportement
+- **THEN** il consulte OpenSpec ou les tests de traçabilité sans transformer cet
+  identifiant en vocabulaire de la documentation d'architecture

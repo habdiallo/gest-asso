@@ -69,7 +69,7 @@ src/app/
     home/                       première fonctionnalité, chargée paresseusement
       home.routes.ts
       pages/home-page.*
-    <feature>/                  à créer avec son ticket métier
+    <feature>/                  à créer avec son périmètre métier
       <feature>.routes.ts
       pages/                    pages de cette fonctionnalité
       components/               composants internes, si nécessaires
@@ -100,7 +100,7 @@ Pour créer une page :
 npx --no-install ng generate component features/members/pages/member-list
 ```
 
-Cette commande est un exemple pour un futur ticket : les pages métier ne sont pas
+Cette commande est un exemple pour une future évolution : les pages métier ne sont pas
 créées à l'initialisation. Les composants générés utilisent OnPush et CSS.
 
 ## API Design First et proxy
@@ -123,7 +123,7 @@ La génération est explicite, sans `prestart`, `prebuild` ni `pretest` ; le she
 actuel peut être développé sans Java ou client généré.
 
 `provideHttpClient()` est installé. Relier les credentials Bearer à la session
-réelle dans le ticket d'authentification, sans faux jeton ni hôte dans les features.
+réelle dans l'intégration d'authentification, sans faux jeton ni hôte dans les features.
 
 `proxy.conf.json` redirige `/api/**` vers `http://localhost:8080` sans réécriture.
 `8080` est une convention de développement à ajuster lorsque le backend existe.
@@ -152,7 +152,7 @@ reste la valeur lue en dehors d'un build Angular (ex. Vitest).
 Ce socle ne modifie pas la configuration `mock` existante : `main.mock.ts` reste
 seul responsable de l'activation de MSW ; `environment.mock.ts` fournit uniquement
 un point de lecture typé supplémentaire (l'intégration du client API avec
-`environment.apiBaseUrl` est laissée à un ticket applicatif ultérieur).
+`environment.apiBaseUrl` est laissée à une évolution applicative ultérieure).
 
 Ces fichiers sont committés et publics dans le bundle client : n'y placer aucun
 secret ni valeur sensible. Après tout ajout de champ à `Environment`, vérifier que
@@ -173,6 +173,19 @@ sans configuration explicite utilise `development` (`defaultConfiguration` de la
   génération lié au backend ancien : aucun besoin MVP ne les justifie ici.
 
 ## Règles et livraison
+
+## Documentation stable du frontend
+
+Les commentaires et documents du frontend décrivent les comportements observables,
+les invariants métier et les frontières techniques. Ils ne prennent pas un numéro
+de travail ou une user story comme nom de concept. La traçabilité des travaux reste
+dans OpenSpec et dans les noms de tests, qui peuvent conserver les identifiants
+nécessaires à l'audit.
+
+Les règles détaillées sont dans
+[docs/documentation.md](docs/documentation.md). Le contrôle
+`npm run test:documentation` vérifie que les documents de référence ne réintroduisent
+pas de références volatiles.
 
 Lire [AGENTS.md](../AGENTS.md), [CONTRIBUTING.md](../CONTRIBUTING.md) et les règles
 [frontend](../.claude/rules/frontend/). Le change OpenSpec
