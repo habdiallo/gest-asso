@@ -31,17 +31,6 @@ Le frontend SHALL proposer un écran de connexion unique (identifiant + mot de p
 - **WHEN** un visiteur non authentifié consulte l'écran de connexion
 - **THEN** aucun lien ni bouton "créer un compte" ou "s'inscrire" n'est proposé
 
-## ADDED Requirements
-
-### Requirement: Session limitée de changement de mot de passe
-Le frontend SHALL traiter le code `PASSWORD_CHANGE_REQUIRED` comme un état d'activation et non comme une session expirée.
-
-#### Scenario: API métier refusée pendant l'activation
-- **WHEN** une requête métier retourne `PASSWORD_CHANGE_REQUIRED`
-- **THEN** le frontend conserve la session limitée et navigue vers le changement obligatoire sans boucle vers la page de connexion
-
-## MODIFIED Requirements
-
 ### Requirement: Session et déconnexion
 Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et permettre une déconnexion explicite à tout moment, y compris depuis la session limitée de changement de mot de passe.
 
@@ -56,3 +45,12 @@ Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et per
 #### Scenario: Déconnexion pendant le changement
 - **WHEN** l'utilisateur en session limitée déclenche la déconnexion
 - **THEN** le frontend invalide l'état local, appelle la déconnexion et affiche l'écran de connexion
+
+## ADDED Requirements
+
+### Requirement: Session limitée de changement de mot de passe
+Le frontend SHALL traiter le code `PASSWORD_CHANGE_REQUIRED` comme un état d'activation et non comme une session expirée.
+
+#### Scenario: API métier refusée pendant l'activation
+- **WHEN** une requête métier retourne `PASSWORD_CHANGE_REQUIRED`
+- **THEN** le frontend conserve la session limitée et navigue vers le changement obligatoire sans boucle vers la page de connexion
