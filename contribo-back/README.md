@@ -22,3 +22,45 @@ Le service écoute sur le port `8080` par défaut. Le contrôle de santé est ex
 par Spring Boot Actuator sur `/actuator/health`. Ce socle ne contient encore
 aucune logique métier. Les migrations fournissent uniquement le support
 structurel nécessaire aux tickets métier suivants.
+
+## Tests d'intégration et prérequis Docker
+
+Le backend ne fait pas d'ORM : chaque `Jdbc*Repository` écrit son SQL à la main
+contre PostgreSQL. Les classes de test existantes sont toutes des
+`@SpringBootTest` d'intégration qui exercent ce SQL à travers les contrôleurs
+HTTP réels, il n'y a pas de test unitaire isolé avec mocks pour la persistance.
+
+Ces tests s'exécutent contre un **conteneur PostgreSQL réel** (Testcontainers,
+image `postgres:16-alpine`), et non contre une base H2 en mémoire. Un moteur de
+compatibilité comme H2 (`MODE=PostgreSQL`) n'a pas un comportement strictement
+identique à PostgreSQL : un comportement accepté par H2 mais différent sous
+PostgreSQL réel peut passer les tests sans être détecté avant la production
+(un exemple concret a été trouvé et corrigé lors de l'introduction de ce
+conteneur : `information_schema.tables` renvoie ses noms de schéma/table en
+minuscules sous PostgreSQL, mais en majuscules sous H2 pour des identifiants
+non quotés). H2 a donc été entièrement retiré du périmètre de test, sans
+option de repli, pour éliminer cette source de faux positifs plutôt que la
+rendre facultative.
+
+Un seul conteneur PostgreSQL est démarré (démarrage statique dans
+`RsaIntegrationTestSupport`, la classe de base partagée par toutes les classes
+`@SpringBootTest`) et partagé par l'ensemble de la suite, plutôt qu'un
+conteneur par classe de test, pour limiter le coût de démarrage à une seule
+fois par exécution. Ses coordonnées de connexion (`spring.datasource.url`,
+`spring.datasource.username`, `spring.datasource.password`) sont injectées via
+`@DynamicPropertySource`, sur le même principe que l'injection des clés RSA de
+test déjà en place dans cette classe.
+
+**Docker doit être disponible** (local ou CI) pour exécuter `mvn test` ou
+`mvn verify` : Testcontainers démarre le conteneur PostgreSQL au premier test
+qui charge le contexte Spring. C'est la même contrainte que pour construire
+l'image Docker du backend. Sur GitHub Actions, les runners `ubuntu-latest`
+fournissent Docker nativement ; aucune étape de configuration supplémentaire
+n'est nécessaire dans le workflow CI.
+
+Impact mesuré sur la durée de la suite (`mvn verify` à froid, dépendances déjà
+en cache local) : environ 8,4 s avec H2 contre environ 9,7 s avec le conteneur
+PostgreSQL partagé, soit un surcoût de l'ordre d'une seconde correspondant au
+démarrage unique du conteneur (image `postgres:16-alpine` déjà présente
+localement). Ces chiffres varient selon la machine et la disponibilité de
+l'image Docker en cache.
