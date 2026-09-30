@@ -2,6 +2,7 @@ package com.habdiallo.contribo.outbound.persistence.members;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,6 +79,15 @@ public class JdbcMemberRepository implements MemberRepository {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM members WHERE association_id = ? AND status = ?",
                 Long.class, associationId, status);
+    }
+
+    @Override
+    public long countCreatedSince(UUID associationId, OffsetDateTime from) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM members WHERE association_id = ? AND created_at >= ?",
+                Long.class,
+                associationId,
+                from);
     }
 
     @Override

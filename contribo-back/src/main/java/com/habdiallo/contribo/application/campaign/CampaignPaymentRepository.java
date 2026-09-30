@@ -16,4 +16,6 @@ public interface CampaignPaymentRepository {
             String method);
 
     PaymentPage findPayments(UUID associationId, int page, int size, String query, UUID memberId, UUID campaignId);
+
+    PaymentPage findRecentOpenPayments(UUID associationId, UUID campaignId);
 }
