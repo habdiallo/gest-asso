@@ -40,8 +40,18 @@ Le frontend SHALL traiter le code `PASSWORD_CHANGE_REQUIRED` comme un état d'ac
 - **WHEN** une requête métier retourne `PASSWORD_CHANGE_REQUIRED`
 - **THEN** le frontend conserve la session limitée et navigue vers le changement obligatoire sans boucle vers la page de connexion
 
+## MODIFIED Requirements
+
 ### Requirement: Session et déconnexion
-Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et permettre une déconnexion explicite à tout moment.
+Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et permettre une déconnexion explicite à tout moment, y compris depuis la session limitée de changement de mot de passe.
+
+#### Scenario: Expiration de session
+- **WHEN** une requête API retourne une erreur d'authentification (session expirée ou jeton invalide)
+- **THEN** le frontend invalide la session locale et redirige l'utilisateur vers l'écran de connexion
+
+#### Scenario: Déconnexion manuelle
+- **WHEN** l'utilisateur connecté déclenche l'action de déconnexion
+- **THEN** le frontend supprime la session locale et affiche l'écran de connexion
 
 #### Scenario: Déconnexion pendant le changement
 - **WHEN** l'utilisateur en session limitée déclenche la déconnexion

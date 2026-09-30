@@ -3,7 +3,6 @@
 ## Purpose
 TBD - created by archiving change frontend-tickets-mvp-association. Update Purpose after archive.
 ## Requirements
-
 ### Requirement: Connexion à l'application
 Le frontend SHALL proposer un écran de connexion unique (identifiant + mot de passe) sans aucun lien ni formulaire d'inscription libre, conformément à RG-003 et à l'Annexe A (pas de provisioning automatique des identifiants).
 
@@ -20,7 +19,7 @@ Le frontend SHALL proposer un écran de connexion unique (identifiant + mot de p
 - **THEN** aucun lien ni bouton "créer un compte" ou "s'inscrire" n'est proposé
 
 ### Requirement: Session et déconnexion
-Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et permettre une déconnexion explicite à tout moment.
+Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et permettre une déconnexion explicite à tout moment, y compris depuis la session limitée de changement de mot de passe.
 
 #### Scenario: Expiration de session
 - **WHEN** une requête API retourne une erreur d'authentification (session expirée ou jeton invalide)
@@ -29,6 +28,10 @@ Le frontend SHALL maintenir l'état de session de l'utilisateur connecté et per
 #### Scenario: Déconnexion manuelle
 - **WHEN** l'utilisateur connecté déclenche l'action de déconnexion
 - **THEN** le frontend supprime la session locale et affiche l'écran de connexion
+
+#### Scenario: Déconnexion pendant le changement
+- **WHEN** l'utilisateur en session limitée déclenche la déconnexion
+- **THEN** le frontend invalide l'état local, appelle la déconnexion et affiche l'écran de connexion
 
 ### Requirement: Navigation adaptée au rôle applicatif
 Le frontend SHALL afficher une navigation (menu, tableau de bord, accès aux écrans) déterminée par le rôle applicatif de l'utilisateur connecté (Administrateur, Trésorier, Opérateur, Membre), conformément à la matrice des responsabilités (§3) et sans jamais exposer de rôle "Président" (Annexe A).
@@ -96,3 +99,11 @@ Le frontend SHALL restreindre le choix du mode de règlement, pour tout enregist
 #### Scenario: Choix du mode de règlement
 - **WHEN** un utilisateur autorisé ouvre le formulaire d'enregistrement d'un règlement ou d'une contribution
 - **THEN** le frontend propose exactement trois options : Espèces, Mobile Money, Virement bancaire, sans intégration de paiement en ligne
+
+### Requirement: Session limitée de changement de mot de passe
+Le frontend SHALL traiter le code `PASSWORD_CHANGE_REQUIRED` comme un état d'activation et non comme une session expirée.
+
+#### Scenario: API métier refusée pendant l'activation
+- **WHEN** une requête métier retourne `PASSWORD_CHANGE_REQUIRED`
+- **THEN** le frontend conserve la session limitée et navigue vers le changement obligatoire sans boucle vers la page de connexion
+

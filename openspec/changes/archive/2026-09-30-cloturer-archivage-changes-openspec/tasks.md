@@ -23,7 +23,10 @@ aucun autre change touché.
 - [x] 2.1 [T-116] Committer avec le message `docs(docs): T-116 cloturer le
       lot d'archivage openspec` (ou équivalent conforme), en ajoutant
       uniquement les fichiers de ce ticket.
-- [ ] 2.2 [T-116] Pousser la branche
+- [x] 2.2 [T-116] Pousser la branche
       `docs/chore-116-cloturer-archivage-changes-openspec` et ouvrir une PR
       vers `main` avec le modèle du dépôt, seulement si la livraison est
-      explicitement demandée.
+      explicitement demandée. (Le travail d'archivage de la tâche 1.3 est
+      confirmé livré : les quatre changes visés sont présents sous
+      `openspec/changes/archive/2026-09-19-*`. Cette dernière case est cochée
+      par T-161, qui clôture ce ticket resté ouvert sans PR dédiée.)
