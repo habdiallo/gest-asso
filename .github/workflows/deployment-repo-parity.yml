@@ -32,6 +32,8 @@ jobs:
           repository: habdiallo/gest-asso-deploiement
           ref: main
           path: .ci/gest-asso-deploiement
+          token: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
+          persist-credentials: false
 
       - name: Compare Portainer compositions
         run: >-

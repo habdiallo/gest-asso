@@ -71,6 +71,11 @@ synchronisées : d'abord dans `gest-asso-deploiement`, puis dans ce dépôt avec
 la même composition. Le workflow `Deployment repository parity` compare les
 deux fichiers sur `develop` et `main` et bloque toute divergence.
 
+Le dépôt applicatif doit posséder le secret GitHub `DEPLOYMENT_REPO_TOKEN`,
+limité à la lecture du dépôt privé `gest-asso-deploiement`. Ce jeton est utilisé
+uniquement par le checkout CI du dépôt de déploiement et ne doit jamais être
+écrit dans les fichiers de configuration ou les logs.
+
 ## Promouvoir en production
 
 Après les smoke tests staging et la fusion de la release vers `main`, reprendre

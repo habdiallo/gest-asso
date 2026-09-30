@@ -19,4 +19,5 @@ par Portainer.
 ### Requirement: Source de vérité documentée
 
 La documentation SHALL indiquer le dépôt et la branche consommés par Portainer,
-ainsi que l'ordre de livraison des PR synchronisées.
+ainsi que l'ordre de livraison des PR synchronisées et le secret de lecture
+nécessaire au contrôle CI.
