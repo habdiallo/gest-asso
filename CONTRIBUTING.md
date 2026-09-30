@@ -221,6 +221,9 @@ vérification de leur compilation. `node scripts/check-openapi-generator-version
 contrôle cet alignement (exécuté en CI dans `frontend-compilation.yml` avant
 `npm run generate:api`) et échoue explicitement si une version est absente ou
 si les deux divergent.
+Depuis `contribo-front/`, exécuter également `npm run check:api` avant la
+validation ou la génération : le script vérifie le runtime Node.js, Java et le
+wrapper local verrouillé par `package-lock.json`.
 
 ## Contrôles locaux et protection des branches de flux
 

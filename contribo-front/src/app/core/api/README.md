@@ -13,9 +13,19 @@ installé au niveau applicatif. Configurer les credentials Bearer depuis la sess
 réelle lors de l'intégration de l'authentification ; ne pas coder un jeton ni une
 URL de développement dans un service de feature.
 
-La génération est explicite, sans hook npm automatique. Avant de construire/tester
-une feature qui importe `@api`, générer le client. Le shell d'accueil n'en dépend
-pas. Vérifier la compilation avec `npx --no-install tsc --noEmit -p tsconfig.app.json`.
+Avant toute commande API, `npm run check:api` vérifie Node.js 22+, Java 11+, le
+wrapper npm présent dans le lockfile et les versions exactes du wrapper et du
+générateur. Les commandes `validate:api` et `generate:api` réutilisent ce contrôle
+et exécutent uniquement le wrapper installé par `npm ci`, sans outil global.
+
+Java reste une dépendance du générateur OpenAPI, pas de l'application Angular : il
+est requis pour valider ou générer le client, mais ni `npm start`, ni `npm test`, ni
+`npm run build` ne déclenchent Java ou la génération. Le premier contrôle ou la
+première génération peut télécharger le JAR fixé dans `openapitools.json`.
+
+La génération API est explicite, sans hook npm automatique. Avant de construire ou
+tester une feature qui importe `@api`, générer le client. Vérifier sa compilation
+avec `npx --no-install tsc --noEmit -p tsconfig.app.json`.
 
 ## Mock réseau en développement (MSW)
 
