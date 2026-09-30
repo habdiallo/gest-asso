@@ -12,6 +12,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:tooling": "node --test scripts/tooling.test.cjs",
+    "test:documentation": "node scripts/documentation-check.cjs",
     "lint": "ng lint",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
