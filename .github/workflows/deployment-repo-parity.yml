@@ -1,0 +1,40 @@
+name: Deployment repository parity
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - '.github/workflows/deployment-repo-parity.yml'
+      - 'contribo-deploiement/PORTAINER.md'
+      - 'contribo-deploiement/compose.portainer.yaml'
+      - 'scripts/check-deployment-repo-parity.mjs'
+  push:
+    branches: [develop, main]
+    paths:
+      - '.github/workflows/deployment-repo-parity.yml'
+      - 'contribo-deploiement/PORTAINER.md'
+      - 'contribo-deploiement/compose.portainer.yaml'
+      - 'scripts/check-deployment-repo-parity.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  compare-portainer-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout application repository
+        uses: actions/checkout@v4
+
+      - name: Checkout deployment repository
+        uses: actions/checkout@v4
+        with:
+          repository: habdiallo/gest-asso-deploiement
+          ref: main
+          path: .ci/gest-asso-deploiement
+
+      - name: Compare Portainer compositions
+        run: >-
+          node scripts/check-deployment-repo-parity.mjs
+          --reference .ci/gest-asso-deploiement/compose.portainer.yaml
+          --mirror contribo-deploiement/compose.portainer.yaml

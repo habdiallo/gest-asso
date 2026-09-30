@@ -59,13 +59,25 @@ Les réseaux externes peuvent être renommés avec `DATABASE_NETWORK` et
 `frontend`; le frontend joint le backend uniquement sur
 `contribo-internal`.
 
+## Source de vérité et synchronisation
+
+Le dépôt `habdiallo/gest-asso-deploiement`, branche `main`, est la source de
+vérité consommée par Portainer pour la composition de production. La copie
+`contribo-deploiement/compose.portainer.yaml` de ce dépôt applicatif est un
+miroir de référence pour les développeurs et la CI.
+
+Toute modification de la composition doit être livrée dans deux PR
+synchronisées : d'abord dans `gest-asso-deploiement`, puis dans ce dépôt avec
+la même composition. Le workflow `Deployment repository parity` compare les
+deux fichiers sur `develop` et `main` et bloque toute divergence.
+
 ## Promouvoir en production
 
 Après les smoke tests staging et la fusion de la release vers `main`, reprendre
 exactement les deux mêmes digests dans la stack de production. Le push vers
-`main` ne reconstruit pas une autre image. Le dépôt
-`gest-asso-deploiement` contient la même composition sans symlink et peut être
-utilisé comme source Git de la stack Portainer.
+`main` ne reconstruit pas une autre image. Après la fusion des PR
+synchronisées, Portainer doit continuer à pointer vers la branche `main` de
+`gest-asso-deploiement`.
 
 ## Vérifier et revenir en arrière
 
