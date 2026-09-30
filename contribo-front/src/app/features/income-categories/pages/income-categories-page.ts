@@ -24,7 +24,7 @@ const PAGE_SIZE = 10;
 
 /**
  * Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
- * (US-REV-001). Appelle `GET /income-categories` (`@api`,
+ * (US-REV-001). Appelle `GET /income-categories` (`@core/api`,
  * `CategoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
  * triées par libellé par le serveur (pas de tri/filtre applicatif ici).
  *

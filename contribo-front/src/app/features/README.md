@@ -9,7 +9,7 @@ Créer `pages/`, `components/`, `services/` ou `models/` uniquement lorsqu'ils s
 un besoin réel. Colocaliser les `.spec.ts`. Les modèles locaux servent l'IHM ; les
 DTO API restent générés depuis le contrat partagé.
 
-Les features peuvent utiliser `core/`, `shared/` et `@api`, mais ne s'importent pas
+Les features peuvent utiliser `core/`, `shared/` et `@core/api`, mais ne s'importent pas
 directement entre elles. Partager une responsabilité neutre via `shared/`, une
 préoccupation globale via `core/`, ou naviguer par URL. Éviter un barrel global
 qui charge toutes les features et annule le lazy loading.

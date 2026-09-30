@@ -36,7 +36,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 const MEMBERS_PAGE_SIZE = 10;
 
 /**
- * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
+ * Écran liste des membres (T-21) : appelle `GET /membres` (`@core/api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
  * à US-MEM-002. La présentation reprend le tableau du prototype, avec

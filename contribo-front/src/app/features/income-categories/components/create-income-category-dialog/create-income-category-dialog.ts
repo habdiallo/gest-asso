@@ -12,7 +12,7 @@ import { IncomeCategoryForm } from '../income-category-form/income-category-form
  * Formulaire de création d'une catégorie de revenu (T-50), réservé à
  * l'Administrateur : un unique champ libellé obligatoire (RG-REV-001), sans
  * champ de montant (RG-REV-002), une catégorie n'ayant pas de montant de
- * cotisation permanent. Appelle `POST /income-categories` (`@api`,
+ * cotisation permanent. Appelle `POST /income-categories` (`@core/api`,
  * `CategoriesDeRevenuService.createIncomeCategory`).
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15) ; ce

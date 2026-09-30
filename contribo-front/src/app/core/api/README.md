@@ -53,7 +53,7 @@ Voir les [comptes et instructions de test](../../../../README.md#tester-les-comp
 
 `src/main.mock.ts`, `src/mocks/**` et `**/mocks/**` sont exclus de `tsconfig.app.json` : la
 compilation normale (`npm start`, `npm run build`) reste indépendante du client généré, y
-compris quand un handler de mock importe `@api`. La configuration Angular `mock` utilise
+compris quand un handler de mock importe `@core/api`. La configuration Angular `mock` utilise
 `tsconfig.mock.json` (qui réinclut ces fichiers) pour compiler le mode mock.
 
 MSW ne remplace jamais `HttpTestingController` : les tests Vitest des services générés

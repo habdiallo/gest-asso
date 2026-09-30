@@ -25,7 +25,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
 /**
  * Onglet "Contributions aux cagnottes" de la fiche membre (T-30, tâche 4.10,
  * US-MEM-003) : liste les contributions du membre à des cagnottes via
- * `GET /contributions?memberId=...` (`@api`, `ContributionsService.listContributions`,
+ * `GET /contributions?memberId=...` (`@core/api`, `ContributionsService.listContributions`,
  * `openapi:listContributions`), du plus récent au plus ancien, avec cagnotte,
  * montant, date et mode de règlement.
  *

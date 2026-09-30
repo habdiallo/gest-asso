@@ -27,7 +27,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 /**
  * Écran liste des utilisateurs avec rôle applicatif affiché (T-52), réservé à
  * l'Administrateur (RG-ROLE-002, garde de route `roleGuard` dans
- * `roles-users.routes.ts`). Appelle `GET /users` (`@api`,
+ * `roles-users.routes.ts`). Appelle `GET /users` (`@core/api`,
  * `UtilisateursEtRolesService.listUsers`) avec recherche et filtre de rôle du
  * contrat (`q`, `role`), pagination incluse. La recherche texte est débattue
  * manuellement (setTimeout) avant de déclencher `refetch$`, afin que le

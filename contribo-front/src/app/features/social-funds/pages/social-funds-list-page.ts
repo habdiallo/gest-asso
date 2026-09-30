@@ -36,7 +36,7 @@ import { progressBarWidth } from '../social-fund-progress';
 const PAGE_SIZE = 6;
 
 /**
- * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@api`,
+ * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@core/api`,
  * `CagnottesService`) et affiche les cagnottes sociales renvoyées par le
  * serveur. Écran/route/feature entièrement distincts de l'écran des
  * campagnes de cotisation (RG-CAG-001 : une cagnotte est indépendante d'une

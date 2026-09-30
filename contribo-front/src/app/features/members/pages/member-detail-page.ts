@@ -71,7 +71,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
 
 /**
  * Écran fiche membre (T-27, T-130) : appelle `GET /members/{memberId}`
- * (`@api`, `MembresService.getMember`) et affiche la fiche alignée sur le
+ * (`@core/api`, `MembresService.getMember`) et affiche la fiche alignée sur le
  * prototype de détail partagé (`app-detail-shell`, `app-detail-tabs`) :
  * hero d'identité, carte principale (identité, informations personnelles et
  * associatives), colonne latérale (situation financière, compte associé) et
