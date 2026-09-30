@@ -1,4 +1,4 @@
-import { MemberStatus } from '@api';
+import { MemberStatus } from '@core/api';
 
 /**
  * Libellés français du statut de membre (schéma `MemberStatus`), repris du

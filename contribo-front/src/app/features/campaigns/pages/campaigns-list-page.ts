@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CampagnesService, CampaignStatus, UserRole } from '@api';
-import type { CampaignPage, CreateCampaignRequest } from '@api';
+import { CampagnesService, CampaignStatus, UserRole } from '@core/api';
+import type { CampaignPage, CreateCampaignRequest } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';

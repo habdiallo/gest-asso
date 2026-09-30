@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CurrencyCode } from '@api';
+import { CurrencyCode } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SIDEBAR_ROLE_LABEL_KEYS } from '@core/navigation/sidebar-profile';
 import { SessionService } from '@core/session/session.service';

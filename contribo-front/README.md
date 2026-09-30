@@ -76,6 +76,7 @@ src/app/
       services/                 API/orchestration/état de la feature, si nécessaires
       models/                   modèles IHM distincts, si nécessaires
   core/                         responsabilités applicatives globales
+    api/index.ts                frontière stable vers le client OpenAPI
     api/generated/              client OpenAPI, généré et ignoré par Git
   shared/                       UI/pipes/utilitaires neutres effectivement réutilisés
 ```
@@ -84,12 +85,13 @@ Les tests sont colocalisés. Ne pas créer tous les sous-dossiers ni un store/se
 pour une fonctionnalité qui n'existe pas encore. Utiliser les DTO générés ; un
 modèle/mapping local se justifie seulement par un besoin IHM distinct.
 
-Les features peuvent utiliser `core`, `shared` et le client API. Elles ne
+Les features peuvent utiliser `core`, `shared` et la frontière `core/api`. Elles ne
 s'importent pas directement entre elles. `core` et `shared` ne dépendent jamais
-des features ; ces imports sont interdits par ESLint. Les routes applicatives
+des features ; ces imports sont interdits par ESLint. Aucun consommateur ne doit
+importer `core/api/generated` ou utiliser un alias dédié au généré. Les routes applicatives
 chargent chaque fonctionnalité par `loadChildren`/`loadComponent`.
 
-Alias : `@core/*`, `@shared/*`, `@features/*` et `@api`. Les imports internes à une
+Alias : `@core/*`, `@shared/*` et `@features/*`. Les imports internes à une
 feature restent relatifs ; `@features/*` sert à composer les routes applicatives.
 Le frontend ne possède pas de couches hexagonales, ports ou adapters obligatoires.
 **L'architecture hexagonale est réservée au backend.**
@@ -129,7 +131,7 @@ requis uniquement pour la validation et la génération ; la première générat
 télécharge son JAR. La sortie
 `src/app/core/api/generated/` est ignorée par Git, ESLint et Prettier ; le contrat,
 la configuration et le lockfile sont versionnés. Ne pas modifier le généré à la
-main. Générer avant build/tests des fonctionnalités qui importent `@api`.
+main. Générer avant build/tests des fonctionnalités qui importent `@core/api`.
 La génération est explicite, sans `prestart`, `prebuild` ni `pretest` ; le shell
 actuel peut être développé sans Java ou client généré. `npm start`, `npm test` et
 `npm run build` ne déclenchent pas Java.

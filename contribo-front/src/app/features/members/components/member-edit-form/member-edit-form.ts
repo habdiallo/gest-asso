@@ -11,8 +11,8 @@ import {
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CategoriesDeRevenuService } from '@api';
-import type { UpdateMemberRequest, IncomeCategory, MemberDetails } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { UpdateMemberRequest, IncomeCategory, MemberDetails } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';

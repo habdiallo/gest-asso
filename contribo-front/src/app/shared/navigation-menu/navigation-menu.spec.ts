@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import { SessionService } from '@core/session/session.service';
 import { NavigationMenu } from './navigation-menu';
 

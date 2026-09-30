@@ -10,14 +10,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MembresService } from '@api';
+import { MembresService } from '@core/api';
 import type {
   CreateContributionRequest,
   CreateExternalContributionRequest,
   CreateMemberContributionRequest,
   MemberPage,
   PaymentMethod,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';

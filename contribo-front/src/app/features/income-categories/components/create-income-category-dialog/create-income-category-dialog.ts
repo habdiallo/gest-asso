@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { CategoriesDeRevenuService, ErrorCode } from '@api';
-import type { ErrorResponse, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, ErrorCode } from '@core/api';
+import type { ErrorResponse, IncomeCategory } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
@@ -12,7 +12,7 @@ import { IncomeCategoryForm } from '../income-category-form/income-category-form
  * Formulaire de création d'une catégorie de revenu (T-50), réservé à
  * l'Administrateur : un unique champ libellé obligatoire (RG-REV-001), sans
  * champ de montant (RG-REV-002), une catégorie n'ayant pas de montant de
- * cotisation permanent. Appelle `POST /income-categories` (`@api`,
+ * cotisation permanent. Appelle `POST /income-categories` (`@core/api`,
  * `CategoriesDeRevenuService.createIncomeCategory`).
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15) ; ce

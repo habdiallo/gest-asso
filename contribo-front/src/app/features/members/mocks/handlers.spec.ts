@@ -1,5 +1,5 @@
-import { MemberStatus } from '@api';
-import type { ContributionPage, MemberCreationResponse, MemberDetails, MemberPage } from '@api';
+import { MemberStatus } from '@core/api';
+import type { ContributionPage, MemberCreationResponse, MemberDetails, MemberPage } from '@core/api';
 import { demoAccounts } from '@mocks/demo-accounts';
 import { buildMemberPageResponse, membersHandlers } from './handlers';
 

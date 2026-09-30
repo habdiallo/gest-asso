@@ -8,8 +8,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CagnottesService, SocialEventType, SocialFundStatus } from '@api';
-import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
+import { CagnottesService, SocialEventType, SocialFundStatus } from '@core/api';
+import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -36,7 +36,7 @@ import { progressBarWidth } from '../social-fund-progress';
 const PAGE_SIZE = 6;
 
 /**
- * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@api`,
+ * Écran liste des cagnottes (T-82) : appelle `GET /social-funds` (`@core/api`,
  * `CagnottesService`) et affiche les cagnottes sociales renvoyées par le
  * serveur. Écran/route/feature entièrement distincts de l'écran des
  * campagnes de cotisation (RG-CAG-001 : une cagnotte est indépendante d'une

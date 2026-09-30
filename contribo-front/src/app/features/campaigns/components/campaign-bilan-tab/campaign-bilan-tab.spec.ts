@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CurrencyCode } from '@api';
-import type { CampaignFinancialSummary } from '@api';
+import { CurrencyCode } from '@core/api';
+import type { CampaignFinancialSummary } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import fr from '@assets/i18n/fr.json';

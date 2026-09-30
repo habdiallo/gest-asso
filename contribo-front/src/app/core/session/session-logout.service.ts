@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { AuthentificationService } from '@api';
+import { AuthentificationService } from '@core/api';
 import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { SessionService } from './session.service';
 

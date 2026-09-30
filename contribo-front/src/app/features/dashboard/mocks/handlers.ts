@@ -6,7 +6,7 @@ import {
   PaymentMethod,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CampaignSummary,
   CampaignsAggregateOverview,
@@ -16,7 +16,7 @@ import type {
   MemberDashboard,
   SocialFundSummary,
   SocialFundsAggregateOverview,
-} from '@api';
+} from '@core/api';
 import type { DemoAccount } from '@mocks/demo-accounts';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { demoSocialFunds } from '../../social-funds/mocks/handlers';

@@ -8,7 +8,7 @@ import {
   SocialEventType,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -23,7 +23,7 @@ import type {
   PaymentPage,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
+} from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { getDemoDuesForMember } from '@mocks/demo-dues';
 

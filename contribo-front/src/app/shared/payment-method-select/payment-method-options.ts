@@ -1,4 +1,4 @@
-import { PaymentMethod } from '@api';
+import { PaymentMethod } from '@core/api';
 
 /**
  * Modes de règlement autorisés pour tout enregistrement de règlement ou de

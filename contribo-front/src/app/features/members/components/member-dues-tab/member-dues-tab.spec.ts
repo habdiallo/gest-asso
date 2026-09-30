@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampaignStatus, CurrencyCode, DueStatus, MemberStatus, MembresService } from '@api';
-import type { CurrentUser, DuePage, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, MemberStatus, MembresService } from '@core/api';
+import type { CurrentUser, DuePage, UserRole } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';

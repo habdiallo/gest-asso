@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@api';
+import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -11,7 +11,7 @@ import type {
   SocialFund,
   SocialFundPage,
   SocialFundSummary,
-} from '@api';
+} from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 /**

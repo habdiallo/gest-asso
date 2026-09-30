@@ -10,8 +10,8 @@ import {
   PaymentMethod,
   ReglementsService,
   UserRole,
-} from '@api';
-import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@api';
+} from '@core/api';
+import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';

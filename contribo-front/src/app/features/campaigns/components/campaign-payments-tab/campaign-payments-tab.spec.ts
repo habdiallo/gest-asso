@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { PaymentMethod, ReglementsService } from '@api';
-import type { Payment, PaymentPage } from '@api';
+import { PaymentMethod, ReglementsService } from '@core/api';
+import type { Payment, PaymentPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';

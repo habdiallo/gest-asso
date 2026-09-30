@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthentificationService } from '@api';
+import { AuthentificationService } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import fr from '@assets/i18n/fr.json';

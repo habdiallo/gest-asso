@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import type { RedirectFunction, Routes } from '@angular/router';
-import { UserRole } from '@api';
+import { UserRole } from '@core/api';
 import {
   activeSessionMatch,
   authenticatedMatch,

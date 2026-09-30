@@ -1,4 +1,4 @@
-import { MemberStatus } from '@api';
+import { MemberStatus } from '@core/api';
 
 /**
  * Libellés français du statut d'un membre (T-21), repris du cahier
