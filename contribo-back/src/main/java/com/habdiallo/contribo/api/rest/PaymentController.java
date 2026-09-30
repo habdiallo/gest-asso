@@ -9,6 +9,7 @@ import com.habdiallo.contribo.api.generated.RglementsApi;
 import com.habdiallo.contribo.api.generated.model.CreatePaymentRequest;
 import com.habdiallo.contribo.api.generated.model.PaymentCreationResponse;
 import com.habdiallo.contribo.api.generated.model.PaymentPage;
+import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.application.campaign.CampaignService;
 
 @RestController
@@ -22,12 +23,12 @@ public class PaymentController implements RglementsApi {
 
     @Override
     public ResponseEntity<PaymentCreationResponse> createPayment(UUID dueId, CreatePaymentRequest request) {
-        return ResponseEntity.status(201).body(service.createPayment(dueId, request));
+        return ResponseEntity.status(201).body(service.createPayment(CurrentUserId.get(), dueId, request));
     }
 
     @Override
     public ResponseEntity<PaymentPage> listPayments(
             Integer page, Integer size, String q, UUID memberId, UUID campaignId) {
-        return ResponseEntity.ok(service.listPayments(page, size, q, memberId, campaignId));
+        return ResponseEntity.ok(service.listPayments(CurrentUserId.get(), page, size, q, memberId, campaignId));
     }
 }
