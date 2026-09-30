@@ -7,4 +7,4 @@
 ## 2. Validation et livraison
 
 - [x] 1.4 [T-163] Exécuter les contrôles du registre, la validation OpenSpec ciblée et la vérification du diff documentaire.
-- [ ] 1.5 [T-163] Commiter, pousser la branche et préparer une PR vers `develop` avec les validations et limites documentées.
+- [x] 1.5 [T-163] Commiter, pousser la branche et préparer une PR vers `develop` avec les validations et limites documentées.
