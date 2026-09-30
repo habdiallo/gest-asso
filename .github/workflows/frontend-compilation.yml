@@ -30,6 +30,7 @@ jobs:
           java-version: '21'
       - run: npm ci
       - run: npm run validate:api
+      - run: node ../scripts/check-openapi-generator-version.mjs
       - run: npm run generate:api
       - run: npm run build
       - run: npm run build:mock
