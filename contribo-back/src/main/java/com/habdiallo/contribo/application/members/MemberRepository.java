@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.habdiallo.contribo.api.generated.model.MemberStatus;
+import com.habdiallo.contribo.domain.member.MemberRecord;
+import com.habdiallo.contribo.domain.member.MemberStatus;
 
 public interface MemberRepository {
 

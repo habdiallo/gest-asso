@@ -15,6 +15,7 @@ import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.security.JwtTokenService;
 import com.habdiallo.contribo.security.SecurityAuditLogger;
 import com.habdiallo.contribo.application.access.BusinessConflictException;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

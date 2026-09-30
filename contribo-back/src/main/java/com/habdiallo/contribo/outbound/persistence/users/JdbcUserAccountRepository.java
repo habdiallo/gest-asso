@@ -9,9 +9,9 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.UserRole;
-import com.habdiallo.contribo.application.users.UserAccountRecord;
 import com.habdiallo.contribo.application.users.UserAccountRepository;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.user.UserAccountRecord;
 
 @Repository
 public class JdbcUserAccountRepository implements UserAccountRepository {

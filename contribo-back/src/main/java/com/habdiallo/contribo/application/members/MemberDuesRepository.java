@@ -2,8 +2,8 @@ package com.habdiallo.contribo.application.members;
 
 import java.util.UUID;
 
-import com.habdiallo.contribo.api.generated.model.DuePage;
-import com.habdiallo.contribo.api.generated.model.DueStatus;
+import com.habdiallo.contribo.domain.campaign.DuePage;
+import com.habdiallo.contribo.domain.campaign.DueStatus;
 
 public interface MemberDuesRepository {
 

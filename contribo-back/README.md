@@ -9,6 +9,15 @@ versionné dans `src/main/resources/db/migration` et ne contient pas de données
 de démonstration ni de secrets. Les paramètres de connexion sont injectés par
 `DB_URL`, `DB_USERNAME` et `DB_PASSWORD`.
 
+## Frontières domaine
+
+Les modèles du package `com.habdiallo.contribo.domain` sont indépendants de
+Spring, JDBC et des classes générées depuis OpenAPI. Les ports de comptes,
+membres et catégories échangent ces types domaine avec les repositories JDBC.
+Les adapters REST conservent les DTO générés au bord du système afin de
+préserver le contrat HTTP. Les agrégats campagnes et cagnottes suivent une
+migration progressive dans leurs tickets dédiés.
+
 ## Commandes
 
 Depuis `contribo-back/` :

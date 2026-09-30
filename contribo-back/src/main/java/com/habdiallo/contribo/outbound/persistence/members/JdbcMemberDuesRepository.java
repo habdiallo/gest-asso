@@ -11,16 +11,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.CampaignReference;
-import com.habdiallo.contribo.api.generated.model.CampaignStatus;
-import com.habdiallo.contribo.api.generated.model.CurrencyCode;
-import com.habdiallo.contribo.api.generated.model.Due;
-import com.habdiallo.contribo.api.generated.model.DuePage;
-import com.habdiallo.contribo.api.generated.model.DueStatus;
-import com.habdiallo.contribo.api.generated.model.IncomeCategorySummary;
-import com.habdiallo.contribo.api.generated.model.PageMetadata;
-import com.habdiallo.contribo.api.generated.model.PersonSummary;
 import com.habdiallo.contribo.application.members.MemberDuesRepository;
+import com.habdiallo.contribo.domain.campaign.CampaignReference;
+import com.habdiallo.contribo.domain.campaign.CampaignStatus;
+import com.habdiallo.contribo.domain.campaign.Due;
+import com.habdiallo.contribo.domain.campaign.DuePage;
+import com.habdiallo.contribo.domain.campaign.DueStatus;
+import com.habdiallo.contribo.domain.category.IncomeCategorySummary;
+import com.habdiallo.contribo.domain.common.PageMetadata;
+import com.habdiallo.contribo.domain.campaign.PersonSummary;
+import com.habdiallo.contribo.domain.shared.CurrencyCode;
 
 @Repository
 public class JdbcMemberDuesRepository implements MemberDuesRepository {

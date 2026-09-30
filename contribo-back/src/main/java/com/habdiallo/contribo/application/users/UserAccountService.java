@@ -18,6 +18,7 @@ import com.habdiallo.contribo.application.access.AuthorizationService;
 import com.habdiallo.contribo.application.access.BusinessConflictException;
 import com.habdiallo.contribo.application.access.ResourceNotFoundException;
 import com.habdiallo.contribo.application.auth.TemporaryPasswordGenerator;
+import com.habdiallo.contribo.domain.user.UserAccountRecord;
 import com.habdiallo.contribo.security.RevokedTokenRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -44,28 +45,31 @@ public class UserAccountService {
     }
 
     public UserAccountPage list(UUID actorId, Integer page, Integer size, String query, UserRole role) {
-        var actor = authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR);
+        var actor = authorizationService.requireRole(
+                actorId, com.habdiallo.contribo.domain.access.UserRole.ADMINISTRATOR);
         int pageNumber = page == null ? 0 : page;
         int pageSize = size == null ? 20 : size;
         List<UserAccount> items = repository.findPage(
-                        actor.associationId(), pageNumber, pageSize, query, role)
+                        actor.associationId(), pageNumber, pageSize, query, toDomainRole(role))
                 .stream()
                 .map(this::toModel)
                 .toList();
-        long total = repository.count(actor.associationId(), query, role);
+        long total = repository.count(actor.associationId(), query, toDomainRole(role));
         int totalPages = total == 0 ? 0 : Math.toIntExact((total + pageSize - 1) / pageSize);
         return new UserAccountPage(items, new PageMetadata(pageNumber, pageSize, total, totalPages));
     }
 
     public UserAccount get(UUID actorId, UUID userId) {
-        var actor = authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR);
+        var actor = authorizationService.requireRole(
+                actorId, com.habdiallo.contribo.domain.access.UserRole.ADMINISTRATOR);
         return toModel(repository.findById(actor.associationId(), userId)
                 .orElseThrow(ResourceNotFoundException::new));
     }
 
     @Transactional
     public UserAccount updateAccess(UUID actorId, UUID userId, UpdateUserAccessRequest request) {
-        var actor = authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR);
+        var actor = authorizationService.requireRole(
+                actorId, com.habdiallo.contribo.domain.access.UserRole.ADMINISTRATOR);
         repository.findById(actor.associationId(), userId)
                 .orElseThrow(ResourceNotFoundException::new);
         if (request.getRole() != UserRole.OPERATOR && request.getOperatorCanRecordPayments()) {
@@ -85,7 +89,8 @@ public class UserAccountService {
 
     @Transactional
     public TemporaryCredentials resetCredentials(UUID actorId, UUID userId) {
-        var actor = authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR);
+        var actor = authorizationService.requireRole(
+                actorId, com.habdiallo.contribo.domain.access.UserRole.ADMINISTRATOR);
         UserAccountRecord account = repository.findById(actor.associationId(), userId)
                 .orElseThrow(ResourceNotFoundException::new);
         String temporaryPassword = temporaryPasswordGenerator.generate();
@@ -105,5 +110,11 @@ public class UserAccountService {
                 account.active(),
                 new PersonSummary(account.memberId(), account.firstName() + " " + account.lastName()))
                 .mustChangePassword(account.mustChangePassword());
+    }
+
+    private com.habdiallo.contribo.domain.access.UserRole toDomainRole(UserRole role) {
+        return role == null
+                ? null
+                : com.habdiallo.contribo.domain.access.UserRole.fromValue(role.getValue());
     }
 }
