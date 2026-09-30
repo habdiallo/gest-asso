@@ -1,10 +1,18 @@
 ## ADDED Requirements
 
-### Requirement: Corriger les noms générés depuis les tags OpenAPI
+### Requirement: Tags du contrat en ASCII
 
-Le dépôt SHALL traiter ce sujet de façon explicite, testable lorsque possible, et documentée.
+Les tags OpenAPI de `besoins/openapi.yaml` SHALL être composés uniquement de
+caractères ASCII, pour garantir une génération de code reproductible côté
+client Angular et côté interfaces backend avec les générateurs actuellement
+épinglés.
 
-#### Scenario: Contrôle de livraison
+#### Scenario: Ajout d'un nouveau tag
 
-- **WHEN** le ticket est validé
-- **THEN** son périmètre est couvert par le code ou une décision documentée, ses validations sont tracées et ses dépendances sont respectées
+- **WHEN** une opération nécessite un nouveau tag dans `besoins/openapi.yaml`
+- **THEN** ce tag ne contient aucun caractère accentué ou non-ASCII
+
+#### Scenario: Tag existant accentué détecté en revue
+
+- **WHEN** un tag accentué est proposé ou constaté dans le contrat
+- **THEN** la PR corrige le tag en équivalent ASCII avant la génération et la fusion

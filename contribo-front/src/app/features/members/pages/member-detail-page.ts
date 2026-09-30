@@ -18,9 +18,9 @@ import {
   ErrorCode,
   MemberStatus,
   MembresService,
-  RglementsService,
+  ReglementsService,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CreatePaymentRequest,
   Due,
@@ -29,7 +29,7 @@ import type {
   PaymentMethod,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';
@@ -71,7 +71,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
 
 /**
  * Écran fiche membre (T-27, T-130) : appelle `GET /members/{memberId}`
- * (`@api`, `MembresService.getMember`) et affiche la fiche alignée sur le
+ * (`@core/api`, `MembresService.getMember`) et affiche la fiche alignée sur le
  * prototype de détail partagé (`app-detail-shell`, `app-detail-tabs`) :
  * hero d'identité, carte principale (identité, informations personnelles et
  * associatives), colonne latérale (situation financière, compte associé) et
@@ -84,7 +84,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
  * Action "Enregistrer un règlement" (T-130) : ouvre un modal `Nouveau
  * règlement` qui charge les cotisations ouvertes et non soldées du membre
  * (`listMemberDues`, campagne `OPEN` et statut différent de Payé) pour peupler
- * un sélecteur de campagne, puis délègue à `RglementsService.createPayment(due.id, ...)`,
+ * un sélecteur de campagne, puis délègue à `ReglementsService.createPayment(due.id, ...)`,
  * même appel que `CampaignDuesTab` (T-71). Après succès, le membre est
  * rechargé pour rafraîchir la situation financière affichée (`financialSummary`,
  * non renvoyée par la mutation de règlement) et `dataRefreshToken` est
@@ -121,7 +121,7 @@ const PAYABLE_DUES_PAGE_SIZE = 50;
 export class MemberDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly membersService = inject(MembresService);
-  private readonly paymentsService = inject(RglementsService);
+  private readonly paymentsService = inject(ReglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly transloco = inject(TranslocoService);

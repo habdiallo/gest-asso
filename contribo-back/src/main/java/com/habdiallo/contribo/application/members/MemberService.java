@@ -28,9 +28,10 @@ import com.habdiallo.contribo.application.access.ResourceNotFoundException;
 import com.habdiallo.contribo.api.generated.model.CreateMemberRequest;
 import com.habdiallo.contribo.api.generated.model.ErrorCode;
 import com.habdiallo.contribo.api.generated.model.UserAccountSummary;
-import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.api.generated.model.TemporaryCredentials;
 import com.habdiallo.contribo.application.auth.TemporaryPasswordGenerator;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.member.MemberRecord;
 
 @Service
 public class MemberService {
@@ -61,11 +62,12 @@ public class MemberService {
         int pageNumber = page == null ? 0 : page;
         int pageSize = size == null ? 20 : size;
         List<MemberSummary> items = memberRepository.findPage(
-                        actor.associationId(), pageNumber, pageSize, query, status)
+                        actor.associationId(), pageNumber, pageSize, query, toDomainStatus(status))
                 .stream()
                 .map(this::toSummary)
                 .toList();
-        long total = memberRepository.count(actor.associationId(), query, status);
+        long total = memberRepository.count(
+                actor.associationId(), query, toDomainStatus(status));
         return new MemberPage(
                 items,
                 new MemberCountSummary(
@@ -87,8 +89,9 @@ public class MemberService {
         if (!memberDuesRepository.exists(actor.associationId(), memberId)) {
             throw new ResourceNotFoundException();
         }
-        return memberDuesRepository.findPage(
-                actor.associationId(), memberId, page == null ? 0 : page, size == null ? 20 : size, status);
+        return toApiDuePage(memberDuesRepository.findPage(
+                actor.associationId(), memberId, page == null ? 0 : page, size == null ? 20 : size,
+                toDomainDueStatus(status)));
     }
 
     @Transactional
@@ -226,7 +229,7 @@ public class MemberService {
     private MemberDetails toDetails(MemberRecord member) {
         UserAccountSummary account = new UserAccountSummary(
                 member.accountId(),
-                UserRole.fromValue(member.accountRole()),
+                com.habdiallo.contribo.api.generated.model.UserRole.fromValue(member.accountRole()),
                 member.operatorCanRecordPayments(),
                 member.accountActive())
                 .mustChangePassword(member.mustChangePassword());
@@ -273,6 +276,47 @@ public class MemberService {
 
     private <T> T value(T candidate, T existing) {
         return candidate == null ? existing : candidate;
+    }
+
+    private com.habdiallo.contribo.domain.member.MemberStatus toDomainStatus(
+            com.habdiallo.contribo.api.generated.model.MemberStatus status) {
+        return status == null ? null
+                : com.habdiallo.contribo.domain.member.MemberStatus.fromValue(status.getValue());
+    }
+
+    private com.habdiallo.contribo.domain.campaign.DueStatus toDomainDueStatus(
+            com.habdiallo.contribo.api.generated.model.DueStatus status) {
+        return status == null ? null
+                : com.habdiallo.contribo.domain.campaign.DueStatus.fromValue(status.getValue());
+    }
+
+    private com.habdiallo.contribo.api.generated.model.DuePage toApiDuePage(
+            com.habdiallo.contribo.domain.campaign.DuePage page) {
+        return new com.habdiallo.contribo.api.generated.model.DuePage(
+                page.items().stream().map(this::toApiDue).toList(),
+                new com.habdiallo.contribo.api.generated.model.PageMetadata(
+                        page.page().page(), page.page().size(), page.page().totalElements(),
+                        page.page().totalPages()));
+    }
+
+    private com.habdiallo.contribo.api.generated.model.Due toApiDue(
+            com.habdiallo.contribo.domain.campaign.Due due) {
+        return new com.habdiallo.contribo.api.generated.model.Due(
+                due.id(),
+                new com.habdiallo.contribo.api.generated.model.PersonSummary(
+                        due.member().id(), due.member().displayName()),
+                new com.habdiallo.contribo.api.generated.model.CampaignReference(
+                        due.campaign().id(), due.campaign().name(), due.campaign().startDate(),
+                        due.campaign().endDate(),
+                        com.habdiallo.contribo.api.generated.model.CampaignStatus.fromValue(
+                                due.campaign().status().name())),
+                new com.habdiallo.contribo.api.generated.model.IncomeCategorySummary(
+                        due.category().id(), due.category().label()),
+                due.dueAmount(), due.paidAmount(), due.remainingAmount(),
+                com.habdiallo.contribo.api.generated.model.DueStatus.fromValue(due.status().name()),
+                due.paymentCount(),
+                com.habdiallo.contribo.api.generated.model.CurrencyCode.fromValue(
+                        due.currency().getValue()));
     }
 
 }

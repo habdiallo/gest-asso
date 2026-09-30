@@ -11,7 +11,7 @@ import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
-import type { PaymentMethod } from '@api';
+import type { PaymentMethod } from '@core/api';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { filter, map } from 'rxjs';
 import { PAYMENT_METHOD_OPTIONS } from './payment-method-options';

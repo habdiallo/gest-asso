@@ -1,7 +1,8 @@
-package com.habdiallo.contribo.application.auth;
+package com.habdiallo.contribo.domain.auth;
 
 import java.util.UUID;
 
+/** Account and member data required by authentication and authorization use cases. */
 public record AuthenticatedAccount(
         UUID userId,
         String passwordHash,

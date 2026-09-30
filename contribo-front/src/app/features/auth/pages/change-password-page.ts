@@ -1,13 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthentificationService } from '@api';
+import { AuthentificationService } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { switchMap } from 'rxjs';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
@@ -59,9 +54,13 @@ export class ChangePasswordPage {
     this.error.set(false);
     this.authenticationService
       .getCsrfToken()
-      .pipe(switchMap(() => this.authenticationService.changePassword({
-        newPassword: this.form.controls.newPassword.value,
-      })))
+      .pipe(
+        switchMap(() =>
+          this.authenticationService.changePassword({
+            newPassword: this.form.controls.newPassword.value,
+          }),
+        ),
+      )
       .subscribe({
         next: (response) => {
           this.sessionService.setSession(response);

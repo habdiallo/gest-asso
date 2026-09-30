@@ -8,8 +8,8 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
 import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Repository
 public class AuthenticationRepository implements AuthenticationAccountPort {

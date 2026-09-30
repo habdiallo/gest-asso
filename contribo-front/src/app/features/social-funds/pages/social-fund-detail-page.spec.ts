@@ -10,7 +10,7 @@ import {
   PaymentMethod,
   SocialEventType,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionCreationResponse,
@@ -18,7 +18,7 @@ import type {
   CurrentUser,
   MemberPage,
   SocialFund,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';

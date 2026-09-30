@@ -11,13 +11,13 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import type { FormControl } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CampagnesService, CampaignStatus, ErrorCode, UserRole } from '@api';
+import { CampagnesService, CampaignStatus, ErrorCode, UserRole } from '@core/api';
 import type {
   Campaign,
   CampaignCategoryAmountInput,
   ErrorResponse,
   UpdateCampaignCategoryAmountsRequest,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';

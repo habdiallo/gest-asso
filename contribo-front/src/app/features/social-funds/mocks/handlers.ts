@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@api';
+import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -11,7 +11,7 @@ import type {
   SocialFund,
   SocialFundPage,
   SocialFundSummary,
-} from '@api';
+} from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 /**
@@ -231,9 +231,7 @@ function isExternalContributionRequest(
   return 'externalContributor' in request;
 }
 
-function canRecordContribution(
-  account: ReturnType<typeof findDemoAccountByRequest>,
-): boolean {
+function canRecordContribution(account: ReturnType<typeof findDemoAccountByRequest>): boolean {
   if (!account) {
     return false;
   }
@@ -435,7 +433,6 @@ export const socialFundsHandlers = [
       const body = (await request.json()) as CreateContributionRequest;
       const isExternal = isExternalContributionRequest(body);
       const hasMember = 'memberId' in body;
-      const memberId = 'memberId' in body ? body.memberId : undefined;
       if (isExternal === hasMember) {
         return contributionValidationError(
           'Une contribution doit être rattachée à un membre ou à un contributeur externe.',
@@ -456,9 +453,14 @@ export const socialFundsHandlers = [
       const summary = demoSocialFunds[summaryIndex];
       const existingContributions = demoContributionsBySocialFundId[socialFundId] ?? [];
       const contributionDate = body.contributionDate;
+      const member = isExternal
+        ? null
+        : body.memberId
+          ? { id: body.memberId, displayName: 'Membre sélectionné' }
+          : null;
       const contribution: Contribution = {
         id: crypto.randomUUID(),
-        member: isExternal ? null : { id: memberId!, displayName: 'Membre sélectionné' },
+        member,
         externalContributor: isExternal ? body.externalContributor : null,
         socialFund: {
           id: summary.id,
@@ -521,7 +523,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/closure',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-    const account = findDemoAccountByRequest(request);
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }

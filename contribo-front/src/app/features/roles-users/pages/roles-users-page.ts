@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UserRole, UtilisateursEtRlesService } from '@api';
-import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@api';
+import { UserRole, UtilisateursEtRolesService } from '@core/api';
+import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
@@ -27,8 +27,8 @@ const SEARCH_DEBOUNCE_MS = 300;
 /**
  * Écran liste des utilisateurs avec rôle applicatif affiché (T-52), réservé à
  * l'Administrateur (RG-ROLE-002, garde de route `roleGuard` dans
- * `roles-users.routes.ts`). Appelle `GET /users` (`@api`,
- * `UtilisateursEtRlesService.listUsers`) avec recherche et filtre de rôle du
+ * `roles-users.routes.ts`). Appelle `GET /users` (`@core/api`,
+ * `UtilisateursEtRolesService.listUsers`) avec recherche et filtre de rôle du
  * contrat (`q`, `role`), pagination incluse. La recherche texte est débattue
  * manuellement (setTimeout) avant de déclencher `refetch$`, afin que le
  * chargement initial reste immédiat (cf. `.claude/rules/frontend/angular.md`,
@@ -76,7 +76,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolesUsersPage {
-  private readonly usersService = inject(UtilisateursEtRlesService);
+  private readonly usersService = inject(UtilisateursEtRolesService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly roleOptions: readonly UserRole[] = [

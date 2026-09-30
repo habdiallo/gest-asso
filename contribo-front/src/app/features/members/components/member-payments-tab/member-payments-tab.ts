@@ -9,8 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RglementsService } from '@api';
-import type { Payment, PaymentPage } from '@api';
+import { ReglementsService } from '@core/api';
+import type { Payment, PaymentPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DataTable } from '@shared/data-table/data-table';
@@ -43,7 +43,7 @@ const PAYMENTS_PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MemberPaymentsTab {
-  private readonly paymentsService = inject(RglementsService);
+  private readonly paymentsService = inject(ReglementsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly memberId = input.required<string>();

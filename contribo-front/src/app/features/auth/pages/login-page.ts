@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthentificationService } from '@api';
+import { AuthentificationService } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { switchMap } from 'rxjs';
 import type { TranslationKey } from '@core/i18n/translation-keys';

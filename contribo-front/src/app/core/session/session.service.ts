@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import { canRecordPayments as canUserRecordPayments } from './payment-authorization';
 
 @Injectable({ providedIn: 'root' })

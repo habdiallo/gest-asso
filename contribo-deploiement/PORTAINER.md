@@ -59,13 +59,36 @@ Les réseaux externes peuvent être renommés avec `DATABASE_NETWORK` et
 `frontend`; le frontend joint le backend uniquement sur
 `contribo-internal`.
 
+## Source de vérité et synchronisation
+
+Les routes API, le fallback de l'application et les limites de débit sont
+partagés par les configurations Nginx locale et de production via les includes
+`nginx-application-locations.conf` et `nginx-rate-limits.conf`. La configuration
+de production conserve ses différences nécessaires : redirection HTTP vers
+HTTPS, certificats TLS et HSTS.
+
+Le dépôt `habdiallo/gest-asso-deploiement`, branche `main`, est la source de
+vérité consommée par Portainer pour la composition de production. La copie
+`contribo-deploiement/compose.portainer.yaml` de ce dépôt applicatif est un
+miroir de référence pour les développeurs et la CI.
+
+Toute modification de la composition doit être livrée dans deux PR
+synchronisées : d'abord dans `gest-asso-deploiement`, puis dans ce dépôt avec
+la même composition. Le workflow `Deployment repository parity` compare les
+deux fichiers sur `develop` et `main` et bloque toute divergence.
+
+Le dépôt applicatif doit posséder le secret GitHub `DEPLOYMENT_REPO_TOKEN`,
+limité à la lecture du dépôt privé `gest-asso-deploiement`. Ce jeton est utilisé
+uniquement par le checkout CI du dépôt de déploiement et ne doit jamais être
+écrit dans les fichiers de configuration ou les logs.
+
 ## Promouvoir en production
 
 Après les smoke tests staging et la fusion de la release vers `main`, reprendre
 exactement les deux mêmes digests dans la stack de production. Le push vers
-`main` ne reconstruit pas une autre image. Le dépôt
-`gest-asso-deploiement` contient la même composition sans symlink et peut être
-utilisé comme source Git de la stack Portainer.
+`main` ne reconstruit pas une autre image. Après la fusion des PR
+synchronisées, Portainer doit continuer à pointer vers la branche `main` de
+`gest-asso-deploiement`.
 
 ## Vérifier et revenir en arrière
 

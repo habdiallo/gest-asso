@@ -10,21 +10,41 @@ import java.util.Base64;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Support commun aux tests d'intégration `@SpringBootTest`. Un seul conteneur
+ * PostgreSQL réel (Testcontainers) est démarré pour toute la JVM de test et
+ * partagé par toutes les sous-classes via {@code @DynamicPropertySource},
+ * sur le même principe que l'injection des clés RSA ci-dessous. Docker doit
+ * être disponible pour exécuter ces tests (local ou CI).
+ */
 abstract class RsaIntegrationTestSupport {
 
     private static final Path KEY_DIRECTORY = createKeyDirectory();
+
+    private static final PostgreSQLContainer<?> POSTGRES =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"));
 
     static {
         KeyPair keyPair = TestRsaKeyMaterial.generate();
         writePem(KEY_DIRECTORY.resolve("public.pem"), "PUBLIC KEY", keyPair.getPublic().getEncoded());
         writePem(KEY_DIRECTORY.resolve("private.pem"), "PRIVATE KEY", keyPair.getPrivate().getEncoded());
+        POSTGRES.start();
     }
 
     @DynamicPropertySource
     static void rsaProperties(DynamicPropertyRegistry registry) {
         registry.add("security.rsa.public-key", () -> "file:" + KEY_DIRECTORY.resolve("public.pem"));
         registry.add("security.rsa.private-key", () -> "file:" + KEY_DIRECTORY.resolve("private.pem"));
+    }
+
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
     }
 
     static String tokenSignedByAnotherKey(UUID userId) {

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MembresService, MemberStatus } from '@api';
+import { MembresService, MemberStatus } from '@core/api';
 import type {
   CreateMemberRequest,
   MemberCreationResponse,
@@ -17,7 +17,7 @@ import type {
   MemberPage,
   MemberSummary,
   TemporaryCredentials,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
@@ -36,7 +36,7 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 const MEMBERS_PAGE_SIZE = 10;
 
 /**
- * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
+ * Écran liste des membres (T-21) : appelle `GET /membres` (`@core/api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
  * à US-MEM-002. La présentation reprend le tableau du prototype, avec

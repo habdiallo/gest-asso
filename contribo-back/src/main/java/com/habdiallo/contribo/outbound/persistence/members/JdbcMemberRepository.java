@@ -2,6 +2,7 @@ package com.habdiallo.contribo.outbound.persistence.members;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,9 +10,9 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.MemberStatus;
-import com.habdiallo.contribo.application.members.MemberRecord;
 import com.habdiallo.contribo.application.members.MemberRepository;
+import com.habdiallo.contribo.domain.member.MemberRecord;
+import com.habdiallo.contribo.domain.member.MemberStatus;
 import com.habdiallo.contribo.outbound.persistence.DbTime;
 
 @Repository
@@ -78,6 +79,15 @@ public class JdbcMemberRepository implements MemberRepository {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM members WHERE association_id = ? AND status = ?",
                 Long.class, associationId, status);
+    }
+
+    @Override
+    public long countCreatedSince(UUID associationId, OffsetDateTime from) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM members WHERE association_id = ? AND created_at >= ?",
+                Long.class,
+                associationId,
+                from);
     }
 
     @Override

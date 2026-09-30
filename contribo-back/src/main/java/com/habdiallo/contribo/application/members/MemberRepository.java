@@ -3,8 +3,10 @@ package com.habdiallo.contribo.application.members;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.OffsetDateTime;
 
-import com.habdiallo.contribo.api.generated.model.MemberStatus;
+import com.habdiallo.contribo.domain.member.MemberRecord;
+import com.habdiallo.contribo.domain.member.MemberStatus;
 
 public interface MemberRepository {
 
@@ -16,6 +18,8 @@ public interface MemberRepository {
     long countAll(UUID associationId);
 
     long countByStatus(UUID associationId, String status);
+
+    long countCreatedSince(UUID associationId, OffsetDateTime from);
 
     Optional<MemberRecord> findById(UUID associationId, UUID memberId);
 

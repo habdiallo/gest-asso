@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, UserRole } from '@api';
-import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@api';
+import { ErrorCode, UserRole } from '@core/api';
+import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 const demoIncomeCategories: IncomeCategory[] = [

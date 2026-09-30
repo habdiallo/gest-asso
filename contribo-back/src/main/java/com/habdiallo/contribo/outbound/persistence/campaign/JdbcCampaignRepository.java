@@ -36,6 +36,7 @@ import com.habdiallo.contribo.api.generated.model.PaymentPage;
 import com.habdiallo.contribo.api.generated.model.PaymentMethod;
 import com.habdiallo.contribo.api.rest.ApiErrors;
 import com.habdiallo.contribo.application.campaign.CampaignRepository;
+import com.habdiallo.contribo.application.campaign.CampaignCatalogRepository.CampaignAggregate;
 
 @Repository
 public class JdbcCampaignRepository implements CampaignRepository {
@@ -77,6 +78,50 @@ public class JdbcCampaignRepository implements CampaignRepository {
                 CAMPAIGN_SUMMARY_ROW,
                 parameters.toArray()).stream().map(this::toCampaignSummary).toList();
         return new CampaignPage(items, pageMetadata(page, size, total));
+    }
+
+    @Override
+    public Optional<CampaignSummary> findOpenCampaign(UUID associationId, UUID campaignId) {
+        return jdbcTemplate.query(
+                "SELECT c.id, c.name, c.description, c.start_date, c.end_date, c.status, "
+                        + "c.opened_at, c.opened_by, c.closed_at, c.closed_by, "
+                        + "(SELECT COUNT(*) FROM dues d WHERE d.campaign_id = c.id) AS member_count "
+                        + "FROM campaigns c WHERE c.association_id = ? AND c.id = ? AND c.status = 'OPEN'",
+                CAMPAIGN_SUMMARY_ROW,
+                associationId,
+                campaignId).stream().findFirst().map(this::toCampaignSummary);
+    }
+
+    @Override
+    public CampaignAggregate aggregateOpenCampaigns(UUID associationId) {
+        Long openCampaignCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM campaigns WHERE association_id = ? AND status = 'OPEN'",
+                Long.class,
+                associationId);
+        List<DueAggregate> aggregates = jdbcTemplate.query(
+                "SELECT d.due_amount, COALESCE(SUM(p.amount), 0) AS paid_amount "
+                        + "FROM dues d JOIN campaigns c ON c.id = d.campaign_id "
+                        + "LEFT JOIN payments p ON p.due_id = d.id "
+                        + "WHERE c.association_id = ? AND c.status = 'OPEN' "
+                        + "GROUP BY d.id, d.due_amount",
+                (rs, rowNum) -> new DueAggregate(rs.getLong("due_amount"), rs.getLong("paid_amount")),
+                associationId);
+        long expected = aggregates.stream().mapToLong(DueAggregate::dueAmount).sum();
+        long collected = aggregates.stream().mapToLong(DueAggregate::paidAmount).sum();
+        int paid = (int) aggregates.stream().filter(a -> a.paidAmount() >= a.dueAmount()).count();
+        int partiallyPaid = (int) aggregates.stream()
+                .filter(a -> a.paidAmount() > 0 && a.paidAmount() < a.dueAmount())
+                .count();
+        int unpaid = aggregates.size() - paid - partiallyPaid;
+        double rate = expected == 0 ? 0d : collected * 100d / expected;
+        CampaignFinancialSummary summary = new CampaignFinancialSummary(
+                expected,
+                collected,
+                Math.max(0, expected - collected),
+                rate,
+                new DueCountSummary(aggregates.size(), paid, partiallyPaid, unpaid),
+                CurrencyCode.GNF);
+        return new CampaignAggregate(openCampaignCount == null ? 0 : openCampaignCount, summary);
     }
 
     @Override
@@ -340,6 +385,29 @@ public class JdbcCampaignRepository implements CampaignRepository {
                 PAYMENT_ROW_MAPPER,
                 parameters.toArray()).stream().map(PaymentRow::toPayment).toList();
         return new PaymentPage(items, pageMetadata(page, size, total));
+    }
+
+    @Override
+    public PaymentPage findRecentOpenPayments(UUID associationId, UUID campaignId) {
+        List<Object> parameters = new ArrayList<>();
+        String filters = "WHERE c.association_id = ? AND c.status = 'OPEN'";
+        parameters.add(associationId);
+        if (campaignId != null) {
+            filters += " AND c.id = ?";
+            parameters.add(campaignId);
+        }
+        long total = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM payments p JOIN dues d ON d.id = p.due_id "
+                        + "JOIN campaigns c ON c.id = d.campaign_id " + filters,
+                Long.class,
+                parameters.toArray());
+        parameters.add(5);
+        parameters.add(0L);
+        List<Payment> items = jdbcTemplate.query(
+                paymentSelect() + filters + " ORDER BY p.recorded_at DESC, p.id DESC LIMIT ? OFFSET ?",
+                PAYMENT_ROW_MAPPER,
+                parameters.toArray()).stream().map(PaymentRow::toPayment).toList();
+        return new PaymentPage(items, pageMetadata(0, 5, total));
     }
 
     private String campaignFilters(UUID associationId, String query, CampaignStatus status, List<Object> parameters) {

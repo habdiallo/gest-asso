@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@core/api';
 import type {
   Campaign,
   CampaignCategoryAmountInput,
@@ -15,7 +15,7 @@ import type {
   PaymentCreationResponse,
   PaymentPage,
   UpdateCampaignCategoryAmountsRequest,
-} from '@api';
+} from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { demoCampaignDues } from '@mocks/demo-dues';
 

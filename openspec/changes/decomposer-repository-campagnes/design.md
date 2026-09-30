@@ -16,11 +16,24 @@ Séparer campagnes, échéances et règlements par responsabilité. Le ticket es
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-171.
+Le service applicatif dépend désormais de trois ports distincts :
+`CampaignCatalogRepository` pour le cycle de vie des campagnes,
+`CampaignDueRepository` pour les échéances et `CampaignPaymentRepository` pour
+les règlements. Chaque port possède un adaptateur JDBC dédié.
+
+Pour limiter le risque de régression, ces adaptateurs délèguent encore leurs
+opérations au composant JDBC existant, qui reste la frontière SQL partagée de
+cette étape. Le dépôt monolithique n'est donc plus une dépendance de service,
+et pourra être réduit ou supprimé lors d'une étape ultérieure sans modifier
+les cas d'usage.
 
 ## Risks / Trade-offs
 
-- Une migration peut exposer des dépendances implicites. Les tests, la documentation et une procédure de retour arrière doivent les rendre visibles.
+- La délégation conserve temporairement un composant SQL partagé. Elle évite de
+  dupliquer les requêtes et de modifier les transactions dans ce ticket, mais
+  laisse une seconde étape pour déplacer le SQL dans chaque adaptateur.
+- Une migration peut exposer des dépendances implicites. Les tests, la
+  documentation et une procédure de retour arrière doivent les rendre visibles.
 
 ## Migration Plan
 

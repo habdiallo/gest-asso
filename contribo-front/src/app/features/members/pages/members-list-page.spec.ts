@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { CatgoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
+import { CategoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@core/api';
 import type {
   CreateMemberRequest,
   CurrentUser,
@@ -12,7 +12,7 @@ import type {
   MemberSummary,
   TemporaryCredentials,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
@@ -161,8 +161,8 @@ async function createFixture(
         useValue: { listMembers, createMember } as unknown as MembresService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       provideRouter([]),
       ...(options.queryParams

@@ -9,8 +9,8 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.application.categories.IncomeCategoryRecord;
 import com.habdiallo.contribo.application.categories.IncomeCategoryRepository;
+import com.habdiallo.contribo.domain.category.IncomeCategoryRecord;
 import com.habdiallo.contribo.outbound.persistence.DbTime;
 
 @Repository

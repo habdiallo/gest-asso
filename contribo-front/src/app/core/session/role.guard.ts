@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import type { CanMatchFn } from '@angular/router';
 import { Router } from '@angular/router';
-import type { UserRole } from '@api';
+import type { UserRole } from '@core/api';
 import { SessionService } from './session.service';
 
 export function roleGuard(...allowedRoles: UserRole[]): CanMatchFn {

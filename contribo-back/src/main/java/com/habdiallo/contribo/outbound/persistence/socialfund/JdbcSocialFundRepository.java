@@ -89,6 +89,23 @@ public class JdbcSocialFundRepository implements SocialFundRepository {
     }
 
     @Override
+    public List<SocialFundData> findOpenFunds(UUID associationId) {
+        return jdbcTemplate.query(
+                FUND_SELECT + " WHERE sf.association_id = ? AND sf.status = 'OPEN'"
+                        + " GROUP BY sf.id, sf.association_id, sf.title, sf.event_type, sf.description,"
+                        + " sf.beneficiary, sf.start_date, sf.end_date, sf.status, sf.target_amount, a.currency"
+                        + " ORDER BY sf.start_date DESC, sf.created_at DESC, sf.id DESC",
+                (resultSet, rowNumber) -> mapFund(resultSet),
+                associationId);
+    }
+
+    @Override
+    public SocialFundData findOpenFund(UUID associationId, UUID fundId) {
+        SocialFundData fund = findFund(associationId, fundId);
+        return fund != null && "OPEN".equals(fund.status()) ? fund : null;
+    }
+
+    @Override
     public UUID createFund(UUID associationId, String title, String eventType, String description,
             String beneficiary, LocalDate startDate, LocalDate endDate, Long targetAmount) {
         UUID id = UUID.randomUUID();

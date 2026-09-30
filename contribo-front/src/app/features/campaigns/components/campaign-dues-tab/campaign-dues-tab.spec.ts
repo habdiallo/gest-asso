@@ -8,10 +8,10 @@ import {
   ErrorCode,
   MemberStatus,
   PaymentMethod,
-  RglementsService,
+  ReglementsService,
   UserRole,
-} from '@api';
-import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@api';
+} from '@core/api';
+import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
@@ -153,7 +153,7 @@ async function createFixture(
     providers: [
       { provide: CampagnesService, useValue: { listCampaignDues } },
       {
-        provide: RglementsService,
+        provide: ReglementsService,
         useValue: { createPayment: options.createPayment ?? (() => of(buildPaymentResponse())) },
       },
     ],

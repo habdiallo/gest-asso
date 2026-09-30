@@ -16,7 +16,20 @@ Auditer la couverture des specs front et back et corriger les écarts. Le ticket
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-167, T-172, T-174, T-175, T-177.
+- `openspec/tickets.json` est la source de vérité pour l'identité, le scope, le
+  type, la branche, les dépendances et la liste d'étapes d'un ticket.
+- Chaque change planifié conserve le même socle d'artefacts, `proposal.md`,
+  `design.md`, une ou plusieurs specs et `tasks.md`, quel que soit le scope
+  frontend ou backend. Une sortie générée ne remplace pas ces sources.
+- La matrice de traçabilité sépare l'existence des artefacts, l'avancement local
+  des cases, la présence réelle de la branche et l'état de la PR. Une case cochée
+  ne permet pas de conclure qu'une PR a été fusionnée.
+- Les validations minimales sont `node scripts/tickets.mjs check`, la résolution
+  et le précontrôle des tickets concernés, puis `openspec status` pour chaque
+  change. Les limites ou états non vérifiables sont écrits comme tels.
+
+Les changements dépendants attendent les tickets T-167, T-172, T-174, T-175 et
+T-177. T-178 ne modifie aucun code généré ni comportement applicatif.
 
 ## Risks / Trade-offs
 
@@ -24,4 +37,12 @@ Implémenter le plus petit découpage cohérent, avec une validation automatisé
 
 ## Migration Plan
 
-Vérifier le ticket, implémenter uniquement son périmètre, exécuter les validations, mettre à jour les tâches, puis préparer une PR vers develop.
+Mettre à jour la documentation et la matrice sur la branche T-178, exécuter les
+contrôles du registre et des changes, puis préparer une PR vers `develop`. Le
+retour arrière consiste à retirer les ajouts documentaires, sans migration de
+données ni impact runtime.
+
+## Open Questions
+
+- Les états de PR distantes restent à confirmer dans le fournisseur Git lors de
+  chaque revue ; ils ne sont pas déduits des seules cases OpenSpec.

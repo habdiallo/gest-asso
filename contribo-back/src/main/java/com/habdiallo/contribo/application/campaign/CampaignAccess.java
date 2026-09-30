@@ -2,54 +2,41 @@ package com.habdiallo.contribo.application.campaign;
 
 import java.util.UUID;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.habdiallo.contribo.api.rest.ApiErrors;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
-import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
+import com.habdiallo.contribo.application.access.AuthorizationService;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Component
 public class CampaignAccess {
 
-    private final AuthenticationAccountPort accounts;
+    private final AuthorizationService authorizationService;
 
-    public CampaignAccess(AuthenticationAccountPort accounts) {
-        this.accounts = accounts;
+    public CampaignAccess(AuthorizationService authorizationService) {
+        this.authorizationService = authorizationService;
     }
 
-    public AuthenticatedAccount currentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UUID userId)) {
-            throw ApiErrors.forbidden();
-        }
-        return accounts.findById(userId)
-                .filter(AuthenticatedAccount::active)
-                .orElseThrow(ApiErrors::forbidden);
+    public AuthenticatedAccount currentUser(UUID actorId) {
+        return authorizationService.requireAuthenticated(actorId);
     }
 
-    public AuthenticatedAccount requireManagementRead() {
-        AuthenticatedAccount account = currentUser();
-        if (isManagement(account)) {
-            return account;
-        }
-        throw ApiErrors.forbidden();
+    public AuthenticatedAccount requireManagementRead(UUID actorId) {
+        return authorizationService.requireRole(
+                actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER, UserRole.OPERATOR);
     }
 
-    public AuthenticatedAccount requireCampaignWrite() {
-        AuthenticatedAccount account = currentUser();
-        if ("ADMINISTRATOR".equals(account.role()) || "TREASURER".equals(account.role())) {
-            return account;
-        }
-        throw ApiErrors.forbidden();
+    public AuthenticatedAccount requireCampaignWrite(UUID actorId) {
+        return authorizationService.requireRole(actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER);
     }
 
-    public AuthenticatedAccount requirePaymentWrite() {
-        AuthenticatedAccount account = currentUser();
+    public AuthenticatedAccount requirePaymentWrite(UUID actorId) {
+        AuthenticatedAccount account = authorizationService.requireRole(
+                actorId, UserRole.ADMINISTRATOR, UserRole.TREASURER, UserRole.OPERATOR);
         if ("ADMINISTRATOR".equals(account.role())
                 || "TREASURER".equals(account.role())
-                || ("OPERATOR".equals(account.role()) && account.operatorCanRecordPayments())) {
+                || account.operatorCanRecordPayments()) {
             return account;
         }
         throw ApiErrors.forbidden();

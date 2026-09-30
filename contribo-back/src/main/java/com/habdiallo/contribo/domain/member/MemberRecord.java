@@ -1,8 +1,9 @@
-package com.habdiallo.contribo.application.members;
+package com.habdiallo.contribo.domain.member;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/** Member aggregate snapshot returned by the persistence port. */
 public record MemberRecord(
         UUID id,
         UUID associationId,

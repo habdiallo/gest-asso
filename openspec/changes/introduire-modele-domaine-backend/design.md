@@ -18,6 +18,19 @@ Découpler les services, ports et repositories des DTO OpenAPI. Le ticket est is
 
 Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-167.
 
+## Implementation scope
+
+La première tranche migre les modèles et ports communs aux comptes, membres et
+catégories. Les snapshots issus de la persistance vivent dans `domain/`, les
+repositories JDBC et les ports applicatifs les utilisent directement, et les
+valeurs de rôle, de statut membre et de devise sont définies hors du contrat
+généré. Les DTO OpenAPI restent limités aux adapters REST et aux sorties de
+services non encore migrées afin de préserver le contrat existant.
+
+Les agrégats campagnes, échéances, règlements, cagnottes et contributions ne
+sont pas redécoupés ici. Leur migration doit rester compatible avec T-173 et les
+changes métier déjà livrés.
+
 ## Risks / Trade-offs
 
 - Une migration peut exposer des dépendances implicites. Les tests, la documentation et une procédure de retour arrière doivent les rendre visibles.

@@ -12,8 +12,11 @@ RUN npm run generate:api && npm run build
 
 FROM nginx:1.27-alpine
 
+RUN mkdir -p /etc/nginx/includes
 COPY contribo-deploiement/nginx.conf /etc/nginx/conf.d/default.conf
 COPY contribo-deploiement/proxy-common.conf /etc/nginx/conf.d/proxy-common.conf
+COPY contribo-deploiement/nginx-rate-limits.conf /etc/nginx/includes/nginx-rate-limits.conf
+COPY contribo-deploiement/nginx-application-locations.conf /etc/nginx/includes/nginx-application-locations.conf
 COPY --from=build /workspace/contribo-front/dist/contribo-front/browser /usr/share/nginx/html
 
 EXPOSE 80 443

@@ -16,7 +16,7 @@ Introduire des façades propres aux features sans créer de DTO concurrent. Le t
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-164, T-166.
+Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. `core/api/index.ts` devient la frontière stable de l'application : lui seul réexporte le client généré depuis `generated/`. Les features, le socle, les composants partagés et les mocks importent `@core/api`, sans créer de DTO concurrent ni de client HTTP manuel. Les changements dépendants T-164 et T-166 ont déjà stabilisé le contrat et la sortie générée.
 
 ## Risks / Trade-offs
 

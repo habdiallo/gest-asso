@@ -56,14 +56,12 @@ describe('sessionExpiredInterceptor', () => {
     httpMock.verify();
   });
 
-  it('clears the session and redirects to the login screen on a 401 response', () => {
+  it('clears the session and redirects to the login screen on a 401 from the current-user endpoint', () => {
     let observedError: unknown;
-    httpClient
-      .get('/api/v1/members')
-      .subscribe({ error: (error: unknown) => (observedError = error) });
+    httpClient.get('/api/v1/me').subscribe({ error: (error: unknown) => (observedError = error) });
 
     httpMock
-      .expectOne('/api/v1/members')
+      .expectOne('/api/v1/me')
       .flush(
         { code: 'AUTHENTICATION_REQUIRED', message: 'Session expirée' },
         { status: 401, statusText: 'Unauthorized' },
@@ -72,6 +70,24 @@ describe('sessionExpiredInterceptor', () => {
     expect(session.token()).toBeNull();
     expect(session.user()).toBeNull();
     expect(navigateSpy).toHaveBeenCalledWith('/login');
+    expect(observedError).toBeTruthy();
+  });
+
+  it('keeps the session and propagates a 401 from a business endpoint', () => {
+    let observedError: unknown;
+    httpClient
+      .get('/api/v1/members')
+      .subscribe({ error: (error: unknown) => (observedError = error) });
+
+    httpMock
+      .expectOne('/api/v1/members')
+      .flush(
+        { code: 'AUTHENTICATION_REQUIRED', message: 'Accès refusé' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+
+    expect(session.user()).not.toBeNull();
+    expect(navigateSpy).not.toHaveBeenCalled();
     expect(observedError).toBeTruthy();
   });
 
@@ -85,7 +101,7 @@ describe('sessionExpiredInterceptor', () => {
         { status: 403, statusText: 'Forbidden' },
       );
 
-    expect(session.token()).toBeNull();
+    expect(session.user()).not.toBeNull();
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
@@ -100,6 +116,20 @@ describe('sessionExpiredInterceptor', () => {
       );
 
     expect(navigateSpy).not.toHaveBeenCalled();
-    expect(session.token()).toBeNull();
+    expect(session.user()).not.toBeNull();
+  });
+
+  it('redirects to the password change screen for the dedicated 403 response', () => {
+    httpClient.get('/api/v1/members').subscribe({ error: () => undefined });
+
+    httpMock
+      .expectOne('/api/v1/members')
+      .flush(
+        { code: 'PASSWORD_CHANGE_REQUIRED', message: 'Mot de passe à modifier' },
+        { status: 403, statusText: 'Forbidden' },
+      );
+
+    expect(session.user()).not.toBeNull();
+    expect(navigateSpy).toHaveBeenCalledWith('/changer-mot-de-passe');
   });
 });
