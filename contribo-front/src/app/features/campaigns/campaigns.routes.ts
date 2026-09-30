@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { UserRole } from '@api';
+import { UserRole } from '@core/api';
 import { roleGuard } from '@core/session/role.guard';
 
 /**

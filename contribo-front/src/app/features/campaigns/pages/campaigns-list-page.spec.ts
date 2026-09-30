@@ -8,8 +8,8 @@ import {
   CurrencyCode,
   MemberStatus,
   UserRole,
-} from '@api';
-import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
+} from '@core/api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { SessionService } from '@core/session/session.service';

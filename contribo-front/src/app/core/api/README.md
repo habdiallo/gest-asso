@@ -5,8 +5,10 @@ Source unique : `besoins/openapi.yaml` à la racine. Depuis `contribo-front/`, l
 premier lancement télécharge le JAR fixé dans `openapitools.json`.
 
 La sortie `generated/` est ignorée par Git, ESLint et Prettier. Ne jamais la modifier
-manuellement : modifier la configuration/contrat puis régénérer. Importer les types
-et services via `@api` après génération. Aucun package npm client séparé n'est créé.
+manuellement : modifier la configuration/contrat puis régénérer. Le fichier
+`index.ts` est la frontière applicative unique vers cette sortie. Importer les types
+et services via `@core/api`, jamais directement depuis `generated/`. Aucun package npm
+client séparé n'est créé.
 
 Le client utilise `/api/v1`, configuré par le contrat. `provideHttpClient()` est
 installé au niveau applicatif. Configurer les credentials Bearer depuis la session
@@ -24,7 +26,7 @@ est requis pour valider ou générer le client, mais ni `npm start`, ni `npm tes
 première génération peut télécharger le JAR fixé dans `openapitools.json`.
 
 La génération API est explicite, sans hook npm automatique. Avant de construire ou
-tester une feature qui importe `@api`, générer le client. Vérifier sa compilation
+tester une feature qui importe `@core/api`, générer le client. Vérifier sa compilation
 avec `npx --no-install tsc --noEmit -p tsconfig.app.json`.
 
 ## Mock réseau en développement (MSW)
@@ -35,7 +37,7 @@ Tant que le backend n'est pas disponible, `npm run start:mock` démarre l'applic
 modifier le client généré ni les services. C'est un dispositif de développement/navigateur
 uniquement — `npm start` et `npm run build` restent inchangés et ne le chargent jamais.
 
-Chaque feature qui consomme `@api` en mode mock ajoute ses handlers dans
+Chaque feature qui consomme `@core/api` en mode mock ajoute ses handlers dans
 `features/<feature>/mocks/handlers.ts`, construits à partir des chemins/`operationId` et des
 modèles générés (pas de DTO concurrent du contrat), puis les agrège dans
 `src/mocks/handlers.ts`. Voir `features/dashboard/mocks/handlers.ts` pour un exemple sur

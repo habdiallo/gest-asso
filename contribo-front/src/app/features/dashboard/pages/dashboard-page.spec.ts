@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CagnottesService, CampagnesService, TableauDeBordService } from '@api';
+import { CagnottesService, CampagnesService, TableauDeBordService } from '@core/api';
 import type {
   CampaignPage,
   DashboardResponse,
   ManagementDashboard,
   MemberDashboard,
   SocialFundPage,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';

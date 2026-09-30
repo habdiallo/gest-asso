@@ -1,5 +1,5 @@
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { CurrentUser, LoginRequest } from '@api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import type { CurrentUser, LoginRequest } from '@core/api';
 
 export interface DemoAccount {
   readonly identifier: string;

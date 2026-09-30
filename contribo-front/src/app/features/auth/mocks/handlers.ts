@@ -1,6 +1,6 @@
 import { HttpResponse, http } from 'msw';
-import { ErrorCode, LoginResponse } from '@api';
-import type { CurrentUser, ErrorResponse } from '@api';
+import { ErrorCode, LoginResponse } from '@core/api';
+import type { CurrentUser, ErrorResponse } from '@core/api';
 import {
   findDemoAccount,
   findDemoAccountByRequest,

@@ -11,8 +11,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { CategoriesDeRevenuService, CreateCampaignRequest } from '@api';
-import type { CampaignCategoryAmountInput, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, CreateCampaignRequest } from '@core/api';
+import type { CampaignCategoryAmountInput, IncomeCategory } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';

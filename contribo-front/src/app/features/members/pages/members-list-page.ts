@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MembresService, MemberStatus } from '@api';
+import { MembresService, MemberStatus } from '@core/api';
 import type {
   CreateMemberRequest,
   MemberCreationResponse,
@@ -17,7 +17,7 @@ import type {
   MemberPage,
   MemberSummary,
   TemporaryCredentials,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';

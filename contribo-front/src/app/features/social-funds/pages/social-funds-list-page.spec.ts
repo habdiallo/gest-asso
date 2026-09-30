@@ -8,14 +8,14 @@ import {
   MemberStatus,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
+} from '@core/api';
 import type {
   CreateSocialFundRequest,
   CurrentUser,
   SocialFund,
   SocialFundPage,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';

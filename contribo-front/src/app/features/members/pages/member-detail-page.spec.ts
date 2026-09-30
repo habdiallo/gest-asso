@@ -15,7 +15,7 @@ import {
   SocialEventType,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   ContributionPage,
   CurrentUser,
@@ -25,7 +25,7 @@ import type {
   MemberDetails,
   PaymentCreationResponse,
   PaymentPage,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';

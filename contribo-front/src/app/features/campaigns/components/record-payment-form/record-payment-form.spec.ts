@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampaignStatus, CurrencyCode, DueStatus, PaymentMethod } from '@api';
-import type { CreatePaymentRequest, Due } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, PaymentMethod } from '@core/api';
+import type { CreatePaymentRequest, Due } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import fr from '@assets/i18n/fr.json';

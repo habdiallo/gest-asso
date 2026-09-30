@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CategoriesDeRevenuService } from '@api';
-import type { IncomeCategory } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';

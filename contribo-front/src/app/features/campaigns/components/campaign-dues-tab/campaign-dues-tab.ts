@@ -10,8 +10,8 @@ import {
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CampagnesService, DueStatus, ErrorCode, ReglementsService } from '@api';
-import type { CreatePaymentRequest, Due, DuePage, ErrorResponse } from '@api';
+import { CampagnesService, DueStatus, ErrorCode, ReglementsService } from '@core/api';
+import type { CreatePaymentRequest, Due, DuePage, ErrorResponse } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';

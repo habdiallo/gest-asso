@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthentificationService } from '@api';
+import { AuthentificationService } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { switchMap } from 'rxjs';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';

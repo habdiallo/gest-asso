@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { CampagnesService, CurrencyCode, ErrorCode, UserRole } from '@api';
+import { CampagnesService, CurrencyCode, ErrorCode, UserRole } from '@core/api';
 import type {
   Campaign,
   CurrentUser,
@@ -10,7 +10,7 @@ import type {
   ErrorResponse,
   CampaignOpeningReadiness,
   UpdateCampaignCategoryAmountsRequest,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';

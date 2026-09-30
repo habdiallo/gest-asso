@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { PaymentMethod } from '@api';
+import { PaymentMethod } from '@core/api';
 import { PaymentMethodSelect } from './payment-method-select';
 
 @Component({

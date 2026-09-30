@@ -20,7 +20,7 @@ import {
   MembresService,
   ReglementsService,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CreatePaymentRequest,
   Due,
@@ -29,7 +29,7 @@ import type {
   PaymentMethod,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import type { Observable } from 'rxjs';

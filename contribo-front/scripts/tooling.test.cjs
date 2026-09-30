@@ -1,7 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { ESLint } = require('eslint');
-const { dirname, join } = require('node:path');
+const { dirname, join, resolve } = require('node:path');
+const { readFileSync, readdirSync } = require('node:fs');
 
 const eslint = new ESLint();
 
@@ -61,6 +62,36 @@ test('le code généré reste exclu du lint', async () => {
     await eslint.isPathIgnored('src/app/core/api/generated/api/example.service.ts'),
     true,
   );
+});
+
+test('la frontière API est le seul point qui connaît le client généré', () => {
+  const sourceRoot = resolve('src');
+  const sourceFiles = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name !== 'generated') {
+          visit(path);
+        }
+      } else if (entry.name.endsWith('.ts')) {
+        sourceFiles.push(path);
+      }
+    }
+  };
+  visit(sourceRoot);
+
+  const directImports = sourceFiles.flatMap((path) => {
+    const source = readFileSync(path, 'utf8');
+    if (path.endsWith('core/api/index.ts')) {
+      return [];
+    }
+    return source.includes("'@api'") || source.includes("'@api/") || source.includes('/generated/')
+      ? [path]
+      : [];
+  });
+
+  assert.deepEqual(directImports, []);
 });
 
 test('le proxy Angular couvre les chemins API imbriqués sans réécriture', async () => {

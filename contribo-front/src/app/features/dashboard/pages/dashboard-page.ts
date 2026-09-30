@@ -15,7 +15,7 @@ import {
   SocialFundStatus,
   TableauDeBordService,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CampaignFinancialSummary,
   CampaignSummary,
@@ -23,7 +23,7 @@ import type {
   ManagementDashboard,
   MemberDashboard,
   SocialFundSummary,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { EMPTY, forkJoin } from 'rxjs';
 import type { Observable } from 'rxjs';

@@ -1,6 +1,6 @@
 import { setupServer } from 'msw/node';
-import { ErrorCode, UserRole } from '@api';
-import type { ErrorResponse } from '@api';
+import { ErrorCode, UserRole } from '@core/api';
+import type { ErrorResponse } from '@core/api';
 import { demoAccounts } from '@mocks/demo-accounts';
 import { incomeCategoriesHandlers } from './handlers';
 

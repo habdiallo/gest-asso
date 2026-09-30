@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EspacePersonnelService } from '@api';
-import type { ContributionPage } from '@api';
+import { EspacePersonnelService } from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { EmptyState } from '@shared/empty-state/empty-state';

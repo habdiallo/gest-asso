@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { CategoriesDeRevenuService } from '@api';
-import type { CurrentUser, IncomeCategory, LoginResponse } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { CurrentUser, IncomeCategory, LoginResponse } from '@core/api';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';

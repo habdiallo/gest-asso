@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CategoriesDeRevenuService } from '@api';
-import type { CreateMemberRequest, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { CreateMemberRequest, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';

@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, Validators } from '@angular/forms';
-import { CategoriesDeRevenuService, ErrorCode } from '@api';
-import type { ErrorResponse, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, ErrorCode } from '@core/api';
+import type { ErrorResponse, IncomeCategory } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';

@@ -8,8 +8,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CagnottesService, SocialEventType, SocialFundStatus } from '@api';
-import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@api';
+import { CagnottesService, SocialEventType, SocialFundStatus } from '@core/api';
+import type { CreateSocialFundRequest, SocialFundPage, SocialFundSummary } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';

@@ -1,12 +1,12 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, UserRole } from '@api';
+import { ErrorCode, UserRole } from '@core/api';
 import type {
   ErrorResponse,
   UpdateUserAccessRequest,
   UserAccount,
   UserAccountPage,
   UserRole as UserRoleType,
-} from '@api';
+} from '@core/api';
 import type { DemoAccount } from '@mocks/demo-accounts';
 import { demoAccounts, findDemoAccountByRequest } from '@mocks/demo-accounts';
 

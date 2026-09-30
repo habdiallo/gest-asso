@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { CreatePaymentRequest, Due, PaymentMethod } from '@api';
+import type { CreatePaymentRequest, Due, PaymentMethod } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { ActionButton } from '@shared/action-button/action-button';

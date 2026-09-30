@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { UserRole, UtilisateursEtRolesService } from '@api';
-import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@api';
+import { UserRole, UtilisateursEtRolesService } from '@core/api';
+import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { Subject, of, throwError } from 'rxjs';

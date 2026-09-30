@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UserRole, UtilisateursEtRolesService } from '@api';
-import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@api';
+import { UserRole, UtilisateursEtRolesService } from '@core/api';
+import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';

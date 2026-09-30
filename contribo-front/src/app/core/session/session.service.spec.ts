@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import {
   CurrencyCode,
   LoginResponse as LoginResponseNamespace,
   MemberStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { SessionService } from './session.service';
 
 function buildLoginResponse(overrides: Partial<CurrentUser> = {}): LoginResponse {

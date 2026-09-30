@@ -1,5 +1,5 @@
-import { CampaignStatus, DueStatus } from '@api';
-import type { PaymentMethod } from '@api';
+import { CampaignStatus, DueStatus } from '@core/api';
+import type { PaymentMethod } from '@core/api';
 import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
 
 /**

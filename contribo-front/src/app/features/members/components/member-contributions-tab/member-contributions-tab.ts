@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ContributionsService } from '@api';
-import type { ContributionPage } from '@api';
+import { ContributionsService } from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DataTable } from '@shared/data-table/data-table';
