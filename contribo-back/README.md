@@ -28,6 +28,15 @@ Les adapters REST conservent les DTO générés au bord du système afin de
 préserver le contrat HTTP. Les agrégats campagnes et cagnottes suivent une
 migration progressive dans leurs tickets dédiés.
 
+La persistance des campagnes est exposée au service par trois ports applicatifs
+distincts : `CampaignCatalogRepository` pour le cycle de vie des campagnes,
+`CampaignDueRepository` pour les échéances et `CampaignPaymentRepository` pour
+les règlements. Les adaptateurs `JdbcCampaignCatalogRepository`,
+`JdbcCampaignDueRepository` et `JdbcCampaignPaymentRepository` portent ces
+frontières. Ils délèguent encore au composant SQL partagé `JdbcCampaignRepository`
+pour conserver les requêtes et le comportement transactionnel pendant la
+migration.
+
 ## Commandes
 
 Depuis `contribo-back/` :
