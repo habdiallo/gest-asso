@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { CatgoriesDeRevenuService } from '@api';
+import { CategoriesDeRevenuService } from '@api';
 import type { CurrentUser, IncomeCategory, LoginResponse } from '@api';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -52,10 +52,10 @@ describe('App', () => {
       providers: [
         provideRouter(routes),
         {
-          provide: CatgoriesDeRevenuService,
+          provide: CategoriesDeRevenuService,
           useValue: {
             listIncomeCategories: () => of([] as IncomeCategory[]),
-          } as unknown as CatgoriesDeRevenuService,
+          } as unknown as CategoriesDeRevenuService,
         },
       ],
     }).compileComponents();

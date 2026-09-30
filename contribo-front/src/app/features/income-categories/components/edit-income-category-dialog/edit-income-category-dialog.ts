@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService, ErrorCode } from '@api';
+import { CategoriesDeRevenuService, ErrorCode } from '@api';
 import type { ErrorResponse, IncomeCategory } from '@api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -26,7 +26,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  * Formulaire de modification d'une catégorie de revenu (T-51), réservé à
  * l'Administrateur : un unique champ libellé obligatoire, comme à la création
  * (T-50). Appelle `PATCH /income-categories/{incomeCategoryId}` (`@api`,
- * `CatgoriesDeRevenuService.updateIncomeCategory`).
+ * `CategoriesDeRevenuService.updateIncomeCategory`).
  *
  * La modification du libellé n'a pas d'effet rétroactif sur les cotisations
  * déjà établies avec l'ancien libellé (US-REV-002) : seul le libellé affiché
@@ -44,7 +44,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
 })
 export class EditIncomeCategoryDialog {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
 
   /** Pilote l'ouverture/fermeture du dialogue. */
   readonly open = input(false);

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { PaymentMethod, RglementsService } from '@api';
+import { PaymentMethod, ReglementsService } from '@api';
 import type { Payment, PaymentPage } from '@api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
@@ -60,7 +60,7 @@ async function createFixture(
       }),
     ],
     providers: [
-      { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+      { provide: ReglementsService, useValue: { listPayments } as unknown as ReglementsService },
     ],
   }).compileComponents();
 

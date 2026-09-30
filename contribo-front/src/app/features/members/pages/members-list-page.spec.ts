@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { CatgoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
+import { CategoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
 import type {
   CreateMemberRequest,
   CurrentUser,
@@ -161,8 +161,8 @@ async function createFixture(
         useValue: { listMembers, createMember } as unknown as MembresService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       provideRouter([]),
       ...(options.queryParams

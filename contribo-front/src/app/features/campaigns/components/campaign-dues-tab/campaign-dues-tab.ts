@@ -10,7 +10,7 @@ import {
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CampagnesService, DueStatus, ErrorCode, RglementsService } from '@api';
+import { CampagnesService, DueStatus, ErrorCode, ReglementsService } from '@api';
 import type { CreatePaymentRequest, Due, DuePage, ErrorResponse } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
@@ -72,7 +72,7 @@ const DUES_PAGE_SIZE = 10;
 })
 export class CampaignDuesTab implements OnInit {
   private readonly campaignsService = inject(CampagnesService);
-  private readonly paymentsService = inject(RglementsService);
+  private readonly paymentsService = inject(ReglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionService = inject(SessionService);
   private requestedPage = 0;
@@ -249,7 +249,7 @@ export class CampaignDuesTab implements OnInit {
 
   /**
    * Confirme l'enregistrement (US-COT-005) : appelle `POST /dues/{dueId}/payments`
-   * (`RglementsService.createPayment`, openapi:`createPayment`), puis remplace la
+   * (`ReglementsService.createPayment`, openapi:`createPayment`), puis remplace la
    * cotisation affichée par l'état renvoyé (montant payé, reste à payer, statut
    * recalculés côté serveur), sans recalcul local. L'application de cet état est
    * indépendante de la session de dialogue : fermer/rouvrir le formulaire (Échap,

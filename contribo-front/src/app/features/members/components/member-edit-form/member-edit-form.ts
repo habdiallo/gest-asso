@@ -11,7 +11,7 @@ import {
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService } from '@api';
+import { CategoriesDeRevenuService } from '@api';
 import type { UpdateMemberRequest, IncomeCategory, MemberDetails } from '@api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -27,7 +27,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 })
 export class MemberEditForm implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly member = input.required<MemberDetails>();

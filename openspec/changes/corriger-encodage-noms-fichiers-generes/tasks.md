@@ -1,18 +1,20 @@
-## 1. Analyse et implémentation
+## 1. Contrat
 
-- [ ] 1.1 [T-166] Vérifier le ticket, ses dépendances et les fichiers réellement concernés.
-- [ ] 1.2 [T-166] Implémenter le périmètre corriger les noms générés depuis les tags openapi.
+- [x] 1.1 [T-166] Renommer les 3 tags accentués dans `besoins/openapi.yaml` : `Catégories de revenu` → `Categories de revenu`, `Règlements` → `Reglements`, `Utilisateurs et rôles` → `Utilisateurs et roles`, sans toucher aux chemins, `operationId`, schémas ni règles d'autorisation.
+- [x] 1.2 [T-166] Documenter l'exigence « tags ASCII » dans les conventions de contrat pertinentes (référencer `openspec/specs/api-design-first-governance/spec.md`).
 
-## 2. Documentation et validation
+## 2. Régénération backend
 
-- [ ] 2.1 [T-166] Ajouter ou mettre à jour la spec et la documentation concernées.
-- [ ] 2.2 [T-166] Exécuter les validations pertinentes et documenter les limites.
-- [ ] 2.3 [T-166] Préparer la PR vers develop sans fusion ni auto-merge.
+- [x] 2.1 [T-166] Régénérer les interfaces Spring (`mvn generate-sources` ou équivalent) et confirmer que `CategoriesDeRevenuApi`, `ReglementsApi`, `UtilisateursEtRolesApi` remplacent les anciens noms tronqués.
+- [x] 2.2 [T-166] Mettre à jour `IncomeCategoryController`, `PaymentController`, `UserAccountController` pour implémenter les nouvelles interfaces renommées.
+- [x] 2.3 [T-166] Compiler le backend (`mvn compile`) pour confirmer l'absence de référence résiduelle aux anciens noms.
 
-## 3. Régénération et livraison
+## 3. Régénération frontend
 
-- [ ] 3.1 [T-166] Régénérer les interfaces backend.
-- [ ] 3.2 [T-166] Régénérer le client frontend et adapter les imports.
-- [ ] 4.1 [T-166] Compiler et tester backend et frontend.
-- [ ] 4.2 [T-166] Rechercher les anciens noms générés.
-- [ ] 4.3 [T-166] Préparer la PR vers develop.
+- [x] 3.1 [T-166] Régénérer le client Angular (`npm run generate:api`) et confirmer que `catgories-de-revenu`, `rglements`, `utilisateurs-et-rles` sont remplacés par leurs équivalents ASCII dans `src/app/core/api/generated/`.
+- [x] 3.2 [T-166] Rechercher-remplacer les 23 fichiers applicatifs identifiés référençant `CatgoriesDeRevenuService`/`RglementsService`/`UtilisateursEtRlesService` (features `income-categories`, `roles-users`, `campaigns`, `members`, `app.spec.ts`) vers les nouveaux noms de classes.
+## 4. Validation
+
+- [x] 4.1 [T-166] Exécuter la suite de tests frontend affectée (`npm test`, périmètre income-categories/roles-users/campaigns/members) et la suite backend affectée (contrôleurs renommés).
+- [x] 4.2 [T-166] Vérifier qu'aucune autre occurrence des anciens noms tronqués ne subsiste dans `contribo-front/src` et `contribo-back/src` (recherche globale).
+- [x] 4.3 [T-166] Préparer la PR vers `develop` référençant ce ticket et ce change OpenSpec (`corriger-encodage-noms-fichiers-generes`), sans fusion ni auto-merge sans demande explicite.

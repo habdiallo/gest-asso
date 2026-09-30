@@ -11,7 +11,7 @@ import {
   MemberStatus,
   MembresService,
   PaymentMethod,
-  RglementsService,
+  ReglementsService,
   SocialEventType,
   SocialFundStatus,
   UserRole,
@@ -190,11 +190,11 @@ async function createFixture(
         } as unknown as MembresService,
       },
       {
-        provide: RglementsService,
+        provide: ReglementsService,
         useValue: {
           listPayments: () => of(buildPaymentPage()),
           createPayment: options.createPayment ?? (() => new Observable<PaymentCreationResponse>()),
-        } as unknown as RglementsService,
+        } as unknown as ReglementsService,
       },
       {
         provide: ContributionsService,
@@ -438,7 +438,7 @@ describe('MemberDetailPage', () => {
             listMemberDues: () => of(emptyDuePage),
           } as unknown as MembresService,
         },
-        { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+        { provide: ReglementsService, useValue: { listPayments } as unknown as ReglementsService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -508,10 +508,10 @@ describe('MemberDetailPage', () => {
           } as unknown as MembresService,
         },
         {
-          provide: RglementsService,
+          provide: ReglementsService,
           useValue: {
             listPayments: () => of(buildPaymentPage()),
-          } as unknown as RglementsService,
+          } as unknown as ReglementsService,
         },
         {
           provide: ContributionsService,
@@ -1231,8 +1231,8 @@ describe('MemberDetailPage', () => {
             } as unknown as MembresService,
           },
           {
-            provide: RglementsService,
-            useValue: { listPayments } as unknown as RglementsService,
+            provide: ReglementsService,
+            useValue: { listPayments } as unknown as ReglementsService,
           },
           {
             provide: ContributionsService,
