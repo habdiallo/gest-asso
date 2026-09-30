@@ -7,7 +7,7 @@
 
 - [x] 2.1 [T-164] Ajouter ou mettre à jour la spec et la documentation concernées.
 - [x] 2.2 [T-164] Exécuter les validations pertinentes et documenter les limites.
-- [ ] 2.3 [T-164] Préparer la PR vers develop sans fusion ni auto-merge.
+- [x] 2.3 [T-164] Préparer la PR vers develop sans fusion ni auto-merge.
 
 ## 3. Compléments de livraison
 
