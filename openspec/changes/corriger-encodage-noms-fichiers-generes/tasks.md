@@ -19,4 +19,4 @@
 
 - [x] 4.1 [T-166] Exécuter la suite de tests frontend affectée (`npm test`, périmètre income-categories/roles-users/campaigns/members) et la suite backend affectée (contrôleurs renommés).
 - [x] 4.2 [T-166] Vérifier qu'aucune autre occurrence des anciens noms tronqués ne subsiste dans `contribo-front/src` et `contribo-back/src` (recherche globale).
-- [ ] 4.3 [T-166] Préparer la PR vers `develop` référençant ce ticket et ce change OpenSpec (`corriger-encodage-noms-fichiers-generes`), sans fusion ni auto-merge sans demande explicite.
+- [x] 4.3 [T-166] Préparer la PR vers `develop` référençant ce ticket et ce change OpenSpec (`corriger-encodage-noms-fichiers-generes`), sans fusion ni auto-merge sans demande explicite.
