@@ -105,8 +105,12 @@ créées à l'initialisation. Les composants générés utilisent OnPush et CSS.
 
 ## API Design First et proxy
 
-Le contrat unique est [besoins/openapi.yaml](../besoins/openapi.yaml), OpenAPI 3.1,
-avec une base relative `/api/v1`. Il n'existe pas encore de backend dans ce dépôt.
+Le contrat HTTP partagé est [besoins/openapi.yaml](../besoins/openapi.yaml), OpenAPI
+3.1, avec une base relative `/api/v1`. Le besoin fonctionnel et les règles de
+gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md).
+La distinction et l'ordre de décision sont décrits dans
+[`besoins/README.md`](../besoins/README.md). Il n'existe pas encore de backend
+fonctionnel dans ce dépôt.
 
 ```bash
 npm run validate:api
@@ -121,6 +125,19 @@ la configuration et le lockfile sont versionnés. Ne pas modifier le généré �
 main. Générer avant build/tests des fonctionnalités qui importent `@api`.
 La génération est explicite, sans `prestart`, `prebuild` ni `pretest` ; le shell
 actuel peut être développé sans Java ou client généré.
+
+Avant de régénérer, valider le contrat et contrôler la version commune avec le
+backend :
+
+```bash
+npm run validate:api
+node ../scripts/check-openapi-generator-version.mjs
+npm run generate:api
+```
+
+Après une modification du contrat, aligner les services, mocks et tests concernés.
+Le client généré reste une sortie reproductible de `besoins/openapi.yaml` et ne
+devient jamais une source métier ou un contrat parallèle.
 
 `provideHttpClient()` est installé. Relier les credentials Bearer à la session
 réelle dans l'intégration d'authentification, sans faux jeton ni hôte dans les features.
