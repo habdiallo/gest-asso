@@ -34,4 +34,4 @@
 
 - [x] 6.1 Lancer le backend et le frontend en local (sans mock) et vérifier manuellement que la connexion administrateur ne renvoie plus vers `/login`, puis que `GET /api/v1/dashboard` répond `200`; les autres rôles sont couverts par les tests d'intégration. [T-181]
 - [x] 6.2 Mettre à jour les cases de ce fichier `tasks.md` pour les seules tâches réellement réalisées. [T-181]
-- [ ] 6.3 Committer sur `back/feat-181-endpoint-tableau-de-bord`, pousser la branche et ouvrir une PR en brouillon vers `develop` avec le modèle `.github/pull_request_template.md`, en référençant `T-181` et ce change OpenSpec. [T-181]
+- [x] 6.3 Committer sur `back/feat-181-endpoint-tableau-de-bord`, pousser la branche et ouvrir une PR en brouillon vers `develop` avec le modèle `.github/pull_request_template.md`, en référençant `T-181` et ce change OpenSpec. [T-181]
