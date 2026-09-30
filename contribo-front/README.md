@@ -113,18 +113,26 @@ La distinction et l'ordre de décision sont décrits dans
 fonctionnel dans ce dépôt.
 
 ```bash
+npm run check:api
 npm run validate:api
 npm run generate:api
 npx --no-install tsc --noEmit -p tsconfig.app.json
 ```
 
-Le générateur `typescript-angular` est fixé dans `openapitools.json`. Java 11+ est
-requis ; la première génération télécharge son JAR. La sortie
+`npm run check:api` vérifie Node.js 22+, Java 11+, le wrapper npm installé et les
+versions exactes du wrapper et du générateur. `validate:api` et `generate:api`
+réutilisent ce contrôle et invoquent uniquement le wrapper local, installé par
+`npm ci`, sans dépendance à une commande globale.
+
+Le générateur `typescript-angular` est fixé dans `openapitools.json`. Java reste
+requis uniquement pour la validation et la génération ; la première génération
+télécharge son JAR. La sortie
 `src/app/core/api/generated/` est ignorée par Git, ESLint et Prettier ; le contrat,
 la configuration et le lockfile sont versionnés. Ne pas modifier le généré à la
 main. Générer avant build/tests des fonctionnalités qui importent `@api`.
 La génération est explicite, sans `prestart`, `prebuild` ni `pretest` ; le shell
-actuel peut être développé sans Java ou client généré.
+actuel peut être développé sans Java ou client généré. `npm start`, `npm test` et
+`npm run build` ne déclenchent pas Java.
 
 Avant de régénérer, valider le contrat et contrôler la version commune avec le
 backend :

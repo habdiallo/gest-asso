@@ -16,7 +16,19 @@ Décider et documenter la dépendance Java ou fournir une chaîne reproductible 
 
 ## Decisions
 
-Implémenter le plus petit découpage cohérent, avec une validation automatisée lorsque le sujet est vérifiable. Les changements dépendants attendent les tickets T-164.
+- Conserver `@openapitools/openapi-generator-cli` et le générateur
+  `typescript-angular` déjà utilisés par le frontend. Leur remplacement changerait
+  le client généré et chevaucherait les corrections de contrat de T-166.
+- Centraliser `check:api`, `validate:api` et `generate:api` dans un script Node local.
+  Le script vérifie Node.js, Java, le wrapper présent dans `node_modules`, les
+  versions exactes de `package.json`, `package-lock.json` et `openapitools.json`,
+  puis lance le wrapper avec le binaire Node courant.
+- Garder Java comme dépendance explicite du seul outillage de génération. Le
+  contrôle impose Java 11 ou plus récent, tandis que le workflow CI utilise Java
+  21. Le shell Angular, ses tests et son build restent indépendants de Java.
+- Ne pas versionner ni modifier `src/app/core/api/generated/`. Le contrat, la
+  configuration, le lockfile, le script et la documentation sont les sources
+  reproductibles de la chaîne.
 
 ## Risks / Trade-offs
 
@@ -24,4 +36,7 @@ Implémenter le plus petit découpage cohérent, avec une validation automatisé
 
 ## Migration Plan
 
-Vérifier le ticket, implémenter uniquement son périmètre, exécuter les validations, mettre à jour les tâches, puis préparer une PR vers develop.
+Depuis `contribo-front/`, exécuter `npm ci`, puis `npm run check:api`,
+`npm run validate:api`, `npm run generate:api` et la compilation TypeScript. Si
+Java est absent, le contrôle arrête la chaîne avant l'appel au générateur et
+indique la version minimale attendue.
