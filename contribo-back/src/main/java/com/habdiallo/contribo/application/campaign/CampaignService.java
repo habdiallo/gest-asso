@@ -37,14 +37,14 @@ public class CampaignService {
         this.access = access;
     }
 
-    public CampaignPage listCampaigns(int page, int size, String query, CampaignStatus status) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public CampaignPage listCampaigns(UUID actorId, int page, int size, String query, CampaignStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         return repository.findCampaigns(account.associationId(), page, size, query, status);
     }
 
     @Transactional
-    public Campaign createCampaign(CreateCampaignRequest request) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign createCampaign(UUID actorId, CreateCampaignRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         validateDates(request.getStartDate(), request.getEndDate());
         if (request.getMemberSelection() == null
                 || !ALL_ACTIVE_MEMBERS.equals(request.getMemberSelection().getValue())) {
@@ -62,15 +62,16 @@ public class CampaignService {
                 amounts);
     }
 
-    public Campaign getCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public Campaign getCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         campaign(account, campaignId);
         return repository.findCampaignDetails(account.associationId(), campaignId);
     }
 
     @Transactional
-    public Campaign updateCategoryAmounts(UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign updateCategoryAmounts(
+            UUID actorId, UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() != CampaignStatus.UPCOMING || state.startDate().isBefore(LocalDate.now())) {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_EDITABLE,
@@ -85,8 +86,8 @@ public class CampaignService {
     }
 
     @Transactional
-    public Campaign openCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign openCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() == CampaignStatus.OPEN) {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_ALREADY_OPEN,
@@ -110,8 +111,8 @@ public class CampaignService {
     }
 
     @Transactional
-    public Campaign closeCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign closeCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() == CampaignStatus.CLOSED) {
             throw ApiErrors.conflict(
@@ -126,14 +127,15 @@ public class CampaignService {
                 account.associationId(), campaignId, account.userId(), OffsetDateTime.now(ZoneOffset.UTC));
     }
 
-    public DuePage listCampaignDues(UUID campaignId, int page, int size, String query, DueStatus status) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public DuePage listCampaignDues(
+            UUID actorId, UUID campaignId, int page, int size, String query, DueStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         campaign(account, campaignId);
         return repository.findCampaignDues(account.associationId(), campaignId, page, size, query, status);
     }
 
-    public DueDetails getDue(UUID dueId) {
-        AuthenticatedAccount account = access.currentUser();
+    public DueDetails getDue(UUID actorId, UUID dueId) {
+        AuthenticatedAccount account = access.currentUser(actorId);
         DueDetails due = repository.findDue(account.associationId(), dueId).orElseThrow(ApiErrors::notFound);
         if (!access.isManagement(account) && !account.memberId().equals(due.getMember().getId())) {
             throw ApiErrors.notFound();
@@ -141,14 +143,14 @@ public class CampaignService {
         return due;
     }
 
-    public DuePage listMyDues(int page, int size, DueStatus status) {
-        AuthenticatedAccount account = access.currentUser();
+    public DuePage listMyDues(UUID actorId, int page, int size, DueStatus status) {
+        AuthenticatedAccount account = access.currentUser(actorId);
         return repository.findMemberDues(account.associationId(), account.memberId(), page, size, status);
     }
 
     @Transactional
-    public PaymentCreationResponse createPayment(UUID dueId, CreatePaymentRequest request) {
-        AuthenticatedAccount account = access.requirePaymentWrite();
+    public PaymentCreationResponse createPayment(UUID actorId, UUID dueId, CreatePaymentRequest request) {
+        AuthenticatedAccount account = access.requirePaymentWrite(actorId);
         if (request.getAmount() == null || request.getAmount() <= 0
                 || request.getPaymentDate() == null || request.getMethod() == null) {
             throw ApiErrors.badRequest(com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
@@ -164,8 +166,9 @@ public class CampaignService {
         return new PaymentCreationResponse(creation.payment(), creation.due());
     }
 
-    public PaymentPage listPayments(int page, int size, String query, UUID memberId, UUID campaignId) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public PaymentPage listPayments(
+            UUID actorId, int page, int size, String query, UUID memberId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         return repository.findPayments(account.associationId(), page, size, query, memberId, campaignId);
     }
 

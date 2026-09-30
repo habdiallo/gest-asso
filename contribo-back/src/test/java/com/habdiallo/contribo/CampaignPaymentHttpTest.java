@@ -142,4 +142,53 @@ class CampaignPaymentHttpTest extends RsaIntegrationTestSupport {
                 .andExpect(jsonPath("$.items").isEmpty())
                 .andExpect(jsonPath("$.page.totalElements").value(0));
     }
+
+    @Test
+    void campaignEndpointRejectsRequestWithoutAToken() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/campaigns"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
+    }
+
+    @Test
+    void campaignEndpointReturnsUnauthorizedForATokenWithNoMatchingActiveAccount() throws Exception {
+        String token = tokenService.issue(UUID.randomUUID());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/campaigns")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    void campaignEndpointReturnsForbiddenForAnAuthenticatedActiveAccountWithTheWrongRole() throws Exception {
+        UUID operatorMemberId = UUID.randomUUID();
+        UUID operatorUserId = UUID.randomUUID();
+        jdbcTemplate.update(
+                "INSERT INTO members (id, association_id, first_name, last_name, income_category_id, status) "
+                        + "VALUES (?, ?, 'Moussa', 'Bah', ?, 'ACTIVE')",
+                operatorMemberId, associationId, categoryId);
+        jdbcTemplate.update(
+                "INSERT INTO user_accounts (id, association_id, member_id, identifier, password_hash, role) "
+                        + "VALUES (?, ?, ?, 'operator', 'unused', 'OPERATOR')",
+                operatorUserId, associationId, operatorMemberId);
+        String token = tokenService.issue(operatorUserId);
+
+        String body = """
+                {
+                  "name": "Cotisation refusee",
+                  "startDate": "%s",
+                  "endDate": "%s",
+                  "memberSelection": "ALL_ACTIVE_MEMBERS",
+                  "categoryAmounts": [{"incomeCategoryId": "%s", "amount": 100000}]
+                }
+                """.formatted(LocalDate.now(), LocalDate.now().plusDays(10), categoryId);
+
+        mockMvc.perform(post("/campaigns")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
+    }
 }
