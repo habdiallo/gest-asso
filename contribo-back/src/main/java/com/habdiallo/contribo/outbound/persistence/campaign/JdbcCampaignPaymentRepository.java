@@ -34,4 +34,9 @@ public class JdbcCampaignPaymentRepository implements CampaignPaymentRepository 
             UUID associationId, int page, int size, String query, UUID memberId, UUID campaignId) {
         return delegate.findPayments(associationId, page, size, query, memberId, campaignId);
     }
+
+    @Override
+    public PaymentPage findRecentOpenPayments(UUID associationId, UUID campaignId) {
+        return delegate.findRecentOpenPayments(associationId, campaignId);
+    }
 }
