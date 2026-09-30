@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 161,
+  "nextTicketId": 162,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3252,6 +3252,27 @@
       "planningStatus": "cancelled",
       "branchDuringInitialization": "infra/fix-000-simplifier-nginx-api-v1",
       "branchAfterInitialization": "infra/fix-160-simplifier-nginx-api-v1"
+    },
+    {
+      "id": 161,
+      "title": "Archiver dix changes OpenSpec termines (T-142, T-143 a T-152, T-153 a T-159, T-116) et synchroniser leurs specs delta vers openspec/specs/.",
+      "priority": "P2",
+      "scope": "docs",
+      "type": "chore",
+      "slug": "archiver-changes-openspec-termines-4",
+      "change": "archiver-changes-openspec-termines-4",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "2.1",
+        "2.2"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "docs/chore-000-archiver-changes-openspec-termines-4",
+      "branchAfterInitialization": "docs/chore-161-archiver-changes-openspec-termines-4"
     }
   ]
 }
