@@ -24,6 +24,15 @@ troisième configuration (après Nginx local et Nginx production) une connaissan
 source unique, et elle ne corrige pas le fait que le backend n'implémente pas réellement la version
 d'API qu'il documente.
 
+**Mise à jour post-revue (PR #168, T-159)** : la revue a démontré que livrer uniquement le
+context-path backend sans mettre à jour dans le même changement le `HEALTHCHECK` Actuator et le
+routage Nginx laisse la stack Docker cassée entre la fusion de T-159 et celle de T-160 (registre
+initialement prévu comme ticket `infra` séparé et dépendant). Le contenu initialement planifié pour
+T-160 (mise à jour des healthchecks et passthrough Nginx) est donc livré dans ce même changement,
+sur la branche de T-159, plutôt que dans une PR séparée qui aurait laissé un état intermédiaire non
+déployable sur `develop`. Le ticket T-160 est annulé dans le registre (`planningStatus: cancelled`)
+avec renvoi vers ce paragraphe.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -99,9 +108,12 @@ d'infra vs. clients de l'API).
 
 ### Simplification de Nginx (local et production)
 Avec le backend répondant nativement sous `/api/v1/**`, `nginx.local.conf` et `nginx.conf`
-remplacent leurs deux règles (`/api/v1/auth/login` spécifique + `/api/v1/` avec retrait de préfixe)
-par une unique règle passthrough `location /api/v1/ { proxy_pass http://backend:8080/api/v1/; }`
-(ou équivalent conservant le préfixe), sans traitement particulier pour l'authentification.
+conservent leurs deux règles (`/api/v1/auth/login` et `/api/v1/`), mais les deux passent en
+`proxy_pass http://backend:8080;` (sans chemin ni slash final), qui transmet le chemin de la
+requête tel quel au backend au lieu de le réécrire. Les deux règles sont conservées séparées non
+pour réécrire des chemins différents (ce n'est plus nécessaire), mais parce que la route de
+connexion applique une zone de limitation de débit dédiée (`limit_req zone=contribo_login`), une
+mesure de durcissement de sécurité (ticket T-154) indépendante du sujet de ce changement.
 
 ## Risks / Trade-offs
 
@@ -133,8 +145,10 @@ par une unique règle passthrough `location /api/v1/ { proxy_pass http://backend
    `http://localhost:9001/actuator/health/readiness`.
 4. `contribo-deploiement/compose.portainer.yaml` : mettre à jour le test de healthcheck du service
    `backend` vers le même port.
-5. `contribo-deploiement/nginx.local.conf` et `contribo-deploiement/nginx.conf` : remplacer les
-   deux règles `/api/v1/auth/login` + `/api/v1/` par une règle unique de passthrough.
+5. `contribo-deploiement/nginx.local.conf` et `contribo-deploiement/nginx.conf` : passer les deux
+   règles existantes (`/api/v1/auth/login`, `/api/v1/`) en passthrough (`proxy_pass
+   http://backend:8080;`, sans réécriture), en conservant leur séparation pour la limitation de
+   débit dédiée au login.
 6. Vérifier localement (backend seul, puis frontend + backend locaux, puis stack Docker complète).
 
 Retour arrière : retirer les deux propriétés ajoutées dans `application.yaml`, annuler l'usage de

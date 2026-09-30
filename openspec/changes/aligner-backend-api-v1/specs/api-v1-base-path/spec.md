@@ -48,13 +48,18 @@ comme une ressource de l'API métier.
 - **THEN** elle cible le port de gestion dédié (ex. `http://localhost:9001/actuator/health/readiness`)
   et non un chemin sous `/api/v1`
 
-### Requirement: Le reverse proxy Nginx redevient un passthrough simple
+### Requirement: Le reverse proxy Nginx transmet /api/v1 sans réécriture de chemin
 `contribo-deploiement/nginx.local.conf` et `contribo-deploiement/nginx.conf` SHALL transmettre les
-requêtes `/api/v1/**` au backend sans réécriture de chemin ni règle spéciale pour les routes
-d'authentification, puisque le backend répond déjà nativement sous `/api/v1/**`.
+requêtes `/api/v1/**` au backend sans réécriture de chemin, puisque le backend répond déjà
+nativement sous `/api/v1/**`. Une règle dédiée à `/api/v1/auth/login` peut subsister uniquement pour
+appliquer une politique distincte (ex. limitation de débit), jamais pour réécrire le chemin.
 
 #### Scenario: Connexion via la stack Docker
 - **WHEN** un client envoie `POST /api/v1/auth/login` à travers Nginx (stack Docker locale ou
   production)
-- **THEN** Nginx transmet la requête telle quelle (même chemin) au backend, sans règle de
-  réécriture dédiée à cette route
+- **THEN** Nginx transmet la requête telle quelle (même chemin `/api/v1/auth/login`) au backend
+
+#### Scenario: Ressource métier via la stack Docker
+- **WHEN** un client envoie `GET /api/v1/members` à travers Nginx avec une session valide
+- **THEN** Nginx transmet la requête telle quelle (même chemin `/api/v1/members`) au backend, qui
+  répond `200`

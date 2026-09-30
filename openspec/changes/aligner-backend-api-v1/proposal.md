@@ -37,9 +37,10 @@ artefact reconstruit à chaque couche de proxy.
   l'image, seule source pour `compose.yaml` et `compose.integration.yaml` qui ne la redéfinissent
   pas) et `contribo-deploiement/compose.portainer.yaml` (test de healthcheck explicite).
 - `contribo-deploiement/nginx.local.conf` et `contribo-deploiement/nginx.conf` (même règle
-  dupliquée entre local et production) sont simplifiés : suppression de la règle spéciale
-  `/api/v1/auth/login` et de la réécriture de préfixe sur `/api/v1/`, remplacées par un passthrough
-  direct puisque le backend répond déjà sous `/api/v1/*`.
+  dupliquée entre local et production) passent en passthrough direct (`proxy_pass
+  http://backend:8080;`, sans réécriture de chemin) puisque le backend répond déjà sous
+  `/api/v1/*` ; la règle dédiée à `/api/v1/auth/login` est conservée uniquement pour sa limitation
+  de débit spécifique (`contribo_login`), pas pour réécrire le chemin.
 - **Aucun changement frontend** : `contribo-front/proxy.conf.json` reste tel quel
   (`/api/** -> http://localhost:8080` sans réécriture) et devient enfin correct vis-à-vis du
   backend réel. La documentation (`contribo-front/README.md`) n'a pas besoin d'être corrigée sur ce
@@ -68,3 +69,8 @@ artefact reconstruit à chaque couche de proxy.
 - Aucun changement au contrat OpenAPI, ni au frontend, ni au schéma de base de données.
 - Ce changement rend `npm start` (frontend) utilisable directement contre un backend local
   (`mvn spring-boot:run`), sans dépendre de la stack Docker pour un test d'intégration basique.
+- Livré intégralement sous le ticket T-159 (branche `back/fix-159-aligner-backend-api-v1`, PR #168) :
+  la revue de cette PR a démontré qu'un découpage en deux tickets/PR distincts (T-159 pour le
+  backend, T-160 pour l'outillage de déploiement) laisserait la stack Docker cassée entre les deux
+  fusions. Le ticket T-160, initialement réservé pour cette partie, est annulé dans le registre
+  (`planningStatus: cancelled`) au profit de ce périmètre unique.

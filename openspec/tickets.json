@@ -3218,7 +3218,13 @@
         "1.4",
         "1.5",
         "1.6",
-        "1.7"
+        "1.7",
+        "1.8",
+        "1.9",
+        "1.10",
+        "1.11",
+        "1.12",
+        "1.13"
       ],
       "dependencies": [],
       "planningStatus": "planned",
@@ -3227,7 +3233,7 @@
     },
     {
       "id": 160,
-      "title": "Simplifier les healthchecks et le routage Nginx en passthrough direct maintenant que le backend expose nativement /api/v1.",
+      "title": "ANNULE : absorbe par T-159 suite a la revue de la PR #168 (healthchecks/Nginx livres avec le context-path dans la meme PR pour ne pas casser develop entre deux fusions).",
       "priority": "P2",
       "scope": "infra",
       "type": "fix",
@@ -3243,7 +3249,7 @@
         "2.7"
       ],
       "dependencies": [159],
-      "planningStatus": "planned",
+      "planningStatus": "cancelled",
       "branchDuringInitialization": "infra/fix-000-simplifier-nginx-api-v1",
       "branchAfterInitialization": "infra/fix-160-simplifier-nginx-api-v1"
     }
