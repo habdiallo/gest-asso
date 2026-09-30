@@ -49,8 +49,8 @@ public class SecurityConfig {
         if ("GET".equals(request.getMethod())
                 || "HEAD".equals(request.getMethod())
                 || "TRACE".equals(request.getMethod())
-                || "/auth/csrf".equals(request.getRequestURI())
-                || "/auth/login".equals(request.getRequestURI())
+                || "/auth/csrf".equals(RequestPaths.pathWithinApplication(request))
+                || "/auth/login".equals(RequestPaths.pathWithinApplication(request))
                 || request.getHeader("Authorization") != null) {
             return false;
         }

@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isAllowedDuringPasswordChange(HttpServletRequest request) {
-        String path = request.getRequestURI();
+        String path = RequestPaths.pathWithinApplication(request);
         return "/auth/password/change".equals(path)
                 || "/auth/logout".equals(path)
                 || "/auth/csrf".equals(path)

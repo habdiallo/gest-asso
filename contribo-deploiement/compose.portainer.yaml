@@ -22,7 +22,7 @@ services:
       - database-network
       - internal-network
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health/readiness"]
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:9001/actuator/health/readiness"]
       interval: 10s
       timeout: 3s
       start_period: 30s
