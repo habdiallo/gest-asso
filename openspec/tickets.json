@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 159,
+  "nextTicketId": 161,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3202,6 +3202,50 @@
       "planningStatus": "planned",
       "branchDuringInitialization": "fullstack/feat-000-cycle-vie-comptes",
       "branchAfterInitialization": "fullstack/feat-158-cycle-vie-comptes"
+    },
+    {
+      "id": 159,
+      "title": "Exposer nativement /api/v1 sur le backend (context-path) et decoupler Actuator sur un port de gestion dedie.",
+      "priority": "P2",
+      "scope": "back",
+      "type": "fix",
+      "slug": "aligner-backend-api-v1",
+      "change": "aligner-backend-api-v1",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "1.7"
+      ],
+      "dependencies": [],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "back/fix-000-aligner-backend-api-v1",
+      "branchAfterInitialization": "back/fix-159-aligner-backend-api-v1"
+    },
+    {
+      "id": 160,
+      "title": "Simplifier les healthchecks et le routage Nginx en passthrough direct maintenant que le backend expose nativement /api/v1.",
+      "priority": "P2",
+      "scope": "infra",
+      "type": "fix",
+      "slug": "simplifier-nginx-api-v1",
+      "change": "aligner-backend-api-v1",
+      "tasks": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.7"
+      ],
+      "dependencies": [159],
+      "planningStatus": "planned",
+      "branchDuringInitialization": "infra/fix-000-simplifier-nginx-api-v1",
+      "branchAfterInitialization": "infra/fix-160-simplifier-nginx-api-v1"
     }
   ]
 }
