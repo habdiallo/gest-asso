@@ -76,7 +76,8 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
     void csrfEndpointIssuesAReadableCsrfCookie() throws Exception {
         mockMvc.perform(get("/auth/csrf"))
                 .andExpect(status().isNoContent())
-                .andExpect(cookie().exists("XSRF-TOKEN"));
+                .andExpect(cookie().exists("XSRF-TOKEN"))
+                .andExpect(cookie().path("XSRF-TOKEN", "/"));
     }
 
     @Test
