@@ -83,6 +83,12 @@ export class CreateIncomeCategoryDialog {
       if (body?.code === ErrorCode.DuplicateCategoryLabel) {
         return 'incomeCategories.createDialog.duplicateLabel';
       }
+      if (
+        body?.code === ErrorCode.ValidationError &&
+        body.fieldErrors?.some((fieldError) => fieldError.field === 'label')
+      ) {
+        return 'incomeCategories.createDialog.labelRequired';
+      }
     }
     return 'incomeCategories.createDialog.error';
   }

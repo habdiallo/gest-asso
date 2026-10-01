@@ -134,6 +134,12 @@ export class EditIncomeCategoryDialog {
       if (body?.code === ErrorCode.ResourceNotFound) {
         return 'incomeCategories.editDialog.notFound';
       }
+      if (
+        body?.code === ErrorCode.ValidationError &&
+        body.fieldErrors?.some((fieldError) => fieldError.field === 'label')
+      ) {
+        return 'incomeCategories.editDialog.labelRequired';
+      }
     }
     return 'incomeCategories.editDialog.error';
   }

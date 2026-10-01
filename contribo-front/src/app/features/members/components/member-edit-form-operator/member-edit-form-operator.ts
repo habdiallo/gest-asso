@@ -63,6 +63,10 @@ export class MemberEditFormOperator implements OnInit {
     return control.invalid && control.touched;
   }
 
+  fieldRequired(key: 'country' | 'city' | 'phone'): boolean {
+    return this.form.controls[key].hasValidator(Validators.required);
+  }
+
   phoneInvalid(): boolean {
     const control = this.form.controls.phone;
     return control.invalid && control.touched;
