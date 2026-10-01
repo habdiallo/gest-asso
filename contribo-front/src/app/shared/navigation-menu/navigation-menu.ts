@@ -69,6 +69,7 @@ export class NavigationMenu {
   readonly orientation = input<NavigationMenuOrientation>('horizontal');
 
   readonly items = computed(() => navigationItemsForRole(this.sessionService.user()?.role ?? null));
+  readonly mobileItems = computed(() => this.items());
   readonly iconPaths = SIDEBAR_ICONS;
   readonly dashboardIconRectOrigins = DASHBOARD_ICON_RECT_ORIGINS;
   readonly navigationPaths = NAVIGATION_PATHS;
