@@ -15,4 +15,4 @@
 
 - [x] 3.1 [T-130] Mettre à jour les tests de la fiche membre et des mocks pour couvrir le rendu cible, les rôles, les actions, les modals de modification et de règlement, les limites de montant, les valeurs absentes, les onglets, le clavier, les historiques paginés et la présence exacte des colonnes métier sans métadonnées d'audit.
 - [x] 3.2 [T-130] Comparer la fiche membre aux vues desktop, tablette et mobile de la maquette dans les deux thèmes lorsque le navigateur est disponible, corriger les écarts et documenter les vérifications réalisées.
-- [ ] 3.3 [T-130] Exécuter les validations frontend et OpenSpec, préparer une PR ciblée vers `main` avec le ticket et le change référencés, puis traiter la revue avant fusion.
+- [x] 3.3 [T-130] Exécuter les validations frontend et OpenSpec, préparer une PR ciblée vers `main` avec le ticket et le change référencés, puis traiter la revue avant fusion.
