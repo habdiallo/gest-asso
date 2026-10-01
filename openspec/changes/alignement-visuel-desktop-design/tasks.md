@@ -75,10 +75,10 @@ Scope/type : `front/fix`. Branche : `front/fix-122-alignement-visuel-roles-utili
 
 Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs resolve T-123 --json` (`front/fix-123-alignement-visuel-mon-espace`). Prérequis : T-122. Périmètre : `features/member-space` (profil, cotisations, contributions). Critères d'acceptation : `specs/desktop-visual-parity/spec.md` (Requirement « Fidélité visuelle de l'espace personnel du membre »).
 
-- [ ] 7.1 [T-123] Résoudre et vérifier T-123, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
-- [ ] 7.2 [T-123] Capturer chaque onglet de l'espace personnel à 1440 px, deux thèmes, et lister les écarts avec `design/`.
-- [ ] 7.3 [T-123] Corriger les écarts listés.
-- [ ] 7.4 [T-123] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
+- [x] 7.1 [T-123] Résoudre et vérifier T-123, créer/réutiliser sa branche depuis `origin/main` en incluant les groupes précédents.
+- [x] 7.2 [T-123] Capturer chaque onglet de l'espace personnel à 1440 px, deux thèmes, et lister les écarts avec `design/`.
+- [x] 7.3 [T-123] Corriger les écarts listés.
+- [x] 7.4 [T-123] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
 - [ ] 7.5 [T-123] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 8. Dialogues de formulaire transverses [T-124]
