@@ -26,4 +26,4 @@
 ## 6. Valider et préparer la livraison
 
 - [x] 6.1 [T-187] Ajouter les fixtures et validations de schémas, de déduplication, de comptage et de reprise, puis exécuter les contrôles OpenSpec et `node scripts/tickets.mjs check` sur la branche du ticket.
-- [ ] 6.2 [T-187] Relire le diff ciblé, documenter l'environnement de recette, les limites et la politique de publication, puis préparer la PR vers `develop` avec les validations réelles, sans push direct ni fusion automatique.
+- [x] 6.2 [T-187] Relire le diff ciblé, documenter l'environnement de recette, les limites et la politique de publication, puis préparer la PR vers `develop` avec les validations réelles, sans push direct ni fusion automatique.
