@@ -25,4 +25,4 @@
   `src/app/core/session/auth.interceptor.ts`. Le format check global reste en
   échec sur quinze fichiers préexistants hors périmètre ; les fichiers touchés
   par T-186 sont conformes.
-- [ ] 4.2 [T-186] Mettre à jour les étapes réalisées, vérifier le ticket, créer le commit `chore(front): T-186 supprimer les mocks runtime`, pousser la branche et ouvrir une PR vers `develop`.
+- [x] 4.2 [T-186] Mettre à jour les étapes réalisées, vérifier le ticket, créer le commit `chore(front): T-186 supprimer les mocks runtime`, pousser la branche et ouvrir une PR vers `develop`.
