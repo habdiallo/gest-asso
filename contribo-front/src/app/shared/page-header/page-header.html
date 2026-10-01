@@ -1,5 +1,5 @@
 <header
-  class="mb-8 flex flex-wrap items-end justify-between gap-6 max-tablet:mb-6 max-tablet:flex-col max-tablet:items-start max-tablet:gap-4"
+  class="mb-8 flex flex-wrap items-end justify-between gap-6 max-content:flex-col max-content:items-start max-content:gap-4 max-content:mb-6"
 >
   <div class="min-w-0">
     @if (kicker(); as kicker) {
@@ -8,19 +8,17 @@
       </p>
     }
     <h1
-      class="mt-2 font-display text-[clamp(34px,10vw,56px)] uppercase leading-[0.94] tracking-[0.035em] text-text"
+      class="mt-2 font-display text-[clamp(38px,4.2vw,56px)] uppercase leading-[0.94] tracking-[0.035em] text-text"
     >
       {{ title() }}
     </h1>
     @if (intro(); as intro) {
-      <p class="responsive-page-intro mt-4 max-w-[660px] font-light text-text-2">
+      <p class="mt-4 max-w-[660px] text-[15px] font-light leading-relaxed text-text-2">
         {{ intro }}
       </p>
     }
   </div>
-  <div
-    class="flex flex-wrap gap-2.5 max-tablet:w-full max-tablet:[&>app-action-button>a]:w-full max-tablet:[&>app-action-button>button]:w-full"
-  >
+  <div class="flex flex-wrap gap-2.5">
     <ng-content />
   </div>
 </header>

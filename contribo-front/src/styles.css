@@ -127,12 +127,23 @@
      cartes/panneaux (14px) est une valeur distincte de l'échelle abstraite ci-dessus. */
   --radius-card: 14px;
   --radius-modal: 20px;
+  --radius-control: 0.5rem;
   --radius-icon: 9px;
   --radius-menu: 10px;
   --radius-option: 7px;
 
   /* Conteneur commun des pages principales. */
   --container-shell: 90rem;
+
+  /* Primitives confirmées par l'audit T-138. */
+  --spacing-sidebar: 16rem;
+  --spacing-control: 3rem;
+  --spacing-table: 47.5rem;
+
+  /* Seuils conservés, nommés par composition plutôt que répétés comme des valeurs arbitraires. */
+  --breakpoint-content: 41.3125rem;
+  --breakpoint-shell: 51.3125rem;
+  --breakpoint-login: 73.8125rem;
 
   /* Ombre des cartes/panneaux (section Shapes, `--shadow` de design/styles.css) :
      expose l'utilitaire `shadow-card`, suivant le thème actif comme `rounded-card`. */
