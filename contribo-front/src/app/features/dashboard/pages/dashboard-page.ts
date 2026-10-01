@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   CagnottesService,
   CampagnesService,
@@ -15,7 +16,7 @@ import {
   SocialFundStatus,
   TableauDeBordService,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CampaignFinancialSummary,
   CampaignSummary,
@@ -23,17 +24,20 @@ import type {
   ManagementDashboard,
   MemberDashboard,
   SocialFundSummary,
-} from '@api';
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { EMPTY, forkJoin } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
 import { formatGnfAmountCondensed, formatGnfAmountDetailed } from '@core/formatting/currency';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import { formatCalendarDate, formatInstant } from '../dashboard-dates';
 import {
   campaignStatusLabel,
@@ -42,33 +46,11 @@ import {
   dueStatusTone,
   paymentMethodLabel,
 } from '../dashboard-status-labels';
-import type { StatusTone } from '../dashboard-status-labels';
 
 /** Largeur de barre de progression : jamais hors de [0, 100], même sur une donnée aberrante. */
 function clampPercentage(value: number): number {
   return Math.min(100, Math.max(0, value));
 }
-
-/**
- * Classes du badge de statut pilote/fond selon la teinte (même convention que
- * `members-list-page.html`), sans exposer `[NgClass]` interdit par
- * `.claude/rules/frontend/templates.md`.
- */
-const STATUS_TONE_CLASSES: Record<StatusTone, string> = {
-  success: 'bg-success-wash text-success',
-  warning: 'bg-warning-wash text-warning',
-  error: 'bg-error-wash text-error',
-  info: 'bg-info-wash text-info',
-  neutral: 'bg-surface-2 text-text-2',
-};
-
-const STATUS_TONE_DOT_CLASSES: Record<StatusTone, string> = {
-  success: 'bg-success',
-  warning: 'bg-warning',
-  error: 'bg-error',
-  info: 'bg-info',
-  neutral: 'bg-text-3',
-};
 
 /** Rôles autorisés à créer un membre, une campagne ou une cagnotte (même règle que leurs écrans). */
 function isManagerRole(role: UserRole): boolean {
@@ -93,7 +75,7 @@ interface SocialFundScopeView {
 }
 
 /**
- * Point d'entrée après connexion (T-16) : appelle `GET /dashboard` (`@api`,
+ * Point d'entrée après connexion (T-16) : appelle `GET /dashboard` (`@core/api`,
  * `TableauDeBordService`) et affiche les indicateurs selon le discriminant
  * `view` reçu de l'API — jamais selon le rôle applicatif local, cf.
  * `.claude/rules/frontend/api-client.md` (« le contrôle IHM ne remplace pas
@@ -115,8 +97,18 @@ interface SocialFundScopeView {
  */
 @Component({
   selector: 'app-dashboard-page',
-  imports: [TranslocoPipe, RouterLink, ActionButton, CustomSelect, EmptyState, PageHeader],
+  imports: [
+    TranslocoPipe,
+    RouterLink,
+    ActionButton,
+    CustomSelect,
+    EmptyState,
+    LoadingSkeleton,
+    PageHeader,
+    StatusBadge,
+  ],
   templateUrl: './dashboard-page.html',
+  styleUrl: './dashboard-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {
@@ -124,9 +116,12 @@ export class DashboardPage {
   private readonly campaignsService = inject(CampagnesService);
   private readonly socialFundsService = inject(CagnottesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly sessionService = inject(SessionService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
+  readonly sessionExpired = signal(false);
   readonly scopeLoading = signal(false);
   readonly scopeError = signal(false);
   private readonly dashboard = signal<DashboardResponse | null>(null);
@@ -259,9 +254,6 @@ export class DashboardPage {
   ): number =>
     targetAmount > 0 ? clampPercentage(Math.round((collectedAmount / targetAmount) * 100)) : 0;
 
-  readonly statusToneClasses = (tone: StatusTone): string => STATUS_TONE_CLASSES[tone];
-  readonly statusToneDotClasses = (tone: StatusTone): string => STATUS_TONE_DOT_CLASSES[tone];
-
   constructor() {
     this.loadDashboard();
   }
@@ -276,6 +268,11 @@ export class DashboardPage {
   onSocialFundScopeChange(value: string | null): void {
     this.selectedSocialFundId.set(value ?? '');
     this.loadDashboard();
+  }
+
+  reconnect(): void {
+    this.sessionService.clear();
+    void this.router.navigateByUrl('/login');
   }
 
   private loadDashboard(): void {
@@ -301,6 +298,7 @@ export class DashboardPage {
           }
           this.dashboard.set(dashboard);
           this.loadError.set(false);
+          this.sessionExpired.set(false);
           this.loading.set(false);
           this.scopeLoading.set(false);
           if (
@@ -312,14 +310,18 @@ export class DashboardPage {
             this.loadScopeOptions();
           }
         },
-        error: () => {
+        error: (error: unknown) => {
           if (requestId !== this.dashboardRequestId) {
             return;
           }
+          const isSessionExpired = error instanceof HttpErrorResponse && error.status === 401;
+          this.sessionExpired.set(isSessionExpired);
           if (isInitialLoad) {
-            this.loadError.set(true);
-          } else {
+            this.loadError.set(!isSessionExpired);
+          } else if (!isSessionExpired) {
             this.scopeError.set(true);
+          } else {
+            this.loadError.set(false);
           }
           this.loading.set(false);
           this.scopeLoading.set(false);

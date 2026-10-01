@@ -2,7 +2,8 @@
 
 Les consignes sont partagées ; chaque outil dispose de ses emplacements natifs.
 Commencer par `AGENTS.md` et `CONTRIBUTING.md`. Chaque évolution utilise un vrai
-ticket enregistré, une branche dédiée et une PR vers `main` (l'initialisation
+ticket enregistré, une branche dédiée et une PR vers `develop` par défaut, ou vers
+`main` pour une release ou un hotfix (l'initialisation
 du projet, qui autorisait le marqueur `000`, est terminée).
 
 ## Lancer les skills
@@ -16,7 +17,7 @@ du projet, qui autorisait le marqueur `000`, est terminée).
 | Synchronisation des specs | `/opsx:sync` | `$openspec-sync-specs` | `/opsx-sync` dans VS Code ; `/openspec-sync-specs` dans le CLI |
 | Archivage | `/opsx:archive` | `$openspec-archive-change` | `/opsx-archive` dans VS Code ; `/openspec-archive-change` dans le CLI |
 
-Exemple Codex : `$code-review-senior examine cette branche contre main`.
+Exemple Codex : `$code-review-senior examine cette branche contre develop`.
 Exemple Claude/Copilot : `/code-review-senior examine le diff local`.
 Les noms complets des skills OpenSpec sont aussi utilisables avec `/` dans Claude.
 Le skill senior réalise lui-même la revue ; il n'exige pas de sous-agent.
@@ -50,8 +51,8 @@ ces skills générés pour y dupliquer les règles du dépôt.
 
 | Outil | Point d'entrée |
 | --- | --- |
-| Claude Code | « Lance l'agent `code-reviewer` sur cette branche contre main » ; vérifier sa présence avec `/agents` |
-| Codex actuel | « Utilise l'agent personnalisé `code-reviewer` pour revoir cette branche contre main » ; les sous-agents doivent être disponibles dans le client |
+| Claude Code | « Lance l'agent `code-reviewer` sur cette branche contre develop » ; vérifier sa présence avec `/agents` |
+| Codex actuel | « Utilise l'agent personnalisé `code-reviewer` pour revoir cette branche contre develop » ; les sous-agents doivent être disponibles dans le client |
 | Copilot VS Code | Sélectionner `code-reviewer` dans le sélecteur d'agents, puis indiquer la cible |
 | Copilot CLI | Sélectionner `code-reviewer` avec `/agent`, puis indiquer la cible |
 

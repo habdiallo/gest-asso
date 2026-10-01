@@ -1,33 +1,32 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService, ErrorCode } from '@api';
-import type { ErrorResponse, IncomeCategory } from '@api';
+import { FormBuilder, Validators } from '@angular/forms';
+import { CategoriesDeRevenuService, ErrorCode } from '@core/api';
+import type { ErrorResponse, IncomeCategory } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
-import { ActionButton } from '@shared/action-button/action-button';
-import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { IncomeCategoryForm } from '../income-category-form/income-category-form';
 
 /**
  * Formulaire de création d'une catégorie de revenu (T-50), réservé à
  * l'Administrateur : un unique champ libellé obligatoire (RG-REV-001), sans
  * champ de montant (RG-REV-002), une catégorie n'ayant pas de montant de
- * cotisation permanent. Appelle `POST /income-categories` (`@api`,
- * `CatgoriesDeRevenuService.createIncomeCategory`).
+ * cotisation permanent. Appelle `POST /income-categories` (`@core/api`,
+ * `CategoriesDeRevenuService.createIncomeCategory`).
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15) ; ce
  * composant porte le formulaire et l'appel API, `FormDialog` reste neutre.
  */
 @Component({
   selector: 'app-create-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, ApiErrorRetry, FormDialog],
+  imports: [TranslocoPipe, FormDialog, IncomeCategoryForm],
   templateUrl: './create-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateIncomeCategoryDialog {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
 
   /** Pilote l'ouverture/fermeture du dialogue. */
   readonly open = input(false);
@@ -83,6 +82,12 @@ export class CreateIncomeCategoryDialog {
       const body = error.error as ErrorResponse | undefined;
       if (body?.code === ErrorCode.DuplicateCategoryLabel) {
         return 'incomeCategories.createDialog.duplicateLabel';
+      }
+      if (
+        body?.code === ErrorCode.ValidationError &&
+        body.fieldErrors?.some((fieldError) => fieldError.field === 'label')
+      ) {
+        return 'incomeCategories.createDialog.labelRequired';
       }
     }
     return 'incomeCategories.createDialog.error';

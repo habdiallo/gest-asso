@@ -46,6 +46,25 @@ sans installation, génération, correction automatique ou modification du dép�
 Si un test nécessite des écritures interdites, indiquer qu'il n'a pas été exécuté.
 Ne jamais affirmer avoir exécuté une commande ou validé un client absent.
 
+### Valeurs d'interface et design system
+
+Pour le frontend, examiner les valeurs Tailwind ou CSS arbitraires introduites
+par le diff, notamment `min-[...]`, `max-[...]`, `tracking-[...]`, `text-[...]`,
+`rounded-[...]`, `gap-[...]`, `w-[...]` et `h-[...]`. Vérifier d'abord les jetons
+`@theme`, variables CSS et utilitaires partagés déjà disponibles. Lorsqu'une
+valeur représente un concept réutilisable, comme un point de rupture, un niveau
+typographique, un espacement ou un rayon, le code doit utiliser le jeton ou une
+variante nommée correspondante. Si le jeton manque et que la valeur est répétée
+ou porte une signification partagée, signaler la nécessité de le centraliser.
+
+Ne pas transformer cette règle en contrôle de style mécanique : une valeur
+ponctuelle peut rester arbitraire lorsqu'elle correspond à une contrainte de
+design précise, n'est pas répétée et n'a pas de jeton équivalent. Ne retenir un
+constat que si la valeur introduit une incohérence, contourne un jeton existant,
+fragilise le responsive ou crée un impact concret d'accessibilité, de rendu ou
+de maintenance. Les valeurs préexistantes non aggravées ne sont pas des constats
+de la revue.
+
 ## Restituer
 
 Suivre [references/output.md](references/output.md) ; consulter

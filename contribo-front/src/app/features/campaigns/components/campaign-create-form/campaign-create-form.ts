@@ -11,12 +11,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { CatgoriesDeRevenuService, CreateCampaignRequest } from '@api';
-import type { CampaignCategoryAmountInput, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, CreateCampaignRequest } from '@core/api';
+import type { CampaignCategoryAmountInput, IncomeCategory } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
+import { DateInput } from '@shared/date-input/date-input';
+import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 
 /**
  * Valide que la date de fin n'est pas antérieure à la date de début
@@ -60,7 +62,7 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  * un membre actif (`minItems: 1`). Ce formulaire (T-65) ne collecte pas les
  * montants du barème, ticketisés séparément (T-68, formulaire de
  * configuration du barème) : il charge les catégories via
- * `GET /income-categories` (`CatgoriesDeRevenuService`, même dépendance que
+ * `GET /income-categories` (`CategoriesDeRevenuService`, même dépendance que
  * `MemberCreateForm`, T-33), retient celles portées par au moins un membre
  * (`memberCount > 0`) et leur associe un montant provisoire de 0 GNF pour
  * satisfaire le contrat. Le montant réel se configure ensuite via
@@ -72,13 +74,20 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
  */
 @Component({
   selector: 'app-campaign-create-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, CustomSelect],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    ActionButton,
+    CustomSelect,
+    DateInput,
+    LoadingSkeleton,
+  ],
   templateUrl: './campaign-create-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignCreateForm {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly submitting = input(false);

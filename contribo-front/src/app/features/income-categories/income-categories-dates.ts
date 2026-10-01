@@ -15,10 +15,21 @@ const instantFormatter = new Intl.DateTimeFormat('fr-FR', {
   minute: '2-digit',
 });
 
+const categoryDateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+
 /**
  * Formate un instant (`format: date-time`, ici `updatedAt`) dans le fuseau
  * horaire local du navigateur, faute de fuseau associatif unique dans le contrat.
  */
 export function formatInstant(value: string): string {
   return instantFormatter.format(new Date(value));
+}
+
+/** Formate la date courte affichée dans la liste des catégories. */
+export function formatCategoryUpdatedAt(value: string): string {
+  return categoryDateFormatter.format(new Date(value));
 }

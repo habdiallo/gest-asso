@@ -1,6 +1,6 @@
-import { MemberStatus } from '@api';
-import type { ContributionPage, MemberDetails, MemberPage } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { MemberStatus } from '@core/api';
+import type { ContributionPage, MemberCreationResponse, MemberDetails, MemberPage } from '@core/api';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { buildMemberPageResponse, membersHandlers } from './handlers';
 
 async function runRequest(request: Request): Promise<Response> {
@@ -37,7 +37,8 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
       }),
     );
     expect(created.status).toBe(201);
-    const member = (await created.json()) as MemberDetails;
+    const creation = (await created.json()) as MemberCreationResponse;
+    const member = creation.member;
     const response = await runRequest(new Request('http://localhost/api/v1/members', { headers }));
     const page = (await response.json()) as MemberPage;
 
@@ -111,6 +112,26 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
       expect(response.items).toEqual([]);
     });
 
+    it('pagine les résultats du handler par tranches de 10 membres', async () => {
+      const headers = { Authorization: `Bearer ${demoAccounts[0].accessToken}` };
+      const firstResponse = await runRequest(
+        new Request('http://localhost/api/v1/members?page=0&size=10', { headers }),
+      );
+      const secondResponse = await runRequest(
+        new Request('http://localhost/api/v1/members?page=1&size=10', { headers }),
+      );
+      const firstPage = (await firstResponse.json()) as MemberPage;
+      const secondPage = (await secondResponse.json()) as MemberPage;
+
+      expect(firstPage.items).toHaveLength(10);
+      expect(firstPage.page.totalElements).toBeGreaterThan(10);
+      expect(firstPage.page.totalPages).toBe(Math.ceil(firstPage.page.totalElements / 10));
+      expect(secondPage.items).toHaveLength(10);
+      expect(secondPage.items.map((member) => member.id)).not.toEqual(
+        expect.arrayContaining(firstPage.items.map((member) => member.id)),
+      );
+    });
+
     it('filtre via le paramètre `q` de la requête `GET /api/v1/members`', async () => {
       const headers = { Authorization: `Bearer ${demoAccounts[0].accessToken}` };
       const response = await runRequest(
@@ -120,6 +141,32 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
 
       expect(page.items.map((member) => member.lastName)).toEqual(['Sow']);
     });
+  });
+});
+
+describe('GET /api/v1/members/{memberId}/dues (mock, T-134)', () => {
+  it('exposes the same due identifiers as the campaign payment handler', async () => {
+    const response = await runRequest(
+      new Request('http://localhost/api/v1/members/10700000-0000-4000-8000-000000000500/dues', {
+        headers: { Authorization: `Bearer ${demoAccounts[0].accessToken}` },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const page = (await response.json()) as {
+      items: Array<{ id: string; member: { id: string }; campaign: { status: string } }>;
+    };
+    expect(page.items.map((due) => due.id)).toEqual(
+      expect.arrayContaining([
+        '10700000-0000-4000-8000-000000000410',
+        '10700000-0000-4000-8000-000000000420',
+        '10700000-0000-4000-8000-000000000430',
+        '10700000-0000-4000-8000-000000000431',
+      ]),
+    );
+    expect(
+      page.items.every((due) => due.member.id === '10700000-0000-4000-8000-000000000500'),
+    ).toBe(true);
   });
 });
 
@@ -213,7 +260,11 @@ describe('GET /api/v1/contributions (mocks MSW, T-30)', () => {
 
     expect(response.status).toBe(200);
     expect(contributionPage.items.length).toBeGreaterThan(0);
-    expect(contributionPage.items.every((item) => item.member.id === memberId)).toBe(true);
+    expect(
+      contributionPage.items.every(
+        (item) => item.member?.id === memberId && item.externalContributor === null,
+      ),
+    ).toBe(true);
   });
 
   it('returns an empty page for a member without any contribution', async () => {

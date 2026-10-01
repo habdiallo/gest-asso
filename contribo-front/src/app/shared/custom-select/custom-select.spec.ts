@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import fr from '@assets/i18n/fr.json';
 import { CustomSelect } from './custom-select';
 import type { CustomSelectOption } from './custom-select';
 
@@ -17,15 +20,59 @@ function flushMicrotasks(): Promise<void> {
 @Component({
   selector: 'app-host',
   imports: [ReactiveFormsModule, CustomSelect],
-  template: `<app-custom-select [formControl]="control" [options]="options" [required]="true" />`,
+  template: `<app-custom-select
+    [formControl]="control"
+    [options]="options"
+    label="Rôle"
+    [required]="true"
+    [pill]="pill"
+    [compact]="compact"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {
   readonly control = new FormControl<string | null>(null);
-  readonly options = OPTIONS;
+  options = OPTIONS;
+  pill = false;
+  compact = false;
 }
 
 describe('CustomSelect', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
+    }).compileComponents();
+  });
+
+  it('marks a required custom select in the label and accessibility tree', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const label = fixture.nativeElement.querySelector('label') as HTMLLabelElement;
+    const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+
+    expect(label.textContent).toContain('*');
+    expect(label.textContent).toContain('Champ obligatoire');
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('supports a pill trigger for toolbar filters', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.pill = true;
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.classList.contains('rounded-full')).toBe(true);
+    expect(trigger.classList.contains('rounded-lg')).toBe(false);
+  });
+
   it('reflects an initial value from the bound reactive form control on the trigger', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.control.setValue('b');
@@ -33,6 +80,17 @@ describe('CustomSelect', () => {
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     expect(trigger.textContent).toContain('Option B');
+  });
+
+  it('preserves the compact radius for non-pill controls', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.compact = true;
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(trigger.classList.contains('rounded')).toBe(false);
+    expect(trigger.classList.contains('rounded-lg')).toBe(true);
+    expect(trigger.classList.contains('rounded-full')).toBe(false);
   });
 
   it('opens the menu on trigger click, selects an option on click, propagates it and closes', () => {
@@ -60,6 +118,34 @@ describe('CustomSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('renders a first-line search and filters options when more than 20 are available', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.options = Array.from({ length: 21 }, (_, index) => ({
+      value: `option-${index + 1}`,
+      label: `Option ${index + 1}`,
+    }));
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    trigger.click();
+    fixture.detectChanges();
+
+    const filterInput: HTMLInputElement =
+      fixture.nativeElement.querySelector('input[type="search"]');
+    expect(filterInput).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('[role="option"]')).toHaveLength(21);
+
+    filterInput.value = 'Option 21';
+    filterInput.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(
+      Array.from(
+        fixture.nativeElement.querySelectorAll('[role="option"]') as NodeListOf<Element>,
+      ).map((option) => option.textContent?.trim()),
+    ).toEqual(['Option 21']);
+  });
+
   it('keeps one option in the tab order while moving the roving focus target', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
@@ -73,7 +159,9 @@ describe('CustomSelect', () => {
     );
     expect(optionButtons.map((button) => button.tabIndex)).toEqual([0, -1, -1]);
 
-    optionButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    optionButtons[0].dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    );
     fixture.detectChanges();
     optionButtons = Array.from(fixture.nativeElement.querySelectorAll('[role="option"]'));
     expect(optionButtons.map((button) => button.tabIndex)).toEqual([-1, 0, -1]);

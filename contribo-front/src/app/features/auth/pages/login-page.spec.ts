@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../assets/i18n/fr.json';
+import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import fr from '@assets/i18n/fr.json';
 import { LoginPage } from './login-page';
 
 function fillForm(
@@ -99,6 +100,7 @@ describe('LoginPage', () => {
 
     submitForm(fixture);
 
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     const req = httpMock.expectOne('/api/v1/auth/login');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ identifier: 'moussa.bah', password: 'secret' });
@@ -112,10 +114,9 @@ describe('LoginPage', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
     submitForm(fixture);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     httpMock.expectOne('/api/v1/auth/login').flush({
-      accessToken: 'token',
-      tokenType: 'Bearer',
-      expiresIn: 3600,
+      expiresIn: 900,
       user: {
         userId: 'user-1',
         association: { id: 'assoc-1', name: 'Association Démo', currency: 'GNF' },
@@ -133,8 +134,8 @@ describe('LoginPage', () => {
       },
     });
 
-    expect(navigateSpy).toHaveBeenCalledWith('/');
-    expect(localStorage.getItem('contribo-session-token')).toBe('token');
+    expect(navigateSpy).toHaveBeenCalledWith(NAVIGATION_PATHS.dashboard);
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 
   it('shows a generic error message when authentication fails, without navigating', () => {
@@ -145,6 +146,7 @@ describe('LoginPage', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
     submitForm(fixture);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
     httpMock
       .expectOne('/api/v1/auth/login')
       .flush(

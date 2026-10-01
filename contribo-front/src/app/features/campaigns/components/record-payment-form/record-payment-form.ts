@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { CreatePaymentRequest, Due, PaymentMethod } from '@api';
+import type { CreatePaymentRequest, Due, PaymentMethod } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';
+import { DateInput } from '@shared/date-input/date-input';
 import { PaymentMethodSelect } from '@shared/payment-method-select/payment-method-select';
 
 /**
@@ -12,7 +14,7 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  * `due` sélectionnée), Montant, Date et Mode de règlement saisis. Construit la
  * requête `CreatePaymentRequest` (openapi:`createPayment`, `POST
  * /dues/{dueId}/payments`) et l'émet via `submitted` ; n'appelle pas l'API
- * lui-même, l'appel `RglementsService.createPayment(due.id, ...)` et le
+ * lui-même, l'appel `ReglementsService.createPayment(due.id, ...)` et le
  * rafraîchissement de la cotisation affichée restent à la charge du composant
  * appelant (même répartition des responsabilités que `CampaignCreateForm`,
  * T-65, et `SocialFundCreateForm`, T-84).
@@ -33,7 +35,14 @@ import { PaymentMethodSelect } from '@shared/payment-method-select/payment-metho
  */
 @Component({
   selector: 'app-record-payment-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, AmountInput, PaymentMethodSelect],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    ActionButton,
+    AmountInput,
+    DateInput,
+    PaymentMethodSelect,
+  ],
   templateUrl: './record-payment-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -44,6 +53,7 @@ export class RecordPaymentForm {
   readonly submitting = input(false);
   readonly submitted = output<CreatePaymentRequest>();
   readonly cancelled = output<void>();
+  readonly formatAmount = formatGnfAmountDetailed;
 
   readonly form = this.formBuilder.group({
     amount: this.formBuilder.control<number | null>(null, [Validators.required, Validators.min(1)]),

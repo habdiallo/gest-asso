@@ -6,12 +6,13 @@ import {
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
-import type { ContributionPage } from '@api';
+} from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { MemberContributionsTab } from './member-contributions-tab';
 
@@ -22,6 +23,7 @@ const result: ContributionPage = {
     {
       id: 'a1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
       member: { id: memberId, displayName: 'Amadou Diallo' },
+      externalContributor: null,
       socialFund: {
         id: 'c1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d11',
         title: 'Mariage de Fanta et Sekou',
@@ -56,7 +58,10 @@ async function createFixture(
         preloadLangs: true,
       }),
     ],
-    providers: [{ provide: ContributionsService, useValue: { listContributions } }],
+    providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
+      { provide: ContributionsService, useValue: { listContributions } },
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(MemberContributionsTab);
@@ -75,6 +80,41 @@ describe('MemberContributionsTab', () => {
     expect(root.textContent).toContain('Mariage de Fanta et Sekou');
     expect(root.textContent).toContain(formatGnfAmountDetailed(150_000));
     expect(root.textContent).toContain('Mobile Money');
+  });
+
+  it('renders a mobile card with the contribution details', async () => {
+    const fixture = await createFixture(() => of(result));
+    const root: HTMLElement = fixture.nativeElement;
+
+    const cards = root.querySelectorAll('[data-testid="member-contributions-mobile-cards"] > li');
+    expect(cards).toHaveLength(1);
+    expect(cards[0].textContent).toContain('Mariage de Fanta et Sekou');
+    expect(cards[0].textContent).toContain(formatGnfAmountDetailed(150_000));
+    expect(cards[0].textContent).toContain('Mode de règlement');
+    expect(cards[0].textContent).toContain('14 septembre 2026');
+  });
+
+  it('shows pagination when the API reports more than ten contributions', async () => {
+    const fixture = await createFixture(() =>
+      of({
+        ...result,
+        page: { number: 0, size: 10, totalElements: 11, totalPages: 2 },
+      }),
+    );
+
+    expect(fixture.nativeElement.querySelector('nav[aria-label]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Page 1 sur 2');
+  });
+
+  it('shows exactly the business columns Cagnotte, Montant, Mode, Date, in this order (T-130)', async () => {
+    const fixture = await createFixture(() => of(result));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const headers = Array.from(root.querySelectorAll('thead th')).map((th) =>
+      th.textContent?.trim(),
+    );
+    expect(headers).toEqual(['Cagnotte', 'Montant', 'Mode de règlement', 'Date']);
   });
 
   it('shows an empty state when the member has no contribution', async () => {

@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import type { IncomeCategory } from '@api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { EditIncomeCategoryDialog } from './edit-income-category-dialog';
 
 /*
@@ -84,13 +84,15 @@ describe('EditIncomeCategoryDialog', () => {
     expect(input.value).toBe('Standard');
   });
 
-  it('shows a warning that the change has no retroactive effect (US-REV-002)', () => {
+  it('keeps the edit-only non-retroactive reminder in the shared form layout', () => {
     const fixture = TestBed.createComponent(EditIncomeCategoryDialog);
     fixture.componentRef.setInput('category', buildCategory());
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("pas d'effet rétroactif");
+    expect(fixture.nativeElement.textContent).toContain(
+      "La modification du libellé ne s'applique qu'aux prochaines campagnes",
+    );
   });
 
   it('does not call the API and shows a validation error when submitted without a label', () => {

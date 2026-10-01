@@ -7,7 +7,7 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'danger';
 export type ActionButtonType = 'button' | 'submit' | 'reset';
 
 const ACTION_BUTTON_BASE_CLASSES =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded border border-transparent px-4 py-2 text-[10px] font-medium uppercase tracking-[0.1em] whitespace-nowrap cursor-pointer outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-[180ms] focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash active:scale-[0.985] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] disabled:transform-none disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-[0.42] aria-disabled:transform-none aria-disabled:shadow-none';
+  'inline-flex h-11 min-h-11 min-w-32 items-center justify-center gap-2 rounded border border-transparent px-4 py-2 text-center font-data text-control font-medium uppercase tracking-control whitespace-nowrap cursor-pointer outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-[180ms] max-tablet:h-auto max-tablet:min-w-0 max-tablet:whitespace-normal max-tablet:leading-tight focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash active:scale-[0.985] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] disabled:transform-none disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-[0.42] aria-disabled:transform-none aria-disabled:shadow-none';
 
 const ACTION_BUTTON_VARIANT_CLASSES: Record<ActionButtonVariant, string> = {
   primary:

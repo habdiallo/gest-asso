@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CatgoriesDeRevenuService, CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { IncomeCategory, MemberDetails, UpdateMemberRequest } from '@api';
+import { CategoriesDeRevenuService, CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import type { IncomeCategory, MemberDetails, UpdateMemberRequest } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberEditForm } from './member-edit-form';
 
 const category: IncomeCategory = {
@@ -52,7 +52,7 @@ async function createFixture(): Promise<ComponentFixture<MemberEditForm>> {
     ],
     providers: [
       {
-        provide: CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
         useValue: { listIncomeCategories: () => of([category]) },
       },
     ],

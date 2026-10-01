@@ -1,22 +1,45 @@
-import type { Routes } from '@angular/router';
-import { UserRole } from '@api';
-import { authenticatedMatch } from '@core/session/authenticated.guard';
+import { inject } from '@angular/core';
+import type { RedirectFunction, Routes } from '@angular/router';
+import { UserRole } from '@core/api';
+import {
+  activeSessionMatch,
+  authenticatedMatch,
+  passwordChangeMatch,
+} from '@core/session/authenticated.guard';
 import { roleGuard } from '@core/session/role.guard';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import { SessionService } from '@core/session/session.service';
+
+const sessionEntryRedirect: RedirectFunction = () => {
+  const session = inject(SessionService);
+  if (!session.isAuthenticated()) {
+    return 'login';
+  }
+  return session.mustChangePassword()
+    ? NAVIGATION_PATHS.passwordChange.slice(1)
+    : NAVIGATION_PATHS.dashboard.slice(1);
+};
 
 export const routes: Routes = [
   {
     path: '',
-    // Point d'entrée après connexion (T-16) : le tableau de bord n'est
-    // sélectionné que pour un utilisateur authentifié ; sinon Angular
-    // retente la route '' suivante, la page d'accueil visiteur.
-    canMatch: [authenticatedMatch],
+    pathMatch: 'full',
+    // Le tableau de bord est le point d'entrée d'une session active. Angular
+    // ne permet pas de combiner `canMatch` et `redirectTo`, le redirect
+    // fonctionnel porte donc directement la décision de session.
+    redirectTo: sessionEntryRedirect,
+  },
+  {
+    path: NAVIGATION_PATHS.dashboard.slice(1),
+    canMatch: [activeSessionMatch],
     loadChildren: () =>
       import('@features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
-    path: '',
-    loadChildren: () => import('@features/home/home.routes').then((m) => m.HOME_ROUTES),
+    path: NAVIGATION_PATHS.passwordChange.slice(1),
+    canMatch: [passwordChangeMatch],
+    loadComponent: () =>
+      import('@features/auth/pages/change-password-page').then((m) => m.ChangePasswordPage),
   },
   {
     // Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
@@ -24,7 +47,7 @@ export const routes: Routes = [
     // est répétée dans `income-categories.routes.ts` pour couvrir l'écran de
     // façon transverse, indépendamment de sa composition (RG-ROLE-002, T-49).
     path: NAVIGATION_PATHS.incomeCategories.slice(1),
-    canMatch: [authenticatedMatch, roleGuard('ADMINISTRATOR')],
+    canMatch: [activeSessionMatch, roleGuard('ADMINISTRATOR')],
     loadChildren: () =>
       import('@features/income-categories/income-categories.routes').then(
         (m) => m.INCOME_CATEGORIES_ROUTES,
@@ -65,6 +88,11 @@ export const routes: Routes = [
       import('@features/social-funds/social-funds.routes').then((m) => m.SOCIAL_FUNDS_ROUTES),
   },
   {
+    path: NAVIGATION_PATHS.account.slice(1),
+    canMatch: [roleGuard(UserRole.Administrator, UserRole.Treasurer, UserRole.Operator)],
+    loadChildren: () => import('@features/account/account.routes').then((m) => m.ACCOUNT_ROUTES),
+  },
+  {
     path: 'mon-espace',
     // Espace personnel du membre (T-95) : profil en lecture seule, réservé à
     // un utilisateur authentifié, quel que soit son rôle applicatif.
@@ -76,5 +104,5 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('@features/shell/shell.routes').then((m) => m.SHELL_ROUTES),
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: sessionEntryRedirect },
 ];

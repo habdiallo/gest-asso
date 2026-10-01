@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CatgoriesDeRevenuService, CreateCampaignRequest } from '@api';
-import type { IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, CreateCampaignRequest } from '@core/api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignCreateForm } from './campaign-create-form';
 
 const categories: IncomeCategory[] = [
@@ -46,8 +46,8 @@ async function createFixture(
     ],
     providers: [
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
     ],
   }).compileComponents();
@@ -252,9 +252,11 @@ describe('CampaignCreateForm', () => {
     const emitted: void[] = [];
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
-    const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]:not([aria-haspopup="listbox"])',
-    ) as HTMLButtonElement;
+    const cancelButton = Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      ) as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.trim() === 'Annuler') as HTMLButtonElement;
     cancelButton.click();
 
     expect(emitted).toHaveLength(1);

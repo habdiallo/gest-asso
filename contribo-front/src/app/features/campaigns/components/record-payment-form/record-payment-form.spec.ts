@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampaignStatus, CurrencyCode, DueStatus, PaymentMethod } from '@api';
-import type { CreatePaymentRequest, Due } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, PaymentMethod } from '@core/api';
+import type { CreatePaymentRequest, Due } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../../assets/i18n/fr.json';
+import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import fr from '@assets/i18n/fr.json';
 import { RecordPaymentForm } from './record-payment-form';
 
 const due: Due = {
@@ -58,6 +59,44 @@ describe('RecordPaymentForm', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Aissatou Diallo');
     expect(text).toContain('Cotisation annuelle 2026');
+  });
+
+  it('displays the same due summary used by the member payment dialog', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.summary.due'],
+    );
+    expect(root.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.summary.paid'],
+    );
+    expect(root.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.summary.remaining'],
+    );
+    expect(root.textContent).toContain(formatGnfAmountDetailed(100_000));
+    expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
+    expect(root.querySelector('[data-testid="record-payment-summary"]')?.className).toContain(
+      'grid-cols-3',
+    );
+  });
+
+  it('uses the contribution-style two-column layout for amount and date', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const amountAndDateGrid = Array.from(
+      root.querySelectorAll('form > .grid > .grid[class~="min-[821px]:grid-cols-2"]'),
+    ).find((grid) => grid.querySelector('app-amount-input'));
+    expect(amountAndDateGrid).toBeDefined();
+    expect(amountAndDateGrid?.querySelector('#record-payment-date')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      fr['campaigns.detail.cotisations.recordPayment.traceabilityNote'],
+    );
   });
 
   it('blocks submission and shows validation errors when required fields are empty', async () => {
@@ -214,9 +253,11 @@ describe('RecordPaymentForm', () => {
     const emitted: void[] = [];
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
-    const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]:not([aria-haspopup="listbox"])',
-    ) as HTMLButtonElement;
+    const cancelButton = Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      ) as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.trim() === 'Annuler') as HTMLButtonElement;
     cancelButton.click();
 
     expect(emitted).toHaveLength(1);

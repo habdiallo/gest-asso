@@ -16,10 +16,11 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@api": ["./src/app/core/api/generated/index.ts"],
       "@core/*": ["./src/app/core/*"],
       "@shared/*": ["./src/app/shared/*"],
-      "@features/*": ["./src/app/features/*"]
+      "@features/*": ["./src/app/features/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@mocks/*": ["./src/mocks/*"]
     }
   },
   "angularCompilerOptions": {

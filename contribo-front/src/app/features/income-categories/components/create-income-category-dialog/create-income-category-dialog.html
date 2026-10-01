@@ -1,59 +1,22 @@
 <app-form-dialog
   [open]="open()"
-  [dialogTitle]="'incomeCategories.createDialog.title' | transloco"
-  [closeLabel]="'incomeCategories.createDialog.cancel' | transloco"
+  [kicker]="'incomeCategories.dialog.kicker' | transloco"
+  [dialogTitle]="'incomeCategories.dialog.title' | transloco"
+  [desktopWidth]="'680px'"
+  [closeLabel]="'incomeCategories.dialog.close' | transloco"
   (closed)="closed.emit()"
 >
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <div>
-      <label
-        for="income-category-label"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
-      >
-        {{ 'incomeCategories.createDialog.labelLabel' | transloco }}
-      </label>
-      <input
-        id="income-category-label"
-        type="text"
-        formControlName="label"
-        required
-        maxlength="100"
-        [attr.aria-invalid]="labelInvalid() ? true : null"
-        [attr.aria-describedby]="labelInvalid() ? 'income-category-label-error' : null"
-        class="app-form-control h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
-      />
-      @if (labelInvalid()) {
-        <p id="income-category-label-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'incomeCategories.createDialog.labelRequired' | transloco }}
-        </p>
-      }
-    </div>
-
-    @if (errorMessage(); as errorKey) {
-      <app-api-error-retry
-        [message]="errorKey | transloco"
-        [retryLabel]="'sharedApiErrorRetry.retryLabel' | transloco"
-        (retry)="submit()"
-      />
-    }
-
-    <div class="mt-6 flex items-center justify-end gap-3">
-      <app-action-button
-        type="button"
-        variant="secondary"
-        [disabled]="submitting()"
-        (click)="closed.emit()"
-      >
-        {{ 'incomeCategories.createDialog.cancel' | transloco }}
-      </app-action-button>
-      <app-action-button type="submit" [disabled]="submitting()">
-        {{
-          (submitting()
-            ? 'incomeCategories.createDialog.submitting'
-            : 'incomeCategories.createDialog.submit'
-          ) | transloco
-        }}
-      </app-action-button>
-    </div>
-  </form>
+  <app-income-category-form
+    [form]="form"
+    labelControlId="income-category-label"
+    labelErrorId="income-category-label-error"
+    [labelInvalid]="labelInvalid()"
+    [labelRequired]="'incomeCategories.createDialog.labelRequired'"
+    [errorMessage]="errorMessage()"
+    [submitting]="submitting()"
+    [submitLabel]="'incomeCategories.dialog.submit'"
+    [submittingLabel]="'incomeCategories.dialog.submitting'"
+    (submitted)="submit()"
+    (cancelled)="closed.emit()"
+  />
 </app-form-dialog>

@@ -1,4 +1,4 @@
-import type { CurrentUser } from '@api';
+import type { CurrentUser } from '@core/api';
 import { canRecordPayments } from './payment-authorization';
 
 function buildUser(overrides: Partial<CurrentUser>): CurrentUser {

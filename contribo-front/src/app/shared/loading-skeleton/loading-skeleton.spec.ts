@@ -18,6 +18,18 @@ describe('LoadingSkeleton', () => {
     expect(status.textContent?.trim()).toBe('Chargement des membres...');
   });
 
+  it('shows the loading label visibly for visual variants', () => {
+    const fixture = TestBed.createComponent(LoadingSkeleton);
+    fixture.componentRef.setInput('variant', 'table');
+    fixture.componentRef.setInput('label', 'Chargement des membres...');
+    fixture.detectChanges();
+
+    const visibleLabel = fixture.nativeElement.querySelector(
+      'p[aria-hidden="true"]',
+    ) as HTMLElement;
+    expect(visibleLabel.textContent?.trim()).toBe('Chargement des membres...');
+  });
+
   it('hides the decorative skeleton shapes from assistive technology', () => {
     const fixture = TestBed.createComponent(LoadingSkeleton);
     fixture.componentRef.setInput('variant', 'grid');
@@ -54,5 +66,47 @@ describe('LoadingSkeleton', () => {
       '.grid.grid-cols-1 > div.rounded-card',
     );
     expect(fields.length).toBe(3);
+  });
+
+  it('renders the dialog variant with summary, fields and footer placeholders', () => {
+    const fixture = TestBed.createComponent(LoadingSkeleton);
+    fixture.componentRef.setInput('variant', 'dialog');
+    fixture.componentRef.setInput('rows', 4);
+    fixture.componentRef.setInput('label', 'Chargement du règlement...');
+    fixture.componentRef.setInput('dialogSummaryLabels', [
+      'Montant dû',
+      'Déjà payé',
+      'Reste à payer',
+    ]);
+    fixture.componentRef.setInput('dialogFieldLabels', [
+      'Membre',
+      'Campagne',
+      'Montant',
+      'Date',
+      'Mode de règlement',
+    ]);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelectorAll('.grid.grid-cols-3 > .space-y-2')).toHaveLength(3);
+    expect(root.querySelectorAll('.grid.sm\\:grid-cols-2 > .space-y-2')).toHaveLength(4);
+    expect(root.querySelector('[class*="border-t"]')).not.toBeNull();
+    expect(root.textContent).toContain('Montant dû');
+    expect(root.textContent).toContain('Mode de règlement');
+  });
+
+  it('renders the inline variant as a compact loading indicator', () => {
+    const fixture = TestBed.createComponent(LoadingSkeleton);
+    fixture.componentRef.setInput('variant', 'inline');
+    fixture.componentRef.setInput('label', 'Chargement des catégories...');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.inline-flex')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.inline-flex')?.textContent).toContain(
+      'Chargement des catégories',
+    );
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain(
+      'Chargement des catégories',
+    );
   });
 });

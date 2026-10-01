@@ -9,8 +9,15 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MembresService, MemberStatus } from '@api';
-import type { CreateMemberRequest, MemberDetails, MemberPage, MemberSummary } from '@api';
+import { MembresService, MemberStatus } from '@core/api';
+import type {
+  CreateMemberRequest,
+  MemberCreationResponse,
+  MemberDetails,
+  MemberPage,
+  MemberSummary,
+  TemporaryCredentials,
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
@@ -20,6 +27,7 @@ import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
+import { StatusBadge } from '@shared/status-badge/status-badge';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
@@ -28,13 +36,13 @@ import { memberIsActive, memberStatusLabel } from '../members-status-labels';
 const MEMBERS_PAGE_SIZE = 10;
 
 /**
- * Écran liste des membres (T-21) : appelle `GET /membres` (`@api`,
+ * Écran liste des membres (T-21) : appelle `GET /membres` (`@core/api`,
  * `MembresService.listMembers`) et affiche un tableau Nom, Prénom, Nom
  * d'usage, Pays, Ville, Téléphone, Catégorie, Fonction, Statut, conformément
  * à US-MEM-002. La présentation reprend le tableau du prototype, avec
  * l'identité, la ville et le pays regroupés autour de l'avatar. La pagination
  * de base (page suivante/précédente sur `page`/`size`) est fournie par ce
- * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 20
+ * ticket, afin que l'ensemble du répertoire reste accessible au-delà des 10
  * premiers membres. La colonne Statut affiche un badge
  * distinguant visuellement les membres actifs des membres inactifs (T-22,
  * RG-MEM-007), en plus du libellé textuel, pour ne pas reposer uniquement sur
@@ -116,6 +124,7 @@ const MEMBERS_PAGE_SIZE = 10;
     PageHeader,
     CustomSelect,
     MemberCreateForm,
+    StatusBadge,
   ],
   templateUrl: './members-list-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -164,7 +173,13 @@ export class MembersListPage {
   readonly createDialogOpen = signal(false);
   readonly creating = signal(false);
   readonly createError = signal(false);
-  readonly createdConfirmation = signal<{ name: string; statusLabel: string } | null>(null);
+  readonly createdConfirmation = signal<{
+    name: string;
+    statusLabel: string;
+    credentials: TemporaryCredentials;
+    copied: boolean;
+  } | null>(null);
+  readonly confirmationDismissed = signal(false);
 
   readonly previousPageDisabled = computed(
     () => this.loading() || (this.memberPage()?.page.number ?? 0) === 0,
@@ -307,6 +322,7 @@ export class MembersListPage {
     this.creating.set(false);
     this.createError.set(false);
     this.createdConfirmation.set(null);
+    this.confirmationDismissed.set(false);
     this.createDialogOpen.set(true);
   }
 
@@ -328,7 +344,11 @@ export class MembersListPage {
       .createMember(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (member: MemberDetails) => {
+        next: (creation: MemberCreationResponse | MemberDetails) => {
+          const member = 'member' in creation ? creation.member : creation;
+          const credentials = 'credentials' in creation
+            ? creation.credentials
+            : { identifier: '', temporaryPassword: '' };
           this.loadPage(0);
           if (session !== this.createDialogSession) {
             return;
@@ -336,7 +356,10 @@ export class MembersListPage {
           this.createdConfirmation.set({
             name: member.displayName,
             statusLabel: memberStatusLabel(member.status),
+            credentials,
+            copied: false,
           });
+          this.confirmationDismissed.set(false);
           this.closeCreateDialog();
         },
         error: () => {
@@ -347,6 +370,21 @@ export class MembersListPage {
           this.createError.set(true);
         },
       });
+  }
+
+  copyTemporaryPassword(): void {
+    const confirmation = this.createdConfirmation();
+    if (!confirmation) {
+      return;
+    }
+    void navigator.clipboard.writeText(confirmation.credentials.temporaryPassword).then(() => {
+      this.createdConfirmation.update((current) => current ? { ...current, copied: true } : current);
+    });
+  }
+
+  dismissCreatedConfirmation(): void {
+    this.createdConfirmation.set(null);
+    this.confirmationDismissed.set(true);
   }
 
   /**

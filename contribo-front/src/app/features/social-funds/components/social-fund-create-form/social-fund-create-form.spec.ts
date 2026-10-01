@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { SocialEventType } from '@api';
-import type { CreateSocialFundRequest } from '@api';
+import { SocialEventType } from '@core/api';
+import type { CreateSocialFundRequest } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SocialFundCreateForm } from './social-fund-create-form';
 
 async function createFixture(): Promise<ComponentFixture<SocialFundCreateForm>> {
@@ -206,9 +206,11 @@ describe('SocialFundCreateForm', () => {
     const emitted: void[] = [];
     fixture.componentInstance.cancelled.subscribe(() => emitted.push(undefined));
 
-    const cancelButton = fixture.nativeElement.querySelector(
-      'button[type="button"]:not([aria-haspopup="listbox"])',
-    ) as HTMLButtonElement;
+    const cancelButton = Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      ) as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.trim() === 'Annuler') as HTMLButtonElement;
     cancelButton.click();
 
     expect(emitted).toHaveLength(1);

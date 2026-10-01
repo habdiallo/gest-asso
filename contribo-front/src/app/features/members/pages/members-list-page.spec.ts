@@ -1,21 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { CatgoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
+import { CategoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@core/api';
 import type {
   CreateMemberRequest,
   CurrentUser,
   IncomeCategory,
+  MemberCreationResponse,
   MemberDetails,
   MemberPage,
   MemberSummary,
+  TemporaryCredentials,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { MemberCreateForm } from '../components/member-create-form/member-create-form';
 import { MembersListPage } from './members-list-page';
@@ -129,7 +132,9 @@ async function createFixture(
     status?: MemberStatus,
   ) => Observable<MemberPage>,
   options: {
-    createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
+    createMember?: (
+      request: CreateMemberRequest,
+    ) => Observable<MemberDetails | MemberCreationResponse>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
     role?: UserRole;
     queryParams?: Record<string, string>;
@@ -150,13 +155,14 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       {
         provide: MembresService,
         useValue: { listMembers, createMember } as unknown as MembresService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       provideRouter([]),
       ...(options.queryParams
@@ -280,7 +286,7 @@ describe('MembersListPage', () => {
     expect(row?.textContent).toContain('Catégorie B');
     expect(row?.textContent).toContain('Président');
     expect(row?.textContent).toContain('Actif');
-    expect(root.textContent).toContain('86 membre(s) actif(s) sur 91 membre(s) enregistré(s)');
+    expect(root.textContent).toContain('86 membres actifs sur 91 membres enregistrés');
   });
 
   it('shows a placeholder for optional fields left absent by the API', async () => {
@@ -401,6 +407,27 @@ describe('MembersListPage', () => {
 
     expect(root.textContent).toContain('Toure');
     expect(root.textContent).toContain('Conde');
+  });
+
+  it('places the category and country filters in a compact mobile row', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildMemberPage({
+          items: [
+            buildMember({ country: 'Guinée' }),
+            buildMember({ id: 'member-senegal', country: 'Sénégal' }),
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const filters = fixture.nativeElement.querySelector(
+      '[data-testid="members-secondary-filters"]',
+    ) as HTMLElement | null;
+    expect(filters).toBeTruthy();
+    expect(filters?.className).toContain('grid-cols-2');
+    expect(filters?.querySelectorAll('app-custom-select')).toHaveLength(2);
   });
 
   it('shows a dedicated message when no member matches the selected category', async () => {
@@ -948,6 +975,74 @@ describe('MembersListPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     const confirmation = root.querySelector('[role="status"]');
     expect(confirmation?.textContent).toContain('compte utilisateur');
+  });
+
+  it('displays temporary credentials and copies the password from the creation confirmation', async () => {
+    const credentials: TemporaryCredentials = {
+      identifier: 'member-mariama',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const creation: MemberCreationResponse = {
+      member: buildMemberDetails({ displayName: 'Mariama Barry' }),
+      credentials,
+    };
+    const createMember = vi.fn(() => of(creation));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.componentInstance.handleCreateMember({
+      firstName: 'Mariama',
+      lastName: 'Barry',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const copyButton = Array.from(root.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Copier'),
+    ) as HTMLButtonElement;
+    copyButton.click();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('member-mariama');
+    expect(root.textContent).toContain('Temporaire-1234!');
+    expect(writeText).toHaveBeenCalledWith('Temporaire-1234!');
+    expect(root.textContent).toContain('Copié');
+  });
+
+  it('hides temporary credentials after dismissal and explains how to regenerate them', async () => {
+    const credentials: TemporaryCredentials = {
+      identifier: 'member-mariama',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const creation: MemberCreationResponse = {
+      member: buildMemberDetails({ displayName: 'Mariama Barry' }),
+      credentials,
+    };
+    const fixture = await createFixture(() => of(buildMemberPage()), {
+      createMember: vi.fn(() => of(creation)),
+    });
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.componentInstance.handleCreateMember({
+      firstName: 'Mariama',
+      lastName: 'Barry',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"] button')).toBeTruthy();
+    fixture.componentInstance.dismissCreatedConfirmation();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Temporaire-1234!');
+    expect(fixture.nativeElement.textContent).toContain('Administrateur peut le régénérer');
   });
 
   it('clears the creation confirmation when reopening the dialog', async () => {

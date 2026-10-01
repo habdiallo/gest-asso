@@ -257,6 +257,24 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-COT-004** — La date de fin est obligatoire.
 - **RG-COT-005** — La date de fin ne peut pas être antérieure à la date de début.
 
+### Cycle de vie d'une campagne
+
+Une campagne traverse trois états, dans cet ordre et sans retour en arrière :
+
+| État | Déclencheur | Actions autorisées |
+|---|---|---|
+| Brouillon | Création de la campagne, jusqu'à l'ouverture explicite après la date de début | Configurer/modifier les montants par catégorie (US-COT-002), vérifier la préparation et ouvrir la campagne si elle est prête |
+| Ouverte | Ouverture explicite par un Administrateur ou un Trésorier, après la date de début | Enregistrer des règlements (US-COT-005), suivre les cotisations (US-COT-004) et le bilan (US-COT-007) |
+| Clôturée | Clôture explicite par un Administrateur ou un Trésorier (US-COT-008) | Consultation uniquement ; aucune modification |
+
+**Règles**
+
+- **RG-COT-017** : Une campagne suit trois états : Brouillon jusqu'à son ouverture explicite, Ouverte après cette ouverture et jusqu'à sa clôture, puis Clôturée après clôture explicite (US-COT-008).
+- **RG-COT-018** : Les montants par catégorie d'une campagne ne sont modifiables que lorsqu'elle est en Brouillon ; ils sont figés dès qu'elle passe à l'état Ouverte.
+- **RG-COT-019** : Une campagne ne peut être ouverte que par un Administrateur ou un Trésorier, après sa date de début et lorsque toutes les vérifications de préparation sont satisfaites.
+- **RG-COT-020** : L'ouverture d'une campagne est confirmée explicitement, enregistrée avec sa date et son auteur, puis rend le barème immuable.
+- **RG-PAY-010** : Un règlement ne peut être enregistré que sur une campagne à l'état Ouverte ; l'enregistrement n'est pas possible en Brouillon ni sur une campagne Clôturée.
+
 ### US-COT-002 — Configurer les montants par catégorie
 
 **En tant qu'Administrateur ou Trésorier**, je veux définir le montant applicable à chaque catégorie de revenu dans une campagne, afin de déterminer les montants dus.
@@ -277,6 +295,7 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-COT-008** — Une catégorie de revenu n'a jamais de montant de cotisation permanent.
 - **RG-COT-009** — Deux campagnes peuvent définir des montants différents pour une même catégorie.
 - **RG-COT-010** — Le montant applicable à un membre est celui défini dans la campagne pour sa catégorie.
+- Cette configuration n'est accessible que sur une campagne en Brouillon (RG-COT-018).
 
 ### US-COT-003 — Établir la cotisation d'un membre
 
@@ -313,6 +332,7 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - **RG-PAY-003** — Le montant total payé permet de déterminer le reste à payer.
 - **RG-PAY-007** — Le système refuse l'enregistrement d'un règlement dont le montant dépasserait le reste à payer de la cotisation concernée.
 - **RG-PAY-008** — Chaque règlement enregistre l'identité de l'utilisateur qui l'a saisi et l'horodatage de la saisie (traçabilité).
+- **RG-PAY-010** — Un règlement ne peut être enregistré que sur une campagne Ouverte (voir Cycle de vie d'une campagne, §7).
 
 ### US-COT-006 — Gérer un paiement partiel
 
@@ -350,7 +370,23 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 - Son historique est conservé.
 - Les montants dus restent inchangés.
 - Les règlements restent accessibles.
-- Une campagne clôturée ne peut plus être modifiée.
+- Une campagne clôturée ne peut plus être modifiée : ni son barème (RG-COT-018), ni l'enregistrement d'un nouveau règlement (RG-PAY-010) (Cycle de vie d'une campagne, §7).
+
+### US-COT-009 - Ouvrir une campagne
+
+**En tant qu'Administrateur ou Trésorier**, je veux ouvrir explicitement une campagne prête, afin de figer son barème et de démarrer l'enregistrement des règlements.
+
+**Informations de préparation** : complétude du barème, cohérence des dates, capacité à établir les cotisations, date de début et état courant de la campagne.
+
+**Règles**
+
+- L'action d'ouverture est proposée uniquement à l'Administrateur et au Trésorier.
+- Toutes les catégories portées par les membres concernés doivent avoir un montant strictement positif.
+- La date de début doit être atteinte ; une ouverture anticipée n'est pas autorisée dans le MVP.
+- Une confirmation explicite est demandée avant l'ouverture, car le barème devient immuable.
+- L'ouverture renseigne la date et l'utilisateur l'ayant effectuée.
+- Une campagne ouverte accepte les règlements et n'accepte plus de modification du barème.
+- Une campagne non prête reste en Brouillon et expose les éléments bloquants.
 
 ---
 
@@ -372,16 +408,19 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 
 ### US-CAG-002 — Enregistrer une contribution
 
-**En tant que Trésorier ou Opérateur autorisé**, je veux enregistrer la contribution d'un membre, afin de suivre les participations à la cagnotte.
+**En tant que Trésorier ou Opérateur autorisé**, je veux enregistrer la contribution d'un membre ou d'un contributeur externe, afin de suivre les participations à la cagnotte sans créer de faux membre.
 
-**Informations** : Membre, Cagnotte, Montant (GNF), Date, Mode (Espèces / Mobile Money / Virement bancaire), Utilisateur ayant enregistré la contribution.
+**Informations** : Membre sélectionné ou contributeur externe (prénom et nom), Cagnotte, Montant (GNF), Date, Mode (Espèces / Mobile Money / Virement bancaire), Utilisateur ayant enregistré la contribution.
 
 **Règles**
 
-- **RG-CAG-004** — Une contribution est rattachée à un membre et à une cagnotte.
-- **RG-CAG-005** — Un membre peut effectuer plusieurs contributions à une même cagnotte, sans restriction de nombre ni de montant minimal entre deux contributions.
+- **RG-CAG-004** — Une contribution est rattachée à une cagnotte et à exactement une identité contributrice : un membre sélectionné ou un contributeur externe identifié par son prénom et son nom.
+- **RG-CAG-005** — Un membre ou un contributeur externe peut effectuer plusieurs contributions à une même cagnotte, sans restriction de nombre ni de montant minimal entre deux contributions.
 - **RG-CAG-006** — Une contribution à une cagnotte ne réduit jamais le montant d'une cotisation.
 - **RG-CAG-007** — Chaque contribution enregistre l'identité de l'utilisateur qui l'a saisie et l'horodatage de la saisie (traçabilité).
+- **RG-CAG-008** — Un contributeur externe est conservé comme un instantané de prénom et de nom dans la contribution ; il ne devient ni membre, ni utilisateur, ni titulaire d'un accès à l'application.
+- **RG-CAG-009** — Une contribution ne peut pas contenir simultanément un membre et un contributeur externe, ni être dépourvue d'identité contributrice.
+- **RG-CAG-010** — Le nombre de contributeurs d'une cagnotte compte les membres distincts par identifiant et les contributeurs externes distincts par paire de prénom et nom normalisée dans cette cagnotte.
 
 ### US-CAG-003 — Suivre une cagnotte
 
@@ -466,12 +505,16 @@ La fiche présente : informations personnelles, catégorie de revenu, fonction, 
 | RG-014 | Un règlement ou une contribution ne peut jamais être supprimé, seulement annulé/contre-passé, afin de préserver la traçabilité comptable. |
 | RG-015 | La devise de l'application est le Franc Guinéen (GNF) ; tous les montants sont des entiers (voir RG-FMT-001 à RG-FMT-004, §1.3). |
 | RG-016 | Un règlement ou une contribution est toujours associé à l'un des trois modes suivants : Espèces, Mobile Money, ou Virement bancaire (voir RG-PAY-009, §1.3). |
+| RG-017 | Une contribution de cagnotte est associée à un membre ou à un contributeur externe, mais jamais aux deux et jamais à aucun. |
+| RG-018 | Une identité externe saisie pour une contribution ne crée pas de membre ni de compte et n'ouvre pas d'accès à l'espace personnel. |
 
 ---
 
 ## 13. Protection des données personnelles
 
 L'application traite des données personnelles de membres (identité, coordonnées, historique financier). Pour le MVP, a minima :
+
+Les prénom et nom d'un contributeur externe sont également des données personnelles conservées comme instantané de l'opération. Ils sont limités aux informations nécessaires au suivi de la cagnotte, ne sont pas utilisés pour créer un membre ou un compte, et ne sont pas exposés dans l'espace personnel d'un membre.
 
 - **RG-DATA-001** — L'accès aux données personnelles des membres est limité aux rôles définis dans la matrice (§3) ; un Membre ne voit que ses propres données.
 - **RG-DATA-002** — La désactivation d'un membre (§5, US-MEM-005) ne vaut pas suppression de ses données ; une éventuelle demande de suppression définitive (droit à l'effacement) est traitée hors MVP, manuellement par l'Administrateur, en conformité avec le RGPD.

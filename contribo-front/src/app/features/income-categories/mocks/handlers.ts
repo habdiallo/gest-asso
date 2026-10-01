@@ -1,26 +1,32 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, UserRole } from '@api';
-import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+import { ErrorCode, UserRole } from '@core/api';
+import type { ErrorResponse, IncomeCategory, IncomeCategoryRequest } from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 const demoIncomeCategories: IncomeCategory[] = [
   {
     id: '10700000-0000-4000-8000-000000000101',
-    label: 'Standard',
-    memberCount: 58,
-    updatedAt: '2026-08-01T09:00:00Z',
+    label: 'Catégorie A',
+    memberCount: 18,
+    updatedAt: '2026-09-02T10:15:00Z',
   },
   {
     id: '10700000-0000-4000-8000-000000000102',
-    label: 'Catégorie A',
-    memberCount: 24,
+    label: 'Catégorie B',
+    memberCount: 31,
     updatedAt: '2026-09-02T10:15:00Z',
   },
   {
     id: '10700000-0000-4000-8000-000000000103',
-    label: 'Catégorie B',
-    memberCount: 9,
-    updatedAt: '2026-09-10T16:45:00Z',
+    label: 'Catégorie C',
+    memberCount: 24,
+    updatedAt: '2026-09-02T10:15:00Z',
+  },
+  {
+    id: '10700000-0000-4000-8000-000000000104',
+    label: 'Catégorie D',
+    memberCount: 18,
+    updatedAt: '2026-09-02T10:15:00Z',
   },
 ];
 
@@ -85,7 +91,7 @@ function categoryNotFound(): Response {
 export const incomeCategoriesHandlers = [
   http.get('/api/v1/income-categories', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -95,7 +101,7 @@ export const incomeCategoriesHandlers = [
 
   http.post('/api/v1/income-categories', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -131,7 +137,7 @@ export const incomeCategoriesHandlers = [
     '/api/v1/income-categories/:incomeCategoryId',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }

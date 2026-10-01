@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import fr from '@assets/i18n/fr.json';
 import { AmountInput } from './amount-input';
 
 @Component({
   selector: 'app-host',
   imports: [ReactiveFormsModule, AmountInput],
-  template: `<app-amount-input [formControl]="control" [required]="true" />`,
+  template: `<app-amount-input [formControl]="control" [label]="'Montant'" [required]="true" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {
@@ -38,6 +41,31 @@ class MaxHostComponent {
 }
 
 describe('AmountInput', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
+    }).compileComponents();
+  });
+
+  it('marks a required amount in the label and accessibility tree', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const label = fixture.nativeElement.querySelector('label') as HTMLLabelElement;
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+
+    expect(label.textContent).toContain('*');
+    expect(label.textContent).toContain('Champ obligatoire');
+    expect(input.getAttribute('aria-required')).toBe('true');
+  });
+
   it.each(['1000,50', '1000.50', '9007199254740993', '9'.repeat(309)])(
     'makes an optional amount invalid for rejected input %s and recovers after correction',
     (rawValue) => {

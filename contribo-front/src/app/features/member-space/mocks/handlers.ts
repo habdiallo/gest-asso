@@ -7,9 +7,9 @@ import {
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
-import type { Contribution, ContributionPage, Due, DuePage, ErrorResponse } from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+} from '@core/api';
+import type { Contribution, ContributionPage, Due, DuePage, ErrorResponse } from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 function authenticationRequired(): Response {
   return HttpResponse.json<ErrorResponse>(
@@ -20,7 +20,7 @@ function authenticationRequired(): Response {
 
 export const memberSpaceHandlers = [
   http.get('/api/v1/me/dues', ({ request }): Response => {
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -52,7 +52,7 @@ export const memberSpaceHandlers = [
   }),
 
   http.get('/api/v1/me/contributions', ({ request }): Response => {
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -61,6 +61,7 @@ export const memberSpaceHandlers = [
     const contribution: Contribution = {
       id: `10700000-0000-4000-8000-${member.id.slice(-4)}20`,
       member: { id: member.id, displayName: member.displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000300',
         title: 'Mariage de Fanta et Sekou',

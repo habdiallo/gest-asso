@@ -1,11 +1,7 @@
 import { HttpResponse, http } from 'msw';
-import { ErrorCode, LoginResponse } from '@api';
-import type { CurrentUser, ErrorResponse } from '@api';
-import {
-  findDemoAccount,
-  findDemoAccountByAuthorization,
-  isLoginRequest,
-} from '../../../../mocks/demo-accounts';
+import { ErrorCode } from '@core/api';
+import type { CurrentUser, ErrorResponse, LoginResponse } from '@core/api';
+import { findDemoAccount, findDemoAccountByRequest, isLoginRequest } from '@mocks/demo-accounts';
 
 function authenticationRequired() {
   return HttpResponse.json<ErrorResponse>(
@@ -25,15 +21,33 @@ export const authHandlers = [
     }
     const account = findDemoAccount(body);
     if (!account) return authenticationRequired();
-    return HttpResponse.json<LoginResponse>({
-      accessToken: account.accessToken,
-      tokenType: LoginResponse.TokenTypeEnum.Bearer,
-      expiresIn: 3600,
-      user: account.user,
-    });
+    return HttpResponse.json<LoginResponse>(
+      { expiresIn: 900, user: account.user },
+      {
+        headers: {
+          'Set-Cookie': `__Host-contribo-session=${account.accessToken}; Path=/; Secure; HttpOnly; SameSite=Strict`,
+        },
+      },
+    );
   }),
+  http.get(
+    '/api/v1/auth/csrf',
+    () =>
+      new HttpResponse(null, {
+        status: 204,
+        headers: { 'Set-Cookie': 'XSRF-TOKEN=mock-csrf-token; Path=/' },
+      }),
+  ),
+  http.post(
+    '/api/v1/auth/logout',
+    () =>
+      new HttpResponse(null, {
+        status: 204,
+        headers: { 'Set-Cookie': '__Host-contribo-session=; Path=/; Max-Age=0; Secure; HttpOnly' },
+      }),
+  ),
   http.get('/api/v1/me', ({ request }): Response => {
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     return account ? HttpResponse.json<CurrentUser>(account.user) : authenticationRequired();
   }),
 ];

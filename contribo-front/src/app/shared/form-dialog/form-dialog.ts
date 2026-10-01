@@ -34,6 +34,15 @@ export class FormDialog {
   /** Titre accessible du dialogue, exposé via `aria-label` sur l'élément natif. */
   readonly dialogTitle = input.required<string>();
 
+  /** Kicker optionnel affiché au-dessus du titre dans les dialogues de détail. */
+  readonly kicker = input('');
+
+  /** Largeur desktop du dialogue, limitée par la largeur disponible de la fenêtre. */
+  readonly desktopWidth = input('560px');
+
+  /** Composition mobile : formulaire plein écran par défaut ou confirmation compacte. */
+  readonly mobilePresentation = input<'fullscreen' | 'compact'>('fullscreen');
+
   /** Libellé du bouton de fermeture explicite. */
   readonly closeLabel = input('Fermer');
 

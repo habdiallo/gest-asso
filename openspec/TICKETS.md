@@ -1,9 +1,10 @@
 # Tickets locaux et branches
 
-[tickets.json](tickets.json) est le registre actif : 104 tickets frontend,
-affichés `T-1` à `T-104`. Leurs étapes portent ces repères dans
-[le backlog](changes/frontend-tickets-mvp-association/tasks.md). Les numéros sont
-globaux à tous les scopes ; le prochain numéro à l'adoption est `105`.
+[tickets.json](tickets.json) est le registre actif : 180 tickets couvrant les
+scopes frontend, backend, fullstack, documentation et infrastructure, affichés
+`T-1` à `T-180`. Leurs étapes portent les repères `[T-<numero>]` dans les
+changes OpenSpec concernés. Les numéros sont globaux à tous les scopes ; le
+prochain numéro à réserver est `181`.
 
 Le numéro de ticket et le numéro d'étape OpenSpec sont indépendants. Exemple :
 T-3 correspond à l'étape `2.1` (écran de connexion).
@@ -47,7 +48,7 @@ non terminés. Il inspecte les dépendances transitives et les changes préalabl
 Vérifier aussi les PR et la présence de leurs changements dans l'ascendance :
 des cases cochées ne prouvent pas une fusion. Sans ticket déductible sans ambiguïté,
 l'agent demande sa sélection. Il ne contourne pas les prérequis en implémentant
-d'autres tickets, ne traite que les étapes de ce ticket et prépare sa PR vers `main`.
+d'autres tickets, ne traite que les étapes de ce ticket et prépare sa PR vers `develop`.
 
 ## Fin de la phase d'initialisation
 
@@ -97,4 +98,5 @@ cette adoption : les contrôles de fichiers ne remplacent pas une revue.
 Titres locaux : `feat(front): T-3 ajouter l'écran de connexion`.
 Ne pas écrire `Closes #3` pour un ticket local. Référencer séparément une issue
 GitHub réelle si elle existe. L'adoption historique du registre reste sous `000`
-avec une branche et une PR propres. Aucun push direct sur `main`.
+avec une branche et une PR propres. Aucun push direct sur `main` ou `develop`. Les
+releases et hotfixes passent par une PR dédiée vers `main`.

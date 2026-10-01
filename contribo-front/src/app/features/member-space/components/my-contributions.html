@@ -1,18 +1,16 @@
 <p class="mb-5 text-sm text-text-2">{{ 'memberSpace.contributions.intro' | transloco }}</p>
 
 @if (loading()) {
-  <p role="status" class="mb-4 text-text-2">
-    {{ 'memberSpace.contributions.loading' | transloco }}
-  </p>
+  <app-loading-skeleton
+    variant="list"
+    [rows]="3"
+    [label]="'memberSpace.contributions.loading' | transloco"
+  />
 }
 @if (loadError()) {
   <div class="mb-4 flex flex-wrap items-center gap-3">
     <p role="alert" class="text-error">{{ 'memberSpace.contributions.error' | transloco }}</p>
-    <button
-      type="button"
-      class="rounded-button border border-line px-4 py-2 text-text"
-      (click)="retry()"
-    >
+    <button type="button" class="rounded border border-line px-4 py-2 text-text" (click)="retry()">
       {{ 'memberSpace.contributions.retry' | transloco }}
     </button>
   </div>
@@ -46,7 +44,7 @@
     >
       <button
         type="button"
-        class="rounded-button border border-line px-4 py-2 text-text disabled:opacity-40"
+        class="rounded border border-line px-4 py-2 text-text disabled:opacity-40"
         [disabled]="loading() || result.page.number <= 0"
         (click)="loadPage(result.page.number - 1)"
       >
@@ -60,7 +58,7 @@
       </p>
       <button
         type="button"
-        class="rounded-button border border-line px-4 py-2 text-text disabled:opacity-40"
+        class="rounded border border-line px-4 py-2 text-text disabled:opacity-40"
         [disabled]="loading() || result.page.number + 1 >= result.page.totalPages"
         (click)="loadPage(result.page.number + 1)"
       >

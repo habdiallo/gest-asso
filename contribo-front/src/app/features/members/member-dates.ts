@@ -1,17 +1,4 @@
-/**
- * Formatage des dates de calendrier de la fiche membre en français, sans
- * dépendre du `LOCALE_ID` Angular (non configuré pour `fr-FR` dans ce socle).
- * Reprend la logique de `features/campaigns/campaign-dates.ts` et
- * `features/member-space/member-space-dates.ts` : les features ne s'important
- * pas entre elles, la fonction est donc dupliquée ici plutôt que partagée.
- */
-
-const calendarDateFormatter = new Intl.DateTimeFormat('fr-FR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
+import { formatCalendarDate as formatCoreCalendarDate } from '@core/formatting/calendar-date';
 
 /**
  * Formate une date de calendrier (`format: date`, `startDate`/`endDate` d'une
@@ -19,5 +6,5 @@ const calendarDateFormatter = new Intl.DateTimeFormat('fr-FR', {
  * puis affichée dans le même fuseau.
  */
 export function formatCalendarDate(value: string): string {
-  return calendarDateFormatter.format(new Date(`${value}T00:00:00Z`));
+  return formatCoreCalendarDate(value);
 }

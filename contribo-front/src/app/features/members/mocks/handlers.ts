@@ -2,30 +2,30 @@ import { HttpResponse, delay, http } from 'msw';
 import {
   CampaignStatus,
   CurrencyCode,
-  DueStatus,
   ErrorCode,
   MemberStatus,
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionPage,
   CreateMemberRequest,
-  Due,
   DuePage,
   ErrorResponse,
   MemberDetails,
+  MemberCreationResponse,
   MemberPage,
   MemberSummary,
   Payment,
   PaymentPage,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+} from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
+import { getDemoDuesForMember } from '@mocks/demo-dues';
 
 /**
  * Répertoire de démonstration pour `GET /api/v1/members` (T-21). Les données
@@ -39,7 +39,6 @@ const demoMembers: MemberSummary[] = [
     id: '10700000-0000-4000-8000-000000000500',
     firstName: 'Amadou',
     lastName: 'Diallo',
-    preferredName: 'Bah',
     displayName: 'Amadou Diallo',
     country: 'Guinée',
     city: 'Conakry',
@@ -73,6 +72,22 @@ const demoMembers: MemberSummary[] = [
   },
 ];
 
+// Le jeu de démonstration dépasse volontairement 20 membres afin que les
+// selects concernés rendent leur recherche intégrée visible dans le MVP.
+demoMembers.push(
+  ...Array.from({ length: 22 }, (_, index): MemberSummary => {
+    const sequence = String(503 + index).padStart(4, '0');
+    return {
+      id: `10700000-0000-4000-8000-00000000${sequence}`,
+      firstName: `Membre${index + 1}`,
+      lastName: 'Démonstration',
+      displayName: `Membre${index + 1} Démonstration`,
+      incomeCategory: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
+      status: MemberStatus.Active,
+    };
+  }),
+);
+
 /**
  * Duplique les identifiants et libellés connus de
  * `features/income-categories/mocks/handlers.ts` (T-48) : les mocks MSW ne
@@ -88,9 +103,8 @@ const demoIncomeCategoryLabelsById: Readonly<Record<string, string>> = {
 /**
  * Détails de fiche de démonstration pour `GET /api/v1/members/{memberId}`
  * (T-27). `account` et `financialSummary` complètent le contrat
- * `MemberDetails` ; ils ne sont pas affichés par cet écran, dont le
- * périmètre se limite au bloc informations personnelles, catégorie,
- * fonction et statut (US-MEM-003, cf. `member-detail-page.ts`).
+ * `MemberDetails` pour alimenter les cartes de compte et de situation
+ * financière de la fiche membre.
  */
 const demoMemberDetails: Map<string, MemberDetails> = new Map(
   demoMembers.map((member, index) => [
@@ -104,9 +118,9 @@ const demoMemberDetails: Map<string, MemberDetails> = new Map(
         active: member.status === MemberStatus.Active,
       },
       financialSummary: {
-        totalDueAmount: 0,
-        totalPaidAmount: 0,
-        totalRemainingAmount: 0,
+        totalDueAmount: index === 0 ? 250_000 : 0,
+        totalPaidAmount: index === 0 ? 200_000 : 0,
+        totalRemainingAmount: index === 0 ? 50_000 : 0,
         currency: CurrencyCode.Gnf,
       },
     },
@@ -151,7 +165,7 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
   [demoMembers[0].id]: [
     {
       id: '10700000-0000-4000-8000-000000000700',
-      dueId: '10700000-0000-4000-8000-000000000800',
+      dueId: '10700000-0000-4000-8000-000000000410',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[0],
       amount: 50_000,
@@ -163,62 +177,14 @@ const demoPaymentsByMemberId: Record<string, Payment[]> = {
     },
     {
       id: '10700000-0000-4000-8000-000000000701',
-      dueId: '10700000-0000-4000-8000-000000000801',
+      dueId: '10700000-0000-4000-8000-000000000430',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
       campaign: demoCampaignReferences[1],
-      amount: 100_000,
-      paymentDate: '2026-06-05',
-      method: PaymentMethod.Cash,
+      amount: 150_000,
+      paymentDate: '2026-06-18',
+      method: PaymentMethod.MobileMoney,
       recordedBy: demoRecordedBy,
-      recordedAt: '2026-06-05T09:10:00Z',
-      currency: CurrencyCode.Gnf,
-    },
-  ],
-};
-
-/**
- * Cotisations de démonstration pour `GET /api/v1/members/{memberId}/dues`
- * (T-28). Duplique volontairement une campagne plausible plutôt que
- * d'importer `features/campaigns/mocks/handlers.ts` : les mocks MSW restent
- * autonomes par fonctionnalité (cf. commentaire équivalent sur
- * `demoIncomeCategoryLabelsById` ci-dessus).
- */
-const demoMemberDues: Record<string, Due[]> = {
-  '10700000-0000-4000-8000-000000000500': [
-    {
-      id: '10700000-0000-4000-8000-000000000420',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: {
-        id: '10700000-0000-4000-8000-000000000200',
-        name: 'Solidarité septembre',
-        startDate: '2026-09-01',
-        endDate: '2026-09-30',
-        status: CampaignStatus.Open,
-      },
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 100_000,
-      paidAmount: 50_000,
-      remainingAmount: 50_000,
-      status: DueStatus.PartiallyPaid,
-      paymentCount: 1,
-      currency: CurrencyCode.Gnf,
-    },
-    {
-      id: '10700000-0000-4000-8000-000000000421',
-      member: { id: '10700000-0000-4000-8000-000000000500', displayName: 'Amadou Diallo' },
-      campaign: {
-        id: '10700000-0000-4000-8000-000000000201',
-        name: 'Rentrée solidaire',
-        startDate: '2026-01-01',
-        endDate: '2026-01-31',
-        status: CampaignStatus.Closed,
-      },
-      incomeCategorySnapshot: { id: '10700000-0000-4000-8000-000000000101', label: 'Catégorie B' },
-      dueAmount: 80_000,
-      paidAmount: 80_000,
-      remainingAmount: 0,
-      status: DueStatus.Paid,
-      paymentCount: 1,
+      recordedAt: '2026-06-18T09:10:00Z',
       currency: CurrencyCode.Gnf,
     },
   ],
@@ -237,6 +203,7 @@ const demoContributionsByMemberId: Readonly<Record<string, Contribution[]>> = {
     {
       id: '10700000-0000-4000-8000-000000000710',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000300',
         title: 'Mariage de Fanta et Sekou',
@@ -253,6 +220,7 @@ const demoContributionsByMemberId: Readonly<Record<string, Contribution[]>> = {
     {
       id: '10700000-0000-4000-8000-000000000711',
       member: { id: demoMembers[0].id, displayName: demoMembers[0].displayName },
+      externalContributor: null,
       socialFund: {
         id: '10700000-0000-4000-8000-000000000301',
         title: 'Naissance chez les Camara',
@@ -318,20 +286,37 @@ function memberAlreadyInactive(): Response {
  * nominatifs ; `summary` reste calculé sur l'ensemble du répertoire, ces
  * compteurs étant indépendants du filtre courant (`MemberCountSummary`).
  */
-export function buildMemberPageResponse(nameQuery?: string): MemberPage {
+export function buildMemberPageResponse(
+  nameQuery?: string,
+  pageNumber = 0,
+  pageSize = Number.MAX_SAFE_INTEGER,
+  status?: MemberStatus,
+): MemberPage {
   const normalizedQuery = nameQuery?.trim() ? normalizeForSearch(nameQuery.trim()) : null;
-  const items = normalizedQuery
+  const filteredItems = normalizedQuery
     ? demoMembers.filter((member) => matchesNameQuery(member, normalizedQuery))
     : [...demoMembers];
+  const statusFilteredItems = status
+    ? filteredItems.filter((member) => member.status === status)
+    : filteredItems;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 10;
+  const totalPages = statusFilteredItems.length
+    ? Math.ceil(statusFilteredItems.length / safePageSize)
+    : 0;
 
   return {
-    items,
+    items: statusFilteredItems.slice(pageNumber * safePageSize, (pageNumber + 1) * safePageSize),
     summary: {
       total: demoMembers.length,
       active: demoMembers.filter((member) => member.status === MemberStatus.Active).length,
       inactive: demoMembers.filter((member) => member.status === MemberStatus.Inactive).length,
     },
-    page: { number: 0, size: items.length, totalElements: items.length, totalPages: 1 },
+    page: {
+      number: pageNumber,
+      size: safePageSize,
+      totalElements: statusFilteredItems.length,
+      totalPages,
+    },
   };
 }
 
@@ -348,29 +333,24 @@ export function buildMemberPageResponse(nameQuery?: string): MemberPage {
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
 
     const url = new URL(request.url);
     const nameQuery = url.searchParams.get('q') ?? undefined;
+    const pageNumber = Number(url.searchParams.get('page') ?? '0');
+    const pageSize = url.searchParams.has('size')
+      ? Number(url.searchParams.get('size'))
+      : Number.MAX_SAFE_INTEGER;
     const status = url.searchParams.get('status') as MemberStatus | null;
-    const response = buildMemberPageResponse(nameQuery);
-    if (status) {
-      const items = response.items.filter((member) => member.status === status);
-      return HttpResponse.json<MemberPage>({
-        ...response,
-        items,
-        page: { ...response.page, totalElements: items.length },
-      });
-    }
-
+    const response = buildMemberPageResponse(nameQuery, pageNumber, pageSize, status ?? undefined);
     return HttpResponse.json<MemberPage>(response);
   }),
 
   /**
-   * `POST /api/v1/members` (T-33) : construit un `MemberDetails` de
+   * `POST /api/v1/members` (T-33) : construit un `MemberCreationResponse` de
    * démonstration avec le statut Actif par défaut (RG-MEM-003) et un compte
    * utilisateur associé (rôle Membre). La validation "catégorie obligatoire"
    * (RG-MEM-002) et le message de confirmation dédié (RG-MEM-004) relèvent
@@ -378,7 +358,7 @@ export const membersHandlers = [
    */
   http.post('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -417,11 +397,18 @@ export const membersHandlers = [
     demoMembers.push(summary);
     demoMemberDetails.set(member.id, { ...summary, account: memberAccount, financialSummary });
 
-    return HttpResponse.json<MemberDetails>(member, { status: 201 });
+    const response: MemberCreationResponse = {
+      member,
+      credentials: {
+        identifier: body.phone ?? `member-${member.id.slice(0, 8)}`,
+        temporaryPassword: 'Temporaire-1234!',
+      },
+    };
+    return HttpResponse.json<MemberCreationResponse>(response, { status: 201 });
   }),
   http.patch('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -463,7 +450,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/contact',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -509,7 +496,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/deactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -541,7 +528,7 @@ export const membersHandlers = [
   ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -565,7 +552,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/reactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -607,7 +594,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/payments', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -631,14 +618,13 @@ export const membersHandlers = [
   /**
    * `GET /api/v1/members/{memberId}/dues` (T-28, `openapi:listMemberDues`) :
    * situation des cotisations du membre, paginée, de la plus récente à la
-   * plus ancienne (contrat `DuePage`). Le contenu affiché n'est pas encore
-   * restreint pour l'Opérateur ici : `MemberDuesTab` masque déjà la colonne
-   * catégorie de revenu côté IHM (RG-MEM-008), sans qu'un filtrage serveur
-   * supplémentaire soit prévu par ce mock.
+   * plus ancienne (contrat `DuePage`). Les mêmes cotisations sont utilisées
+   * par le handler de campagne afin qu'un `dueId` sélectionné depuis la fiche
+   * membre soit accepté par `POST /dues/{dueId}/payments`.
    */
   http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -651,7 +637,7 @@ export const membersHandlers = [
     const url = new URL(request.url);
     const size = Number(url.searchParams.get('size') ?? '20');
     const page = Number(url.searchParams.get('page') ?? '0');
-    const dues = demoMemberDues[memberId] ?? [];
+    const dues = getDemoDuesForMember(memberId);
     const items = dues.slice(page * size, page * size + size);
     return HttpResponse.json<DuePage>({
       items,
@@ -673,7 +659,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/contributions', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

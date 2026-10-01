@@ -8,15 +8,14 @@ import {
   signal,
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CatgoriesDeRevenuService, ErrorCode } from '@api';
-import type { ErrorResponse, IncomeCategory } from '@api';
+import { FormBuilder, Validators } from '@angular/forms';
+import { CategoriesDeRevenuService, ErrorCode } from '@core/api';
+import type { ErrorResponse, IncomeCategory } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { TranslationKey } from '@core/i18n/translation-keys';
-import { ActionButton } from '@shared/action-button/action-button';
-import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
+import { IncomeCategoryForm } from '../income-category-form/income-category-form';
 
 /** Rejette un libellé vide ou composé uniquement d'espaces (contrainte API). */
 function requireNonBlank(control: AbstractControl<string>): ValidationErrors | null {
@@ -26,26 +25,26 @@ function requireNonBlank(control: AbstractControl<string>): ValidationErrors | n
 /**
  * Formulaire de modification d'une catégorie de revenu (T-51), réservé à
  * l'Administrateur : un unique champ libellé obligatoire, comme à la création
- * (T-50). Appelle `PATCH /income-categories/{incomeCategoryId}` (`@api`,
- * `CatgoriesDeRevenuService.updateIncomeCategory`).
+ * (T-50). Appelle `PATCH /income-categories/{incomeCategoryId}` (`@core/api`,
+ * `CategoriesDeRevenuService.updateIncomeCategory`).
  *
- * Affiche un avertissement rappelant que la modification du libellé n'a pas
- * d'effet rétroactif sur les cotisations déjà établies avec l'ancien libellé
- * (US-REV-002) : seul le libellé affiché change, les montants et campagnes
- * passés ne sont jamais recalculés.
+ * La modification du libellé n'a pas d'effet rétroactif sur les cotisations
+ * déjà établies avec l'ancien libellé (US-REV-002) : seul le libellé affiché
+ * change, les montants et campagnes passés ne sont jamais recalculés. Cette
+ * règle métier reste portée par le contrat et le traitement API.
  *
  * S'appuie sur la surface de dialogue générique `FormDialog` (T-15), comme le
  * formulaire de création ; ce composant porte le formulaire et l'appel API.
  */
 @Component({
   selector: 'app-edit-income-category-dialog',
-  imports: [ReactiveFormsModule, TranslocoPipe, ActionButton, ApiErrorRetry, FormDialog],
+  imports: [TranslocoPipe, FormDialog, IncomeCategoryForm],
   templateUrl: './edit-income-category-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditIncomeCategoryDialog {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
 
   /** Pilote l'ouverture/fermeture du dialogue. */
   readonly open = input(false);
@@ -134,6 +133,12 @@ export class EditIncomeCategoryDialog {
       }
       if (body?.code === ErrorCode.ResourceNotFound) {
         return 'incomeCategories.editDialog.notFound';
+      }
+      if (
+        body?.code === ErrorCode.ValidationError &&
+        body.fieldErrors?.some((fieldError) => fieldError.field === 'label')
+      ) {
+        return 'incomeCategories.editDialog.labelRequired';
       }
     }
     return 'incomeCategories.editDialog.error';

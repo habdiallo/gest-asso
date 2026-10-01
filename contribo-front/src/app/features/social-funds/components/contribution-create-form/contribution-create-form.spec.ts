@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { MembresService, MemberStatus, PaymentMethod } from '@api';
-import type { CreateContributionRequest, MemberPage, MemberSummary } from '@api';
+import { MembresService, MemberStatus, PaymentMethod } from '@core/api';
+import type { CreateContributionRequest, MemberPage, MemberSummary } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { NEVER, of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { ContributionCreateForm } from './contribution-create-form';
 
 const members: MemberSummary[] = [
@@ -68,6 +68,19 @@ const validValue = {
 };
 
 describe('ContributionCreateForm', () => {
+  it('uses the shared landscape grid for member and contribution fields', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const grids = fixture.nativeElement.querySelectorAll('.grid[class~="min-[821px]:grid-cols-2"]');
+    expect(grids.length).toBeGreaterThanOrEqual(1);
+    expect(fixture.nativeElement.querySelector('#contribution-create-member-search')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#contribution-create-member')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Mariage de Fanta et Sékou');
+    expect(fixture.nativeElement.querySelector('.border-t.border-line')).not.toBeNull();
+  });
+
   it('displays the social fund title as read-only context', async () => {
     const fixture = await createFixture();
     await fixture.whenStable();
@@ -135,6 +148,63 @@ describe('ContributionCreateForm', () => {
         method: PaymentMethod.MobileMoney,
       },
     ]);
+  });
+
+  it('switches to an external contributor and emits the external identity', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    const externalCheckbox = fixture.nativeElement.querySelector(
+      '#contribution-create-external',
+    ) as HTMLInputElement;
+    externalCheckbox.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.contributorMode()).toBe('external');
+    fixture.componentInstance.form.setValue({
+      memberId: '',
+      amount: 200000,
+      contributionDate: '2026-09-15',
+      method: PaymentMethod.Cash,
+    });
+    fixture.componentInstance.externalForm.setValue({
+      firstName: 'Mamadou',
+      lastName: 'Camara',
+    });
+    fixture.detectChanges();
+
+    const emitted: CreateContributionRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+
+    expect(emitted).toEqual([
+      {
+        externalContributor: { firstName: 'Mamadou', lastName: 'Camara' },
+        amount: 200000,
+        contributionDate: '2026-09-15',
+        method: PaymentMethod.Cash,
+      },
+    ]);
+    expect(fixture.nativeElement.querySelector('#contribution-create-member')).toBeNull();
+  });
+
+  it('blocks an external contribution when the identity is incomplete', async () => {
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.componentInstance.setContributorMode('external');
+    fixture.componentInstance.form.setValue({
+      memberId: '',
+      amount: 200000,
+      contributionDate: '2026-09-15',
+      method: PaymentMethod.Cash,
+    });
+    fixture.detectChanges();
+
+    const emitted: CreateContributionRequest[] = [];
+    fixture.componentInstance.submitted.subscribe((request) => emitted.push(request));
+    fixture.componentInstance.submit();
+
+    expect(emitted).toHaveLength(0);
+    expect(fixture.componentInstance.externalFirstNameInvalid()).toBe(true);
+    expect(fixture.componentInstance.externalLastNameInvalid()).toBe(true);
   });
 
   it('does not resubmit while a submission is already in progress', async () => {
@@ -205,23 +275,14 @@ describe('ContributionCreateForm', () => {
     expect(emitted).toHaveLength(1);
   });
 
-  it('searches members by name, resets to the first page and debounces the request', async () => {
+  it('does not duplicate the member select with a separate search field', async () => {
     const listMembers = vi.fn(() => of(memberPage));
     const fixture = await createFixture(listMembers);
     await fixture.whenStable();
-    listMembers.mockClear();
-
-    const searchInput: HTMLInputElement = fixture.nativeElement.querySelector(
-      '#contribution-create-member-search',
-    );
-    searchInput.value = 'Fanta';
-    searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(listMembers).not.toHaveBeenCalled();
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    expect(listMembers).toHaveBeenCalledWith(0, 20, 'Fanta');
+    expect(fixture.nativeElement.querySelector('#contribution-create-member-search')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#contribution-create-member')).not.toBeNull();
   });
 
   it('loads the next page of members and ignores a stale response from a previous page', async () => {
@@ -252,7 +313,7 @@ describe('ContributionCreateForm', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(listMembers).toHaveBeenLastCalledWith(1, 20, undefined);
+    expect(listMembers).toHaveBeenLastCalledWith(1, 100);
     const trigger = fixture.nativeElement.querySelector(
       '#contribution-create-member',
     ) as HTMLButtonElement;

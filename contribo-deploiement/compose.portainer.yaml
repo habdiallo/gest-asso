@@ -1,0 +1,65 @@
+name: contribo
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE must be set to a tested immutable image}
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-int}
+      DB_URL: jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-contribo}
+      DB_USERNAME: ${DB_USERNAME:-contribo}
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
+      RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_IDENTIFIER: ${BOOTSTRAP_ADMIN_IDENTIFIER:-admin}
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password
+    secrets:
+      - db_password
+      - rsa_public_key
+      - rsa_private_key
+      - bootstrap_admin_password
+    networks:
+      - database-network
+      - internal-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:9001/actuator/health/readiness"]
+      interval: 10s
+      timeout: 3s
+      start_period: 30s
+      retries: 5
+
+  frontend:
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE must be set to a tested immutable image}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - proxy-network
+      - internal-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --spider http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+networks:
+  database-network:
+    name: ${DATABASE_NETWORK:-backend}
+    external: true
+  proxy-network:
+    name: ${PROXY_NETWORK:-frontend}
+    external: true
+  internal-network:
+    name: ${INTERNAL_NETWORK:-contribo-internal}
+    internal: true
+
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_FILE_PATH:-/opt/contribo/secrets/db_password}
+  rsa_public_key:
+    file: ${RSA_PUBLIC_KEY_FILE_PATH:-/opt/contribo/secrets/rsa_public.pem}
+  rsa_private_key:
+    file: ${RSA_PRIVATE_KEY_FILE_PATH:-/opt/contribo/secrets/rsa_private.pem}
+  bootstrap_admin_password:
+    file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH:-/opt/contribo/secrets/bootstrap_admin_password}

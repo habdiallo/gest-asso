@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CampaignStatus, CurrencyCode, DueStatus, MemberStatus, MembresService } from '@api';
-import type { CurrentUser, DuePage, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, MemberStatus, MembresService } from '@core/api';
+import type { CurrentUser, DuePage, UserRole } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { SessionService } from '@core/session/session.service';
 import { MemberDuesTab } from './member-dues-tab';
 
@@ -70,7 +71,10 @@ async function createFixture(
         preloadLangs: true,
       }),
     ],
-    providers: [{ provide: MembresService, useValue: { listMemberDues } }],
+    providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
+      { provide: MembresService, useValue: { listMemberDues } },
+    ],
   }).compileComponents();
 
   if (options.role) {
@@ -93,31 +97,64 @@ describe('MemberDuesTab', () => {
     expect(root.textContent).toContain('Partiellement payé');
   });
 
-  it('hides the income category column for an Opérateur (RG-MEM-008)', async () => {
-    const fixture = await createFixture(() => of(result), { role: 'OPERATOR' });
-    fixture.detectChanges();
-
+  it('renders mobile cards with the due amounts and status', async () => {
+    const fixture = await createFixture();
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).not.toContain('Standard');
-    expect(
-      Array.from(root.querySelectorAll('thead th')).some((th) =>
-        th.textContent?.includes('Catégorie'),
-      ),
-    ).toBe(false);
-    const row = root.querySelector('tbody tr');
-    expect(row?.querySelectorAll('td').length).toBe(4);
+
+    const cards = root.querySelectorAll('[data-testid="member-dues-mobile-cards"] > li');
+    expect(cards).toHaveLength(1);
+    expect(cards[0].textContent).toContain('Montant dû');
+    expect(cards[0].textContent).toContain('Montant payé');
+    expect(cards[0].textContent).toContain('Reste à payer');
+    expect(cards[0].textContent).toContain('Partiellement payé');
   });
 
-  it.each(['ADMINISTRATOR', 'TREASURER'] as const)(
-    'keeps the income category column visible for %s',
+  it('shows pagination when the API reports more than ten dues', async () => {
+    const fixture = await createFixture(() =>
+      of({
+        ...result,
+        page: { number: 0, size: 10, totalElements: 11, totalPages: 2 },
+      }),
+    );
+
+    expect(fixture.nativeElement.querySelector('nav[aria-label]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Page 1 sur 2');
+  });
+
+  it.each(['ADMINISTRATOR', 'TREASURER', 'OPERATOR'] as const)(
+    'shows exactly the business columns Campagne, Dû, Payé, Reste, Statut for %s, without an income category column (T-130)',
     async (role) => {
       const fixture = await createFixture(() => of(result), { role });
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.textContent).toContain('Standard');
+      expect(root.textContent).not.toContain('Standard');
+      const headers = Array.from(root.querySelectorAll('thead th')).map((th) =>
+        th.textContent?.trim(),
+      );
+      expect(headers).toEqual([
+        'Campagne',
+        'Montant dû',
+        'Montant payé',
+        'Reste à payer',
+        'Statut',
+      ]);
+      const row = root.querySelector('tbody tr');
+      expect(row?.querySelectorAll('td').length).toBe(4);
     },
   );
+
+  it('reloads the first page when refreshToken changes (T-130)', async () => {
+    const listMemberDues = vi.fn(() => of(result));
+    const fixture = await createFixture(listMemberDues);
+    expect(listMemberDues).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('refreshToken', 1);
+    fixture.detectChanges();
+
+    expect(listMemberDues).toHaveBeenCalledTimes(2);
+    expect(listMemberDues).toHaveBeenNthCalledWith(2, memberId, 0, 10);
+  });
 
   it('shows an empty state when the member has no due', async () => {
     const emptyPage: DuePage = {

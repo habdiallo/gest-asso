@@ -18,20 +18,20 @@ tags:
     description: Profil et historique de l'utilisateur connecté.
   - name: Membres
     description: Répertoire et gestion des membres.
-  - name: Catégories de revenu
+  - name: Categories de revenu
     description: Référentiel des catégories sans montant permanent.
-  - name: Utilisateurs et rôles
+  - name: Utilisateurs et roles
     description: Comptes, rôles applicatifs et autorisation des opérateurs.
   - name: Campagnes
     description: Campagnes, barèmes, cotisations et clôture.
-  - name: Règlements
+  - name: Reglements
     description: Encaissements constatés sur les cotisations.
   - name: Cagnottes
     description: Collectes sociales indépendantes des cotisations.
   - name: Contributions
     description: Contributions constatées sur les cagnottes.
 security:
-  - bearerAuth: []
+  - cookieAuth: []
 paths:
   /auth/login:
     post:
@@ -57,8 +57,64 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
+
+  /auth/csrf:
+    get:
+      tags: [Authentification]
+      summary: Initialiser le token CSRF
+      description: Initialise le cookie CSRF non secret avant une requête mutante.
+      operationId: getCsrfToken
+      security: []
+      responses:
+        '204':
+          description: Token CSRF initialisé dans un cookie.
+
+  /auth/password/change:
+    post:
+      tags: [Authentification]
+      summary: Changer le mot de passe obligatoire
+      description: |
+        Remplace le mot de passe temporaire ou le mot de passe imposé à la première session.
+        La session courante reste limitée tant que cette opération n'a pas réussi.
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Mot de passe changé et session normale ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Fermer la session
+      operationId: logout
+      responses:
+        '204':
+          description: Session fermée et cookie expiré.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /dashboard:
     get:
@@ -138,7 +194,7 @@ paths:
         - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
-          description: Contributions du membre connecté, de la plus récente à la plus ancienne.
+          description: Contributions rattachées au membre connecté, de la plus récente à la plus ancienne; les contributions externes sont exclues.
           content:
             application/json:
               schema:
@@ -193,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemberDetails'
+                $ref: '#/components/schemas/MemberCreationResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -390,7 +446,7 @@ paths:
 
   /income-categories:
     get:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Lister les catégories de revenu
       description: Sert notamment à initialiser les formulaires de membre et de campagne.
       operationId: listIncomeCategories
@@ -408,7 +464,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Créer une catégorie de revenu
       description: Réservé aux Administrateurs. Aucun montant de cotisation n'est associé à la catégorie.
       operationId: createIncomeCategory
@@ -438,7 +494,7 @@ paths:
 
   /income-categories/{incomeCategoryId}:
     get:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Consulter une catégorie de revenu
       operationId: getIncomeCategory
       parameters:
@@ -457,7 +513,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Modifier une catégorie de revenu
       description: Réservé aux Administrateurs. La modification ne change aucune cotisation historique.
       operationId: updateIncomeCategory
@@ -491,7 +547,7 @@ paths:
 
   /users:
     get:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Lister les comptes utilisateurs
       description: Réservé aux Administrateurs.
       operationId: listUsers
@@ -516,7 +572,7 @@ paths:
 
   /users/{userId}:
     get:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Consulter la configuration d'un compte
       description: Réservé aux Administrateurs.
       operationId: getUser
@@ -538,7 +594,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Attribuer un rôle et configurer un opérateur
       description: |
         Réservé aux Administrateurs. operatorCanRecordPayments doit être false pour tout rôle
@@ -572,6 +628,30 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /users/{userId}/credentials/reset:
+    post:
+      tags: [Utilisateurs et roles]
+      summary: Régénérer le mot de passe temporaire
+      description: Réservé aux Administrateurs. Le secret retourné ne doit être affiché qu'une seule fois.
+      operationId: resetUserCredentials
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Nouveau secret temporaire généré.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryCredentials'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /campaigns:
     get:
       tags: [Campagnes]
@@ -602,7 +682,9 @@ paths:
       description: |
         Réservé aux Administrateurs et Trésoriers. La création est atomique : elle photographie
         les membres actifs, leur catégorie et le montant correspondant au barème fourni. Les membres
-        inactifs sont exclus. Aucun changement ultérieur de catégorie ne modifie ces cotisations.
+        inactifs sont exclus. La campagne est créée à l'état `UPCOMING` et reste dans cet état
+        jusqu'à une ouverture explicite après sa date de début et après validation de sa préparation.
+        L'ouverture fige les montants. Aucun changement ultérieur de catégorie ne modifie ces cotisations.
       operationId: createCampaign
       requestBody:
         required: true
@@ -716,6 +798,35 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /campaigns/{campaignId}/open:
+    post:
+      tags: [Campagnes]
+      summary: Ouvrir une campagne
+      description: |
+        Réservé aux Administrateurs et Trésoriers. Une campagne `UPCOMING` ne peut être ouverte
+        qu'après sa date de début et lorsque sa checklist de préparation est complète. L'ouverture
+        fige le barème, active l'enregistrement des règlements et renseigne `openedAt` et `openedBy`.
+      operationId: openCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Campagne ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/CampaignOpeningConflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /campaigns/{campaignId}/closure:
     post:
       tags: [Campagnes]
@@ -771,12 +882,14 @@ paths:
 
   /dues/{dueId}/payments:
     post:
-      tags: [Règlements]
+      tags: [Reglements]
       summary: Enregistrer un règlement de cotisation
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
         Le montant doit être positif et ne peut pas dépasser le reste à payer. L'utilisateur et l'instant
-        de saisie sont déterminés par le serveur.
+        de saisie sont déterminés par le serveur. Le règlement ne peut être enregistré que lorsque la
+        campagne rattachée à la cotisation est à l'état `OPEN`; une campagne `UPCOMING` ou `CLOSED`
+        entraîne une réponse `409` avec le code `CAMPAIGN_NOT_OPEN`.
       operationId: createPayment
       parameters:
         - $ref: '#/components/parameters/DueId'
@@ -802,13 +915,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          $ref: '#/components/responses/Conflict'
+          $ref: '#/components/responses/PaymentConflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
   /payments:
     get:
-      tags: [Règlements]
+      tags: [Reglements]
       summary: Lister les règlements
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
@@ -941,8 +1054,9 @@ paths:
       summary: Enregistrer une contribution à une cagnotte
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
-        La contribution est un encaissement déjà constaté. L'utilisateur et l'instant de saisie sont
-        déterminés par le serveur. Une cagnotte clôturée refuse toute contribution.
+        La contribution est un encaissement déjà constaté pour un membre ou un contributeur externe.
+        La requête doit contenir exactement une identité contributrice. L'utilisateur et l'instant de
+        saisie sont déterminés par le serveur. Une cagnotte clôturée refuse toute contribution.
       operationId: createContribution
       parameters:
         - $ref: '#/components/parameters/SocialFundId'
@@ -1004,8 +1118,9 @@ paths:
       summary: Lister les contributions aux cagnottes
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
-        l'Opérateur est requise pour écrire une contribution, pas pour consulter l'historique
-        d'un membre autorisé.
+        l'Opérateur est requise pour écrire une contribution, pas pour consulter un historique
+        autorisé. L'historique peut contenir des contributions rattachées à un membre ou à un
+        contributeur externe.
       operationId: listContributions
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -1054,11 +1169,11 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Jeton d'accès obtenu avec POST /auth/login.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: __Host-contribo-session
+      description: Cookie de session HttpOnly émis par POST /auth/login.
 
   parameters:
     Page:
@@ -1098,10 +1213,7 @@ components:
     CampaignStatusFilter:
       name: status
       in: query
-      description: >-
-        Filtre de présentation sur le statut de la campagne. Pour `GET /campaigns`,
-        la valeur `OPEN` inclut les campagnes techniques `UPCOMING`, afin que le
-        segment utilisateur « Ouvertes » ne masque pas une campagne à venir.
+      description: Filtre exact sur le statut métier de la campagne. `UPCOMING` correspond au segment « À venir », `OPEN` à « Ouvertes » et `CLOSED` à « Clôturées ».
       schema:
         $ref: '#/components/schemas/CampaignStatus'
     SocialFundStatusFilter:
@@ -1240,6 +1352,15 @@ components:
           example:
             code: AUTHENTICATION_REQUIRED
             message: Une authentification valide est requise.
+    TooManyRequests:
+      description: Trop de tentatives ou de requêtes sur la fenêtre courante.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RATE_LIMITED
+            message: Trop de tentatives. Réessayez plus tard.
     Forbidden:
       description: Le rôle ou l'autorisation du compte ne permet pas cette action.
       content:
@@ -1273,6 +1394,48 @@ components:
               value:
                 code: RESOURCE_CLOSED
                 message: La ressource est clôturée et n'accepte plus cette action.
+    PaymentConflict:
+      description: Le règlement est incompatible avec l'état de la cotisation ou de sa campagne.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            campaignNotOpen:
+              value:
+                code: CAMPAIGN_NOT_OPEN
+                message: Un règlement ne peut être enregistré que sur une campagne ouverte.
+            overpayment:
+              value:
+                code: PAYMENT_EXCEEDS_REMAINING_AMOUNT
+                message: Le montant dépasse le reste à payer.
+            dueAlreadyPaid:
+              value:
+                code: DUE_ALREADY_PAID
+                message: Cette cotisation est déjà entièrement réglée.
+    CampaignOpeningConflict:
+      description: L'ouverture est incompatible avec la préparation, la date ou l'état courant de la campagne.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            notReady:
+              value:
+                code: CAMPAIGN_NOT_READY
+                message: La campagne n'est pas prête à être ouverte.
+            startDateNotReached:
+              value:
+                code: CAMPAIGN_START_DATE_NOT_REACHED
+                message: La date de début de la campagne n'est pas encore atteinte.
+            alreadyOpen:
+              value:
+                code: CAMPAIGN_ALREADY_OPEN
+                message: La campagne est déjà ouverte.
+            closed:
+              value:
+                code: CAMPAIGN_CLOSED
+                message: La campagne est clôturée.
     InternalServerError:
       description: Erreur interne non prévue.
       content:
@@ -1305,22 +1468,69 @@ components:
     LoginResponse:
       type: object
       additionalProperties: false
-      required: [accessToken, tokenType, expiresIn, user]
+      required: [expiresIn, user]
       properties:
         accessToken:
           type: string
-          minLength: 1
-          description: Jeton à transmettre dans l'en-tête Authorization.
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer, la session utilise un cookie HttpOnly.
         tokenType:
           type: string
           enum: [Bearer]
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer.
         expiresIn:
           type: integer
           minimum: 1
-          description: Durée de validité du jeton en secondes.
-          example: 3600
+          description: Durée de validité de la session en secondes.
+          example: 900
         user:
           $ref: '#/components/schemas/CurrentUser'
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [newPassword]
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          writeOnly: true
+          description: Mot de passe actuel, requis pour une session normale et omis lors de la première connexion.
+        newPassword:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+          writeOnly: true
+          description: Nouveau mot de passe, entre 12 et 128 caractères.
+    TemporaryCredentials:
+      type: object
+      additionalProperties: false
+      required: [identifier, temporaryPassword]
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          maxLength: 150
+          readOnly: true
+        temporaryPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          readOnly: true
+          description: Secret temporaire retourné une seule fois.
+    MemberCreationResponse:
+      type: object
+      additionalProperties: false
+      required: [member, credentials]
+      properties:
+        member:
+          $ref: '#/components/schemas/MemberDetails'
+        credentials:
+          $ref: '#/components/schemas/TemporaryCredentials'
 
     UserRole:
       type: string
@@ -1333,7 +1543,7 @@ components:
       example: ACTIVE
     CampaignStatus:
       type: string
-      description: UPCOMING avant la date de début, OPEN à partir du début et jusqu'à la clôture explicite, CLOSED après clôture.
+      description: UPCOMING tant que la campagne n'est pas ouverte explicitement, OPEN après son ouverture et jusqu'à la clôture explicite, CLOSED après clôture.
       enum: [UPCOMING, OPEN, CLOSED]
       example: OPEN
     DueStatus:
@@ -1382,6 +1592,11 @@ components:
         accountActive:
           type: boolean
           readOnly: true
+          example: true
+        mustChangePassword:
+          type: boolean
+          readOnly: true
+          description: Indique qu'un changement de mot de passe est obligatoire avant les autres opérations.
           example: true
 
     DashboardResponse:
@@ -1893,6 +2108,9 @@ components:
         active:
           type: boolean
           readOnly: true
+        mustChangePassword:
+          type: boolean
+          readOnly: true
     UserAccount:
       unevaluatedProperties: false
       allOf:
@@ -1967,11 +2185,55 @@ components:
               type: string
               maxLength: 1000
               example: Campagne générale de soutien aux activités de l'association.
+            openedAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: Instant où la campagne a été ouverte explicitement.
+              example: '2026-10-01T08:00:00Z'
+            openedBy:
+              allOf:
+                - $ref: '#/components/schemas/AuditActor'
+              readOnly: true
+              description: Utilisateur ayant ouvert la campagne.
+            openingReadiness:
+              $ref: '#/components/schemas/CampaignOpeningReadiness'
             categoryAmounts:
               type: array
               minItems: 1
               items:
                 $ref: '#/components/schemas/CampaignCategoryAmount'
+    CampaignOpeningReadiness:
+      type: object
+      additionalProperties: false
+      required: [baremeComplete, datesValid, startDateReached, duesReady, ready, blockingReasons]
+      properties:
+        baremeComplete:
+          type: boolean
+          readOnly: true
+          description: Chaque catégorie portée par un membre concerné possède un montant strictement positif.
+        datesValid:
+          type: boolean
+          readOnly: true
+          description: La période de la campagne est cohérente.
+        startDateReached:
+          type: boolean
+          readOnly: true
+          description: La date de début est atteinte dans le fuseau de référence de l'association.
+        duesReady:
+          type: boolean
+          readOnly: true
+          description: Les cotisations peuvent être établies pour les membres concernés.
+        ready:
+          type: boolean
+          readOnly: true
+          description: Toutes les conditions nécessaires à l'ouverture sont satisfaites.
+        blockingReasons:
+          type: array
+          readOnly: true
+          items:
+            type: string
+          example: []
     CampaignFinancialSummary:
       type: object
       additionalProperties: false
@@ -2342,6 +2604,7 @@ components:
           type: integer
           minimum: 0
           readOnly: true
+          description: Nombre d'identités contributrices distinctes, membres par identifiant et externes par paire de prénom et nom normalisée dans cette cagnotte.
           example: 43
         contributionCount:
           type: integer
@@ -2421,17 +2684,42 @@ components:
         status:
           $ref: '#/components/schemas/SocialFundStatus'
 
+    ExternalContributor:
+      type: object
+      additionalProperties: false
+      required: [firstName, lastName]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+          description: Prénom conservé comme instantané de la contribution externe.
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '.*\S.*'
+          description: Nom conservé comme instantané de la contribution externe.
     Contribution:
       type: object
       additionalProperties: false
-      required: [id, member, socialFund, amount, contributionDate, method, recordedBy, recordedAt, currency]
+      required: [id, member, externalContributor, socialFund, amount, contributionDate, method, recordedBy, recordedAt, currency]
       properties:
         id:
           type: string
           format: uuid
           readOnly: true
         member:
-          $ref: '#/components/schemas/PersonSummary'
+          oneOf:
+            - $ref: '#/components/schemas/PersonSummary'
+            - type: 'null'
+          description: Membre associé, nul pour une contribution externe.
+        externalContributor:
+          oneOf:
+            - $ref: '#/components/schemas/ExternalContributor'
+            - type: 'null'
+          description: Identité externe associée, nulle pour une contribution membre.
         socialFund:
           $ref: '#/components/schemas/SocialFundReference'
         amount:
@@ -2457,11 +2745,51 @@ components:
     CreateContributionRequest:
       type: object
       additionalProperties: false
+      required: [amount, contributionDate, method]
+      description: La requête doit contenir exactement une identité, memberId ou externalContributor.
+      properties:
+        memberId:
+          type: string
+          format: uuid
+          description: Identifiant du membre associé.
+        externalContributor:
+          $ref: '#/components/schemas/ExternalContributor'
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+    CreateMemberContributionRequest:
+      type: object
+      additionalProperties: false
       required: [memberId, amount, contributionDate, method]
       properties:
         memberId:
           type: string
           format: uuid
+          description: Identifiant du membre associé.
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+    CreateExternalContributionRequest:
+      type: object
+      additionalProperties: false
+      required: [externalContributor, amount, contributionDate, method]
+      properties:
+        externalContributor:
+          $ref: '#/components/schemas/ExternalContributor'
         amount:
           type: integer
           format: int64
@@ -2529,6 +2857,8 @@ components:
         - DATE_RANGE_INVALID
         - AUTHENTICATION_REQUIRED
         - INVALID_CREDENTIALS
+        - PASSWORD_CHANGE_REQUIRED
+        - RATE_LIMITED
         - ACCESS_DENIED
         - RESOURCE_NOT_FOUND
         - BUSINESS_CONFLICT
@@ -2537,7 +2867,12 @@ components:
         - MEMBER_ALREADY_ACTIVE
         - INVALID_OPERATOR_CONFIGURATION
         - CAMPAIGN_NOT_EDITABLE
+        - CAMPAIGN_NOT_READY
+        - CAMPAIGN_START_DATE_NOT_REACHED
+        - CAMPAIGN_ALREADY_OPEN
+        - CAMPAIGN_CLOSED
         - CAMPAIGN_ALREADY_CLOSED
+        - CAMPAIGN_NOT_OPEN
         - PAYMENT_EXCEEDS_REMAINING_AMOUNT
         - DUE_ALREADY_PAID
         - RESOURCE_CLOSED

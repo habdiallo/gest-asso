@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.dashboard-quick-actions > a {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 659px) {
+  .dashboard-kpi-grid > div {
+    min-height: 146px;
+    padding: 1rem;
+  }
+
+  .dashboard-kpi-grid > div > p.font-display {
+    margin-top: 1rem;
+  }
+
+  .dashboard-quick-actions > a {
+    min-height: 76px;
+    gap: 0.625rem;
+    padding: 0.75rem;
+  }
+}

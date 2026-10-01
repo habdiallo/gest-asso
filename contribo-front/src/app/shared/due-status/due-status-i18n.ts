@@ -1,4 +1,4 @@
-import { DueStatus } from '@api';
+import { DueStatus } from '@core/api';
 
 /**
  * Cles Transloco partagees pour le statut d'une cotisation (DueStatus),

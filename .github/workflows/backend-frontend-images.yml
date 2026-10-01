@@ -1,0 +1,171 @@
+name: Backend and frontend images
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/v*.*.*'
+      - 'hotfix/**'
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: contribo-back
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Generate ephemeral RSA keys
+        run: |
+          mkdir -p target/test-rsa
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+            -out target/test-rsa/private.pem
+          openssl rsa -pubout -in target/test-rsa/private.pem \
+            -out target/test-rsa/public.pem
+          echo "RSA_PRIVATE_KEY=file:$PWD/target/test-rsa/private.pem" >> "$GITHUB_ENV"
+          echo "RSA_PUBLIC_KEY=file:$PWD/target/test-rsa/public.pem" >> "$GITHUB_ENV"
+      - run: mvn -B verify
+
+  frontend:
+    name: Frontend tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: contribo-front
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: contribo-front/package-lock.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm run validate:api
+      - run: npm run generate:api
+      - run: npm test -- --watch=false
+      - run: npm run build
+      - run: npm run build:mock
+
+  images:
+    name: Build and publish images
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Compute candidate image tag
+        id: image-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_tag=""
+          if [[ "$GITHUB_REF" == refs/heads/release/* || "$GITHUB_REF" == refs/heads/hotfix/* ]]; then
+            candidate_tag="candidate-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::12}"
+          fi
+          echo "candidate_tag=$candidate_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract backend image metadata
+        id: backend-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-back
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest-int,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
+
+      - name: Build backend image
+        id: backend-image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: contribo-deploiement/backend.Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+          tags: ${{ steps.backend-meta.outputs.tags }}
+          labels: ${{ steps.backend-meta.outputs.labels }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Extract frontend image metadata
+        id: frontend-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-front
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest-int,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
+
+      - name: Build frontend image
+        id: frontend-image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: contribo-deploiement/frontend.Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+          tags: ${{ steps.frontend-meta.outputs.tags }}
+          labels: ${{ steps.frontend-meta.outputs.labels }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Publish image digests in the workflow summary
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        env:
+          CANDIDATE_TAG: ${{ steps.image-tag.outputs.candidate_tag }}
+          BACKEND_DIGEST: ${{ steps.backend-image.outputs.digest }}
+          FRONTEND_DIGEST: ${{ steps.frontend-image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          {
+            echo '## Published image digests'
+            echo
+            echo "Backend: ghcr.io/${IMAGE_NAMESPACE}/contribo-back@${BACKEND_DIGEST}"
+            echo "Frontend: ghcr.io/${IMAGE_NAMESPACE}/contribo-front@${FRONTEND_DIGEST}"
+            if [ -n "$CANDIDATE_TAG" ]; then
+              echo
+              echo "Candidate tag: ${CANDIDATE_TAG}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

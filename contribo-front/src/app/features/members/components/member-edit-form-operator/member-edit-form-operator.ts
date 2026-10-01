@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { UpdateMemberContactRequest, MemberDetails } from '@api';
+import type { UpdateMemberContactRequest, MemberDetails } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 
@@ -61,6 +61,10 @@ export class MemberEditFormOperator implements OnInit {
   fieldInvalid(key: 'country' | 'city' | 'preferredName'): boolean {
     const control = this.form.controls[key];
     return control.invalid && control.touched;
+  }
+
+  fieldRequired(key: 'country' | 'city' | 'phone'): boolean {
+    return this.form.controls[key].hasValidator(Validators.required);
   }
 
   phoneInvalid(): boolean {

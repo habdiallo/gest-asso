@@ -1,5 +1,5 @@
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { CurrentUser, LoginRequest } from '@api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import type { CurrentUser, LoginRequest } from '@core/api';
 
 export interface DemoAccount {
   readonly identifier: string;
@@ -70,4 +70,16 @@ export function findDemoAccountByAuthorization(
 ): DemoAccount | undefined {
   const match = /^Bearer ([^\s]+)$/i.exec(authorization ?? '');
   return match ? demoAccounts.find((account) => account.accessToken === match[1]) : undefined;
+}
+
+export function findDemoAccountBySessionCookie(cookie: string | null): DemoAccount | undefined {
+  const match = /(?:^|;\s*)__Host-contribo-session=([^;]+)/.exec(cookie ?? '');
+  return match ? demoAccounts.find((account) => account.accessToken === match[1]) : undefined;
+}
+
+export function findDemoAccountByRequest(request: Request): DemoAccount | undefined {
+  return (
+    findDemoAccountBySessionCookie(request.headers.get('Cookie')) ??
+    findDemoAccountByAuthorization(request.headers.get('Authorization'))
+  );
 }

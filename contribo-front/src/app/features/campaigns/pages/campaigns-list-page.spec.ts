@@ -4,17 +4,18 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import {
   CampagnesService,
   CampaignStatus,
-  CatgoriesDeRevenuService,
+  CategoriesDeRevenuService,
   CurrencyCode,
   MemberStatus,
   UserRole,
-} from '@api';
-import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
+} from '@core/api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { CampaignsListPage } from './campaigns-list-page';
 
@@ -120,14 +121,15 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CampagnesService,
         useValue: { listCampaigns, createCampaign } as unknown as CampagnesService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       ...(options.queryParams
         ? [
@@ -190,7 +192,7 @@ describe('CampaignsListPage', () => {
     expect(root.textContent).toContain('67%');
   });
 
-  it('renders the prototype status segments and does not expose an upcoming label', async () => {
+  it('renders the status segments and exposes the upcoming campaign state', async () => {
     const fixture = await createFixture(() =>
       of(
         buildCampaignPage({
@@ -206,9 +208,11 @@ describe('CampaignsListPage', () => {
       button.textContent?.trim(),
     );
 
-    expect(statusButtons).toEqual(['Toutes', 'Ouvertes', 'Clôturées']);
-    expect(root.textContent).toContain('Ouverte');
-    expect(root.textContent).not.toContain('À venir');
+    expect(statusButtons).toEqual(['Toutes', 'Brouillons', 'Ouvertes', 'Clôturées']);
+    expect(root.querySelector('app-financial-card')?.textContent).toContain('Brouillon');
+    const statusDot = root.querySelector('[data-testid="financial-card-status-dot"]');
+    expect(statusDot?.classList.contains('bg-info')).toBe(true);
+    expect(statusDot?.classList.contains('bg-success')).toBe(false);
   });
 
   it('shows the empty-list message when there is no campaign', async () => {
@@ -225,6 +229,24 @@ describe('CampaignsListPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Aucune campagne.');
   });
 
+  it('does not show pagination when six or fewer campaigns are available', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).toBeNull();
+  });
+
+  it('shows pagination when more than six campaigns are available', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildCampaignPage({
+          page: { number: 0, size: 6, totalElements: 7, totalPages: 2 },
+        }),
+      ),
+    );
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).not.toBeNull();
+  });
+
   it('requests campaigns filtered by status when the status filter changes', async () => {
     const requestedStatuses: (CampaignStatus | undefined)[] = [];
     const fixture = await createFixture((_page, _size, _q, status) => {
@@ -235,8 +257,10 @@ describe('CampaignsListPage', () => {
 
     fixture.componentInstance.onStatusFilterChange(CampaignStatus.Closed);
     fixture.detectChanges();
+    fixture.componentInstance.onStatusFilterChange(CampaignStatus.Upcoming);
+    fixture.detectChanges();
 
-    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed]);
+    expect(requestedStatuses).toEqual([undefined, CampaignStatus.Closed, CampaignStatus.Upcoming]);
   });
 
   it('requests at most six campaigns per page', async () => {

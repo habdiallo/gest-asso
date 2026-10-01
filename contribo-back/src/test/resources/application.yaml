@@ -1,0 +1,18 @@
+spring:
+  flyway:
+    enabled: true
+
+security:
+  jwt:
+    expiration-seconds: 900
+  rsa:
+    public-key: ${RSA_PUBLIC_KEY:classpath:certs/public.pem}
+    private-key: ${RSA_PRIVATE_KEY:classpath:certs/private.pem}
+  proxy:
+    trust-headers: false
+    trusted-addresses:
+  rate-limit:
+    login:
+      ip-limit: 10
+      identifier-limit: 5
+      window-seconds: 60
