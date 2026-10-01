@@ -43,6 +43,32 @@ colocalisés, puis vérifier la documentation et le build frontend. Le retour
 arrière consiste à retirer la documentation et la décision ajoutées si aucune
 feature ne les référence encore.
 
+## Validation et limites
+
+Les contrôles de registre et de traçabilité passent avec `node scripts/tickets.mjs
+check`, `node scripts/tickets.mjs verify T-176`, `openspec status` et les
+instructions `openspec apply`. La documentation frontend stable passe avec
+`npm run test:documentation`, et les tests de workflow du dépôt passent avec
+`node --test tests/tickets.test.mjs tests/git-workflow.test.cjs`.
+
+Après génération locale du client OpenAPI ignoré, `npm run build`, `npm test --
+--watch=false` (804 tests) et `npm run test:tooling` passent. `npm run check:api`
+et le contrôle d'alignement des versions OpenAPI passent également.
+
+Les limites suivantes sont préexistantes et ne sont pas introduites par ce
+changement documentaire :
+
+- `npm run format:check` signale 20 fichiers frontend existants ;
+- `npm run lint` signale l'import `inject` inutilisé dans
+  `src/app/core/session/auth.interceptor.ts` ;
+- `npm run build:mock` termine par un deadlock interne esbuild avec le code 134,
+  y compris en exécution séquentielle ;
+- `npm ci` signale 8 vulnérabilités dans l'arbre de dépendances existant, dont 6
+  hautes et 2 critiques.
+
+Aucun test runtime ni aucune migration d'état n'est nécessaire pour T-176 : la
+livraison définit une règle de gouvernance et ne déplace pas d'état existant.
+
 ## Open Questions
 
 - Aucun store global supplémentaire n'est requis par les features actuelles.
