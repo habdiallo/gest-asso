@@ -36,12 +36,12 @@ describe('DetailTabs', () => {
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-controls')).toBe('campaign-panel-dues');
     expect(tabs[1].tabIndex).toBe(-1);
-    expect(tabs[0].classList.contains('border-gold-hover')).toBe(true);
-    expect(tabs[1].classList.contains('border-gold-hover')).toBe(false);
+    expect(tabs[0].classList.contains('bg-gold-wash')).toBe(true);
+    expect(tabs[1].classList.contains('bg-gold-wash')).toBe(false);
 
     const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
-    expect(tabList.className).toContain('overflow-x-auto');
-    expect(tabs[0].className).toContain('min-h-11');
+    expect(tabList.className).toContain('grid-cols-3');
+    expect(tabs[0].className).toContain('min-w-0');
   });
 
   it('uses a denser fallback when three labels are too long for one row', () => {
@@ -56,7 +56,8 @@ describe('DetailTabs', () => {
     fixture.detectChanges();
 
     const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
-    expect(tabList.className).toContain('overflow-x-auto');
+    expect(tabList.className).toContain('grid-cols-2');
+    expect(tabList.className).not.toContain('grid-cols-3');
   });
 
   it('uses the visible mobile label as the accessible name', () => {
@@ -74,11 +75,11 @@ describe('DetailTabs', () => {
     const tabs = fixture.nativeElement.querySelectorAll(
       '[role="tab"]',
     ) as NodeListOf<HTMLButtonElement>;
-    expect(tabList.className).toContain('overflow-x-auto');
+    expect(tabList.className).toContain('grid-cols-3');
     expect(tabs[0].getAttribute('aria-label')).toBeNull();
-    expect(tabs[0].textContent).toContain('Situation des membres');
+    expect(tabs[0].textContent).toContain('Membres');
     expect(tabs[1].getAttribute('aria-label')).toBeNull();
-    expect(tabs[1].textContent).toContain('Montants par catégorie');
+    expect(tabs[1].textContent).toContain('Catégories');
   });
 
   it('changes tabs on click and moves with arrow keys', () => {

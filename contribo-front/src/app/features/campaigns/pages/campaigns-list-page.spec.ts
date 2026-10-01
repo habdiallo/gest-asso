@@ -211,7 +211,9 @@ describe('CampaignsListPage', () => {
     expect(statusButtons).toEqual(['Toutes', 'Brouillons', 'Ouvertes', 'Clôturées']);
     expect(root.querySelector('app-financial-card')?.textContent).toContain('Brouillon');
     const statusDot = root.querySelector('[data-testid="financial-card-status-dot"]');
-    expect(statusDot).not.toBeNull();
+    expect(statusDot?.classList.contains('bg-info')).toBe(true);
+    expect(statusDot?.parentElement?.classList.contains('bg-info-wash')).toBe(true);
+    expect(statusDot?.parentElement?.classList.contains('text-info')).toBe(true);
   });
 
   it('shows the empty-list message when there is no campaign', async () => {
