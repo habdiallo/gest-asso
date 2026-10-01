@@ -234,8 +234,19 @@ export class CampaignsListPage {
     this.creating.set(true);
     this.createError.set(false);
 
+    // Le générateur type `categoryAmounts` en Set à cause de `uniqueItems` dans
+    // le contrat OpenAPI. Le corps JSON doit toutefois contenir un tableau :
+    // `JSON.stringify(new Set(...))` produit `{}`. Le transtypage reste limité
+    // à cette frontière HTTP, comme pour la mise à jour du barème.
+    const payload: CreateCampaignRequest = {
+      ...request,
+      categoryAmounts: Array.from(
+        request.categoryAmounts,
+      ) as unknown as CreateCampaignRequest['categoryAmounts'],
+    };
+
     this.campaignsService
-      .createCampaign(request)
+      .createCampaign(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
