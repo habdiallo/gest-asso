@@ -5,8 +5,9 @@ branch=$(git symbolic-ref --quiet --short HEAD) || {
   printf '%s\n' 'Commit refusé : créer la branche du ticket avant de committer (HEAD détachée).' >&2
   exit 1
 }
-pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$'
-if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$pattern"; then
-  printf '%s\n' "Commit refusé sur '$branch' : branche de ticket requise. Voir CONTRIBUTING.md." >&2
+ticket_pattern='^(front|back|fullstack|docs|infra)/(feat|fix|refactor|perf|test|chore)-[1-9][0-9]*-[a-z0-9]+(-[a-z0-9]+)*$'
+flow_pattern='^(release/v[0-9]+\.[0-9]+\.[0-9]+|hotfix/[a-z0-9]+(-[a-z0-9]+)*)$'
+if ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$ticket_pattern" && ! printf '%s\n' "$branch" | LC_ALL=C grep -Eq "$flow_pattern"; then
+  printf '%s\n' "Commit refusé sur '$branch' : branche de ticket, release ou hotfix requise. Voir CONTRIBUTING.md." >&2
   exit 1
 fi

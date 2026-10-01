@@ -8,7 +8,7 @@ import { DetailTabs, type DetailTab } from './detail-tabs';
     <app-detail-tabs
       idPrefix="campaign"
       ariaLabel="Sections de la campagne"
-      [tabs]="tabs"
+      [tabs]="tabs()"
       [activeId]="activeId()"
       (activeIdChange)="activeId.set($event)"
     />
@@ -16,12 +16,12 @@ import { DetailTabs, type DetailTab } from './detail-tabs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HostComponent {
-  readonly tabs: readonly DetailTab[] = [
-    { id: 'members', label: 'Situation des membres' },
-    { id: 'categories', label: 'Montants par catégorie' },
+  readonly tabs = signal<readonly DetailTab[]>([
+    { id: 'dues', label: 'Cotisations' },
     { id: 'payments', label: 'Règlements' },
-  ];
-  readonly activeId = signal('members');
+    { id: 'contributions', label: 'Contributions' },
+  ]);
+  readonly activeId = signal('dues');
 }
 
 describe('DetailTabs', () => {
@@ -34,8 +34,52 @@ describe('DetailTabs', () => {
       fixture.nativeElement.querySelectorAll('[role="tab"]');
     expect(tabs).toHaveLength(3);
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
-    expect(tabs[0].getAttribute('aria-controls')).toBe('campaign-panel-members');
+    expect(tabs[0].getAttribute('aria-controls')).toBe('campaign-panel-dues');
     expect(tabs[1].tabIndex).toBe(-1);
+    expect(tabs[0].classList.contains('bg-gold-wash')).toBe(true);
+    expect(tabs[1].classList.contains('bg-gold-wash')).toBe(false);
+
+    const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
+    expect(tabList.className).toContain('grid-cols-3');
+    expect(tabs[0].className).toContain('min-w-0');
+  });
+
+  it('uses a denser fallback when three labels are too long for one row', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.tabs.set([
+      { id: 'members', label: 'Situation des membres' },
+      { id: 'categories', label: 'Montants par catégorie' },
+      { id: 'payments', label: 'Règlements' },
+    ]);
+    fixture.componentInstance.activeId.set('members');
+    fixture.detectChanges();
+
+    const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
+    expect(tabList.className).toContain('grid-cols-2');
+    expect(tabList.className).not.toContain('grid-cols-3');
+  });
+
+  it('uses the visible mobile label as the accessible name', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.tabs.set([
+      { id: 'members', label: 'Situation des membres', mobileLabel: 'Membres' },
+      { id: 'categories', label: 'Montants par catégorie', mobileLabel: 'Catégories' },
+      { id: 'payments', label: 'Règlements', mobileLabel: 'Règlements' },
+    ]);
+    fixture.componentInstance.activeId.set('members');
+    fixture.detectChanges();
+
+    const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
+    const tabs = fixture.nativeElement.querySelectorAll(
+      '[role="tab"]',
+    ) as NodeListOf<HTMLButtonElement>;
+    expect(tabList.className).toContain('grid-cols-3');
+    expect(tabs[0].getAttribute('aria-label')).toBeNull();
+    expect(tabs[0].textContent).toContain('Membres');
+    expect(tabs[1].getAttribute('aria-label')).toBeNull();
+    expect(tabs[1].textContent).toContain('Catégories');
   });
 
   it('changes tabs on click and moves with arrow keys', () => {
@@ -48,10 +92,10 @@ describe('DetailTabs', () => {
     ) as NodeListOf<HTMLButtonElement>;
     tabs[1].click();
     fixture.detectChanges();
-    expect(fixture.componentInstance.activeId()).toBe('categories');
+    expect(fixture.componentInstance.activeId()).toBe('payments');
 
     tabs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     fixture.detectChanges();
-    expect(fixture.componentInstance.activeId()).toBe('payments');
+    expect(fixture.componentInstance.activeId()).toBe('contributions');
   });
 });

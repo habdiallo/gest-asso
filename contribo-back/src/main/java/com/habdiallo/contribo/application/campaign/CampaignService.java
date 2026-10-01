@@ -1,0 +1,217 @@
+package com.habdiallo.contribo.application.campaign;
+
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.habdiallo.contribo.api.generated.model.Campaign;
+import com.habdiallo.contribo.api.generated.model.CampaignPage;
+import com.habdiallo.contribo.api.generated.model.CampaignStatus;
+import com.habdiallo.contribo.api.generated.model.CreateCampaignRequest;
+import com.habdiallo.contribo.api.generated.model.CreatePaymentRequest;
+import com.habdiallo.contribo.api.generated.model.DueDetails;
+import com.habdiallo.contribo.api.generated.model.DuePage;
+import com.habdiallo.contribo.api.generated.model.DueStatus;
+import com.habdiallo.contribo.api.generated.model.PaymentCreationResponse;
+import com.habdiallo.contribo.api.generated.model.PaymentPage;
+import com.habdiallo.contribo.api.generated.model.UpdateCampaignCategoryAmountsRequest;
+import com.habdiallo.contribo.api.rest.ApiErrors;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
+
+@Service
+public class CampaignService {
+
+    private static final String ALL_ACTIVE_MEMBERS = "ALL_ACTIVE_MEMBERS";
+
+    private final CampaignCatalogRepository catalogRepository;
+    private final CampaignDueRepository dueRepository;
+    private final CampaignPaymentRepository paymentRepository;
+    private final CampaignAccess access;
+
+    public CampaignService(
+            CampaignCatalogRepository catalogRepository,
+            CampaignDueRepository dueRepository,
+            CampaignPaymentRepository paymentRepository,
+            CampaignAccess access) {
+        this.catalogRepository = catalogRepository;
+        this.dueRepository = dueRepository;
+        this.paymentRepository = paymentRepository;
+        this.access = access;
+    }
+
+    public CampaignPage listCampaigns(UUID actorId, int page, int size, String query, CampaignStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        return catalogRepository.findCampaigns(account.associationId(), page, size, query, status);
+    }
+
+    @Transactional
+    public Campaign createCampaign(UUID actorId, CreateCampaignRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
+        validateDates(request.getStartDate(), request.getEndDate());
+        if (request.getMemberSelection() == null
+                || !ALL_ACTIVE_MEMBERS.equals(request.getMemberSelection().getValue())) {
+            throw ApiErrors.badRequest(com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
+                    "Le périmètre de membres est invalide.");
+        }
+        Map<UUID, Long> amounts = categoryAmounts(request.getCategoryAmounts());
+        return catalogRepository.createCampaign(
+                account.associationId(),
+                UUID.randomUUID(),
+                request.getName(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                amounts);
+    }
+
+    public Campaign getCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        campaign(account, campaignId);
+        return catalogRepository.findCampaignDetails(account.associationId(), campaignId);
+    }
+
+    @Transactional
+    public Campaign updateCategoryAmounts(
+            UUID actorId, UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
+        CampaignRepository.CampaignState state = campaign(account, campaignId);
+        if (state.status() != CampaignStatus.UPCOMING || state.startDate().isBefore(LocalDate.now())) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_EDITABLE,
+                    "La campagne n'est plus modifiable.");
+        }
+        if (state.hasPayments()) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_EDITABLE,
+                    "Une campagne ayant des règlements ne peut plus être modifiée.");
+        }
+        return catalogRepository.updateCategoryAmounts(
+                account.associationId(), campaignId, categoryAmounts(request.getCategoryAmounts()));
+    }
+
+    @Transactional
+    public Campaign openCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
+        CampaignRepository.CampaignState state = campaign(account, campaignId);
+        if (state.status() == CampaignStatus.OPEN) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_ALREADY_OPEN,
+                    "La campagne est déjà ouverte.");
+        }
+        if (state.status() == CampaignStatus.CLOSED) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_CLOSED,
+                    "La campagne est clôturée.");
+        }
+        if (state.startDate().isAfter(LocalDate.now())) {
+            throw ApiErrors.conflict(
+                    com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_START_DATE_NOT_REACHED,
+                    "La date de début de la campagne n'est pas encore atteinte.");
+        }
+        if (!state.baremeComplete() || !state.duesReady()) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_READY,
+                    "La campagne n'est pas prête à être ouverte.");
+        }
+        return catalogRepository.openCampaign(
+                account.associationId(), campaignId, account.userId(), OffsetDateTime.now(ZoneOffset.UTC));
+    }
+
+    @Transactional
+    public Campaign closeCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
+        CampaignRepository.CampaignState state = campaign(account, campaignId);
+        if (state.status() == CampaignStatus.CLOSED) {
+            throw ApiErrors.conflict(
+                    com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_ALREADY_CLOSED,
+                    "La campagne est déjà clôturée.");
+        }
+        if (state.status() != CampaignStatus.OPEN) {
+            throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_OPEN,
+                    "Seule une campagne ouverte peut être clôturée.");
+        }
+        return catalogRepository.closeCampaign(
+                account.associationId(), campaignId, account.userId(), OffsetDateTime.now(ZoneOffset.UTC));
+    }
+
+    public DuePage listCampaignDues(
+            UUID actorId, UUID campaignId, int page, int size, String query, DueStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        campaign(account, campaignId);
+        return dueRepository.findCampaignDues(account.associationId(), campaignId, page, size, query, status);
+    }
+
+    public DueDetails getDue(UUID actorId, UUID dueId) {
+        AuthenticatedAccount account = access.currentUser(actorId);
+        DueDetails due = dueRepository.findDue(account.associationId(), dueId).orElseThrow(ApiErrors::notFound);
+        if (!access.isManagement(account) && !account.memberId().equals(due.getMember().getId())) {
+            throw ApiErrors.notFound();
+        }
+        return due;
+    }
+
+    public DuePage listMyDues(UUID actorId, int page, int size, DueStatus status) {
+        AuthenticatedAccount account = access.currentUser(actorId);
+        return dueRepository.findMemberDues(account.associationId(), account.memberId(), page, size, status);
+    }
+
+    @Transactional
+    public PaymentCreationResponse createPayment(UUID actorId, UUID dueId, CreatePaymentRequest request) {
+        AuthenticatedAccount account = access.requirePaymentWrite(actorId);
+        if (request.getAmount() == null || request.getAmount() <= 0
+                || request.getPaymentDate() == null || request.getMethod() == null) {
+            throw ApiErrors.badRequest(com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
+                    "Le montant doit être strictement positif.");
+        }
+        CampaignRepository.PaymentCreation creation = paymentRepository.createPayment(
+                account.associationId(),
+                dueId,
+                account.userId(),
+                request.getAmount(),
+                request.getPaymentDate(),
+                request.getMethod() == null ? null : request.getMethod().getValue());
+        return new PaymentCreationResponse(creation.payment(), creation.due());
+    }
+
+    public PaymentPage listPayments(
+            UUID actorId, int page, int size, String query, UUID memberId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        return paymentRepository.findPayments(account.associationId(), page, size, query, memberId, campaignId);
+    }
+
+    private CampaignRepository.CampaignState campaign(AuthenticatedAccount account, UUID campaignId) {
+        return catalogRepository.findCampaignState(account.associationId(), campaignId).orElseThrow(ApiErrors::notFound);
+    }
+
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
+            throw ApiErrors.badRequest(com.habdiallo.contribo.api.generated.model.ErrorCode.DATE_RANGE_INVALID,
+                    "La date de fin doit être postérieure ou égale à la date de début.");
+        }
+    }
+
+    private Map<UUID, Long> categoryAmounts(Iterable<com.habdiallo.contribo.api.generated.model.CampaignCategoryAmountInput> values) {
+        Map<UUID, Long> amounts = new LinkedHashMap<>();
+        if (values != null) {
+            for (var value : values) {
+                if (value.getIncomeCategoryId() == null || value.getAmount() == null || value.getAmount() < 0) {
+                    throw ApiErrors.badRequest(
+                            com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
+                            "Le barème contient une valeur invalide.");
+                }
+                if (amounts.put(value.getIncomeCategoryId(), value.getAmount()) != null) {
+                    throw ApiErrors.badRequest(
+                            com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
+                            "Une catégorie ne peut apparaître qu'une seule fois dans le barème.");
+                }
+            }
+        }
+        if (amounts.isEmpty()) {
+            throw ApiErrors.badRequest(
+                    com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
+                    "Le barème doit contenir au moins une catégorie.");
+        }
+        return amounts;
+    }
+}

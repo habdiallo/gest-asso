@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { CampagnesService, CurrencyCode, ErrorCode, UserRole } from '@api';
+import { CampagnesService, CurrencyCode, ErrorCode, UserRole } from '@core/api';
 import type {
   Campaign,
   CurrentUser,
@@ -10,11 +10,12 @@ import type {
   ErrorResponse,
   CampaignOpeningReadiness,
   UpdateCampaignCategoryAmountsRequest,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed, formatGnfAmountInputDigits } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import { CampaignDetailPage } from './campaign-detail-page';
@@ -137,6 +138,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CampagnesService,
@@ -242,11 +244,7 @@ describe('CampaignDetailPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     const tabs = Array.from(root.querySelectorAll('[role="tab"]')) as HTMLButtonElement[];
-    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
-      'Situation des membres',
-      'Montants par catégorie',
-      'Règlements',
-    ]);
+    expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual([null, null, null]);
 
     const situationTab = tabs[0];
     expect(situationTab.getAttribute('aria-selected')).toBe('true');

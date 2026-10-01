@@ -1,7 +1,7 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { EspacePersonnelService } from '@api';
+import { EspacePersonnelService } from '@core/api';
 import { SessionService } from '@core/session/session.service';
 import { authInterceptor } from '@core/session/auth.interceptor';
 import { hydrateCurrentUser } from '../app/app.config';
@@ -9,6 +9,8 @@ import {
   demoAccounts,
   findDemoAccount,
   findDemoAccountByAuthorization,
+  findDemoAccountByRequest,
+  findDemoAccountBySessionCookie,
   isLoginRequest,
 } from './demo-accounts';
 
@@ -40,6 +42,16 @@ describe('Comptes de démonstration', () => {
       expect(findDemoAccountByAuthorization(`Bearer ${account.accessToken}`)?.user).toEqual(
         account.user,
       );
+      expect(
+        findDemoAccountBySessionCookie(`__Host-contribo-session=${account.accessToken}`)?.user,
+      ).toEqual(account.user);
+      expect(
+        findDemoAccountByRequest(
+          new Request('https://contribo.test/api/v1/me', {
+            headers: { Cookie: `__Host-contribo-session=${account.accessToken}` },
+          }),
+        )?.user,
+      ).toEqual(account.user);
     }
   });
 
@@ -84,14 +96,12 @@ describe('Comptes de démonstration', () => {
   });
 });
 
-describe('Restauration des sessions de démonstration via le client applicatif', () => {
+describe('Hydratation des sessions de démonstration via le client applicatif', () => {
   afterEach(() => {
     TestBed.inject(HttpTestingController).verify();
-    localStorage.removeItem('contribo-session-token');
   });
 
-  it.each(demoAccounts)('restaure $identifier depuis le seul jeton stocké', async (account) => {
-    localStorage.setItem('contribo-session-token', account.accessToken);
+  it.each(demoAccounts)('hydrate $identifier avec une session portée par cookie', async (account) => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
@@ -102,10 +112,11 @@ describe('Restauration des sessions de démonstration via le client applicatif',
     expect(session.user()).toBeNull();
     const hydration = hydrateCurrentUser(session, TestBed.inject(EspacePersonnelService));
     const request = TestBed.inject(HttpTestingController).expectOne('/api/v1/me');
-    expect(request.request.headers.get('Authorization')).toBe(`Bearer ${account.accessToken}`);
+    expect(request.request.headers.has('Authorization')).toBe(false);
+    expect(request.request.withCredentials).toBe(true);
     request.flush(account.user);
     await hydration;
     expect(session.user()).toEqual(account.user);
-    expect(session.token()).toBe(account.accessToken);
+    expect(session.token()).toBeNull();
   });
 });

@@ -1,0 +1,30 @@
+:host {
+  display: inline-block;
+}
+
+:host(.mobile-profile-logout) {
+  display: block;
+  width: 100%;
+}
+
+:host(.mobile-profile-logout) .logout-button {
+  min-height: 2.75rem;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.55rem 0.65rem;
+  border-color: color-mix(in srgb, var(--error) 35%, var(--line));
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--error);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+:host(.mobile-profile-logout) .logout-button:hover,
+:host(.mobile-profile-logout) .logout-button:focus-visible {
+  border-color: color-mix(in srgb, var(--error) 62%, var(--line));
+  background: var(--error-wash);
+  color: var(--error);
+}

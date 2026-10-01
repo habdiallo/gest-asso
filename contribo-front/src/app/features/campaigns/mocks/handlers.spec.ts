@@ -1,7 +1,7 @@
 import { setupServer } from 'msw/node';
-import { ErrorCode, UserRole } from '@api';
-import type { Campaign, CampaignPage, ErrorResponse, PaymentPage } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { ErrorCode, UserRole } from '@core/api';
+import type { Campaign, CampaignPage, ErrorResponse, PaymentPage } from '@core/api';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { campaignsHandlers } from './handlers';
 
 const server = setupServer(...campaignsHandlers);

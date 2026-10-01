@@ -15,18 +15,18 @@ fusionné et doit être présent dans l'ascendance de la branche avant l'implém
 - [x] 2.2 [T-138] Harmoniser les composants `shared/` concernés, notamment `page-header`, `detail-shell`, `data-table`, `form-dialog`, `action-button`, `custom-select`, `financial-card`, `stat-card`, les états vides et les contrôles de pagination, sans modifier leurs contrats fonctionnels ou d'accessibilité.
 - [x] 2.3 [T-138] Migrer les usages répétés des pages `dashboard`, `members`, `income-categories`, `campaigns`, `social-funds`, `roles-users` et `member-space` vers les conventions retenues, en conservant les valeurs locales justifiées par les tableaux, dialogues, textes longs ou compositions spécifiques.
 - [x] 2.4 [T-138] Réconcilier les règles et tests des boutons, champs, tableaux et composants réutilisables avec les tokens retenus, en vérifiant la hauteur minimale, le focus visible, les labels, les erreurs, les noms accessibles et les rayons par rôle.
-- [x] 2.5 [T-138] Réduire les duplications CSS démontrées par l'audit dans `styles.css` et `app.css` sans déplacer de logique métier, sans modifier les couleurs existantes et sans reformater les fichiers hors périmètre.
+- [ ] 2.5 [T-138] Réduire les duplications CSS démontrées par l'audit dans `styles.css` et `app.css` sans déplacer de logique métier, sans modifier les couleurs existantes et sans reformater les fichiers hors périmètre.
 
 ## 3. Responsive et vérifications d'interface [T-138]
 
-- [x] 3.1 [T-138] Harmoniser les conteneurs, grilles, empilements, largeurs minimales et défilements locaux selon la stratégie responsive retenue, en conservant les données essentielles des tableaux et les actions principales à toutes les largeurs vérifiées.
-- [x] 3.2 [T-138] Ajuster uniquement les niveaux typographiques et composants dont l'audit justifie une variation responsive, en laissant stables les textes de tableaux, labels et contrôles lorsque leur lisibilité est déjà préservée.
-- [x] 3.3 [T-138] Vérifier les dialogues, formulaires, navigation, sidebars, cartes, grilles, états vides, contenus longs et actions principales, y compris les surfaces issues de T-137, sur des largeurs mobiles, tablettes, desktops intermédiaires et larges ; comparer l'agencement à la capture mobile sans ajouter ses blocs métier.
-- [x] 3.4 [T-138] N'introduire une container query ou un breakpoint supplémentaire que si un cas concret documenté l'exige, puis ajouter ou ajuster les tests DOM et responsive correspondant sans coupler les tests à des classes purement locales.
+- [ ] 3.1 [T-138] Harmoniser les conteneurs, grilles, empilements, largeurs minimales et défilements locaux selon la stratégie responsive retenue, en conservant les données essentielles des tableaux et les actions principales à toutes les largeurs vérifiées.
+- [ ] 3.2 [T-138] Ajuster uniquement les niveaux typographiques et composants dont l'audit justifie une variation responsive, en laissant stables les textes de tableaux, labels et contrôles lorsque leur lisibilité est déjà préservée.
+- [ ] 3.3 [T-138] Vérifier les dialogues, formulaires, navigation, sidebars, cartes, grilles, états vides, contenus longs et actions principales, y compris les surfaces issues de T-137, sur des largeurs mobiles, tablettes, desktops intermédiaires et larges ; comparer l'agencement à la capture mobile sans ajouter ses blocs métier.
+- [ ] 3.4 [T-138] N'introduire une container query ou un breakpoint supplémentaire que si un cas concret documenté l'exige, puis ajouter ou ajuster les tests DOM et responsive correspondant sans coupler les tests à des classes purement locales.
 
 ## 4. Validation et livraison [T-138]
 
-- [x] 4.1 [T-138] Exécuter les tests ciblés, `npm test -- --watch=false`, `npm run lint`, `npm run format:check` et `npm run build` depuis `contribo-front/`, puis corriger uniquement les régressions du périmètre T-138.
-- [x] 4.2 [T-138] Réaliser une vérification visuelle des pages et composants principaux dans les deux thèmes et sur les largeurs exactes et intermédiaires retenues, en consignant les débordements, troncatures ou exceptions restantes.
+- [ ] 4.1 [T-138] Exécuter les tests ciblés, `npm test -- --watch=false`, `npm run lint`, `npm run format:check` et `npm run build` depuis `contribo-front/`, puis corriger uniquement les régressions du périmètre T-138.
+- [ ] 4.2 [T-138] Réaliser une vérification visuelle des pages et composants principaux dans les deux thèmes et sur les largeurs exactes et intermédiaires retenues, en consignant les débordements, troncatures ou exceptions restantes.
 - [x] 4.3 [T-138] Relire le diff ciblé, vérifier `openspec validate`, `node scripts/tickets.mjs check`, la présence du marqueur de ticket sur les tâches et l'absence de tiret cadratin dans les productions du ticket ; ne cocher que les étapes réellement réalisées.
 - [x] 4.4 [T-138] Préparer une PR vers `main` avec le résumé de l'audit, les décisions de tokens, les captures ou limites de vérification, les commandes réellement exécutées et le lien vers le change, sans fusion ni activation de l'auto-merge.

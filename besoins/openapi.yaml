@@ -18,20 +18,20 @@ tags:
     description: Profil et historique de l'utilisateur connecté.
   - name: Membres
     description: Répertoire et gestion des membres.
-  - name: Catégories de revenu
+  - name: Categories de revenu
     description: Référentiel des catégories sans montant permanent.
-  - name: Utilisateurs et rôles
+  - name: Utilisateurs et roles
     description: Comptes, rôles applicatifs et autorisation des opérateurs.
   - name: Campagnes
     description: Campagnes, barèmes, cotisations et clôture.
-  - name: Règlements
+  - name: Reglements
     description: Encaissements constatés sur les cotisations.
   - name: Cagnottes
     description: Collectes sociales indépendantes des cotisations.
   - name: Contributions
     description: Contributions constatées sur les cagnottes.
 security:
-  - bearerAuth: []
+  - cookieAuth: []
 paths:
   /auth/login:
     post:
@@ -57,8 +57,64 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalServerError'
+
+  /auth/csrf:
+    get:
+      tags: [Authentification]
+      summary: Initialiser le token CSRF
+      description: Initialise le cookie CSRF non secret avant une requête mutante.
+      operationId: getCsrfToken
+      security: []
+      responses:
+        '204':
+          description: Token CSRF initialisé dans un cookie.
+
+  /auth/password/change:
+    post:
+      tags: [Authentification]
+      summary: Changer le mot de passe obligatoire
+      description: |
+        Remplace le mot de passe temporaire ou le mot de passe imposé à la première session.
+        La session courante reste limitée tant que cette opération n'a pas réussi.
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Mot de passe changé et session normale ouverte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Fermer la session
+      operationId: logout
+      responses:
+        '204':
+          description: Session fermée et cookie expiré.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /dashboard:
     get:
@@ -193,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemberDetails'
+                $ref: '#/components/schemas/MemberCreationResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -390,7 +446,7 @@ paths:
 
   /income-categories:
     get:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Lister les catégories de revenu
       description: Sert notamment à initialiser les formulaires de membre et de campagne.
       operationId: listIncomeCategories
@@ -408,7 +464,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Créer une catégorie de revenu
       description: Réservé aux Administrateurs. Aucun montant de cotisation n'est associé à la catégorie.
       operationId: createIncomeCategory
@@ -438,7 +494,7 @@ paths:
 
   /income-categories/{incomeCategoryId}:
     get:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Consulter une catégorie de revenu
       operationId: getIncomeCategory
       parameters:
@@ -457,7 +513,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [Catégories de revenu]
+      tags: [Categories de revenu]
       summary: Modifier une catégorie de revenu
       description: Réservé aux Administrateurs. La modification ne change aucune cotisation historique.
       operationId: updateIncomeCategory
@@ -491,7 +547,7 @@ paths:
 
   /users:
     get:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Lister les comptes utilisateurs
       description: Réservé aux Administrateurs.
       operationId: listUsers
@@ -516,7 +572,7 @@ paths:
 
   /users/{userId}:
     get:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Consulter la configuration d'un compte
       description: Réservé aux Administrateurs.
       operationId: getUser
@@ -538,7 +594,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
-      tags: [Utilisateurs et rôles]
+      tags: [Utilisateurs et roles]
       summary: Attribuer un rôle et configurer un opérateur
       description: |
         Réservé aux Administrateurs. operatorCanRecordPayments doit être false pour tout rôle
@@ -569,6 +625,30 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{userId}/credentials/reset:
+    post:
+      tags: [Utilisateurs et roles]
+      summary: Régénérer le mot de passe temporaire
+      description: Réservé aux Administrateurs. Le secret retourné ne doit être affiché qu'une seule fois.
+      operationId: resetUserCredentials
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Nouveau secret temporaire généré.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryCredentials'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -802,7 +882,7 @@ paths:
 
   /dues/{dueId}/payments:
     post:
-      tags: [Règlements]
+      tags: [Reglements]
       summary: Enregistrer un règlement de cotisation
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs dont l'autorisation globale est active.
@@ -841,7 +921,7 @@ paths:
 
   /payments:
     get:
-      tags: [Règlements]
+      tags: [Reglements]
       summary: Lister les règlements
       description: |
         Accessible aux Administrateurs, Trésoriers et Opérateurs. L'autorisation globale de
@@ -1089,11 +1169,11 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Jeton d'accès obtenu avec POST /auth/login.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: __Host-contribo-session
+      description: Cookie de session HttpOnly émis par POST /auth/login.
 
   parameters:
     Page:
@@ -1272,6 +1352,15 @@ components:
           example:
             code: AUTHENTICATION_REQUIRED
             message: Une authentification valide est requise.
+    TooManyRequests:
+      description: Trop de tentatives ou de requêtes sur la fenêtre courante.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RATE_LIMITED
+            message: Trop de tentatives. Réessayez plus tard.
     Forbidden:
       description: Le rôle ou l'autorisation du compte ne permet pas cette action.
       content:
@@ -1379,22 +1468,69 @@ components:
     LoginResponse:
       type: object
       additionalProperties: false
-      required: [accessToken, tokenType, expiresIn, user]
+      required: [expiresIn, user]
       properties:
         accessToken:
           type: string
-          minLength: 1
-          description: Jeton à transmettre dans l'en-tête Authorization.
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer, la session utilise un cookie HttpOnly.
         tokenType:
           type: string
           enum: [Bearer]
+          deprecated: true
+          description: Champ legacy. Le serveur ne doit plus le renvoyer.
         expiresIn:
           type: integer
           minimum: 1
-          description: Durée de validité du jeton en secondes.
-          example: 3600
+          description: Durée de validité de la session en secondes.
+          example: 900
         user:
           $ref: '#/components/schemas/CurrentUser'
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [newPassword]
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          writeOnly: true
+          description: Mot de passe actuel, requis pour une session normale et omis lors de la première connexion.
+        newPassword:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+          writeOnly: true
+          description: Nouveau mot de passe, entre 12 et 128 caractères.
+    TemporaryCredentials:
+      type: object
+      additionalProperties: false
+      required: [identifier, temporaryPassword]
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          maxLength: 150
+          readOnly: true
+        temporaryPassword:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+          readOnly: true
+          description: Secret temporaire retourné une seule fois.
+    MemberCreationResponse:
+      type: object
+      additionalProperties: false
+      required: [member, credentials]
+      properties:
+        member:
+          $ref: '#/components/schemas/MemberDetails'
+        credentials:
+          $ref: '#/components/schemas/TemporaryCredentials'
 
     UserRole:
       type: string
@@ -1456,6 +1592,11 @@ components:
         accountActive:
           type: boolean
           readOnly: true
+          example: true
+        mustChangePassword:
+          type: boolean
+          readOnly: true
+          description: Indique qu'un changement de mot de passe est obligatoire avant les autres opérations.
           example: true
 
     DashboardResponse:
@@ -1965,6 +2106,9 @@ components:
           type: boolean
           description: Doit valoir false si le rôle n'est pas OPERATOR.
         active:
+          type: boolean
+          readOnly: true
+        mustChangePassword:
           type: boolean
           readOnly: true
     UserAccount:
@@ -2599,9 +2743,27 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyCode'
     CreateContributionRequest:
-      oneOf:
-        - $ref: '#/components/schemas/CreateMemberContributionRequest'
-        - $ref: '#/components/schemas/CreateExternalContributionRequest'
+      type: object
+      additionalProperties: false
+      required: [amount, contributionDate, method]
+      description: La requête doit contenir exactement une identité, memberId ou externalContributor.
+      properties:
+        memberId:
+          type: string
+          format: uuid
+          description: Identifiant du membre associé.
+        externalContributor:
+          $ref: '#/components/schemas/ExternalContributor'
+        amount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Montant positif en GNF; aucune limite liée à l'objectif de la cagnotte.
+        contributionDate:
+          type: string
+          format: date
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
     CreateMemberContributionRequest:
       type: object
       additionalProperties: false
@@ -2695,6 +2857,8 @@ components:
         - DATE_RANGE_INVALID
         - AUTHENTICATION_REQUIRED
         - INVALID_CREDENTIALS
+        - PASSWORD_CHANGE_REQUIRED
+        - RATE_LIMITED
         - ACCESS_DENIED
         - RESOURCE_NOT_FOUND
         - BUSINESS_CONFLICT

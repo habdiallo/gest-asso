@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import { roleGuard } from './role.guard';
 import { SessionService } from './session.service';
 

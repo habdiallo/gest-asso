@@ -6,13 +6,13 @@ import {
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
-import type { ContributionPage } from '@api';
+} from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MyContributions } from './my-contributions';
 
 const result: ContributionPage = {

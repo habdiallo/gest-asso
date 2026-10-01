@@ -1,14 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import {
   CurrencyCode,
   LoginResponse as LoginResponseNamespace,
   MemberStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { SessionService } from './session.service';
-
-const STORAGE_KEY = 'contribo-session-token';
 
 function buildLoginResponse(overrides: Partial<CurrentUser> = {}): LoginResponse {
   const user: CurrentUser = {
@@ -54,28 +52,27 @@ describe('SessionService', () => {
     expect(service.canRecordPayments()).toBe(false);
   });
 
-  it('reads a previously stored token', () => {
-    localStorage.setItem(STORAGE_KEY, 'stored-token');
-
+  it('does not expose a session cookie to JavaScript', () => {
+    localStorage.setItem('contribo-session-token', 'stored-token');
     const service = TestBed.inject(SessionService);
 
-    expect(service.token()).toBe('stored-token');
-    expect(service.isAuthenticated()).toBe(true);
+    expect(service.token()).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
   });
 
-  it('stores the token and the user on setSession', () => {
+  it('stores only the user on setSession', () => {
     const service = TestBed.inject(SessionService);
     const response = buildLoginResponse();
 
     service.setSession(response);
 
-    expect(service.token()).toBe(response.accessToken);
+    expect(service.token()).toBeNull();
     expect(service.user()).toEqual(response.user);
     expect(service.isAuthenticated()).toBe(true);
-    expect(localStorage.getItem(STORAGE_KEY)).toBe(response.accessToken);
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 
-  it('updates the hydrated user without touching the token', () => {
+  it('updates the hydrated user without exposing a token', () => {
     const service = TestBed.inject(SessionService);
     const response = buildLoginResponse();
     service.setSession(response);
@@ -84,7 +81,7 @@ describe('SessionService', () => {
     service.setUser(hydratedUser);
 
     expect(service.user()).toEqual(hydratedUser);
-    expect(service.token()).toBe(response.accessToken);
+    expect(service.token()).toBeNull();
   });
 
   it('exposes canRecordPayments derived from the hydrated user, updated by setUser', () => {
@@ -102,7 +99,7 @@ describe('SessionService', () => {
     expect(service.canRecordPayments()).toBe(true);
   });
 
-  it('clears the session and the stored token', () => {
+  it('clears the session without storing a token', () => {
     const service = TestBed.inject(SessionService);
     service.setSession(buildLoginResponse());
 
@@ -111,6 +108,6 @@ describe('SessionService', () => {
     expect(service.token()).toBeNull();
     expect(service.user()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem('contribo-session-token')).toBeNull();
   });
 });

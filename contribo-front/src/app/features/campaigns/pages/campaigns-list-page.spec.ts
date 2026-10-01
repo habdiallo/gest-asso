@@ -4,17 +4,18 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import {
   CampagnesService,
   CampaignStatus,
-  CatgoriesDeRevenuService,
+  CategoriesDeRevenuService,
   CurrencyCode,
   MemberStatus,
   UserRole,
-} from '@api';
-import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
+} from '@core/api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
 import { CampaignsListPage } from './campaigns-list-page';
 
@@ -120,14 +121,15 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CampagnesService,
         useValue: { listCampaigns, createCampaign } as unknown as CampagnesService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       ...(options.queryParams
         ? [
@@ -225,6 +227,24 @@ describe('CampaignsListPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aucune campagne.');
+  });
+
+  it('does not show pagination when six or fewer campaigns are available', async () => {
+    const fixture = await createFixture(() => of(buildCampaignPage()));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).toBeNull();
+  });
+
+  it('shows pagination when more than six campaigns are available', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildCampaignPage({
+          page: { number: 0, size: 6, totalElements: 7, totalPages: 2 },
+        }),
+      ),
+    );
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('nav[aria-label="Pagination"]')).not.toBeNull();
   });
 
   it('requests campaigns filtered by status when the status filter changes', async () => {

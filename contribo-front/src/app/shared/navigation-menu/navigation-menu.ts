@@ -46,13 +46,16 @@ const DASHBOARD_ICON_RECT_ORIGINS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 /**
- * Lien ajouté en tête de la seule navigation verticale (spec
- * `desktop-sidebar-visual`, exigence « Lien de navigation vers le tableau de
- * bord ») : la navigation horizontale (barre basse mobile, hors périmètre de
- * ce change) continue de dériver directement de `navigationItemsForRole`.
+ * Lien ajouté en tête des navigations authentifiées. Les autres destinations
+ * restent dérivées du rôle applicatif courant.
  */
 const DASHBOARD_ITEM: NavigationItem = {
   label: 'Tableau de bord',
+  path: NAVIGATION_PATHS.dashboard,
+};
+
+const MOBILE_DASHBOARD_ITEM: NavigationItem = {
+  label: 'Accueil',
   path: NAVIGATION_PATHS.dashboard,
 };
 
@@ -75,6 +78,10 @@ export class NavigationMenu {
   readonly verticalItems = computed(() =>
     this.items().length > 0 ? [DASHBOARD_ITEM, ...this.items()] : [],
   );
+  readonly mobileItems = computed(() => {
+    const roleItems = this.items();
+    return roleItems.length > 0 ? [MOBILE_DASHBOARD_ITEM, ...roleItems] : [];
+  });
 
   readonly verticalSections = computed(() => {
     const administrative = (path: string): boolean =>
@@ -91,19 +98,20 @@ export class NavigationMenu {
   readonly navClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'sidebar-nav'
-      : 'flex flex-nowrap items-center justify-around gap-1 overflow-x-auto px-2 py-2 shell:px-6 shell:py-4',
+      : 'mobile-nav flex flex-nowrap items-center justify-center gap-0 overflow-x-auto px-0 py-2 min-[1181px]:gap-1 min-[1181px]:px-6 min-[1181px]:py-4',
   );
 
   readonly linkClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'sidebar-link'
-      : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text shell:text-sm',
+      : 'mobile-nav-link min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-icon)] px-1 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[1181px]:flex-none min-[1181px]:text-sm',
   );
 
   /**
-   * Seul le lien « Tableau de bord » (`/`) exige une correspondance exacte de
-   * route : sans cela, `/` préfixe toutes les autres routes authentifiées et
-   * resterait actif en permanence (`RouterLinkActive` non exact).
+   * Seul le lien « Tableau de bord » (`/dashboard`) exige une correspondance
+   * exacte de route : sans cela, son chemin préfixerait les autres routes
+   * authentifiées et resterait actif en permanence (`RouterLinkActive` non
+   * exact).
    */
   readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
 }

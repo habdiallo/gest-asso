@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DueStatus, EspacePersonnelService } from '@api';
-import type { DuePage } from '@api';
+import { DueStatus, EspacePersonnelService } from '@core/api';
+import type { DuePage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { formatCalendarDate } from '../member-space-dates';

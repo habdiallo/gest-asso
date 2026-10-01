@@ -11,6 +11,7 @@ import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { AbstractControl, ControlValueAccessor, ValidatorFn } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
 import {
   containsGnfDecimalSeparator,
@@ -36,12 +37,14 @@ let nextInstanceId = 0;
  */
 @Component({
   selector: 'app-amount-input',
+  imports: [TranslocoPipe],
   templateUrl: './amount-input.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AmountInput implements ControlValueAccessor, OnInit {
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
   private readonly instanceId = `amount-input-${++nextInstanceId}`;
 
@@ -96,17 +99,23 @@ export class AmountInput implements ControlValueAccessor, OnInit {
 
   readonly errorMessage = computed(() => {
     if (this.showInvalidAmountError()) {
-      return "Le montant saisi n'est pas valide. Saisissez uniquement un nombre entier, sans décimale.";
+      return this.transloco.translate('shared.form.amount.invalid');
     }
     const min = this.minErrorValue();
     if (this.showMinError() && min !== null) {
-      return `Le montant doit être d'au moins ${min} GNF.`;
+      return this.transloco
+        .translate('shared.form.amount.min', { min })
+        .replace('{min}', String(min))
+        .replace('undefined', String(min));
     }
     const max = this.maxErrorValue();
     if (this.showMaxError() && max !== null) {
-      return `Le montant ne peut pas dépasser ${max} GNF.`;
+      return this.transloco
+        .translate('shared.form.amount.max', { max })
+        .replace('{max}', String(max))
+        .replace('undefined', String(max));
     }
-    return 'Le montant est obligatoire.';
+    return this.transloco.translate('shared.form.amount.required');
   });
 
   readonly describedBy = computed(() =>

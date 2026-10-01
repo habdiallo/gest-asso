@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@api';
+import { ErrorCode, PaymentMethod, SocialEventType, SocialFundStatus, UserRole } from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -11,8 +11,8 @@ import type {
   SocialFund,
   SocialFundPage,
   SocialFundSummary,
-} from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+} from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 /**
  * Cagnottes de démonstration (T-117) : deux cagnottes ouvertes (`...500`, `...502`)
@@ -231,9 +231,7 @@ function isExternalContributionRequest(
   return 'externalContributor' in request;
 }
 
-function canRecordContribution(
-  account: ReturnType<typeof findDemoAccountByAuthorization>,
-): boolean {
+function canRecordContribution(account: ReturnType<typeof findDemoAccountByRequest>): boolean {
   if (!account) {
     return false;
   }
@@ -272,7 +270,7 @@ function buildDemoSocialFund(summary: SocialFundSummary): SocialFund {
 export const socialFundsHandlers = [
   http.get('/api/v1/social-funds', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -314,7 +312,7 @@ export const socialFundsHandlers = [
 
   http.post('/api/v1/social-funds', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -353,7 +351,7 @@ export const socialFundsHandlers = [
    */
   http.get('/api/v1/social-funds/:socialFundId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -375,7 +373,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/contributions',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -415,7 +413,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/contributions',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -452,13 +450,17 @@ export const socialFundsHandlers = [
       if (!isExternal && !body.memberId) {
         return contributionValidationError('Le membre est obligatoire.');
       }
-
       const summary = demoSocialFunds[summaryIndex];
       const existingContributions = demoContributionsBySocialFundId[socialFundId] ?? [];
       const contributionDate = body.contributionDate;
+      const member = isExternal
+        ? null
+        : body.memberId
+          ? { id: body.memberId, displayName: 'Membre sélectionné' }
+          : null;
       const contribution: Contribution = {
         id: crypto.randomUUID(),
-        member: isExternal ? null : { id: body.memberId, displayName: 'Membre sélectionné' },
+        member,
         externalContributor: isExternal ? body.externalContributor : null,
         socialFund: {
           id: summary.id,
@@ -521,7 +523,7 @@ export const socialFundsHandlers = [
     '/api/v1/social-funds/:socialFundId/closure',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }

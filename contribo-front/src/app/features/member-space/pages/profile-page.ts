@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import type { MemberSummary } from '@api';
-import { TranslocoPipe } from '@jsverse/transloco';
+import type { MemberSummary } from '@core/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
+import type { DetailTab } from '@shared/detail-tabs/detail-tabs';
+import { DetailTabs } from '@shared/detail-tabs/detail-tabs';
 import { PageHeader } from '@shared/page-header/page-header';
 import { MyDues } from '../components/my-dues';
 import { MyContributions } from '../components/my-contributions';
@@ -24,19 +26,27 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [TranslocoPipe, PageHeader, MyDues, MyContributions],
+  imports: [TranslocoPipe, DetailTabs, PageHeader, MyDues, MyContributions],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePage {
   private readonly session = inject(SessionService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly member = computed<MemberSummary | null>(() => this.session.user()?.member ?? null);
 
   readonly memberStatusLabel = memberStatusLabel;
   readonly activeTab = signal<'profile' | 'dues' | 'contributions'>('profile');
+  readonly detailTabs = computed<readonly DetailTab[]>(() => [
+    { id: 'profile', label: this.transloco.translate('memberSpace.tabs.profile') },
+    { id: 'dues', label: this.transloco.translate('memberSpace.tabs.dues') },
+    { id: 'contributions', label: this.transloco.translate('memberSpace.tabs.contributions') },
+  ]);
 
-  selectTab(tab: 'profile' | 'dues' | 'contributions'): void {
-    this.activeTab.set(tab);
+  selectTab(tab: string): void {
+    if (tab === 'profile' || tab === 'dues' || tab === 'contributions') {
+      this.activeTab.set(tab);
+    }
   }
 }

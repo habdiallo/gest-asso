@@ -10,7 +10,7 @@ import {
   PaymentMethod,
   SocialEventType,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionCreationResponse,
@@ -18,11 +18,12 @@ import type {
   CurrentUser,
   MemberPage,
   SocialFund,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { SessionService } from '@core/session/session.service';
 import { SocialFundDetailPage } from './social-fund-detail-page';
@@ -172,6 +173,7 @@ async function createFixture(options: {
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: CagnottesService,

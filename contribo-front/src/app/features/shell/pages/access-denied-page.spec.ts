@@ -10,12 +10,12 @@ describe('AccessDeniedPage', () => {
     });
   });
 
-  it('shows a generic access-denied message and a link back home', () => {
+  it('shows a generic access-denied message and a link back to the dashboard', () => {
     const fixture = TestBed.createComponent(AccessDeniedPage);
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('h1')?.textContent).toContain('Accès refusé');
-    expect(root.querySelector('a')?.getAttribute('href')).toBe('/');
+    expect(root.querySelector('a')?.getAttribute('href')).toBe('/dashboard');
   });
 });

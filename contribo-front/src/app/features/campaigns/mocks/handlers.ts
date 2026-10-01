@@ -1,5 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
-import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus, ErrorCode, PaymentMethod, UserRole } from '@core/api';
 import type {
   Campaign,
   CampaignCategoryAmountInput,
@@ -15,9 +15,9 @@ import type {
   PaymentCreationResponse,
   PaymentPage,
   UpdateCampaignCategoryAmountsRequest,
-} from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
-import { demoCampaignDues } from '../../../../mocks/demo-dues';
+} from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
+import { demoCampaignDues } from '@mocks/demo-dues';
 
 const demoCampaigns: CampaignSummary[] = [
   {
@@ -454,7 +454,7 @@ export const campaignsHandlers = [
     }
 
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -474,7 +474,7 @@ export const campaignsHandlers = [
 
   http.get('/api/v1/campaigns', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -519,7 +519,7 @@ export const campaignsHandlers = [
    */
   http.post('/api/v1/campaigns', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -557,7 +557,7 @@ export const campaignsHandlers = [
    */
   http.get('/api/v1/campaigns/:campaignId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -583,7 +583,7 @@ export const campaignsHandlers = [
     '/api/v1/campaigns/:campaignId/open',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -673,7 +673,7 @@ export const campaignsHandlers = [
     '/api/v1/campaigns/:campaignId/category-amounts',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -747,7 +747,7 @@ export const campaignsHandlers = [
     '/api/v1/campaigns/:campaignId/closure',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -781,7 +781,7 @@ export const campaignsHandlers = [
 
   http.get('/api/v1/campaigns/:campaignId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -819,7 +819,7 @@ export const campaignsHandlers = [
    */
   http.post('/api/v1/dues/:dueId/payments', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

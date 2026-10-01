@@ -1,19 +1,22 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router, provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { CagnottesService, CampagnesService, TableauDeBordService } from '@api';
+import { CagnottesService, CampagnesService, TableauDeBordService } from '@core/api';
 import type {
   CampaignPage,
   DashboardResponse,
   ManagementDashboard,
   MemberDashboard,
   SocialFundPage,
-} from '@api';
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { DashboardPage } from './dashboard-page';
+import { SessionService } from '@core/session/session.service';
 
 const viewer: ManagementDashboard['viewer'] = {
   userId: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
@@ -122,6 +125,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideTranslocoMessageformat({ locales: 'fr' }),
       provideRouter([]),
       {
         provide: TableauDeBordService,
@@ -168,6 +172,30 @@ describe('DashboardPage', () => {
     expect(root.querySelector('[role="alert"]')?.textContent).toContain(
       'Impossible de charger le tableau de bord',
     );
+  });
+
+  it('offers an explicit reconnection when the dashboard session has expired', async () => {
+    const fixture = await createFixture(() =>
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            statusText: 'Unauthorized',
+          }),
+      ),
+    );
+    const session = TestBed.inject(SessionService);
+    session.setUser(viewer);
+    const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('[role="alert"]')?.textContent).toContain('Votre session a expiré');
+
+    (root.querySelector('app-action-button button') as HTMLButtonElement).click();
+
+    expect(session.user()).toBeNull();
+    expect(navigateSpy).toHaveBeenCalledWith('/login');
   });
 
   it('renders the management indicators and formats GNF amounts', async () => {
@@ -298,8 +326,8 @@ describe('DashboardPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelectorAll('a[href^="/campagnes/"]').length).toBe(3);
     expect(root.textContent).not.toContain('Campagne D');
-    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
-    expect(root.textContent).toContain('3 dernier(s) règlement(s) affiché(s) sur 4');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
+    expect(root.textContent).toContain('3 derniers règlements affichés sur 4');
 
     const historyLinks = Array.from(root.querySelectorAll('a')).filter(
       (link) => link.textContent?.trim() === "Voir l'historique",
@@ -742,9 +770,9 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('59 % de 28,3M GNF');
-    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagne(s)');
+    expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
     expect(root.textContent).toContain('76 % de 17M GNF');
-    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnotte(s)');
+    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnottes');
   });
 
   it('keeps the non-financial stat cards when financialOverview is absent', async () => {

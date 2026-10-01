@@ -3,7 +3,7 @@
     <div>
       <label
         for="social-fund-create-title"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.title' | transloco }}
       </label>
@@ -26,7 +26,7 @@
     <div>
       <label
         for="social-fund-create-event-type"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.eventType' | transloco }}
       </label>
@@ -50,7 +50,7 @@
     <div class="sm:col-span-2">
       <label
         for="social-fund-create-beneficiary"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.beneficiary' | transloco }}
       </label>
@@ -100,7 +100,7 @@
     <div>
       <label
         for="social-fund-create-start-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.startDate' | transloco }}
       </label>
@@ -121,7 +121,7 @@
     <div>
       <label
         for="social-fund-create-end-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.create.fields.endDate' | transloco }}
       </label>
@@ -151,7 +151,7 @@
     </div>
   </div>
 
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
     <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'socialFunds.create.cancel' | transloco }}
     </app-action-button>

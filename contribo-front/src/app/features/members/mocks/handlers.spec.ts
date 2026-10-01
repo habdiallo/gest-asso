@@ -1,6 +1,6 @@
-import { MemberStatus } from '@api';
-import type { ContributionPage, MemberDetails, MemberPage } from '@api';
-import { demoAccounts } from '../../../../mocks/demo-accounts';
+import { MemberStatus } from '@core/api';
+import type { ContributionPage, MemberCreationResponse, MemberDetails, MemberPage } from '@core/api';
+import { demoAccounts } from '@mocks/demo-accounts';
 import { buildMemberPageResponse, membersHandlers } from './handlers';
 
 async function runRequest(request: Request): Promise<Response> {
@@ -37,7 +37,8 @@ describe('buildMemberPageResponse (mocks MSW, T-21)', () => {
       }),
     );
     expect(created.status).toBe(201);
-    const member = (await created.json()) as MemberDetails;
+    const creation = (await created.json()) as MemberCreationResponse;
+    const member = creation.member;
     const response = await runRequest(new Request('http://localhost/api/v1/members', { headers }));
     const page = (await response.json()) as MemberPage;
 

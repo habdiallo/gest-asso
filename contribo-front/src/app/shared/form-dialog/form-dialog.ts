@@ -10,7 +10,7 @@ import type { ElementRef } from '@angular/core';
 
 /**
  * Surface de dialogue générique pour un formulaire (T-15) : superposée et centrée
- * sur desktop/tablette (>= 821px, cohérent avec le point de rupture `shell:`
+ * sur desktop/tablette (>= 821px, cohérent avec le point de rupture `min-[821px]`
  * de T-14), plein écran sur mobile. S'appuie sur l'élément natif `<dialog>` pour la
  * gestion clavier (piège de focus, fermeture par Échap, restitution du focus au
  * déclencheur) plutôt que sur une réimplémentation manuelle.
@@ -39,6 +39,9 @@ export class FormDialog {
 
   /** Largeur desktop du dialogue, limitée par la largeur disponible de la fenêtre. */
   readonly desktopWidth = input('560px');
+
+  /** Composition mobile : formulaire plein écran par défaut ou confirmation compacte. */
+  readonly mobilePresentation = input<'fullscreen' | 'compact'>('fullscreen');
 
   /** Libellé du bouton de fermeture explicite. */
   readonly closeLabel = input('Fermer');

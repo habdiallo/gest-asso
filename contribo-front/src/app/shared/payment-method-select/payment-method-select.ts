@@ -11,7 +11,8 @@ import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NgControl, TouchedChangeEvent } from '@angular/forms';
-import type { PaymentMethod } from '@api';
+import type { PaymentMethod } from '@core/api';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { filter, map } from 'rxjs';
 import { PAYMENT_METHOD_OPTIONS } from './payment-method-options';
@@ -32,7 +33,7 @@ let nextInstanceId = 0;
  */
 @Component({
   selector: 'app-payment-method-select',
-  imports: [CustomSelect],
+  imports: [CustomSelect, TranslocoPipe],
   templateUrl: './payment-method-select.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { PaymentMethod } from '@api';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import fr from '@assets/i18n/fr.json';
+import { PaymentMethod } from '@core/api';
 import { PaymentMethodSelect } from './payment-method-select';
 
 @Component({
@@ -15,6 +18,19 @@ class HostComponent {
 }
 
 describe('PaymentMethodSelect', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { fr },
+          translocoConfig: { availableLangs: ['fr'], defaultLang: 'fr' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
+    }).compileComponents();
+  });
+
   it('proposes exactly the three allowed settlement modes, without an online payment option', () => {
     const fixture = TestBed.createComponent(PaymentMethodSelect);
     fixture.detectChanges();

@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { RglementsService, PaymentMethod } from '@api';
-import type { Payment, PaymentPage } from '@api';
+import { ReglementsService, PaymentMethod } from '@core/api';
+import type { Payment, PaymentPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { MemberPaymentsTab } from './member-payments-tab';
 
@@ -60,7 +61,8 @@ async function createFixture(
       }),
     ],
     providers: [
-      { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+      provideTranslocoMessageformat({ locales: 'fr' }),
+      { provide: ReglementsService, useValue: { listPayments } as unknown as ReglementsService },
     ],
   }).compileComponents();
 
@@ -108,6 +110,18 @@ describe('MemberPaymentsTab', () => {
     expect(root.textContent).toContain('12 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
+  });
+
+  it('renders a mobile card with the payment details', async () => {
+    const fixture = await createFixture(() => of(buildPaymentPage()));
+    const root: HTMLElement = fixture.nativeElement;
+
+    const cards = root.querySelectorAll('[data-testid="member-payments-mobile-cards"] > li');
+    expect(cards).toHaveLength(1);
+    expect(cards[0].textContent).toContain('Solidarité septembre');
+    expect(cards[0].textContent).toContain(formatGnfAmountDetailed(50000));
+    expect(cards[0].textContent).toContain('Mode de règlement');
+    expect(cards[0].textContent).toContain('12 septembre 2026');
   });
 
   it('shows exactly the business columns Date, Campagne, Montant, Mode, in this order (T-130)', async () => {
@@ -166,12 +180,12 @@ describe('MemberPaymentsTab', () => {
       expect(fixture.nativeElement.querySelector('nav[aria-label]')).toBeNull();
     });
 
-    it('shows pagination controls and requests the next page beyond 20 payments', async () => {
+    it('shows pagination controls and requests the next page beyond ten payments', async () => {
       const listPayments = vi.fn((page = 0) =>
         of(
           buildPaymentPage({
-            items: page === 0 ? buildManyPayments(20) : buildManyPayments(5),
-            page: { number: page, size: 20, totalElements: 25, totalPages: 2 },
+            items: page === 0 ? buildManyPayments(10) : buildManyPayments(5),
+            page: { number: page, size: 10, totalElements: 15, totalPages: 2 },
           }),
         ),
       );

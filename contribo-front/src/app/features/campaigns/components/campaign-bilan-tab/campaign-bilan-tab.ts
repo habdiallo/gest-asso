@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import type { CampaignFinancialSummary } from '@api';
+import type { CampaignFinancialSummary } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
 

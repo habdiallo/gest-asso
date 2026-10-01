@@ -8,7 +8,7 @@ import {
   SocialEventType,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -16,15 +16,16 @@ import type {
   DuePage,
   ErrorResponse,
   MemberDetails,
+  MemberCreationResponse,
   MemberPage,
   MemberSummary,
   Payment,
   PaymentPage,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
-import { getDemoDuesForMember } from '../../../../mocks/demo-dues';
+} from '@core/api';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
+import { getDemoDuesForMember } from '@mocks/demo-dues';
 
 /**
  * Répertoire de démonstration pour `GET /api/v1/members` (T-21). Les données
@@ -332,7 +333,7 @@ export function buildMemberPageResponse(
 export const membersHandlers = [
   http.get('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -349,7 +350,7 @@ export const membersHandlers = [
   }),
 
   /**
-   * `POST /api/v1/members` (T-33) : construit un `MemberDetails` de
+   * `POST /api/v1/members` (T-33) : construit un `MemberCreationResponse` de
    * démonstration avec le statut Actif par défaut (RG-MEM-003) et un compte
    * utilisateur associé (rôle Membre). La validation "catégorie obligatoire"
    * (RG-MEM-002) et le message de confirmation dédié (RG-MEM-004) relèvent
@@ -357,7 +358,7 @@ export const membersHandlers = [
    */
   http.post('/api/v1/members', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -396,11 +397,18 @@ export const membersHandlers = [
     demoMembers.push(summary);
     demoMemberDetails.set(member.id, { ...summary, account: memberAccount, financialSummary });
 
-    return HttpResponse.json<MemberDetails>(member, { status: 201 });
+    const response: MemberCreationResponse = {
+      member,
+      credentials: {
+        identifier: body.phone ?? `member-${member.id.slice(0, 8)}`,
+        temporaryPassword: 'Temporaire-1234!',
+      },
+    };
+    return HttpResponse.json<MemberCreationResponse>(response, { status: 201 });
   }),
   http.patch('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -442,7 +450,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/contact',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -488,7 +496,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/deactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -520,7 +528,7 @@ export const membersHandlers = [
   ),
   http.get('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -544,7 +552,7 @@ export const membersHandlers = [
     '/api/v1/members/:memberId/reactivation',
     async ({ request, params }): Promise<Response> => {
       await delay(300);
-      const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+      const account = findDemoAccountByRequest(request);
       if (!account) {
         return authenticationRequired();
       }
@@ -586,7 +594,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/payments', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -616,7 +624,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/members/:memberId/dues', async ({ request, params }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -651,7 +659,7 @@ export const membersHandlers = [
    */
   http.get('/api/v1/contributions', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

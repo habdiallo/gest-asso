@@ -1,4 +1,4 @@
-import { UserRole } from '@api';
+import { UserRole } from '@core/api';
 import type { NavigationItem } from './navigation-item';
 import { NAVIGATION_PATHS } from './navigation-paths';
 

@@ -1,6 +1,14 @@
 # Contribo — prototype UX/UI
 
-Prototype responsive de l’application de gestion associative, construit à partir de `DESIGN (5).md` et de `cahier-user-stories-mvp-association-v2.md`.
+Prototype responsive de l’application de gestion associative, construit à partir du [prototype UX/UI](design/DESIGN%20%285%29.md) et du [cahier métier](besoins/cahier-user-stories-mvp-association-v2.md).
+
+## Sources de vérité
+
+Le [cahier métier](besoins/cahier-user-stories-mvp-association-v2.md) décrit les
+parcours, les invariants et les règles de gestion. Le [contrat OpenAPI](besoins/openapi.yaml)
+décrit les échanges HTTP consommés par le frontend et le backend. Ces documents
+sont complémentaires et leur séparation, les liens entre eux et la chaîne de
+génération sont détaillés dans [besoins/README.md](besoins/README.md).
 
 ## Ouvrir le prototype
 

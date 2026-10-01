@@ -1,6 +1,6 @@
-<div class="grid min-h-screen login:grid-cols-[1.05fr_0.95fr]">
+<div class="grid min-h-screen min-[1181px]:grid-cols-[1.05fr_0.95fr]">
   <section
-    class="login-hero relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] login:flex"
+    class="login-hero relative hidden flex-col justify-between overflow-hidden bg-[#090b10] p-14 text-[#f8f9fa] min-[1181px]:flex"
   >
     <div class="relative z-10 flex items-center gap-3">
       <div
@@ -83,7 +83,7 @@
       <div class="mb-[17px]">
         <label
           for="identifier"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'auth.login.identifierLabel' | transloco }}
         </label>
@@ -107,7 +107,7 @@
       <div class="mb-[17px]">
         <label
           for="password"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'auth.login.passwordLabel' | transloco }}
         </label>

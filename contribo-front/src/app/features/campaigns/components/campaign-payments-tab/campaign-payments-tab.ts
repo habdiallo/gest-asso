@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RglementsService } from '@api';
-import type { PaymentPage } from '@api';
+import { ReglementsService } from '@core/api';
+import type { PaymentPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { EmptyState } from '@shared/empty-state/empty-state';
@@ -28,7 +28,7 @@ const PAYMENTS_PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignPaymentsTab implements OnInit {
-  private readonly paymentsService = inject(RglementsService);
+  private readonly paymentsService = inject(ReglementsService);
   private readonly destroyRef = inject(DestroyRef);
   private requestId = 0;
   private requestedPage = 0;

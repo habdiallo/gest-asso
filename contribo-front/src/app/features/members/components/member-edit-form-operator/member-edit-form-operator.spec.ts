@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { MemberDetails, UpdateMemberContactRequest } from '@api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import type { MemberDetails, UpdateMemberContactRequest } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberEditFormOperator } from './member-edit-form-operator';
 
 const member: MemberDetails = {

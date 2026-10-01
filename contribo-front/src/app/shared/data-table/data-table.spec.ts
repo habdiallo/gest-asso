@@ -32,6 +32,6 @@ describe('DataTable', () => {
     expect(table.caption?.textContent).toContain('Situation des membres');
     expect(table.querySelector('tbody td')?.textContent).toContain('Amadou Diallo');
     expect(table.parentElement?.getAttribute('aria-busy')).toBe('true');
-    expect(table.className).toContain('min-w-table');
+    expect(table.className).toContain('min-w-[760px]');
   });
 });

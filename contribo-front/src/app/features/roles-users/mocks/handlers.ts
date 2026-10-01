@@ -1,14 +1,14 @@
 import { HttpResponse, delay, http } from 'msw';
-import { ErrorCode, UserRole } from '@api';
+import { ErrorCode, UserRole } from '@core/api';
 import type {
   ErrorResponse,
   UpdateUserAccessRequest,
   UserAccount,
   UserAccountPage,
   UserRole as UserRoleType,
-} from '@api';
-import type { DemoAccount } from '../../../../mocks/demo-accounts';
-import { demoAccounts, findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+} from '@core/api';
+import type { DemoAccount } from '@mocks/demo-accounts';
+import { demoAccounts, findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 function toUserAccount(account: DemoAccount): UserAccount {
   return {
@@ -121,7 +121,7 @@ function accessDenied(): Response {
 export const rolesUsersHandlers = [
   http.get('/api/v1/users', async ({ request }): Promise<Response> => {
     await delay(150);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }
@@ -146,7 +146,7 @@ export const rolesUsersHandlers = [
    */
   http.put('/api/v1/users/:userId', async ({ request, params }): Promise<Response> => {
     await delay(150);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

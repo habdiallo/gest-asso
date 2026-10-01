@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CatgoriesDeRevenuService } from '@api';
-import type { CreateMemberRequest, IncomeCategory } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { CreateMemberRequest, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { MemberCreateForm } from './member-create-form';
 
 const categories: IncomeCategory[] = [
@@ -37,8 +37,8 @@ async function createFixture(
     ],
     providers: [
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
     ],
   }).compileComponents();

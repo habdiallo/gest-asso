@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import type { CurrentUser } from '@api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import type { CurrentUser } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
-import fr from '../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { AccountPage } from './account-page';
 
 function buildCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
@@ -41,7 +43,7 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
         preloadLangs: true,
       }),
     ],
-    providers: [provideRouter([])],
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
   }).compileComponents();
 
   const session = TestBed.inject(SessionService);
@@ -59,6 +61,10 @@ describe('AccountPage', () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute('data-theme');
+  });
+
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
   });
 
   it('renders the account identity, role, association, theme and read-only GNF currency', async () => {
@@ -101,6 +107,11 @@ describe('AccountPage', () => {
     expect(document.documentElement.dataset['theme']).toBe('light');
 
     logoutButton.click();
+    const httpMock = TestBed.inject(HttpTestingController);
+    httpMock.expectOne('/api/v1/auth/csrf').flush(null);
+    const request = httpMock.expectOne('/api/v1/auth/logout');
+    expect(request.request.method).toBe('POST');
+    request.flush(null, { status: 204, statusText: 'No Content' });
     expect(TestBed.inject(SessionService).user()).toBeNull();
     expect(navigateSpy).toHaveBeenCalledWith('/login');
   });

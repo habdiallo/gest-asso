@@ -23,7 +23,7 @@
           class="mt-2 text-sm text-error"
           role="alert"
         >
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
+          {{ 'members.edit.fields.preferredNameInvalid' | transloco }}
         </p>
       }
     </div>
@@ -32,6 +32,7 @@
       <label
         for="member-edit-operator-phone"
         class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        [class.required-field-label]="fieldRequired('phone')"
       >
         {{ 'members.create.fields.phone' | transloco }}
       </label>
@@ -39,6 +40,7 @@
         id="member-edit-operator-phone"
         type="tel"
         formControlName="phone"
+        [required]="fieldRequired('phone')"
         [attr.aria-invalid]="phoneInvalid() ? true : null"
         [attr.aria-describedby]="phoneInvalid() ? 'member-edit-operator-phone-error' : null"
         class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
@@ -54,6 +56,7 @@
       <label
         for="member-edit-operator-country"
         class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        [class.required-field-label]="fieldRequired('country')"
       >
         {{ 'members.create.fields.country' | transloco }}
       </label>
@@ -61,6 +64,7 @@
         id="member-edit-operator-country"
         type="text"
         formControlName="country"
+        [required]="fieldRequired('country')"
         [attr.aria-invalid]="fieldInvalid('country') ? true : null"
         [attr.aria-describedby]="
           fieldInvalid('country') ? 'member-edit-operator-country-error' : null
@@ -69,7 +73,7 @@
       />
       @if (fieldInvalid('country')) {
         <p id="member-edit-operator-country-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
+          {{ 'members.edit.fields.countryInvalid' | transloco }}
         </p>
       }
     </div>
@@ -78,6 +82,7 @@
       <label
         for="member-edit-operator-city"
         class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        [class.required-field-label]="fieldRequired('city')"
       >
         {{ 'members.create.fields.city' | transloco }}
       </label>
@@ -85,13 +90,14 @@
         id="member-edit-operator-city"
         type="text"
         formControlName="city"
+        [required]="fieldRequired('city')"
         [attr.aria-invalid]="fieldInvalid('city') ? true : null"
         [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-operator-city-error' : null"
         class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
       />
       @if (fieldInvalid('city')) {
         <p id="member-edit-operator-city-error" class="mt-2 text-sm text-error" role="alert">
-          {{ 'members.edit.fields.valueInvalid' | transloco }}
+          {{ 'members.edit.fields.cityInvalid' | transloco }}
         </p>
       }
     </div>
@@ -100,7 +106,7 @@
   <p class="mt-4 text-sm text-text-2">
     {{ 'members.edit.operatorNote' | transloco }}
   </p>
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
     <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'members.create.cancel' | transloco }}
     </app-action-button>

@@ -1,4 +1,4 @@
-import { UserRole } from '@api';
+import { UserRole } from '@core/api';
 
 /**
  * Libellés français du rôle applicatif du compte associé à un membre (T-130),

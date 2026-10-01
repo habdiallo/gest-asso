@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UserRole, UtilisateursEtRlesService } from '@api';
-import type { UserAccount, UserAccountPage } from '@api';
+import { UserRole, UtilisateursEtRolesService } from '@core/api';
+import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { EmptyState } from '@shared/empty-state/empty-state';
@@ -27,8 +27,8 @@ const SEARCH_DEBOUNCE_MS = 300;
 /**
  * Écran liste des utilisateurs avec rôle applicatif affiché (T-52), réservé à
  * l'Administrateur (RG-ROLE-002, garde de route `roleGuard` dans
- * `roles-users.routes.ts`). Appelle `GET /users` (`@api`,
- * `UtilisateursEtRlesService.listUsers`) avec recherche et filtre de rôle du
+ * `roles-users.routes.ts`). Appelle `GET /users` (`@core/api`,
+ * `UtilisateursEtRolesService.listUsers`) avec recherche et filtre de rôle du
  * contrat (`q`, `role`), pagination incluse. La recherche texte est débattue
  * manuellement (setTimeout) avant de déclencher `refetch$`, afin que le
  * chargement initial reste immédiat (cf. `.claude/rules/frontend/angular.md`,
@@ -76,7 +76,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolesUsersPage {
-  private readonly usersService = inject(UtilisateursEtRlesService);
+  private readonly usersService = inject(UtilisateursEtRolesService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly roleOptions: readonly UserRole[] = [
@@ -141,6 +141,13 @@ export class RolesUsersPage {
   readonly operatorAuthorizationDraft = signal(false);
   readonly savingRole = signal(false);
   readonly roleSaveError = signal(false);
+  readonly resettingCredentials = signal(false);
+  readonly resetCredentialsError = signal(false);
+  readonly resetCredentialsResult = signal<{
+    userId: string;
+    credentials: TemporaryCredentials;
+    copied: boolean;
+  } | null>(null);
 
   private readonly refetch = new Subject<void>();
   private searchDebounceHandle: ReturnType<typeof setTimeout> | undefined;
@@ -217,6 +224,8 @@ export class RolesUsersPage {
     this.roleDraft.set(account.role);
     this.operatorAuthorizationDraft.set(account.operatorCanRecordPayments);
     this.roleSaveError.set(false);
+    this.resetCredentialsError.set(false);
+    this.resetCredentialsResult.set(null);
   }
 
   /** Ferme la fiche, quelle que soit la cause (Échap, bouton Annuler, succès). */
@@ -225,6 +234,8 @@ export class RolesUsersPage {
     this.roleDraft.set(null);
     this.operatorAuthorizationDraft.set(false);
     this.roleSaveError.set(false);
+    this.resetCredentialsError.set(false);
+    this.resetCredentialsResult.set(null);
     this.savingRole.set(false);
   }
 
@@ -235,6 +246,38 @@ export class RolesUsersPage {
   /** Bascule l'état de `peut_enregistrer_paiements` (T-55) dans la fiche ouverte. */
   onOperatorAuthorizationDraftChange(event: Event): void {
     this.operatorAuthorizationDraft.set((event.target as HTMLInputElement).checked);
+  }
+
+  resetCredentials(account: UserAccount): void {
+    if (this.resettingCredentials()) {
+      return;
+    }
+    this.resettingCredentials.set(true);
+    this.resetCredentialsError.set(false);
+    this.usersService
+      .resetUserCredentials(account.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (credentials) => {
+          this.resettingCredentials.set(false);
+          this.resetCredentialsResult.set({ userId: account.id, credentials, copied: false });
+          this.refetch.next();
+        },
+        error: () => {
+          this.resettingCredentials.set(false);
+          this.resetCredentialsError.set(true);
+        },
+      });
+  }
+
+  copyResetPassword(): void {
+    const result = this.resetCredentialsResult();
+    if (!result) {
+      return;
+    }
+    void navigator.clipboard.writeText(result.credentials.temporaryPassword).then(() => {
+      this.resetCredentialsResult.update((current) => current ? { ...current, copied: true } : current);
+    });
   }
 
   /**

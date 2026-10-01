@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'socialFunds.kicker' | transloco"
     [title]="'socialFunds.title' | transloco"
@@ -69,19 +69,19 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'socialFunds.searchPlaceholder' | transloco"
-        class="app-form-control min-h-control w-full rounded-control border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
+        class="app-form-control min-h-12 w-full rounded border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
       />
     </label>
 
     <div
-      class="flex min-h-12 shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px]"
+      class="flex min-h-12 w-full shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px] sm:w-auto"
       role="group"
       [attr.aria-label]="'socialFunds.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-9 rounded px-3 text-[9px] font-normal uppercase tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          class="min-h-9 min-w-0 flex-1 rounded px-2 text-center text-[9px] font-normal uppercase leading-tight tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:flex-none sm:px-3"
           [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
@@ -134,7 +134,7 @@
         />
       }
       <ul
-        class="mt-5 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-5 grid grid-cols-1 items-stretch gap-4 tablet:grid-cols-2 lg:grid-cols-3"
         [attr.aria-busy]="pageActionPending() || loading() ? 'true' : null"
       >
         @for (socialFund of socialFunds(); track socialFund.id) {
@@ -180,34 +180,45 @@
 
       @if (totalPages() > 1) {
         <nav
-          class="mt-6 flex items-center justify-between gap-4"
+          class="responsive-body mt-6 flex items-center justify-between gap-3"
           [attr.aria-label]="'socialFunds.pagination.nav' | transloco"
         >
           <button
             type="button"
-            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="previousPageDisabled()"
             [attr.aria-disabled]="previousPageDisabled() ? 'true' : null"
             (click)="goToPreviousPage()"
           >
-            {{ 'socialFunds.pagination.previous' | transloco }}
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">‹</span>
+            <span class="sr-only tablet:not-sr-only">{{
+              'socialFunds.pagination.previous' | transloco
+            }}</span>
           </button>
 
-          <p class="text-sm text-text-2" role="status">
-            {{
-              'socialFunds.pagination.status'
-                | transloco: { current: currentPageNumber(), total: totalPages() }
-            }}
+          <p class="min-w-12 text-center text-text-2" role="status">
+            <span class="tablet:hidden" aria-hidden="true"
+              >{{ currentPageNumber() }}/{{ totalPages() }}</span
+            >
+            <span class="sr-only tablet:not-sr-only">
+              {{
+                'socialFunds.pagination.status'
+                  | transloco: { current: currentPageNumber(), total: totalPages() }
+              }}
+            </span>
           </p>
 
           <button
             type="button"
-            class="min-h-11 rounded border border-line px-4 py-2 text-sm text-text"
+            class="responsive-body inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-line px-3 py-2 text-text tablet:min-w-0 tablet:px-4"
             [class.opacity-40]="nextPageDisabled()"
             [attr.aria-disabled]="nextPageDisabled() ? 'true' : null"
             (click)="goToNextPage()"
           >
-            {{ 'socialFunds.pagination.next' | transloco }}
+            <span class="text-xl leading-none tablet:hidden" aria-hidden="true">›</span>
+            <span class="sr-only tablet:not-sr-only">{{
+              'socialFunds.pagination.next' | transloco
+            }}</span>
           </button>
         </nav>
       }

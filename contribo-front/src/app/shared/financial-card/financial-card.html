@@ -1,6 +1,6 @@
 <a
   [routerLink]="routerLink()"
-  class="group flex h-full cursor-pointer flex-col rounded-card border border-line bg-surface p-[21px] shadow-card outline-none transition-[border-color,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))] focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+  class="group flex h-full cursor-pointer flex-col rounded-card border border-line bg-surface p-4 shadow-card outline-none transition-[border-color,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))] focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:p-[21px]"
 >
   <div class="flex items-start justify-between gap-3">
     <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
@@ -14,17 +14,17 @@
   </div>
 
   <h2
-    class="mt-5 text-lg font-medium text-text transition-colors group-hover:text-gold group-focus-visible:text-gold"
+    class="responsive-card-title mt-5 font-medium text-text transition-colors group-hover:text-gold group-focus-visible:text-gold"
   >
     {{ title() }}
   </h2>
-  <p class="mt-1 text-xs text-text-2">{{ subtitle() }}</p>
+  <p class="responsive-meta mt-1 text-text-2">{{ subtitle() }}</p>
 
   @if (collectedAmount(); as collectedAmount) {
-    <div class="mt-[22px]">
+    <div class="mt-5 sm:mt-[22px]">
       @if (hasProgress(); as hasProgress) {
         @if (targetAmount(); as targetAmount) {
-          <p class="font-display text-2xl leading-none text-text">
+          <p class="font-display text-2xl leading-none text-text max-tablet:text-xl">
             <span [title]="collectedAmount.fullText">
               <span aria-hidden="true">{{ collectedAmount.text }}</span>
               <span class="sr-only">{{ collectedAmount.fullText }}</span>
@@ -44,7 +44,7 @@
           </div>
         }
       } @else {
-        <p class="font-display text-2xl leading-none text-text">
+        <p class="font-display text-2xl leading-none text-text max-tablet:text-xl">
           <span [title]="collectedAmount.fullText">
             <span aria-hidden="true">{{ collectedAmount.text }}</span>
             <span class="sr-only">{{ collectedAmount.fullText }}</span>
@@ -53,7 +53,7 @@
       }
 
       @if (footerLabel(); as footerLabel) {
-        <div class="mt-2 flex justify-between text-[10px] text-text-2">
+        <div class="responsive-label mt-2 flex justify-between text-text-2">
           <span>{{ footerLabel }}</span>
           @if (footerValue(); as footerValue) {
             <span>{{ footerValue }}</span>
@@ -62,7 +62,7 @@
       }
     </div>
   } @else if (financialFallback(); as financialFallback) {
-    <div class="mt-[22px] border-t border-line pt-4 text-xs text-text-2">
+    <div class="responsive-meta mt-[22px] border-t border-line pt-4 text-text-2">
       {{ financialFallback }}
     </div>
   }

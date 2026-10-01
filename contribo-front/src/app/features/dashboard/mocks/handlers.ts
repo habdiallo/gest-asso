@@ -6,7 +6,7 @@ import {
   PaymentMethod,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   CampaignSummary,
   CampaignsAggregateOverview,
@@ -16,9 +16,9 @@ import type {
   MemberDashboard,
   SocialFundSummary,
   SocialFundsAggregateOverview,
-} from '@api';
-import type { DemoAccount } from '../../../../mocks/demo-accounts';
-import { findDemoAccountByAuthorization } from '../../../../mocks/demo-accounts';
+} from '@core/api';
+import type { DemoAccount } from '@mocks/demo-accounts';
+import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { demoSocialFunds } from '../../social-funds/mocks/handlers';
 
 /**
@@ -341,7 +341,7 @@ export function buildDashboardResponse(
 export const dashboardHandlers = [
   http.get('/api/v1/dashboard', async ({ request }): Promise<Response> => {
     await delay(300);
-    const account = findDemoAccountByAuthorization(request.headers.get('Authorization'));
+    const account = findDemoAccountByRequest(request);
     if (!account) {
       return authenticationRequired();
     }

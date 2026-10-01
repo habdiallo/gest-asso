@@ -8,17 +8,17 @@ import {
   ErrorCode,
   MemberStatus,
   PaymentMethod,
-  RglementsService,
+  ReglementsService,
   UserRole,
-} from '@api';
-import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@api';
+} from '@core/api';
+import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { CampaignDuesTab } from './campaign-dues-tab';
 
 /*
@@ -153,7 +153,7 @@ async function createFixture(
     providers: [
       { provide: CampagnesService, useValue: { listCampaignDues } },
       {
-        provide: RglementsService,
+        provide: ReglementsService,
         useValue: { createPayment: options.createPayment ?? (() => of(buildPaymentResponse())) },
       },
     ],
@@ -180,6 +180,10 @@ describe('CampaignDuesTab', () => {
 
     expect(root.textContent).toContain('Amadou Diallo');
     expect(root.textContent).toContain('Partiellement payé');
+    const mobileCard = root.querySelector('[data-testid="campaign-dues-mobile-cards"] li');
+    expect(mobileCard?.textContent).toContain('Amadou Diallo');
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(100_000));
+    expect(mobileCard?.textContent).toContain('Partiellement payé');
   });
 
   it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {

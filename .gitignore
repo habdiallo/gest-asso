@@ -7,3 +7,6 @@
 !/openspec/changes/**/specs/**
 !/openspec/specs/
 !/openspec/specs/**
+
+# Backend build outputs.
+/contribo-back/target/
