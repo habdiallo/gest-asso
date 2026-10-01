@@ -7,8 +7,8 @@ import {
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
-import type { Contribution, ContributionPage, Due, DuePage, ErrorResponse } from '@api';
+} from '@core/api';
+import type { Contribution, ContributionPage, Due, DuePage, ErrorResponse } from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 
 function authenticationRequired(): Response {

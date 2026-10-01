@@ -1,4 +1,4 @@
-import { SocialEventType, SocialFundStatus } from '@api';
+import { SocialEventType, SocialFundStatus } from '@core/api';
 
 /**
  * Libellés français des statuts de cagnotte (T-82, schéma `SocialFundStatus` de

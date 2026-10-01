@@ -3,20 +3,25 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "generate:api": "openapi-generator-cli generate --generator-key contribo-api",
-    "validate:api": "openapi-generator-cli validate -i ../besoins/openapi.yaml",
+    "check:api": "node scripts/api-generation.mjs check",
+    "generate:api": "node scripts/api-generation.mjs generate",
+    "validate:api": "node scripts/api-generation.mjs validate",
     "start": "ng serve",
     "start:mock": "ng serve --configuration mock",
     "build": "ng build",
     "build:mock": "ng build --configuration mock",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:tooling": "node --test scripts/tooling.test.cjs",
+    "test:tooling": "node --test scripts/tooling.test.cjs scripts/api-generation.test.mjs",
+    "test:documentation": "node scripts/documentation-check.cjs",
     "lint": "ng lint",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "packageManager": "npm@11.11.0",
   "dependencies": {
     "@angular/common": "^21.2.0",

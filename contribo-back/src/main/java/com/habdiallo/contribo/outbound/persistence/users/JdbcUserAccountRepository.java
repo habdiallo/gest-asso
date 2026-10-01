@@ -9,16 +9,16 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.UserRole;
-import com.habdiallo.contribo.application.users.UserAccountRecord;
 import com.habdiallo.contribo.application.users.UserAccountRepository;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.user.UserAccountRecord;
 
 @Repository
 public class JdbcUserAccountRepository implements UserAccountRepository {
 
     private static final String ACCOUNT_SELECT = """
-            SELECT ua.id, ua.member_id, m.first_name, m.last_name, ua.role,
-                   ua.operator_can_record_payments, ua.active
+            SELECT ua.id, ua.member_id, ua.identifier, m.first_name, m.last_name, ua.role,
+                   ua.operator_can_record_payments, ua.active, ua.must_change_password
               FROM user_accounts ua
               JOIN members m ON m.id = ua.member_id
             """;
@@ -72,6 +72,16 @@ public class JdbcUserAccountRepository implements UserAccountRepository {
                 """, role, operatorCanRecordPayments, associationId, userId) == 1;
     }
 
+    @Override
+    public boolean updateCredentials(UUID associationId, UUID userId, String passwordHash) {
+        return jdbcTemplate.update("""
+                UPDATE user_accounts
+                   SET password_hash = ?, must_change_password = TRUE,
+                       password_changed_at = NULL, updated_at = CURRENT_TIMESTAMP
+                 WHERE association_id = ? AND id = ? AND active = TRUE
+                """, passwordHash, associationId, userId) == 1;
+    }
+
     private void appendFilters(
             StringBuilder sql, List<Object> parameters, String query, UserRole role) {
         if (query != null && !query.isBlank()) {
@@ -90,10 +100,12 @@ public class JdbcUserAccountRepository implements UserAccountRepository {
         return new UserAccountRecord(
                 resultSet.getObject("id", UUID.class),
                 resultSet.getObject("member_id", UUID.class),
+                resultSet.getString("identifier"),
                 resultSet.getString("first_name"),
                 resultSet.getString("last_name"),
                 resultSet.getString("role"),
                 resultSet.getBoolean("operator_can_record_payments"),
-                resultSet.getBoolean("active"));
+                resultSet.getBoolean("active"),
+                resultSet.getBoolean("must_change_password"));
     }
 }

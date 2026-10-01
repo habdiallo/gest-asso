@@ -88,8 +88,10 @@ class MemberCategoryAccountHttpTest extends RsaIntegrationTestSupport {
                                  "city":"Conakry"}
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("ACTIVE"))
-                .andExpect(jsonPath("$.account.role").value("MEMBER"));
+                .andExpect(jsonPath("$.member.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.member.account.role").value("MEMBER"))
+                .andExpect(jsonPath("$.credentials.identifier").isNotEmpty())
+                .andExpect(jsonPath("$.credentials.temporaryPassword").isNotEmpty());
 
         Integer memberCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM members WHERE first_name = 'Fatoumata'", Integer.class);

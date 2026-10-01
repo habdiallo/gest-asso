@@ -1,4 +1,4 @@
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
 import type { DemoAccount } from '@mocks/demo-accounts';
 import { demoAccounts } from '@mocks/demo-accounts';
 import { applyUserAccessUpdate, buildUserAccountsPage } from './handlers';

@@ -24,6 +24,7 @@ public class SecurityConfig {
             JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint)
             throws Exception {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfTokenRepository.setCookiePath("/");
         CsrfTokenRequestAttributeHandler csrfRequestHandler = new CsrfTokenRequestAttributeHandler();
         http
                 .csrf(csrf -> csrf
@@ -49,8 +50,8 @@ public class SecurityConfig {
         if ("GET".equals(request.getMethod())
                 || "HEAD".equals(request.getMethod())
                 || "TRACE".equals(request.getMethod())
-                || "/auth/csrf".equals(request.getRequestURI())
-                || "/auth/login".equals(request.getRequestURI())
+                || "/auth/csrf".equals(RequestPaths.pathWithinApplication(request))
+                || "/auth/login".equals(RequestPaths.pathWithinApplication(request))
                 || request.getHeader("Authorization") != null) {
             return false;
         }

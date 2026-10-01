@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ContributionsService } from '@api';
-import type { ContributionPage } from '@api';
+import { ContributionsService } from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DataTable } from '@shared/data-table/data-table';
@@ -25,7 +25,7 @@ const CONTRIBUTIONS_PAGE_SIZE = 10;
 /**
  * Onglet "Contributions aux cagnottes" de la fiche membre (T-30, tâche 4.10,
  * US-MEM-003) : liste les contributions du membre à des cagnottes via
- * `GET /contributions?memberId=...` (`@api`, `ContributionsService.listContributions`,
+ * `GET /contributions?memberId=...` (`@core/api`, `ContributionsService.listContributions`,
  * `openapi:listContributions`), du plus récent au plus ancien, avec cagnotte,
  * montant, date et mode de règlement.
  *

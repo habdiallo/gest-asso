@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import type { CurrentUser } from '@api';
-import { CurrencyCode, MemberStatus, UserRole } from '@api';
-import { EspacePersonnelService } from '@api';
+import type { CurrentUser } from '@core/api';
+import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
+import { EspacePersonnelService } from '@core/api';
 import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';

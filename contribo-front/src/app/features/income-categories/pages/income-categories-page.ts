@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CatgoriesDeRevenuService } from '@api';
-import type { IncomeCategory } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
@@ -24,8 +24,8 @@ const PAGE_SIZE = 10;
 
 /**
  * Écran liste des catégories de revenu (T-48), réservé à l'Administrateur
- * (US-REV-001). Appelle `GET /income-categories` (`@api`,
- * `CatgoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
+ * (US-REV-001). Appelle `GET /income-categories` (`@core/api`,
+ * `CategoriesDeRevenuService.listIncomeCategories`), qui renvoie les catégories
  * triées par libellé par le serveur (pas de tri/filtre applicatif ici).
  *
  * La route applicative applique `roleGuard(UserRole.Administrator)` à la
@@ -61,7 +61,7 @@ const PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IncomeCategoriesPage {
-  private readonly incomeCategoriesService = inject(CatgoriesDeRevenuService);
+  private readonly incomeCategoriesService = inject(CategoriesDeRevenuService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);

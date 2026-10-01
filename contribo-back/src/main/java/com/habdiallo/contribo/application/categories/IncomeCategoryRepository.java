@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.habdiallo.contribo.domain.category.IncomeCategoryRecord;
+
 public interface IncomeCategoryRepository {
 
     List<IncomeCategoryRecord> findAll(UUID associationId);

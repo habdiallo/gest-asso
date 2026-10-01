@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { SocialEventType } from '@api';
-import type { CreateSocialFundRequest } from '@api';
+import { SocialEventType } from '@core/api';
+import type { CreateSocialFundRequest } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import fr from '@assets/i18n/fr.json';
 import { SocialFundCreateForm } from './social-fund-create-form';

@@ -1,9 +1,10 @@
 # Tickets locaux et branches
 
-[tickets.json](tickets.json) est le registre actif : 104 tickets frontend,
-affichés `T-1` à `T-104`. Leurs étapes portent ces repères dans
-[le backlog](changes/frontend-tickets-mvp-association/tasks.md). Les numéros sont
-globaux à tous les scopes ; le prochain numéro à l'adoption est `105`.
+[tickets.json](tickets.json) est le registre actif : 180 tickets couvrant les
+scopes frontend, backend, fullstack, documentation et infrastructure, affichés
+`T-1` à `T-180`. Leurs étapes portent les repères `[T-<numero>]` dans les
+changes OpenSpec concernés. Les numéros sont globaux à tous les scopes ; le
+prochain numéro à réserver est `181`.
 
 Le numéro de ticket et le numéro d'étape OpenSpec sont indépendants. Exemple :
 T-3 correspond à l'étape `2.1` (écran de connexion).

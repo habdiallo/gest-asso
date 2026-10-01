@@ -2,6 +2,7 @@ package com.habdiallo.contribo.outbound.persistence.members;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,9 +10,9 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.MemberStatus;
-import com.habdiallo.contribo.application.members.MemberRecord;
 import com.habdiallo.contribo.application.members.MemberRepository;
+import com.habdiallo.contribo.domain.member.MemberRecord;
+import com.habdiallo.contribo.domain.member.MemberStatus;
 import com.habdiallo.contribo.outbound.persistence.DbTime;
 
 @Repository
@@ -24,6 +25,7 @@ public class JdbcMemberRepository implements MemberRepository {
                    m.association_function, m.status, m.updated_at,
                    ua.id AS account_id, ua.role AS account_role,
                    ua.operator_can_record_payments, ua.active AS account_active,
+                   ua.must_change_password,
                    COALESCE((SELECT SUM(d.due_amount) FROM dues d WHERE d.member_id = m.id), 0)
                        AS total_due_amount,
                    COALESCE((SELECT SUM(p.amount) FROM payments p
@@ -80,6 +82,15 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     @Override
+    public long countCreatedSince(UUID associationId, OffsetDateTime from) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM members WHERE association_id = ? AND created_at >= ?",
+                Long.class,
+                associationId,
+                from);
+    }
+
+    @Override
     public Optional<MemberRecord> findById(UUID associationId, UUID memberId) {
         return jdbcTemplate.query(
                 MEMBER_SELECT + " WHERE m.association_id = ? AND m.id = ?",
@@ -100,7 +111,7 @@ public class JdbcMemberRepository implements MemberRepository {
     @Override
     public UUID create(UUID associationId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction,
-            String identifier, String passwordHash) {
+            String identifier, String passwordHash, boolean mustChangePassword) {
         UUID memberId = UUID.randomUUID();
         jdbcTemplate.update("""
                 INSERT INTO members (id, association_id, first_name, last_name, preferred_name,
@@ -111,10 +122,10 @@ public class JdbcMemberRepository implements MemberRepository {
                 incomeCategoryId, associationFunction);
         jdbcTemplate.update("""
                 INSERT INTO user_accounts (id, association_id, member_id, identifier, password_hash,
-                    role, operator_can_record_payments, active)
-                VALUES (?, ?, ?, ?, ?, 'MEMBER', FALSE, TRUE)
+                    role, operator_can_record_payments, active, must_change_password)
+                VALUES (?, ?, ?, ?, ?, 'MEMBER', FALSE, TRUE, ?)
                 """,
-                UUID.randomUUID(), associationId, memberId, identifier, passwordHash);
+                UUID.randomUUID(), associationId, memberId, identifier, passwordHash, mustChangePassword);
         return memberId;
     }
 
@@ -192,6 +203,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 resultSet.getString("account_role"),
                 resultSet.getBoolean("operator_can_record_payments"),
                 resultSet.getBoolean("account_active"),
+                resultSet.getBoolean("must_change_password"),
                 resultSet.getLong("total_due_amount"),
                 resultSet.getLong("total_paid_amount"),
                 DbTime.offsetDateTime(resultSet, "updated_at"));

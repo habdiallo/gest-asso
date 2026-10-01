@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { SocialEventType } from '@api';
-import type { CreateSocialFundRequest } from '@api';
+import { SocialEventType } from '@core/api';
+import type { CreateSocialFundRequest } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { AmountInput } from '@shared/amount-input/amount-input';

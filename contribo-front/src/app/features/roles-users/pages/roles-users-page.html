@@ -304,7 +304,7 @@
           <div class="mt-4">
             <label
               for="role-dialog-select"
-              class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+              class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
             >
               {{ 'rolesUsers.roleDialogLabel' | transloco }}
             </label>
@@ -313,6 +313,7 @@
               [value]="roleDraft()"
               [options]="roleSelectOptions"
               [placeholder]="'rolesUsers.roleDialogLabel' | transloco"
+              [required]="true"
               (valueChange)="onRoleDraftChange($event)"
             />
           </div>
@@ -354,6 +355,45 @@
         <p class="mt-6 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
           {{ 'rolesUsers.operatorAuthorizationHint' | transloco }}
         </p>
+
+        <section class="mt-6 border-t border-line pt-5">
+          <h3 class="responsive-card-title font-sans font-medium text-text">
+            {{ 'rolesUsers.credentialsTitle' | transloco }}
+          </h3>
+          <p class="mt-2 text-sm text-text-2">{{ 'rolesUsers.credentialsIntro' | transloco }}</p>
+          <app-action-button
+            type="button"
+            variant="secondary"
+            class="mt-4"
+            [loading]="resettingCredentials()"
+            [disabled]="resettingCredentials()"
+            (click)="resetCredentials(account)"
+          >
+            {{ 'rolesUsers.resetCredentials' | transloco }}
+          </app-action-button>
+          @if (resetCredentialsError()) {
+            <p class="mt-3 text-sm text-error" role="alert">
+              {{ 'rolesUsers.resetCredentialsError' | transloco }}
+            </p>
+          }
+          @if (resetCredentialsResult(); as result) {
+            <div class="mt-4 grid gap-2 rounded-card bg-success-wash px-4 py-3 text-sm text-success" role="status">
+              <p>{{ 'rolesUsers.resetCredentialsSuccess' | transloco }}</p>
+              <p class="text-text">
+                {{ 'rolesUsers.resetCredentialsPassword' | transloco }}
+                <code>{{ result.credentials.temporaryPassword }}</code>
+                <button
+                  type="button"
+                  class="ml-2 rounded border border-line-strong px-2 py-1 text-xs text-text"
+                  (click)="copyResetPassword()"
+                >
+                  {{ (result.copied ? 'rolesUsers.copied' : 'rolesUsers.copy') | transloco }}
+                </button>
+              </p>
+              <p class="text-text-2">{{ 'rolesUsers.resetCredentialsInstruction' | transloco }}</p>
+            </div>
+          }
+        </section>
 
         @if (roleSaveError()) {
           <p class="mt-3 text-sm text-error" role="alert">

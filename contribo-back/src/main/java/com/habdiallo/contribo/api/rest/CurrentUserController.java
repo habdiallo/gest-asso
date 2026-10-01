@@ -45,7 +45,7 @@ public class CurrentUserController implements EspacePersonnelApi {
 
     @Override
     public ResponseEntity<DuePage> listMyDues(Integer page, Integer size, DueStatus status) {
-        return ResponseEntity.ok(campaignService.listMyDues(page, size, status));
+        return ResponseEntity.ok(campaignService.listMyDues(currentUserId(), page, size, status));
     }
 
     private UUID currentUserId() {

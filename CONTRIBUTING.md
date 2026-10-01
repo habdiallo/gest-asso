@@ -212,6 +212,19 @@ Ne pas annoncer un lint, des tests backend ou un outil E2E non configurés.
 Pour les documents/OpenSpec, vérifier la syntaxe et la lecture des instructions
 avec le CLI ; pas de build applicatif imposé pour une modification documentaire.
 
+`contribo-front/openapitools.json` (`generator-cli.version`) et
+`contribo-back/pom.xml` (`openapi-generator.version`) pilotent deux générateurs
+distincts du même contrat `besoins/openapi.yaml` et doivent rester à la même
+version. Toute mise à jour de cette version se fait dans la même PR pour
+`contribo-front` et `contribo-back`, avec régénération des deux clients et
+vérification de leur compilation. `node scripts/check-openapi-generator-version.mjs`
+contrôle cet alignement (exécuté en CI dans `frontend-compilation.yml` avant
+`npm run generate:api`) et échoue explicitement si une version est absente ou
+si les deux divergent.
+Depuis `contribo-front/`, exécuter également `npm run check:api` avant la
+validation ou la génération : le script vérifie le runtime Node.js, Java et le
+wrapper local verrouillé par `package-lock.json`.
+
 ## Contrôles locaux et protection des branches de flux
 
 Les hooks versionnés dans `.githooks/` refusent les commits sur une branche non

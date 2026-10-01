@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import type { MemberSummary } from '@api';
+import type { MemberSummary } from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import type { DetailTab } from '@shared/detail-tabs/detail-tabs';

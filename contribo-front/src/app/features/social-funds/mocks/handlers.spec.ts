@@ -4,7 +4,7 @@ import type {
   ErrorResponse,
   SocialFund,
   SocialFundPage,
-} from '@api';
+} from '@core/api';
 import { demoAccounts } from '@mocks/demo-accounts';
 import { socialFundsHandlers } from './handlers';
 

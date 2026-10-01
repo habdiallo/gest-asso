@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.habdiallo.contribo.api.generated.model.UserRole;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
 import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
 import com.habdiallo.contribo.application.auth.InvalidCredentialsException;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Service
 public class AuthorizationService {

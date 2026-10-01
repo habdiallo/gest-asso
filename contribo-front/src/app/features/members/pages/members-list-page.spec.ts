@@ -1,16 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { CatgoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@api';
+import { CategoriesDeRevenuService, CurrencyCode, MembresService, MemberStatus } from '@core/api';
 import type {
   CreateMemberRequest,
   CurrentUser,
   IncomeCategory,
+  MemberCreationResponse,
   MemberDetails,
   MemberPage,
   MemberSummary,
+  TemporaryCredentials,
   UserRole,
-} from '@api';
+} from '@core/api';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
@@ -130,7 +132,9 @@ async function createFixture(
     status?: MemberStatus,
   ) => Observable<MemberPage>,
   options: {
-    createMember?: (request: CreateMemberRequest) => Observable<MemberDetails>;
+    createMember?: (
+      request: CreateMemberRequest,
+    ) => Observable<MemberDetails | MemberCreationResponse>;
     listIncomeCategories?: () => Observable<IncomeCategory[]>;
     role?: UserRole;
     queryParams?: Record<string, string>;
@@ -157,8 +161,8 @@ async function createFixture(
         useValue: { listMembers, createMember } as unknown as MembresService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       provideRouter([]),
       ...(options.queryParams
@@ -971,6 +975,74 @@ describe('MembersListPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     const confirmation = root.querySelector('[role="status"]');
     expect(confirmation?.textContent).toContain('compte utilisateur');
+  });
+
+  it('displays temporary credentials and copies the password from the creation confirmation', async () => {
+    const credentials: TemporaryCredentials = {
+      identifier: 'member-mariama',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const creation: MemberCreationResponse = {
+      member: buildMemberDetails({ displayName: 'Mariama Barry' }),
+      credentials,
+    };
+    const createMember = vi.fn(() => of(creation));
+    const fixture = await createFixture(() => of(buildMemberPage()), { createMember });
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.componentInstance.handleCreateMember({
+      firstName: 'Mariama',
+      lastName: 'Barry',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const copyButton = Array.from(root.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Copier'),
+    ) as HTMLButtonElement;
+    copyButton.click();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('member-mariama');
+    expect(root.textContent).toContain('Temporaire-1234!');
+    expect(writeText).toHaveBeenCalledWith('Temporaire-1234!');
+    expect(root.textContent).toContain('Copié');
+  });
+
+  it('hides temporary credentials after dismissal and explains how to regenerate them', async () => {
+    const credentials: TemporaryCredentials = {
+      identifier: 'member-mariama',
+      temporaryPassword: 'Temporaire-1234!',
+    };
+    const creation: MemberCreationResponse = {
+      member: buildMemberDetails({ displayName: 'Mariama Barry' }),
+      credentials,
+    };
+    const fixture = await createFixture(() => of(buildMemberPage()), {
+      createMember: vi.fn(() => of(creation)),
+    });
+
+    fixture.componentInstance.openCreateDialog();
+    fixture.componentInstance.handleCreateMember({
+      firstName: 'Mariama',
+      lastName: 'Barry',
+      incomeCategoryId: demoIncomeCategory.id,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"] button')).toBeTruthy();
+    fixture.componentInstance.dismissCreatedConfirmation();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Temporaire-1234!');
+    expect(fixture.nativeElement.textContent).toContain('Administrateur peut le régénérer');
   });
 
   it('clears the creation confirmation when reopening the dialog', async () => {

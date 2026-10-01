@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import type { CurrentUser, LoginResponse } from '@api';
+import type { CurrentUser, LoginResponse } from '@core/api';
 import { canRecordPayments as canUserRecordPayments } from './payment-authorization';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +9,7 @@ export class SessionService {
   readonly user = signal<CurrentUser | null>(null);
 
   readonly isAuthenticated = computed(() => this.user() !== null);
+  readonly mustChangePassword = computed(() => this.user()?.mustChangePassword === true);
   readonly canRecordPayments = computed(() => canUserRecordPayments(this.user()));
 
   setSession(response: LoginResponse): void {

@@ -12,7 +12,8 @@ import com.habdiallo.contribo.api.generated.model.IncomeCategoryRequest;
 import com.habdiallo.contribo.application.access.AuthorizationService;
 import com.habdiallo.contribo.application.access.BusinessConflictException;
 import com.habdiallo.contribo.application.access.ResourceNotFoundException;
-import com.habdiallo.contribo.api.generated.model.UserRole;
+import com.habdiallo.contribo.domain.access.UserRole;
+import com.habdiallo.contribo.domain.category.IncomeCategoryRecord;
 
 @Service
 public class IncomeCategoryService {

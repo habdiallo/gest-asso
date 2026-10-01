@@ -9,8 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DueStatus, MembresService } from '@api';
-import type { DuePage } from '@api';
+import { DueStatus, MembresService } from '@core/api';
+import type { DuePage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { DUE_STATUS_TRANSLATION_KEYS } from '@shared/due-status/due-status-i18n';

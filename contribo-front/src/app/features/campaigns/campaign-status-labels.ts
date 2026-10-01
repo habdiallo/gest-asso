@@ -1,4 +1,4 @@
-import { CampaignStatus } from '@api';
+import { CampaignStatus } from '@core/api';
 
 /**
  * Libellés français des statuts de campagne (schéma `CampaignStatus` de
