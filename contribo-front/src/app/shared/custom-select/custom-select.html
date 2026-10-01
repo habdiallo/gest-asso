@@ -1,6 +1,14 @@
 <div class="relative flex flex-col gap-2" (focusout)="handleFocusOut($event)">
   @if (label()) {
-    <label [attr.for]="fieldId()" class="text-sm font-medium text-text-2">{{ label() }}</label>
+    <label [attr.for]="fieldId()" class="responsive-body font-medium text-text-2"
+      >{{ label() }}
+      @if (required()) {
+        <span aria-hidden="true" class="ml-1 text-gold">{{
+          'shared.form.requiredIndicator' | transloco
+        }}</span>
+        <span class="sr-only"> ({{ 'shared.form.required' | transloco }})</span>
+      }
+    </label>
   }
   <button
     #trigger
