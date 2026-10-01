@@ -13,4 +13,4 @@
 
 - [x] 3.1 [T-135] Exécuter les validations frontend pertinentes depuis `contribo-front/` : tests ciblés et suite `npm test -- --watch=false`, `npm run build`, `npm run lint`, ainsi que les contrôles OpenSpec et tickets depuis la racine.
 - [x] 3.2 [T-135] Vérifier visuellement le rendu à 1440 px puis 1024 px, en thème sombre puis clair, avec un compte administrateur et un rôle non administrateur ; capturer les résultats avant/après et contrôler l'absence de régression du dashboard membre.
-- [ ] 3.3 [T-135] Mettre à jour uniquement les tâches T-135 réellement réalisées, relire le diff, committer avec un titre `fix(front): T-135 ...`, pousser la branche et ouvrir une PR dédiée vers `main` avec les validations et limites constatées ; ne pas fusionner.
+- [x] 3.3 [T-135] Mettre à jour uniquement les tâches T-135 réellement réalisées, relire le diff, committer avec un titre `fix(front): T-135 ...`, pousser la branche et ouvrir une PR dédiée vers `main` avec les validations et limites constatées ; ne pas fusionner.
