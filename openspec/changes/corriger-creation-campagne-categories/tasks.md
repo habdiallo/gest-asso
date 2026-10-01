@@ -16,4 +16,4 @@
 ## 4. Livrer
 
 - [x] 4.1 [T-188] Mettre à jour les étapes réalisées et vérifier le ticket sur la branche dédiée.
-- [ ] 4.2 [T-188] Créer le commit `fix(front): T-188 corriger la creation campagne categories`, pousser la branche et ouvrir une PR vers `develop`.
+- [x] 4.2 [T-188] Créer le commit `fix(front): T-188 corriger la creation campagne categories`, pousser la branche et ouvrir une PR vers `develop`.
