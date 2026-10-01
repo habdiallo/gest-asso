@@ -16,7 +16,7 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { TranslocoHttpLoader } from '@core/i18n/transloco-http.loader';
-import { EspacePersonnelService } from '@api';
+import { EspacePersonnelService } from '@core/api';
 import { authInterceptor } from '@core/session/auth.interceptor';
 import { sessionExpiredInterceptor } from '@core/session/session-expired.interceptor';
 import { SessionService } from '@core/session/session.service';

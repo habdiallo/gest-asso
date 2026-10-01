@@ -8,15 +8,16 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
 import com.habdiallo.contribo.application.auth.AuthenticationAccountPort;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Repository
 public class AuthenticationRepository implements AuthenticationAccountPort {
 
     private static final String ACCOUNT_QUERY = """
             SELECT ua.id AS user_id, ua.password_hash, ua.active, ua.role,
-                   ua.operator_can_record_payments, a.id AS association_id,
+                   ua.operator_can_record_payments, ua.must_change_password,
+                   a.id AS association_id,
                    a.name AS association_name, a.currency, m.id AS member_id,
                    m.first_name, m.last_name, m.preferred_name, m.country,
                    m.city, m.phone, m.association_function, m.status AS member_status,
@@ -73,6 +74,17 @@ public class AuthenticationRepository implements AuthenticationAccountPort {
                 resultSet.getObject("income_category_id", UUID.class),
                 resultSet.getString("income_category_label"),
                 resultSet.getString("role"),
-                resultSet.getBoolean("operator_can_record_payments"));
+                resultSet.getBoolean("operator_can_record_payments"),
+                resultSet.getBoolean("must_change_password"));
+    }
+
+    @Override
+    public boolean updatePassword(UUID userId, String passwordHash) {
+        return jdbcTemplate.update("""
+                UPDATE user_accounts
+                   SET password_hash = ?, must_change_password = FALSE,
+                       password_changed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = ? AND active = TRUE
+                """, passwordHash, userId) == 1;
     }
 }

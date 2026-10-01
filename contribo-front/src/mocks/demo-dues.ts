@@ -1,5 +1,5 @@
-import { CampaignStatus, CurrencyCode, DueStatus } from '@api';
-import type { Due } from '@api';
+import { CampaignStatus, CurrencyCode, DueStatus } from '@core/api';
+import type { Due } from '@core/api';
 
 const campaignReferences = {
   solidarity: {

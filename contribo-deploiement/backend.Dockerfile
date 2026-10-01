@@ -20,6 +20,6 @@ RUN chmod 0755 /usr/local/bin/backend-entrypoint.sh
 
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=5 \
-    CMD curl --fail --silent http://localhost:8080/actuator/health/readiness || exit 1
+    CMD curl --fail --silent http://localhost:9001/actuator/health/readiness || exit 1
 
 ENTRYPOINT ["/usr/local/bin/backend-entrypoint.sh"]

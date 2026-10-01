@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { AuthentificationService } from '@api';
-import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
+import { AuthentificationService } from '@core/api';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { SessionService } from './session.service';
 
 @Injectable({ providedIn: 'root' })

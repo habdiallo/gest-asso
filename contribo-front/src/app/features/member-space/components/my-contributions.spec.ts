@@ -6,8 +6,8 @@ import {
   PaymentMethod,
   SocialEventType,
   SocialFundStatus,
-} from '@api';
-import type { ContributionPage } from '@api';
+} from '@core/api';
+import type { ContributionPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';

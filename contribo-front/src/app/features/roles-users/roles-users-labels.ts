@@ -1,5 +1,5 @@
-import { UserRole } from '@api';
-import type { UserAccountSummary } from '@api';
+import { UserRole } from '@core/api';
+import type { UserAccountSummary } from '@core/api';
 
 /**
  * Libellés français des 4 rôles applicatifs (US-ROLE-001, RG-ROLE-001 à

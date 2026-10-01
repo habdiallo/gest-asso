@@ -26,3 +26,8 @@ ou « Aucun impact particulier » si pertinent. -->
 - [ ] Critères d'acceptation couverts et validations pertinentes exécutées.
 - [ ] Artefacts/tâches OpenSpec mis à jour selon les actions réellement effectuées.
 - [ ] Aucun secret ou fichier temporaire ; impacts documentés.
+
+## Release et staging
+
+- [ ] Pour une release ou un hotfix, les images candidates ont été déployées en staging avec les deux digests du même run CI.
+- [ ] Pour une release ou un hotfix, les smoke tests staging sont validés avant la promotion vers `main`.

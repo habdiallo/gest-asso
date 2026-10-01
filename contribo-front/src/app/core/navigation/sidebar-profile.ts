@@ -1,4 +1,4 @@
-import type { CurrentUser } from '@api';
+import type { CurrentUser } from '@core/api';
 import { NAVIGATION_PATHS } from './navigation-paths';
 
 export const SIDEBAR_ROLE_LABEL_KEYS: Record<CurrentUser['role'], string> = {

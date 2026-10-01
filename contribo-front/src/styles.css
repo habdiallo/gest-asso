@@ -217,6 +217,12 @@ body {
   line-height: 1.2;
 }
 
+.required-field-label::after {
+  margin-left: 0.25rem;
+  color: var(--gold);
+  content: '*';
+}
+
 .responsive-section-title {
   font-size: var(--type-section-title);
   line-height: 1.25;

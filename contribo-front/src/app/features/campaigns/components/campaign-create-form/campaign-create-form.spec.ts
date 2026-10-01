@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CatgoriesDeRevenuService, CreateCampaignRequest } from '@api';
-import type { IncomeCategory } from '@api';
+import { CategoriesDeRevenuService, CreateCampaignRequest } from '@core/api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
@@ -46,8 +46,8 @@ async function createFixture(
     ],
     providers: [
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
     ],
   }).compileComponents();

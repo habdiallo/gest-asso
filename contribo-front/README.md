@@ -69,13 +69,14 @@ src/app/
     home/                       première fonctionnalité, chargée paresseusement
       home.routes.ts
       pages/home-page.*
-    <feature>/                  à créer avec son ticket métier
+    <feature>/                  à créer avec son périmètre métier
       <feature>.routes.ts
       pages/                    pages de cette fonctionnalité
       components/               composants internes, si nécessaires
       services/                 API/orchestration/état de la feature, si nécessaires
       models/                   modèles IHM distincts, si nécessaires
   core/                         responsabilités applicatives globales
+    api/index.ts                frontière stable vers le client OpenAPI
     api/generated/              client OpenAPI, généré et ignoré par Git
   shared/                       UI/pipes/utilitaires neutres effectivement réutilisés
 ```
@@ -84,12 +85,18 @@ Les tests sont colocalisés. Ne pas créer tous les sous-dossiers ni un store/se
 pour une fonctionnalité qui n'existe pas encore. Utiliser les DTO générés ; un
 modèle/mapping local se justifie seulement par un besoin IHM distinct.
 
-Les features peuvent utiliser `core`, `shared` et le client API. Elles ne
+La stratégie d'état frontend est documentée dans
+[`docs/state-management.md`](docs/state-management.md). Par défaut, l'état reste
+local ou colocalisé dans sa feature ; `core/` ne reçoit que l'état réellement
+transversal et dispose d'une stratégie d'invalidation explicite.
+
+Les features peuvent utiliser `core`, `shared` et la frontière `core/api`. Elles ne
 s'importent pas directement entre elles. `core` et `shared` ne dépendent jamais
-des features ; ces imports sont interdits par ESLint. Les routes applicatives
+des features ; ces imports sont interdits par ESLint. Aucun consommateur ne doit
+importer `core/api/generated` ou utiliser un alias dédié au généré. Les routes applicatives
 chargent chaque fonctionnalité par `loadChildren`/`loadComponent`.
 
-Alias : `@core/*`, `@shared/*`, `@features/*` et `@api`. Les imports internes à une
+Alias : `@core/*`, `@shared/*` et `@features/*`. Les imports internes à une
 feature restent relatifs ; `@features/*` sert à composer les routes applicatives.
 Le frontend ne possède pas de couches hexagonales, ports ou adapters obligatoires.
 **L'architecture hexagonale est réservée au backend.**
@@ -100,30 +107,55 @@ Pour créer une page :
 npx --no-install ng generate component features/members/pages/member-list
 ```
 
-Cette commande est un exemple pour un futur ticket : les pages métier ne sont pas
+Cette commande est un exemple pour une future évolution : les pages métier ne sont pas
 créées à l'initialisation. Les composants générés utilisent OnPush et CSS.
 
 ## API Design First et proxy
 
-Le contrat unique est [besoins/openapi.yaml](../besoins/openapi.yaml), OpenAPI 3.1,
-avec une base relative `/api/v1`. Il n'existe pas encore de backend dans ce dépôt.
+Le contrat HTTP partagé est [besoins/openapi.yaml](../besoins/openapi.yaml), OpenAPI
+3.1, avec une base relative `/api/v1`. Le besoin fonctionnel et les règles de
+gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md).
+La distinction et l'ordre de décision sont décrits dans
+[`besoins/README.md`](../besoins/README.md). Il n'existe pas encore de backend
+fonctionnel dans ce dépôt.
 
 ```bash
+npm run check:api
 npm run validate:api
 npm run generate:api
 npx --no-install tsc --noEmit -p tsconfig.app.json
 ```
 
-Le générateur `typescript-angular` est fixé dans `openapitools.json`. Java 11+ est
-requis ; la première génération télécharge son JAR. La sortie
+`npm run check:api` vérifie Node.js 22+, Java 11+, le wrapper npm installé et les
+versions exactes du wrapper et du générateur. `validate:api` et `generate:api`
+réutilisent ce contrôle et invoquent uniquement le wrapper local, installé par
+`npm ci`, sans dépendance à une commande globale.
+
+Le générateur `typescript-angular` est fixé dans `openapitools.json`. Java reste
+requis uniquement pour la validation et la génération ; la première génération
+télécharge son JAR. La sortie
 `src/app/core/api/generated/` est ignorée par Git, ESLint et Prettier ; le contrat,
 la configuration et le lockfile sont versionnés. Ne pas modifier le généré à la
-main. Générer avant build/tests des fonctionnalités qui importent `@api`.
+main. Générer avant build/tests des fonctionnalités qui importent `@core/api`.
 La génération est explicite, sans `prestart`, `prebuild` ni `pretest` ; le shell
-actuel peut être développé sans Java ou client généré.
+actuel peut être développé sans Java ou client généré. `npm start`, `npm test` et
+`npm run build` ne déclenchent pas Java.
+
+Avant de régénérer, valider le contrat et contrôler la version commune avec le
+backend :
+
+```bash
+npm run validate:api
+node ../scripts/check-openapi-generator-version.mjs
+npm run generate:api
+```
+
+Après une modification du contrat, aligner les services, mocks et tests concernés.
+Le client généré reste une sortie reproductible de `besoins/openapi.yaml` et ne
+devient jamais une source métier ou un contrat parallèle.
 
 `provideHttpClient()` est installé. Relier les credentials Bearer à la session
-réelle dans le ticket d'authentification, sans faux jeton ni hôte dans les features.
+réelle dans l'intégration d'authentification, sans faux jeton ni hôte dans les features.
 
 `proxy.conf.json` redirige `/api/**` vers `http://localhost:8080` sans réécriture.
 `8080` est une convention de développement à ajuster lorsque le backend existe.
@@ -152,7 +184,7 @@ reste la valeur lue en dehors d'un build Angular (ex. Vitest).
 Ce socle ne modifie pas la configuration `mock` existante : `main.mock.ts` reste
 seul responsable de l'activation de MSW ; `environment.mock.ts` fournit uniquement
 un point de lecture typé supplémentaire (l'intégration du client API avec
-`environment.apiBaseUrl` est laissée à un ticket applicatif ultérieur).
+`environment.apiBaseUrl` est laissée à une évolution applicative ultérieure).
 
 Ces fichiers sont committés et publics dans le bundle client : n'y placer aucun
 secret ni valeur sensible. Après tout ajout de champ à `Environment`, vérifier que
@@ -173,6 +205,19 @@ sans configuration explicite utilise `development` (`defaultConfiguration` de la
   génération lié au backend ancien : aucun besoin MVP ne les justifie ici.
 
 ## Règles et livraison
+
+## Documentation stable du frontend
+
+Les commentaires et documents du frontend décrivent les comportements observables,
+les invariants métier et les frontières techniques. Ils ne prennent pas un numéro
+de travail ou une user story comme nom de concept. La traçabilité des travaux reste
+dans OpenSpec et dans les noms de tests, qui peuvent conserver les identifiants
+nécessaires à l'audit.
+
+Les règles détaillées sont dans
+[docs/documentation.md](docs/documentation.md). Le contrôle
+`npm run test:documentation` vérifie que les documents de référence ne réintroduisent
+pas de références volatiles.
 
 Lire [AGENTS.md](../AGENTS.md), [CONTRIBUTING.md](../CONTRIBUTING.md) et les règles
 [frontend](../.claude/rules/frontend/). Le change OpenSpec

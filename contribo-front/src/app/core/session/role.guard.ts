@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import type { CanMatchFn } from '@angular/router';
 import { Router } from '@angular/router';
-import type { UserRole } from '@api';
+import type { UserRole } from '@core/api';
 import { SessionService } from './session.service';
 
 export function roleGuard(...allowedRoles: UserRole[]): CanMatchFn {
@@ -12,6 +12,10 @@ export function roleGuard(...allowedRoles: UserRole[]): CanMatchFn {
 
     if (!user) {
       return router.createUrlTree(['/login']);
+    }
+
+    if (session.mustChangePassword()) {
+      return router.createUrlTree(['/changer-mot-de-passe']);
     }
 
     if (!allowedRoles.includes(user.role)) {

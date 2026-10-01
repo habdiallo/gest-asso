@@ -14,6 +14,7 @@ import com.habdiallo.contribo.api.generated.model.DueDetails;
 import com.habdiallo.contribo.api.generated.model.DuePage;
 import com.habdiallo.contribo.api.generated.model.DueStatus;
 import com.habdiallo.contribo.api.generated.model.UpdateCampaignCategoryAmountsRequest;
+import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.application.campaign.CampaignService;
 
 @RestController
@@ -28,43 +29,43 @@ public class CampaignController implements CampagnesApi {
     @Override
     public ResponseEntity<CampaignPage> listCampaigns(
             Integer page, Integer size, String q, CampaignStatus status) {
-        return ResponseEntity.ok(service.listCampaigns(page, size, q, status));
+        return ResponseEntity.ok(service.listCampaigns(CurrentUserId.get(), page, size, q, status));
     }
 
     @Override
     public ResponseEntity<Campaign> createCampaign(CreateCampaignRequest request) {
-        return ResponseEntity.status(201).body(service.createCampaign(request));
+        return ResponseEntity.status(201).body(service.createCampaign(CurrentUserId.get(), request));
     }
 
     @Override
     public ResponseEntity<Campaign> getCampaign(UUID campaignId) {
-        return ResponseEntity.ok(service.getCampaign(campaignId));
+        return ResponseEntity.ok(service.getCampaign(CurrentUserId.get(), campaignId));
     }
 
     @Override
     public ResponseEntity<Campaign> updateCampaignCategoryAmounts(
             UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
-        return ResponseEntity.ok(service.updateCategoryAmounts(campaignId, request));
+        return ResponseEntity.ok(service.updateCategoryAmounts(CurrentUserId.get(), campaignId, request));
     }
 
     @Override
     public ResponseEntity<DuePage> listCampaignDues(
             UUID campaignId, Integer page, Integer size, String q, DueStatus status) {
-        return ResponseEntity.ok(service.listCampaignDues(campaignId, page, size, q, status));
+        return ResponseEntity.ok(service.listCampaignDues(CurrentUserId.get(), campaignId, page, size, q, status));
     }
 
     @Override
     public ResponseEntity<Campaign> openCampaign(UUID campaignId) {
-        return ResponseEntity.ok(service.openCampaign(campaignId));
+        return ResponseEntity.ok(service.openCampaign(CurrentUserId.get(), campaignId));
     }
 
     @Override
     public ResponseEntity<Campaign> closeCampaign(UUID campaignId) {
-        return ResponseEntity.ok(service.closeCampaign(campaignId));
+        return ResponseEntity.ok(service.closeCampaign(CurrentUserId.get(), campaignId));
     }
 
     @Override
     public ResponseEntity<DueDetails> getDue(UUID dueId) {
-        return ResponseEntity.ok(service.getDue(dueId));
+        return ResponseEntity.ok(service.getDue(CurrentUserId.get(), dueId));
     }
 }

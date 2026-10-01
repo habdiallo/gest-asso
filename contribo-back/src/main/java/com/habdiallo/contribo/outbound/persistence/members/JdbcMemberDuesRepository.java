@@ -11,16 +11,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.habdiallo.contribo.api.generated.model.CampaignReference;
-import com.habdiallo.contribo.api.generated.model.CampaignStatus;
-import com.habdiallo.contribo.api.generated.model.CurrencyCode;
-import com.habdiallo.contribo.api.generated.model.Due;
-import com.habdiallo.contribo.api.generated.model.DuePage;
-import com.habdiallo.contribo.api.generated.model.DueStatus;
-import com.habdiallo.contribo.api.generated.model.IncomeCategorySummary;
-import com.habdiallo.contribo.api.generated.model.PageMetadata;
-import com.habdiallo.contribo.api.generated.model.PersonSummary;
 import com.habdiallo.contribo.application.members.MemberDuesRepository;
+import com.habdiallo.contribo.domain.campaign.CampaignReference;
+import com.habdiallo.contribo.domain.campaign.CampaignStatus;
+import com.habdiallo.contribo.domain.campaign.Due;
+import com.habdiallo.contribo.domain.campaign.DuePage;
+import com.habdiallo.contribo.domain.campaign.DueStatus;
+import com.habdiallo.contribo.domain.category.IncomeCategorySummary;
+import com.habdiallo.contribo.domain.common.PageMetadata;
+import com.habdiallo.contribo.domain.campaign.PersonSummary;
+import com.habdiallo.contribo.domain.shared.CurrencyCode;
 
 @Repository
 public class JdbcMemberDuesRepository implements MemberDuesRepository {
@@ -61,6 +61,48 @@ public class JdbcMemberDuesRepository implements MemberDuesRepository {
                 DUE_ROW_MAPPER, parameters.toArray());
         return new DuePage(items, new PageMetadata(page, size, total,
                 total == 0 ? 0 : (int) ((total + size - 1) / size)));
+    }
+
+    @Override
+    public DashboardStats dashboardStats(UUID associationId, UUID memberId) {
+        DashboardStats dueStats = jdbcTemplate.queryForObject(
+                "SELECT "
+                        + "COUNT(*) FILTER (WHERE paid_amount < due_amount) AS unpaid_due_count, "
+                        + "COALESCE(SUM(GREATEST(due_amount - paid_amount, 0)), 0) AS remaining_amount, "
+                        + "COUNT(*) FILTER (WHERE paid_amount >= due_amount) AS paid_due_count "
+                        + "FROM (SELECT d.id, d.due_amount, COALESCE(SUM(p.amount), 0) AS paid_amount "
+                        + "FROM dues d JOIN campaigns c ON c.id = d.campaign_id "
+                        + "LEFT JOIN payments p ON p.due_id = d.id "
+                        + "WHERE c.association_id = ? AND d.member_id = ? "
+                        + "GROUP BY d.id, d.due_amount) due_totals",
+                (resultSet, rowNumber) -> new DashboardStats(
+                        resultSet.getInt("unpaid_due_count"),
+                        resultSet.getLong("remaining_amount"),
+                        resultSet.getInt("paid_due_count"),
+                        0,
+                        0),
+                associationId,
+                memberId);
+        Long totalContributionAmount = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(c.amount), 0) FROM contributions c "
+                        + "JOIN social_funds sf ON sf.id = c.social_fund_id "
+                        + "WHERE sf.association_id = ? AND c.member_id = ?",
+                Long.class,
+                associationId,
+                memberId);
+        Integer contributedSocialFundCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(DISTINCT c.social_fund_id) FROM contributions c "
+                        + "JOIN social_funds sf ON sf.id = c.social_fund_id "
+                        + "WHERE sf.association_id = ? AND c.member_id = ?",
+                Integer.class,
+                associationId,
+                memberId);
+        return new DashboardStats(
+                dueStats.unpaidDueCount(),
+                dueStats.totalRemainingAmount(),
+                dueStats.paidDueCount(),
+                totalContributionAmount == null ? 0 : totalContributionAmount,
+                contributedSocialFundCount == null ? 0 : contributedSocialFundCount);
     }
 
     private String filters(UUID associationId, UUID memberId, DueStatus status, List<Object> parameters) {

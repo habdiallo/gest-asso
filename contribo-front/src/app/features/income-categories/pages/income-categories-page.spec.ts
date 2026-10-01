@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CatgoriesDeRevenuService } from '@api';
-import type { IncomeCategory } from '@api';
+import { CategoriesDeRevenuService } from '@core/api';
+import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import type { Observable } from 'rxjs';
@@ -54,8 +54,8 @@ async function createFixture(
     providers: [
       provideTranslocoMessageformat({ locales: 'fr' }),
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
     ],
   }).compileComponents();

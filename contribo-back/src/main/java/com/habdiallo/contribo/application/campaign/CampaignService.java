@@ -22,29 +22,37 @@ import com.habdiallo.contribo.api.generated.model.PaymentCreationResponse;
 import com.habdiallo.contribo.api.generated.model.PaymentPage;
 import com.habdiallo.contribo.api.generated.model.UpdateCampaignCategoryAmountsRequest;
 import com.habdiallo.contribo.api.rest.ApiErrors;
-import com.habdiallo.contribo.application.auth.AuthenticatedAccount;
+import com.habdiallo.contribo.domain.auth.AuthenticatedAccount;
 
 @Service
 public class CampaignService {
 
     private static final String ALL_ACTIVE_MEMBERS = "ALL_ACTIVE_MEMBERS";
 
-    private final CampaignRepository repository;
+    private final CampaignCatalogRepository catalogRepository;
+    private final CampaignDueRepository dueRepository;
+    private final CampaignPaymentRepository paymentRepository;
     private final CampaignAccess access;
 
-    public CampaignService(CampaignRepository repository, CampaignAccess access) {
-        this.repository = repository;
+    public CampaignService(
+            CampaignCatalogRepository catalogRepository,
+            CampaignDueRepository dueRepository,
+            CampaignPaymentRepository paymentRepository,
+            CampaignAccess access) {
+        this.catalogRepository = catalogRepository;
+        this.dueRepository = dueRepository;
+        this.paymentRepository = paymentRepository;
         this.access = access;
     }
 
-    public CampaignPage listCampaigns(int page, int size, String query, CampaignStatus status) {
-        AuthenticatedAccount account = access.requireManagementRead();
-        return repository.findCampaigns(account.associationId(), page, size, query, status);
+    public CampaignPage listCampaigns(UUID actorId, int page, int size, String query, CampaignStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        return catalogRepository.findCampaigns(account.associationId(), page, size, query, status);
     }
 
     @Transactional
-    public Campaign createCampaign(CreateCampaignRequest request) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign createCampaign(UUID actorId, CreateCampaignRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         validateDates(request.getStartDate(), request.getEndDate());
         if (request.getMemberSelection() == null
                 || !ALL_ACTIVE_MEMBERS.equals(request.getMemberSelection().getValue())) {
@@ -52,7 +60,7 @@ public class CampaignService {
                     "Le périmètre de membres est invalide.");
         }
         Map<UUID, Long> amounts = categoryAmounts(request.getCategoryAmounts());
-        return repository.createCampaign(
+        return catalogRepository.createCampaign(
                 account.associationId(),
                 UUID.randomUUID(),
                 request.getName(),
@@ -62,15 +70,16 @@ public class CampaignService {
                 amounts);
     }
 
-    public Campaign getCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public Campaign getCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         campaign(account, campaignId);
-        return repository.findCampaignDetails(account.associationId(), campaignId);
+        return catalogRepository.findCampaignDetails(account.associationId(), campaignId);
     }
 
     @Transactional
-    public Campaign updateCategoryAmounts(UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign updateCategoryAmounts(
+            UUID actorId, UUID campaignId, UpdateCampaignCategoryAmountsRequest request) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() != CampaignStatus.UPCOMING || state.startDate().isBefore(LocalDate.now())) {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_EDITABLE,
@@ -80,13 +89,13 @@ public class CampaignService {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_EDITABLE,
                     "Une campagne ayant des règlements ne peut plus être modifiée.");
         }
-        return repository.updateCategoryAmounts(
+        return catalogRepository.updateCategoryAmounts(
                 account.associationId(), campaignId, categoryAmounts(request.getCategoryAmounts()));
     }
 
     @Transactional
-    public Campaign openCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign openCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() == CampaignStatus.OPEN) {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_ALREADY_OPEN,
@@ -105,13 +114,13 @@ public class CampaignService {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_READY,
                     "La campagne n'est pas prête à être ouverte.");
         }
-        return repository.openCampaign(
+        return catalogRepository.openCampaign(
                 account.associationId(), campaignId, account.userId(), OffsetDateTime.now(ZoneOffset.UTC));
     }
 
     @Transactional
-    public Campaign closeCampaign(UUID campaignId) {
-        AuthenticatedAccount account = access.requireCampaignWrite();
+    public Campaign closeCampaign(UUID actorId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireCampaignWrite(actorId);
         CampaignRepository.CampaignState state = campaign(account, campaignId);
         if (state.status() == CampaignStatus.CLOSED) {
             throw ApiErrors.conflict(
@@ -122,39 +131,40 @@ public class CampaignService {
             throw ApiErrors.conflict(com.habdiallo.contribo.api.generated.model.ErrorCode.CAMPAIGN_NOT_OPEN,
                     "Seule une campagne ouverte peut être clôturée.");
         }
-        return repository.closeCampaign(
+        return catalogRepository.closeCampaign(
                 account.associationId(), campaignId, account.userId(), OffsetDateTime.now(ZoneOffset.UTC));
     }
 
-    public DuePage listCampaignDues(UUID campaignId, int page, int size, String query, DueStatus status) {
-        AuthenticatedAccount account = access.requireManagementRead();
+    public DuePage listCampaignDues(
+            UUID actorId, UUID campaignId, int page, int size, String query, DueStatus status) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
         campaign(account, campaignId);
-        return repository.findCampaignDues(account.associationId(), campaignId, page, size, query, status);
+        return dueRepository.findCampaignDues(account.associationId(), campaignId, page, size, query, status);
     }
 
-    public DueDetails getDue(UUID dueId) {
-        AuthenticatedAccount account = access.currentUser();
-        DueDetails due = repository.findDue(account.associationId(), dueId).orElseThrow(ApiErrors::notFound);
+    public DueDetails getDue(UUID actorId, UUID dueId) {
+        AuthenticatedAccount account = access.currentUser(actorId);
+        DueDetails due = dueRepository.findDue(account.associationId(), dueId).orElseThrow(ApiErrors::notFound);
         if (!access.isManagement(account) && !account.memberId().equals(due.getMember().getId())) {
             throw ApiErrors.notFound();
         }
         return due;
     }
 
-    public DuePage listMyDues(int page, int size, DueStatus status) {
-        AuthenticatedAccount account = access.currentUser();
-        return repository.findMemberDues(account.associationId(), account.memberId(), page, size, status);
+    public DuePage listMyDues(UUID actorId, int page, int size, DueStatus status) {
+        AuthenticatedAccount account = access.currentUser(actorId);
+        return dueRepository.findMemberDues(account.associationId(), account.memberId(), page, size, status);
     }
 
     @Transactional
-    public PaymentCreationResponse createPayment(UUID dueId, CreatePaymentRequest request) {
-        AuthenticatedAccount account = access.requirePaymentWrite();
+    public PaymentCreationResponse createPayment(UUID actorId, UUID dueId, CreatePaymentRequest request) {
+        AuthenticatedAccount account = access.requirePaymentWrite(actorId);
         if (request.getAmount() == null || request.getAmount() <= 0
                 || request.getPaymentDate() == null || request.getMethod() == null) {
             throw ApiErrors.badRequest(com.habdiallo.contribo.api.generated.model.ErrorCode.VALIDATION_ERROR,
                     "Le montant doit être strictement positif.");
         }
-        CampaignRepository.PaymentCreation creation = repository.createPayment(
+        CampaignRepository.PaymentCreation creation = paymentRepository.createPayment(
                 account.associationId(),
                 dueId,
                 account.userId(),
@@ -164,13 +174,14 @@ public class CampaignService {
         return new PaymentCreationResponse(creation.payment(), creation.due());
     }
 
-    public PaymentPage listPayments(int page, int size, String query, UUID memberId, UUID campaignId) {
-        AuthenticatedAccount account = access.requireManagementRead();
-        return repository.findPayments(account.associationId(), page, size, query, memberId, campaignId);
+    public PaymentPage listPayments(
+            UUID actorId, int page, int size, String query, UUID memberId, UUID campaignId) {
+        AuthenticatedAccount account = access.requireManagementRead(actorId);
+        return paymentRepository.findPayments(account.associationId(), page, size, query, memberId, campaignId);
     }
 
     private CampaignRepository.CampaignState campaign(AuthenticatedAccount account, UUID campaignId) {
-        return repository.findCampaignState(account.associationId(), campaignId).orElseThrow(ApiErrors::notFound);
+        return catalogRepository.findCampaignState(account.associationId(), campaignId).orElseThrow(ApiErrors::notFound);
     }
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {

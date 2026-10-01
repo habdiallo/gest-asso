@@ -4,12 +4,12 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import {
   CampagnesService,
   CampaignStatus,
-  CatgoriesDeRevenuService,
+  CategoriesDeRevenuService,
   CurrencyCode,
   MemberStatus,
   UserRole,
-} from '@api';
-import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@api';
+} from '@core/api';
+import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { SessionService } from '@core/session/session.service';
@@ -128,8 +128,8 @@ async function createFixture(
         useValue: { listCampaigns, createCampaign } as unknown as CampagnesService,
       },
       {
-        provide: CatgoriesDeRevenuService,
-        useValue: { listIncomeCategories } as unknown as CatgoriesDeRevenuService,
+        provide: CategoriesDeRevenuService,
+        useValue: { listIncomeCategories } as unknown as CategoriesDeRevenuService,
       },
       ...(options.queryParams
         ? [

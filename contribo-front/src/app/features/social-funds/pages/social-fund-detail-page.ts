@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@api';
-import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@api';
+import { CagnottesService, ContributionsService, SocialFundStatus, UserRole } from '@core/api';
+import type { Contribution, ContributionPage, CreateContributionRequest, SocialFund } from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { canRecordPayments } from '@core/session/payment-authorization';

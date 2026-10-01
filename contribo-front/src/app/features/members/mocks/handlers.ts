@@ -8,7 +8,7 @@ import {
   SocialEventType,
   SocialFundStatus,
   UserRole,
-} from '@api';
+} from '@core/api';
 import type {
   Contribution,
   ContributionPage,
@@ -16,13 +16,14 @@ import type {
   DuePage,
   ErrorResponse,
   MemberDetails,
+  MemberCreationResponse,
   MemberPage,
   MemberSummary,
   Payment,
   PaymentPage,
   UpdateMemberContactRequest,
   UpdateMemberRequest,
-} from '@api';
+} from '@core/api';
 import { findDemoAccountByRequest } from '@mocks/demo-accounts';
 import { getDemoDuesForMember } from '@mocks/demo-dues';
 
@@ -349,7 +350,7 @@ export const membersHandlers = [
   }),
 
   /**
-   * `POST /api/v1/members` (T-33) : construit un `MemberDetails` de
+   * `POST /api/v1/members` (T-33) : construit un `MemberCreationResponse` de
    * démonstration avec le statut Actif par défaut (RG-MEM-003) et un compte
    * utilisateur associé (rôle Membre). La validation "catégorie obligatoire"
    * (RG-MEM-002) et le message de confirmation dédié (RG-MEM-004) relèvent
@@ -396,7 +397,14 @@ export const membersHandlers = [
     demoMembers.push(summary);
     demoMemberDetails.set(member.id, { ...summary, account: memberAccount, financialSummary });
 
-    return HttpResponse.json<MemberDetails>(member, { status: 201 });
+    const response: MemberCreationResponse = {
+      member,
+      credentials: {
+        identifier: body.phone ?? `member-${member.id.slice(0, 8)}`,
+        temporaryPassword: 'Temporaire-1234!',
+      },
+    };
+    return HttpResponse.json<MemberCreationResponse>(response, { status: 201 });
   }),
   http.patch('/api/v1/members/:memberId', async ({ request, params }): Promise<Response> => {
     await delay(300);

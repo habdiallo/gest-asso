@@ -7,14 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.habdiallo.contribo.api.generated.CatgoriesDeRevenuApi;
+import com.habdiallo.contribo.api.generated.CategoriesDeRevenuApi;
 import com.habdiallo.contribo.api.generated.model.IncomeCategory;
 import com.habdiallo.contribo.api.generated.model.IncomeCategoryRequest;
 import com.habdiallo.contribo.application.access.CurrentUserId;
 import com.habdiallo.contribo.application.categories.IncomeCategoryService;
 
 @RestController
-public class IncomeCategoryController implements CatgoriesDeRevenuApi {
+public class IncomeCategoryController implements CategoriesDeRevenuApi {
 
     private final IncomeCategoryService categoryService;
 

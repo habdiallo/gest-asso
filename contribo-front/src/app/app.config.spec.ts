@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { EspacePersonnelService } from '@api';
-import type { CurrentUser } from '@api';
+import { EspacePersonnelService } from '@core/api';
+import type { CurrentUser } from '@core/api';
 import { SessionService } from '@core/session/session.service';
 import { hydrateCurrentUser } from './app.config';
 

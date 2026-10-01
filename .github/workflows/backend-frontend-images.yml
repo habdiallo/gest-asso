@@ -4,8 +4,11 @@ on:
   pull_request:
     branches: [develop, main]
   push:
-    branches: [develop, main]
-    tags: ['v*.*.*']
+    branches:
+      - develop
+      - main
+      - 'release/v*.*.*'
+      - 'hotfix/**'
 
 permissions:
   contents: read
@@ -71,6 +74,7 @@ jobs:
 
   images:
     name: Build and publish images
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -83,6 +87,17 @@ jobs:
           persist-credentials: false
 
       - uses: docker/setup-buildx-action@v3
+
+      - name: Compute candidate image tag
+        id: image-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_tag=""
+          if [[ "$GITHUB_REF" == refs/heads/release/* || "$GITHUB_REF" == refs/heads/hotfix/* ]]; then
+            candidate_tag="candidate-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::12}"
+          fi
+          echo "candidate_tag=$candidate_tag" >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR
         if: github.event_name == 'push'
@@ -100,16 +115,15 @@ jobs:
           tags: |
             type=sha,prefix=sha-
             type=raw,value=latest-int,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
 
       - name: Build backend image
+        id: backend-image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: contribo-deploiement/backend.Dockerfile
-          push: ${{ github.event_name == 'push' }}
+          push: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
           tags: ${{ steps.backend-meta.outputs.tags }}
           labels: ${{ steps.backend-meta.outputs.labels }}
           cache-from: type=gha,scope=backend
@@ -123,17 +137,35 @@ jobs:
           tags: |
             type=sha,prefix=sha-
             type=raw,value=latest-int,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
 
       - name: Build frontend image
+        id: frontend-image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: contribo-deploiement/frontend.Dockerfile
-          push: ${{ github.event_name == 'push' }}
+          push: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
           tags: ${{ steps.frontend-meta.outputs.tags }}
           labels: ${{ steps.frontend-meta.outputs.labels }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Publish image digests in the workflow summary
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        env:
+          CANDIDATE_TAG: ${{ steps.image-tag.outputs.candidate_tag }}
+          BACKEND_DIGEST: ${{ steps.backend-image.outputs.digest }}
+          FRONTEND_DIGEST: ${{ steps.frontend-image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          {
+            echo '## Published image digests'
+            echo
+            echo "Backend: ghcr.io/${IMAGE_NAMESPACE}/contribo-back@${BACKEND_DIGEST}"
+            echo "Frontend: ghcr.io/${IMAGE_NAMESPACE}/contribo-front@${FRONTEND_DIGEST}"
+            if [ -n "$CANDIDATE_TAG" ]; then
+              echo
+              echo "Candidate tag: ${CANDIDATE_TAG}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
