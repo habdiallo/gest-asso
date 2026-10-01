@@ -23,12 +23,12 @@
     [attr.aria-describedby]="
       ariaDescribedBy() || (touched() && required() && !value() ? errorId() : null)
     "
-    class="app-form-control responsive-body flex w-full items-center justify-between gap-3 border border-line px-3 text-left text-text disabled:pointer-events-none disabled:opacity-40"
+    class="app-form-control flex w-full items-center justify-between gap-3 border border-line px-3 text-left text-text disabled:pointer-events-none disabled:opacity-40"
     [class.min-h-11]="compact()"
-    [class.min-h-12]="!compact()"
+    [class.min-h-control]="!compact()"
     [class.rounded-full]="pill()"
     [class.rounded-lg]="compact() && !pill()"
-    [class.rounded]="!compact() && !pill()"
+    [class.rounded-control]="!compact() && !pill()"
     [class.bg-surface]="compact()"
     [class.bg-surface-2]="!compact()"
     (click)="toggleOpen()"
@@ -139,7 +139,7 @@
             }
           </button>
         } @empty {
-          <p class="responsive-body px-2.5 py-3 text-text-2" role="status">
+          <p class="px-2.5 py-3 text-sm text-text-2" role="status">
             {{ noOptionsMessage() }}
           </p>
         }
@@ -147,8 +147,6 @@
     </div>
   }
   @if (showRequiredError() && touched() && required() && !value()) {
-    <p [id]="errorId()" class="responsive-body text-error" role="alert">
-      {{ requiredErrorMessage() }}
-    </p>
+    <p [id]="errorId()" class="text-sm text-error" role="alert">{{ requiredErrorMessage() }}</p>
   }
 </div>

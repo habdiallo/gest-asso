@@ -4,7 +4,6 @@ import { EspacePersonnelService } from '@core/api';
 import type { ContributionPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
-import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { formatCalendarDate } from '../member-space-dates';
@@ -26,8 +25,6 @@ export class MyContributions {
   readonly result = signal<ContributionPage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
   readonly formatDate = formatCalendarDate;
-  readonly methodLabel = (method: string): string =>
-    PAYMENT_METHOD_OPTIONS.find((option) => option.value === method)?.label ?? method;
 
   constructor() {
     this.loadPage(0);

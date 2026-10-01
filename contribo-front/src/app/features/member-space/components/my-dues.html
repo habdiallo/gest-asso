@@ -1,3 +1,5 @@
+<p class="mb-5 text-sm text-text-2">{{ 'memberSpace.dues.intro' | transloco }}</p>
+
 @if (loading()) {
   <app-loading-skeleton
     variant="list"
@@ -18,18 +20,15 @@
   @if (result.items.length === 0) {
     <app-empty-state [message]="'memberSpace.dues.empty' | transloco" />
   } @else {
-    <section
-      class="overflow-hidden rounded-card border border-line bg-surface shadow-card"
-      [attr.aria-busy]="loading()"
-    >
+    <div class="space-y-4" [attr.aria-busy]="loading()">
       @for (due of result.items; track due.id) {
-        <article class="border-b border-line p-4 last:border-0 sm:p-[17px]">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <h2 class="text-base font-medium text-text">{{ due.campaign.name }}</h2>
-              <p class="mt-1 text-xs text-text-3">
-                {{ 'memberSpace.dues.columns.dueAmount' | transloco }} ·
-                {{ formatAmount(due.dueAmount) }}
+        <article class="rounded-card border border-line bg-surface p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 class="font-display text-xl text-text">{{ due.campaign.name }}</h2>
+              <p class="mt-1 text-sm text-text-2">
+                Du {{ formatDate(due.campaign.startDate) }} au
+                {{ formatDate(due.campaign.endDate) }}
               </p>
             </div>
             <app-status-badge
@@ -43,31 +42,29 @@
               "
             />
           </div>
-          <dl class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <dl class="mt-5 grid gap-4 sm:grid-cols-3">
             <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+              <dt class="text-xs uppercase tracking-wide text-text-2">
+                {{ 'memberSpace.dues.columns.dueAmount' | transloco }}
+              </dt>
+              <dd class="mt-1 font-semibold text-text">{{ formatAmount(due.dueAmount) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-text-2">
                 {{ 'memberSpace.dues.columns.paidAmount' | transloco }}
               </dt>
-              <dd class="mt-1 text-xs text-text-2">{{ formatAmount(due.paidAmount) }}</dd>
+              <dd class="mt-1 font-semibold text-success">{{ formatAmount(due.paidAmount) }}</dd>
             </div>
             <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+              <dt class="text-xs uppercase tracking-wide text-text-2">
                 {{ 'memberSpace.dues.columns.remainingAmount' | transloco }}
               </dt>
-              <dd class="mt-1 text-xs text-text-2">{{ formatAmount(due.remainingAmount) }}</dd>
-            </div>
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                {{ 'memberSpace.dues.period' | transloco }}
-              </dt>
-              <dd class="mt-1 text-xs text-text-2">
-                {{ formatDate(due.campaign.startDate) }} - {{ formatDate(due.campaign.endDate) }}
-              </dd>
+              <dd class="mt-1 font-semibold text-text">{{ formatAmount(due.remainingAmount) }}</dd>
             </div>
           </dl>
         </article>
       }
-    </section>
+    </div>
     <nav
       [attr.aria-label]="'memberSpace.dues.pagination.nav' | transloco"
       class="mt-5 flex flex-wrap items-center justify-between gap-3"
