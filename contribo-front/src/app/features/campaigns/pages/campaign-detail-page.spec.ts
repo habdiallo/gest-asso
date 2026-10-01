@@ -274,7 +274,7 @@ describe('CampaignDetailPage', () => {
     expect(root.querySelector('#campaign-detail-panel-situation')).toBeNull();
     const categoriesPanel = root.querySelector('#campaign-detail-panel-categories');
     expect(categoriesPanel).not.toBeNull();
-    expect(categoriesPanel?.textContent).toContain('Montants par catégorie');
+    expect(categoriesPanel?.textContent).toContain('Barème de la campagne');
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
