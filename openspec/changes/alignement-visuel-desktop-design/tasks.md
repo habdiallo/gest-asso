@@ -79,7 +79,7 @@ Scope/type : `front/fix`. Branche : résoudre avec `node scripts/tickets.mjs res
 - [x] 7.2 [T-123] Capturer chaque onglet de l'espace personnel à 1440 px, deux thèmes, et lister les écarts avec `design/`.
 - [x] 7.3 [T-123] Corriger les écarts listés.
 - [x] 7.4 [T-123] Exécuter les validations pertinentes et vérifier l'absence de régression sur les groupes précédents.
-- [ ] 7.5 [T-123] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
+- [x] 7.5 [T-123] Committer, pousser la branche et ouvrir une PR en brouillon vers `main` avec captures avant/après ; ne pas fusionner.
 
 ## 8. Dialogues de formulaire transverses [T-124]
 
