@@ -91,13 +91,13 @@ export class NavigationMenu {
   readonly navClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'sidebar-nav'
-      : 'flex flex-nowrap items-center justify-around gap-1 overflow-x-auto px-2 py-2 min-[821px]:px-6 min-[821px]:py-4',
+      : 'flex flex-nowrap items-center justify-around gap-1 overflow-x-auto px-2 py-2 shell:px-6 shell:py-4',
   );
 
   readonly linkClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'sidebar-link'
-      : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[821px]:text-sm',
+      : 'shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-xs text-text-2 transition-colors hover:text-text shell:text-sm',
   );
 
   /**

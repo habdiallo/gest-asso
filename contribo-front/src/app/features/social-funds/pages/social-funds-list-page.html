@@ -69,7 +69,7 @@
         [value]="nameQuery()"
         (input)="onNameQueryInput($event)"
         [placeholder]="'socialFunds.searchPlaceholder' | transloco"
-        class="app-form-control min-h-12 w-full rounded border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
+        class="app-form-control min-h-control w-full rounded-control border border-line bg-surface py-2 pl-12 pr-4 text-sm text-text placeholder:text-text-2"
       />
     </label>
 
@@ -219,7 +219,10 @@
       </p>
     }
 
-    <p class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
+    <p
+      class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info"
+      role="note"
+    >
       <svg
         class="h-4 w-4 shrink-0"
         viewBox="0 0 24 24"

@@ -2,12 +2,12 @@
   #dialog
   [attr.aria-label]="dialogTitle()"
   [style]="'--form-dialog-desktop-width: ' + desktopWidth()"
-  class="m-0 h-dvh max-h-dvh w-full max-w-none rounded-none border-0 bg-surface-glass p-0 text-text backdrop-blur-xl [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-sm min-[821px]:m-auto min-[821px]:h-fit min-[821px]:max-h-[85vh] min-[821px]:w-[min(var(--form-dialog-desktop-width),calc(100vw-2rem))] min-[821px]:rounded-modal min-[821px]:border min-[821px]:border-line min-[821px]:shadow-[0_16px_40px_-4px_rgba(18,19,22,0.08),0_0_1px_rgba(18,19,22,0.12)]"
+  class="m-0 h-dvh max-h-dvh w-full max-w-none rounded-none border-0 bg-surface-glass p-0 text-text backdrop-blur-xl [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-sm shell:m-auto shell:h-fit shell:max-h-[85vh] shell:w-[min(var(--form-dialog-desktop-width),calc(100vw-2rem))] shell:rounded-modal shell:border shell:border-line shell:shadow-[0_16px_40px_-4px_rgba(18,19,22,0.08),0_0_1px_rgba(18,19,22,0.12)]"
   (close)="handleNativeClose()"
 >
-  <div class="flex h-full flex-col min-[821px]:h-auto min-[821px]:max-h-[85vh]">
+  <div class="flex h-full flex-col shell:h-auto shell:max-h-[85vh]">
     <header
-      class="flex items-center justify-between gap-4 border-b border-line px-4 py-3 min-[821px]:px-6 min-[821px]:py-3"
+      class="flex items-center justify-between gap-4 border-b border-line px-4 py-3 shell:px-6 shell:py-3"
     >
       @if (kicker()) {
         <div class="min-w-0">
@@ -41,7 +41,7 @@
         <span class="sr-only">{{ closeLabel() }}</span>
       </button>
     </header>
-    <div class="flex-1 overflow-y-auto px-4 py-4 min-[821px]:px-7 min-[821px]:py-7">
+    <div class="flex-1 overflow-y-auto px-4 py-4 shell:px-7 shell:py-7">
       <ng-content></ng-content>
     </div>
   </div>
