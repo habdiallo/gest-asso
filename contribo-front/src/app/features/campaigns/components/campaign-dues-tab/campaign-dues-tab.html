@@ -1,5 +1,5 @@
 <div [attr.aria-busy]="loading()">
-  <div class="mb-7 grid gap-3 min-[661px]:grid-cols-[minmax(0,1fr)_auto]">
+  <div class="mb-7 grid gap-3 tablet:grid-cols-[minmax(0,1fr)_auto]">
     <div>
       <label for="campaign-dues-search" class="sr-only">
         {{ 'campaigns.detail.cotisations.searchLabel' | transloco }}
@@ -9,7 +9,7 @@
         type="search"
         [value]="searchQuery()"
         [placeholder]="'campaigns.detail.cotisations.searchPlaceholder' | transloco"
-        class="app-form-control h-11 w-full rounded-[9px] border border-line bg-surface px-[15px] pl-[42px] text-[13px] text-text placeholder:text-text-3"
+        class="app-form-control h-11 w-full rounded-icon border border-line bg-surface px-[15px] pl-[42px] text-data text-text placeholder:text-text-3"
         (input)="onSearchInput($any($event.target).value)"
       />
       <svg
@@ -41,9 +41,11 @@
   </div>
 
   @if (loading()) {
-    <p class="text-text-2" role="status">
-      {{ 'campaigns.detail.cotisations.loading' | transloco }}
-    </p>
+    <app-loading-skeleton
+      variant="table"
+      [rows]="3"
+      [label]="'campaigns.detail.cotisations.loading' | transloco"
+    />
   } @else if (loadError()) {
     <p class="text-error" role="alert">
       {{ 'campaigns.detail.cotisations.error' | transloco }}
@@ -56,6 +58,7 @@
       <app-empty-state [message]="'campaigns.detail.cotisations.empty' | transloco" />
     } @else {
       <app-data-table
+        class="hidden tablet:block"
         [caption]="'campaigns.detail.cotisations.caption' | transloco"
         [busy]="loading()"
       >
@@ -104,7 +107,7 @@
                   >
                     {{ memberInitials(due.member.displayName) }}
                   </span>
-                  <span class="min-w-0 truncate text-[13px] font-medium text-text">{{
+                  <span class="min-w-0 break-words text-[13px] font-medium text-text">{{
                     due.member.displayName
                   }}</span>
                 </span>
@@ -124,31 +127,27 @@
                 {{ formatAmount(due.remainingAmount) }}
               </td>
               <td class="px-4 py-2">
-                <span
-                  class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-transparent px-2 py-[5px] font-data text-[8px] font-medium uppercase tracking-[0.11em]"
-                  [class.text-success]="due.status === paidStatus"
-                  [class.text-error]="due.status === overdueStatus"
-                  [class.text-warning]="due.status !== paidStatus && due.status !== overdueStatus"
-                  [class.bg-success-wash]="due.status === paidStatus"
-                  [class.bg-error-wash]="due.status === overdueStatus"
-                  [class.bg-warning-wash]="
-                    due.status !== paidStatus && due.status !== overdueStatus
+                <app-status-badge
+                  [label]="statusLabels[due.status] | transloco"
+                  [tone]="
+                    due.status === paidStatus
+                      ? 'success'
+                      : due.status === overdueStatus
+                        ? 'error'
+                        : 'warning'
                   "
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>
-                  {{ statusLabels[due.status] | transloco }}
-                </span>
+                />
               </td>
               @if (canRecordPaymentsNow()) {
                 <td class="whitespace-nowrap px-4 py-2 text-right">
                   @if (due.status !== paidStatus) {
-                    <button
+                    <app-action-button
                       type="button"
-                      class="min-h-11 rounded border border-line px-3 py-2 text-xs text-text outline-none transition-colors hover:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+                      variant="secondary"
                       (click)="openRecordPayment(due)"
                     >
                       {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
-                    </button>
+                    </app-action-button>
                   }
                 </td>
               }
@@ -156,6 +155,83 @@
           }
         </tbody>
       </app-data-table>
+      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="campaign-dues-mobile-cards">
+        @for (due of result.items; track due.id) {
+          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
+            <div class="flex min-w-0 items-start justify-between gap-3">
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-[11px] font-semibold text-gold"
+                  aria-hidden="true"
+                >
+                  {{ memberInitials(due.member.displayName) }}
+                </span>
+                <p class="min-w-0 break-words font-medium text-text">
+                  {{ due.member.displayName }}
+                </p>
+              </div>
+              <app-status-badge
+                class="shrink-0"
+                [label]="statusLabels[due.status] | transloco"
+                [tone]="
+                  due.status === paidStatus
+                    ? 'success'
+                    : due.status === overdueStatus
+                      ? 'error'
+                      : 'warning'
+                "
+              />
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
+              @if (showIncomeCategory()) {
+                <div class="min-w-0">
+                  <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                    {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
+                  </dt>
+                  <dd class="responsive-body mt-1 break-words text-text-2">
+                    {{ categoryShortLabel(due.incomeCategorySnapshot.label) }}
+                  </dd>
+                </div>
+              }
+              <div class="min-w-0">
+                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                  {{ 'campaigns.detail.cotisations.columns.dueAmount' | transloco }}
+                </dt>
+                <dd class="responsive-body mt-1 break-words font-data text-text-2">
+                  {{ formatAmount(due.dueAmount) }}
+                </dd>
+              </div>
+              <div class="min-w-0">
+                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                  {{ 'campaigns.detail.cotisations.columns.paidAmount' | transloco }}
+                </dt>
+                <dd class="responsive-body mt-1 break-words font-data text-text-2">
+                  {{ formatAmount(due.paidAmount) }}
+                </dd>
+              </div>
+              <div class="min-w-0">
+                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
+                  {{ 'campaigns.detail.cotisations.columns.remainingAmount' | transloco }}
+                </dt>
+                <dd class="responsive-body mt-1 break-words font-data text-text-2">
+                  {{ formatAmount(due.remainingAmount) }}
+                </dd>
+              </div>
+            </dl>
+            @if (canRecordPaymentsNow() && due.status !== paidStatus) {
+              <div class="mt-4 [&>app-action-button>button]:w-full">
+                <app-action-button
+                  type="button"
+                  variant="secondary"
+                  (click)="openRecordPayment(due)"
+                >
+                  {{ 'campaigns.detail.cotisations.recordPayment.action' | transloco }}
+                </app-action-button>
+              </div>
+            }
+          </li>
+        }
+      </ul>
     }
   }
 
@@ -183,12 +259,17 @@
   <app-form-dialog
     [open]="recordPaymentDue() !== null"
     [dialogTitle]="'campaigns.detail.cotisations.recordPayment.dialogTitle' | transloco"
+    [kicker]="'campaigns.detail.cotisations.recordPayment.kicker' | transloco"
+    desktopWidth="920px"
     (closed)="closeRecordPayment()"
   >
     @if (recordPaymentDue(); as due) {
       @if (recordPaymentError(); as errorKey) {
         <p class="mb-4 text-sm text-error" role="alert">{{ errorKey | transloco }}</p>
       }
+      <p class="mb-6 text-base leading-6 text-text-2">
+        {{ 'campaigns.detail.cotisations.recordPayment.intro' | transloco }}
+      </p>
       <app-record-payment-form
         [due]="due"
         [submitting]="recordPaymentSubmitting()"

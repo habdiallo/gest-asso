@@ -24,5 +24,9 @@ describe('DetailMetrics', () => {
     expect(cells).toHaveLength(2);
     expect(cells[0].textContent).toContain('4 750 000 GNF');
     expect(cells[1].textContent).toContain('51 contributions');
+
+    const metrics = fixture.nativeElement.querySelector('dl');
+    expect(metrics.className).toContain('grid-cols-1');
+    expect(metrics.className).toContain('min-[661px]:grid-cols-4');
   });
 });

@@ -3,6 +3,12 @@
     <p class="mb-4 text-sm text-error" role="alert">
       {{ 'campaigns.create.fields.categoriesError' | transloco }}
     </p>
+  } @else if (categoriesLoading()) {
+    <app-loading-skeleton
+      class="mb-4 block"
+      variant="inline"
+      [label]="'campaigns.create.fields.categoriesLoading' | transloco"
+    />
   } @else if (noEligibleCategories()) {
     <p class="mb-4 text-sm text-error" role="alert">
       {{ 'campaigns.create.fields.noEligibleCategories' | transloco }}
@@ -13,7 +19,7 @@
     <div class="sm:col-span-2">
       <label
         for="campaign-create-name"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'campaigns.create.fields.name' | transloco }}
       </label>
@@ -59,18 +65,16 @@
     <div>
       <label
         for="campaign-create-start-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'campaigns.create.fields.startDate' | transloco }}
       </label>
-      <input
-        id="campaign-create-start-date"
-        type="date"
+      <app-date-input
+        controlId="campaign-create-start-date"
         formControlName="startDate"
-        required
-        [attr.aria-invalid]="startDateInvalid() ? true : null"
-        [attr.aria-describedby]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        [required]="true"
+        [ariaInvalid]="startDateInvalid()"
+        [ariaDescribedBy]="startDateInvalid() ? 'campaign-create-start-date-error' : null"
       />
       @if (startDateInvalid()) {
         <p id="campaign-create-start-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -82,18 +86,16 @@
     <div>
       <label
         for="campaign-create-end-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'campaigns.create.fields.endDate' | transloco }}
       </label>
-      <input
-        id="campaign-create-end-date"
-        type="date"
+      <app-date-input
+        controlId="campaign-create-end-date"
         formControlName="endDate"
-        required
-        [attr.aria-invalid]="endDateInvalid() ? true : null"
-        [attr.aria-describedby]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
-        class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
+        [required]="true"
+        [ariaInvalid]="endDateInvalid()"
+        [ariaDescribedBy]="endDateInvalid() ? 'campaign-create-end-date-error' : null"
       />
       @if (endDateRequiredInvalid()) {
         <p id="campaign-create-end-date-error" class="mt-2 text-sm text-error" role="alert">
@@ -127,7 +129,7 @@
     </div>
   </div>
 
-  <div class="mt-6 flex items-center justify-end gap-3">
+  <div class="form-dialog-actions mt-6 flex items-center justify-end gap-3">
     <app-action-button type="button" variant="secondary" (click)="cancel()">
       {{ 'campaigns.create.cancel' | transloco }}
     </app-action-button>

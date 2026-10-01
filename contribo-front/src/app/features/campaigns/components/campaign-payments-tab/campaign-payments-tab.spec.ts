@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { PaymentMethod, RglementsService } from '@api';
-import type { Payment, PaymentPage } from '@api';
+import { PaymentMethod, ReglementsService } from '@core/api';
+import type { Payment, PaymentPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import fr from '../../../../../assets/i18n/fr.json';
+import fr from '@assets/i18n/fr.json';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
 import { CampaignPaymentsTab } from './campaign-payments-tab';
 
@@ -60,7 +60,7 @@ async function createFixture(
       }),
     ],
     providers: [
-      { provide: RglementsService, useValue: { listPayments } as unknown as RglementsService },
+      { provide: ReglementsService, useValue: { listPayments } as unknown as ReglementsService },
     ],
   }).compileComponents();
 
@@ -82,6 +82,32 @@ describe('CampaignPaymentsTab', () => {
     expect(root.textContent).toContain(formatGnfAmountDetailed(50_000));
     expect(root.textContent).toContain('12 septembre 2026');
     expect(root.textContent).toContain('Mobile Money');
+    expect(root.querySelectorAll('thead th')).toHaveLength(4);
+    const mobileCard = root.querySelector('[data-testid="campaign-payments-mobile-cards"] li');
+    expect(mobileCard?.textContent).toContain('Amadou Diallo');
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(50_000));
+    expect(mobileCard?.textContent).toContain('Mobile Money');
+    expect(mobileCard?.textContent).toContain('12 septembre 2026');
+  });
+
+  it('matches the target typography without changing the payment columns', async () => {
+    const fixture = await createFixture(() => of(buildPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const title = root.querySelector('#campaign-payments-title');
+    const headerRow = root.querySelector('thead tr');
+    const firstRow = root.querySelector('tbody tr');
+    const amountCell = root.querySelector('tbody td');
+
+    expect(title?.classList.contains('font-medium')).toBe(true);
+    expect(title?.classList.contains('font-display')).toBe(false);
+    expect(headerRow?.classList.contains('font-data')).toBe(true);
+    expect(headerRow?.classList.contains('text-[8px]')).toBe(true);
+    expect(firstRow?.classList.contains('h-16')).toBe(true);
+    expect(firstRow?.classList.contains('text-[13px]')).toBe(true);
+    expect(amountCell?.classList.contains('font-data')).toBe(true);
+    expect(amountCell?.classList.contains('text-success')).toBe(true);
     expect(root.querySelectorAll('thead th')).toHaveLength(4);
   });
 

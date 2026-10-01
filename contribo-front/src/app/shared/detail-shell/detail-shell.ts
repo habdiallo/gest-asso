@@ -13,4 +13,6 @@ export class DetailShell {
   readonly kicker = input.required<string>();
   readonly title = input.required<string>();
   readonly intro = input.required<string>();
+  /** Allows detail pages with a custom hero card while retaining the shell and back link. */
+  readonly showHero = input(true);
 }

@@ -61,7 +61,6 @@ describe('FinancialCard', () => {
         'hover:border-[color:color-mix(in_srgb,var(--gold)_30%,var(--line))]',
       ),
     ).toBe(true);
-    expect(fixture.nativeElement.querySelector('.sm\\:mt-\\[22px\\]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.mt-auto')).toBeNull();
   });
 
