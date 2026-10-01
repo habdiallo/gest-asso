@@ -16,7 +16,6 @@ npm run format:check
 npm test -- --watch=false
 npm run test:tooling
 npm run build
-npm run build:mock
 ```
 
 Le serveur écoute sur `http://localhost:4200`. Le build de production est dans
@@ -28,37 +27,10 @@ Il vérifie également le routage des sous-chemins API après normalisation du p
 par le builder Angular installé.
 Aucun serveur SSR, outil E2E ni système de traduction multilingue n'est configuré.
 
-`npm run build:mock` compile aussi les handlers MSW exclus du build standard.
-Le contrôle GitHub Actions `Frontend compilation` valide et génère le client API,
-puis compile production et mock pour chaque PR vers `main`.
-
-## Tester les comptes de démonstration
-
-Sans backend, lancer `npm run start:mock` depuis `contribo-front/`, puis ouvrir
-`http://localhost:4200/login`. Le client API doit avoir été généré comme indiqué
-plus bas. Le mot de passe commun est **`demo-contribo`**.
-
-| Identifiant                   | Rôle           | Autorisation Opérateur de saisie des paiements |
-| ----------------------------- | -------------- | ---------------------------------------------- |
-| `admin.demo`                  | Administrateur | Non applicable                                 |
-| `tresorier.demo`              | Trésorier      | Non applicable                                 |
-| `operateur.demo`              | Opérateur      | Oui                                            |
-| `operateur.consultation.demo` | Opérateur      | Non                                            |
-| `membre.demo`                 | Membre         | Non applicable                                 |
-
-Utiliser **Se déconnecter**, puis se connecter avec un autre identifiant. Le
-rechargement et le redémarrage du serveur mock restaurent le même profil via
-`GET /api/v1/me`. Pour remettre seulement la session à zéro, exécuter dans la
-console navigateur `localStorage.removeItem('contribo-session-token')`, puis
-recharger la page ; la préférence de thème est conservée.
-
-Ces identités sont fictives et réservées au mode mock. Les jetons sont fixes et
-leur expiration temporelle n'est pas simulée. Le formulaire et le tableau de bord
-actuels sont accessibles ; ces comptes ne créent pas les futurs écrans métier.
-Le mock du tableau de bord conserve ses propres données Membre de démonstration,
-indépendantes du compte connecté. Les mocks ne vérifient donc pas les droits ni
-les données métier côté serveur. `npm start` et le build normal n'activent pas
-les comptes ni les handlers MSW.
+Le démarrage manuel nécessite le backend et la base de développement actifs.
+Depuis `contribo-front/`, lancer `npm start`, puis ouvrir
+`http://localhost:4200/login`. Les requêtes `/api/**` sont transmises au backend
+réel par `proxy.conf.json`.
 
 ## Architecture par fonctionnalités
 
@@ -116,8 +88,8 @@ Le contrat HTTP partagé est [besoins/openapi.yaml](../besoins/openapi.yaml), Op
 3.1, avec une base relative `/api/v1`. Le besoin fonctionnel et les règles de
 gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md).
 La distinction et l'ordre de décision sont décrits dans
-[`besoins/README.md`](../besoins/README.md). Il n'existe pas encore de backend
-fonctionnel dans ce dépôt.
+[`besoins/README.md`](../besoins/README.md). Le backend réel expose cette API
+sur le port de développement configuré par le projet.
 
 ```bash
 npm run check:api
@@ -150,7 +122,7 @@ node ../scripts/check-openapi-generator-version.mjs
 npm run generate:api
 ```
 
-Après une modification du contrat, aligner les services, mocks et tests concernés.
+Après une modification du contrat, aligner les services et les tests concernés.
 Le client généré reste une sortie reproductible de `besoins/openapi.yaml` et ne
 devient jamais une source métier ou un contrat parallèle.
 
@@ -170,25 +142,19 @@ reverse proxy pour `/api/v1` ; le proxy de développement n'est pas livré.
 src/environments/
   environment.model.ts       interface Environment (contrat commun)
   environment.ts             development (valeur lue hors build Angular, ex. tests)
-  environment.mock.ts        configuration Angular "mock"
   environment.production.ts  configuration Angular "production"
 ```
 
 Chaque fichier exporte une constante `environment` implémentant `Environment`
 (`production: boolean`, `apiBaseUrl: string`), sans champ manquant ni supplémentaire.
-`angular.json` déclare, pour les configurations `development`, `mock` et
-`production` de la cible `architect.build`, un `fileReplacements` substituant
+`angular.json` déclare, pour les configurations `development` et `production`
+de la cible `architect.build`, un `fileReplacements` substituant
 `src/environments/environment.ts` par le fichier correspondant. `environment.ts`
 reste la valeur lue en dehors d'un build Angular (ex. Vitest).
 
-Ce socle ne modifie pas la configuration `mock` existante : `main.mock.ts` reste
-seul responsable de l'activation de MSW ; `environment.mock.ts` fournit uniquement
-un point de lecture typé supplémentaire (l'intégration du client API avec
-`environment.apiBaseUrl` est laissée à une évolution applicative ultérieure).
-
 Ces fichiers sont committés et publics dans le bundle client : n'y placer aucun
 secret ni valeur sensible. Après tout ajout de champ à `Environment`, vérifier que
-les trois fichiers restent alignés et que `ng build --configuration <config>`
+les deux fichiers restent alignés et que `ng build --configuration <config>`
 réussit pour chaque configuration touchée. `ng build` sans configuration explicite
 utilise `production` (`defaultConfiguration` de la cible `architect.build`) ; `ng serve`
 sans configuration explicite utilise `development` (`defaultConfiguration` de la cible
@@ -223,5 +189,5 @@ Lire [AGENTS.md](../AGENTS.md), [CONTRIBUTING.md](../CONTRIBUTING.md) et les rè
 [frontend](../.claude/rules/frontend/). Le change OpenSpec
 [initialisation-front-features](../openspec/changes/initialisation-front-features/)
 porte cette initialisation ; le backlog métier reste séparé.
-Chaque évolution conserve sa branche et sa PR vers `main`. Pendant
-l'initialisation, `000` est autorisé ; aucun push direct sur `main`.
+Chaque évolution conserve sa branche et sa PR vers `develop`. Aucun push direct
+sur `develop` n'est autorisé.

@@ -29,38 +29,13 @@ La génération API est explicite, sans hook npm automatique. Avant de construir
 tester une feature qui importe `@core/api`, générer le client. Vérifier sa compilation
 avec `npx --no-install tsc --noEmit -p tsconfig.app.json`.
 
-## Mock réseau en développement (MSW)
+## Intégration avec le backend réel
 
-Tant que le backend n'est pas disponible, `npm run start:mock` démarre l'application avec
-[MSW](https://mswjs.io) : un service worker (`public/mockServiceWorker.js`, généré par
-`npx msw init public --save`) intercepte les requêtes de `HttpClient` au niveau réseau, sans
-modifier le client généré ni les services. C'est un dispositif de développement/navigateur
-uniquement — `npm start` et `npm run build` restent inchangés et ne le chargent jamais.
+Le frontend utilise exclusivement le client généré et le proxy de développement.
+Depuis `contribo-front/`, lancer `npm start` avec le backend et la base de données
+actifs. Les requêtes relatives `/api/v1` sont transmises au backend réel par
+`proxy.conf.json`.
 
-Chaque feature qui consomme `@core/api` en mode mock ajoute ses handlers dans
-`features/<feature>/mocks/handlers.ts`, construits à partir des chemins/`operationId` et des
-modèles générés (pas de DTO concurrent du contrat), puis les agrège dans
-`src/mocks/handlers.ts`. Voir `features/dashboard/mocks/handlers.ts` pour un exemple sur
-`GET /api/v1/dashboard`.
-
-Les handlers `features/auth/mocks/handlers.ts` fournissent `POST /api/v1/auth/login`
-et `GET /api/v1/me` avec les DTO générés. Le catalogue `src/mocks/demo-accounts.ts`
-résout les identifiants et chaque Bearer sans état de connexion dans le worker.
-Un corps invalide retourne 400/`VALIDATION_ERROR` ; les mauvais identifiants ou
-jetons retournent 401/`AUTHENTICATION_REQUIRED`. La connexion publique accepte
-un changement de compte même si la requête porte un ancien jeton.
-Voir les [comptes et instructions de test](../../../../README.md#tester-les-comptes-de-démonstration).
-
-`src/main.mock.ts`, `src/mocks/**` et `**/mocks/**` sont exclus de `tsconfig.app.json` : la
-compilation normale (`npm start`, `npm run build`) reste indépendante du client généré, y
-compris quand un handler de mock importe `@core/api`. La configuration Angular `mock` utilise
-`tsconfig.mock.json` (qui réinclut ces fichiers) pour compiler le mode mock.
-
-MSW ne remplace jamais `HttpTestingController` : les tests Vitest des services générés
-continuent de vérifier requêtes/réponses/erreurs avec `provideHttpClientTesting`, sans
-dépendre du service worker.
-
-`public/mockServiceWorker.js` est copié dans tous les builds (assets `public/**/*`), y compris
-`npm run build` en production : c'est le comportement standard de `msw init`. Ce fichier reste
-inerte tant qu'il n'est pas explicitement enregistré, ce qui n'arrive que via `main.mock.ts`,
-absent du bundle de production.
+Les tests unitaires restent isolés du réseau réel. Les services et le client généré
+utilisent `HttpTestingController` ou `provideHttpClientTesting`, tandis que les
+composants remplacent leurs dépendances par des spies ou des fixtures locales.

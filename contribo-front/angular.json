@@ -69,22 +69,6 @@
                   "with": "src/environments/environment.ts"
                 }
               ]
-            },
-            "mock": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "tsConfig": "tsconfig.mock.json",
-              "fileReplacements": [
-                {
-                  "replace": "src/main.ts",
-                  "with": "src/main.mock.ts"
-                },
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.mock.ts"
-                }
-              ]
             }
           },
           "defaultConfiguration": "production"
@@ -100,9 +84,6 @@
             },
             "development": {
               "buildTarget": "contribo-front:build:development"
-            },
-            "mock": {
-              "buildTarget": "contribo-front:build:mock"
             }
           },
           "defaultConfiguration": "development"

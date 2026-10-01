@@ -7,9 +7,7 @@
     "generate:api": "node scripts/api-generation.mjs generate",
     "validate:api": "node scripts/api-generation.mjs validate",
     "start": "ng serve",
-    "start:mock": "ng serve --configuration mock",
     "build": "ng build",
-    "build:mock": "ng build --configuration mock",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:tooling": "node --test scripts/tooling.test.cjs scripts/api-generation.test.mjs",
@@ -45,17 +43,11 @@
     "angular-eslint": "21.4.0",
     "eslint": "^10.3.0",
     "jsdom": "^28.0.0",
-    "msw": "^2.15.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.59.2",
     "vitest": "^4.0.8"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
   }
 }
