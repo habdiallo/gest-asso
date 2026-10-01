@@ -4,7 +4,7 @@ Le frontend Angular expose actuellement les parcours suivants : connexion et cha
 
 Le plan doit être exécutable sur un environnement intégrant le frontend et une API conforme à `besoins/openapi.yaml`. Il doit s'appuyer sur le cahier des user stories et les règles métier, notamment la séparation entre rôle applicatif et fonction associative, les quatre rôles disponibles et l'attribut global `operatorCanRecordPayments`.
 
-Le tableau de bord est un point de contrôle de disponibilité important. Le ticket T-181 signale que `GET /dashboard` est absent sur la branche de référence actuelle. Le plan doit donc prévoir un contrôle de prérequis et signaler ce blocage sans le masquer par un résultat simulé.
+Le tableau de bord est un point de contrôle de disponibilité important. T-181 a corrigé l'absence de `GET /dashboard` sur la branche de référence. Le plan conserve donc un contrôle de prérequis général pour vérifier que cette opération critique reste disponible et signaler tout blocage sans le masquer par un résultat simulé.
 
 ## Goals / Non-Goals
 
@@ -65,7 +65,7 @@ Le présent plan vérifie le comportement fonctionnel indépendamment de la larg
 
 ## Risks / Trade-offs
 
-- [Risque] L'API ou certaines routes ne sont pas disponibles sur l'environnement de recette. -> Mitigation : exécuter les contrôles de disponibilité en premier et conserver un statut `Bloqué` avec l'opération concernée, notamment `GET /dashboard` lié à T-181.
+- [Risque] L'API ou certaines routes ne sont pas disponibles sur l'environnement de recette. -> Mitigation : exécuter les contrôles de disponibilité en premier et conserver un statut `Bloqué` avec l'opération concernée, notamment `GET /dashboard`, déjà livré par T-181 mais à vérifier sur l'environnement de recette.
 - [Risque] Des données partagées rendent les scénarios non reproductibles. -> Mitigation : utiliser un jeu de données identifié, réinitialisable et documenter l'ordre des mutations.
 - [Risque] Les droits affichés par l'IHM divergent de l'autorisation backend. -> Mitigation : vérifier chaque restriction par navigation directe et par réponse API 401/403, pour les quatre rôles et les deux variantes Opérateur.
 - [Risque] Le plan devient trop volumineux pour une exécution quotidienne. -> Mitigation : séparer un smoke test court, une campagne complète et des suites ciblées par domaine, tout en gardant la matrice exhaustive.

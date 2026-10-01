@@ -16,7 +16,7 @@ Le plan de tests manuels SHALL définir les prérequis d'environnement, les comp
 
 #### Scenario: Prérequis indisponible
 
-- **WHEN** une route ou une opération requise est indisponible, notamment `GET /dashboard`
+- **WHEN** une route ou une opération requise est indisponible, notamment `GET /dashboard` pourtant livré par T-181
 - **THEN** les cas dépendants sont marqués `Bloqué` avec la cause et la dépendance concernée, sans être déclarés réussis grâce à un mock non documenté
 
 ### Requirement: Couvrir les rôles et les autorisations
