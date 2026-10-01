@@ -89,3 +89,35 @@
   du dashboard de la capture.
 - Les validations attendues sont le build, les tests frontend, le lint, le
   format check et une vérification live des largeurs étroites et larges.
+
+## Décisions T-138 appliquées
+
+- Les seuils existants sont exposés par composition dans le thème CSS-first :
+  `content` pour les compositions qui passent en ligne à 661px, `shell` pour
+  la navigation et les dialogues à 821px, et `login` pour le panneau de
+  connexion à 1181px. Aucun seuil supplémentaire ni container query n'a été
+  introduit.
+- La largeur de la sidebar, la hauteur minimale de contrôle à 48px et la largeur
+  minimale de tableau à 760px sont tokenisées. Les actions à 44px restent
+  volontairement stables, car elles répondent à la cible interactive minimale.
+- Les conteneurs des pages dashboard, membre, détail campagne et espace membre
+  suivent désormais le même rythme horizontal `px-4`, `sm:px-6`, `lg:px-12`.
+  Les tableaux gardent leur défilement local et les textes de tableau restent
+  stables.
+- Les exceptions de densité du dashboard, les rayons de surfaces et les
+  couleurs existantes sont conservés. Aucun contenu métier de la capture mobile
+  n'a été ajouté.
+
+## Vérification visuelle T-138
+
+- Vérification live sur `1280x720` en thème clair et sombre : connexion, shell,
+  dashboard, page Membres et tableau paginé sont lisibles, sans débordement de
+  la page. Le tableau conserve son conteneur de défilement local.
+- Mesure DOM sur le dashboard et la page Membres : `scrollWidth` est égal à la
+  largeur de viewport, avec `overflow` horizontal nul. Le shell desktop affiche
+  la sidebar et les actions principales restent visibles.
+- Les largeurs mobile et tablette ne peuvent pas être capturées dans le
+  navigateur intégré disponible, qui expose un viewport fixe de `1280x720`.
+  Elles restent couvertes par les seuils nommés, les classes d'empilement
+  existantes, le build Angular et les tests DOM. Une capture manuelle avec un
+  viewport redimensionnable reste recommandée avant fusion.

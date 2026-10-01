@@ -1,3 +1,5 @@
+<p class="mb-5 text-sm text-text-2">{{ 'memberSpace.contributions.intro' | transloco }}</p>
+
 @if (loading()) {
   <app-loading-skeleton
     variant="list"
@@ -18,27 +20,24 @@
   @if (result.items.length === 0) {
     <app-empty-state [message]="'memberSpace.contributions.empty' | transloco" />
   } @else {
-    <section
-      class="overflow-hidden rounded-card border border-line bg-surface shadow-card"
-      [attr.aria-busy]="loading()"
-    >
+    <div class="space-y-4" [attr.aria-busy]="loading()">
       @for (contribution of result.items; track contribution.id) {
-        <article class="border-b border-line p-4 last:border-0 sm:p-[17px]">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <h2 class="text-base font-medium text-text">{{ contribution.socialFund.title }}</h2>
-              <p class="mt-1 text-xs text-text-3">
-                {{ formatDate(contribution.contributionDate) }} ·
-                {{ methodLabel(contribution.method) }}
-              </p>
-            </div>
-            <span class="shrink-0 text-xs font-medium text-success"
-              >+ {{ formatAmount(contribution.amount) }}</span
-            >
+        <article class="rounded-card border border-line bg-surface p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <h2 class="font-display text-xl text-text">{{ contribution.socialFund.title }}</h2>
+            <p class="text-sm text-text-2">{{ formatDate(contribution.contributionDate) }}</p>
           </div>
+          <dl class="mt-5 grid gap-4 sm:grid-cols-1">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-text-2">
+                {{ 'memberSpace.contributions.columns.amount' | transloco }}
+              </dt>
+              <dd class="mt-1 font-semibold text-text">{{ formatAmount(contribution.amount) }}</dd>
+            </div>
+          </dl>
         </article>
       }
-    </section>
+    </div>
     <nav
       [attr.aria-label]="'memberSpace.contributions.pagination.nav' | transloco"
       class="mt-5 flex flex-wrap items-center justify-between gap-3"

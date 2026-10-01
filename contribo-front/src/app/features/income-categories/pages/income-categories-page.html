@@ -1,9 +1,9 @@
-<main class="mx-auto min-w-0 max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-shell px-4 py-8 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
   <app-page-header
     [kicker]="'incomeCategories.kicker' | transloco"
     [title]="'incomeCategories.title' | transloco"
     [intro]="'incomeCategories.intro' | transloco"
-  >
+    >
     <app-action-button (click)="openCreateDialog()">
       {{ 'incomeCategories.actions.add' | transloco }}
     </app-action-button>
@@ -34,7 +34,7 @@
     <app-empty-state class="mt-6 block" [message]="'incomeCategories.empty' | transloco" />
   } @else {
     <app-data-table
-      class="mt-8 hidden tablet:block"
+      class="mt-8 block"
       [caption]="'incomeCategories.caption' | transloco"
       [busy]="loading()"
     >
@@ -107,67 +107,6 @@
       </tbody>
     </app-data-table>
 
-    <section
-      class="mt-8 grid gap-2 tablet:hidden"
-      role="list"
-      [attr.aria-label]="'incomeCategories.caption' | transloco"
-    >
-      @for (category of visibleCategories(); track category.id) {
-        <article role="listitem" class="rounded-card border border-line bg-surface p-4 shadow-card">
-          <div class="flex min-w-0 items-center gap-3">
-            <span
-              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-icon bg-gold-wash font-data text-xs font-medium text-gold"
-              aria-hidden="true"
-            >
-              {{ getCategoryInitial(category.label) }}
-            </span>
-            <h3 class="responsive-body min-w-0 flex-1 break-words font-medium text-text">
-              {{ category.label }}
-            </h3>
-            <app-action-button
-              variant="secondary"
-              (click)="openEditDialog(category)"
-              [ariaLabel]="'incomeCategories.actions.edit' | transloco: { label: category.label }"
-              class="min-w-0 shrink-0 px-2"
-            >
-              <svg
-                class="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" />
-                <path d="m13.5 7.5 3 3" />
-              </svg>
-              <span class="sr-only">{{ 'incomeCategories.actions.editButton' | transloco }}</span>
-            </app-action-button>
-          </div>
-          <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                {{ 'incomeCategories.columns.memberCount' | transloco }}
-              </dt>
-              <dd class="responsive-body mt-1 text-text-2">
-                {{ 'incomeCategories.memberCount' | transloco: { count: category.memberCount } }}
-              </dd>
-            </div>
-            <div>
-              <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                {{ 'incomeCategories.columns.updatedAt' | transloco }}
-              </dt>
-              <dd class="responsive-body mt-1 text-text-2">
-                {{ formatCategoryUpdatedAt(category.updatedAt) }}
-              </dd>
-            </div>
-          </dl>
-        </article>
-      }
-    </section>
-
     @if (totalPages() > 1) {
       <app-pagination-controls
         class="mt-6 block"
@@ -187,10 +126,7 @@
       />
     }
 
-    <p
-      class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info"
-      role="note"
-    >
+    <p class="mt-4 flex items-center gap-2 rounded bg-info-wash px-4 py-3 text-xs text-info" role="note">
       <svg
         class="h-4 w-4 shrink-0"
         viewBox="0 0 24 24"

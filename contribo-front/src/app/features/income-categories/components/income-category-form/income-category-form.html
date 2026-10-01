@@ -6,7 +6,7 @@
   <div>
     <label
       [for]="labelControlId()"
-      class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+      class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
     >
       {{ 'incomeCategories.dialog.label' | transloco }}
     </label>
@@ -36,10 +36,7 @@
     />
   }
 
-  <p
-    class="mt-6 flex items-center gap-2 rounded bg-info-wash px-3 py-3 text-xs text-info"
-    role="note"
-  >
+  <p class="mt-6 flex items-center gap-2 rounded bg-info-wash px-3 py-3 text-xs text-info" role="note">
     <svg
       class="h-4 w-4 shrink-0"
       viewBox="0 0 24 24"
@@ -58,9 +55,7 @@
     }
   </p>
 
-  <div
-    class="form-dialog-actions mt-7 flex items-center justify-end gap-3 border-t border-line pt-5"
-  >
+  <div class="mt-7 flex items-center justify-end gap-3 border-t border-line pt-5">
     <app-action-button
       type="button"
       variant="secondary"
