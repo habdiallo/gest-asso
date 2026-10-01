@@ -91,7 +91,7 @@
         {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
       </span>
       <div
-        class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
+        class="app-form-control flex min-h-control items-center rounded-control border border-line bg-surface-2 px-3 text-text"
         aria-readonly="true"
       >
         {{ socialFundTitle() }}
@@ -117,7 +117,7 @@
           [attr.aria-describedby]="
             externalFirstNameInvalid() ? 'contribution-create-external-first-name-error' : null
           "
-          class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+          class="app-form-control min-h-control w-full rounded-control border border-line bg-surface-2 px-3 text-text"
         />
         @if (externalFirstNameInvalid()) {
           <p
@@ -147,7 +147,7 @@
           [attr.aria-describedby]="
             externalLastNameInvalid() ? 'contribution-create-external-last-name-error' : null
           "
-          class="app-form-control min-h-12 w-full rounded border border-line bg-surface-2 px-3 text-text"
+          class="app-form-control min-h-control w-full rounded-control border border-line bg-surface-2 px-3 text-text"
         />
         @if (externalLastNameInvalid()) {
           <p
@@ -165,7 +165,7 @@
         {{ 'socialFunds.recordContribution.fields.socialFund' | transloco }}
       </span>
       <div
-        class="app-form-control flex min-h-12 items-center rounded border border-line bg-surface-2 px-3 text-text"
+        class="app-form-control flex min-h-control items-center rounded-control border border-line bg-surface-2 px-3 text-text"
         aria-readonly="true"
       >
         {{ socialFundTitle() }}

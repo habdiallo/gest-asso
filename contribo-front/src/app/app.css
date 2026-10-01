@@ -1,5 +1,8 @@
 :host {
   display: block;
+  --sidebar-width: 256px;
+  --topbar-height: 78px;
+  --topbar-padding: 48px;
 }
 
 .mobile-header {
@@ -264,7 +267,7 @@
   z-index: 20;
   display: none;
   flex-direction: column;
-  width: 256px;
+  width: var(--sidebar-width);
   padding: 28px 20px 20px;
   background: var(--surface-glass);
   border-right: 1px solid var(--line);
@@ -410,8 +413,8 @@
   position: sticky;
   top: 0;
   z-index: 15;
-  height: 78px;
-  padding: 0 48px;
+  height: var(--topbar-height);
+  padding: 0 var(--topbar-padding);
   align-items: center;
   justify-content: space-between;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -448,6 +451,6 @@
 
 @media (max-width: 1180px) {
   .desktop-topbar {
-    padding: 0 32px;
+    --topbar-padding: 32px;
   }
 }

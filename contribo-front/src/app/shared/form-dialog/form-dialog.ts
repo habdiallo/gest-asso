@@ -10,7 +10,7 @@ import type { ElementRef } from '@angular/core';
 
 /**
  * Surface de dialogue générique pour un formulaire (T-15) : superposée et centrée
- * sur desktop/tablette (>= 821px, cohérent avec le point de rupture `min-[821px]`
+ * sur desktop/tablette (>= 821px, cohérent avec le point de rupture `shell:`
  * de T-14), plein écran sur mobile. S'appuie sur l'élément natif `<dialog>` pour la
  * gestion clavier (piège de focus, fermeture par Échap, restitution du focus au
  * déclencheur) plutôt que sur une réimplémentation manuelle.
