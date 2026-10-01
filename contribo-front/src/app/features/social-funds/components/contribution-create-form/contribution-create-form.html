@@ -27,7 +27,7 @@
       <div>
         <label
           for="contribution-create-member"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'socialFunds.recordContribution.fields.member' | transloco }}
         </label>
@@ -102,7 +102,7 @@
       <div>
         <label
           for="contribution-create-external-first-name"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'socialFunds.recordContribution.fields.firstName' | transloco }}
         </label>
@@ -111,6 +111,7 @@
           type="text"
           formControlName="firstName"
           autocomplete="given-name"
+          required
           [placeholder]="'socialFunds.recordContribution.fields.firstNamePlaceholder' | transloco"
           [attr.aria-invalid]="externalFirstNameInvalid() ? true : null"
           [attr.aria-describedby]="
@@ -131,7 +132,7 @@
       <div>
         <label
           for="contribution-create-external-last-name"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'socialFunds.recordContribution.fields.lastName' | transloco }}
         </label>
@@ -140,6 +141,7 @@
           type="text"
           formControlName="lastName"
           autocomplete="family-name"
+          required
           [placeholder]="'socialFunds.recordContribution.fields.lastNamePlaceholder' | transloco"
           [attr.aria-invalid]="externalLastNameInvalid() ? true : null"
           [attr.aria-describedby]="
@@ -183,7 +185,7 @@
     <div>
       <label
         for="contribution-create-date"
-        class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+        class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
       >
         {{ 'socialFunds.recordContribution.fields.contributionDate' | transloco }}
       </label>

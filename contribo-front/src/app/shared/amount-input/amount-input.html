@@ -1,6 +1,12 @@
 <div class="flex flex-col gap-2">
   <label [attr.for]="fieldId" [class]="labelClass()" [class.sr-only]="hideLabel()">
     {{ label() }}
+    @if (required()) {
+      <span aria-hidden="true" class="ml-1 text-gold">{{
+        'shared.form.requiredIndicator' | transloco
+      }}</span>
+      <span class="sr-only"> ({{ 'shared.form.required' | transloco }})</span>
+    }
   </label>
   <div class="relative">
     <span [id]="unitHintId" class="sr-only">Montant en francs guinéens (GNF)</span>

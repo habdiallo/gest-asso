@@ -15,7 +15,7 @@
       <div>
         <label
           for="member-edit-last-name"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'members.create.fields.lastName' | transloco }}
         </label>
@@ -38,7 +38,7 @@
       <div>
         <label
           for="member-edit-first-name"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'members.create.fields.firstName' | transloco }}
         </label>
@@ -77,7 +77,7 @@
         />
         @if (fieldInvalid('preferredName')) {
           <p id="member-edit-preferred-name-error" class="mt-2 text-sm text-error" role="alert">
-            {{ 'members.edit.fields.valueInvalid' | transloco }}
+            {{ 'members.edit.fields.preferredNameInvalid' | transloco }}
           </p>
         }
       </div>
@@ -86,6 +86,7 @@
         <label
           for="member-edit-phone"
           class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          [class.required-field-label]="fieldRequired('phone')"
         >
           {{ 'members.create.fields.phone' | transloco }}
         </label>
@@ -93,6 +94,7 @@
           id="member-edit-phone"
           type="tel"
           formControlName="phone"
+          [required]="fieldRequired('phone')"
           [attr.aria-invalid]="phoneInvalid() ? true : null"
           [attr.aria-describedby]="phoneInvalid() ? 'member-edit-phone-error' : null"
           class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
@@ -123,6 +125,7 @@
         <label
           for="member-edit-country"
           class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          [class.required-field-label]="fieldRequired('country')"
         >
           {{ 'members.create.fields.country' | transloco }}
         </label>
@@ -130,13 +133,14 @@
           id="member-edit-country"
           type="text"
           formControlName="country"
+          [required]="fieldRequired('country')"
           [attr.aria-invalid]="fieldInvalid('country') ? true : null"
           [attr.aria-describedby]="fieldInvalid('country') ? 'member-edit-country-error' : null"
           class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
         />
         @if (fieldInvalid('country')) {
           <p id="member-edit-country-error" class="mt-2 text-sm text-error" role="alert">
-            {{ 'members.edit.fields.valueInvalid' | transloco }}
+            {{ 'members.edit.fields.countryInvalid' | transloco }}
           </p>
         }
       </div>
@@ -145,6 +149,7 @@
         <label
           for="member-edit-city"
           class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          [class.required-field-label]="fieldRequired('city')"
         >
           {{ 'members.create.fields.city' | transloco }}
         </label>
@@ -152,13 +157,14 @@
           id="member-edit-city"
           type="text"
           formControlName="city"
+          [required]="fieldRequired('city')"
           [attr.aria-invalid]="fieldInvalid('city') ? true : null"
           [attr.aria-describedby]="fieldInvalid('city') ? 'member-edit-city-error' : null"
           class="app-form-control min-h-[48px] w-full rounded border border-line bg-surface-2 px-3 text-text"
         />
         @if (fieldInvalid('city')) {
           <p id="member-edit-city-error" class="mt-2 text-sm text-error" role="alert">
-            {{ 'members.edit.fields.valueInvalid' | transloco }}
+            {{ 'members.edit.fields.cityInvalid' | transloco }}
           </p>
         }
       </div>
@@ -166,7 +172,7 @@
       <div>
         <label
           for="member-edit-income-category"
-          class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
         >
           {{ 'members.create.fields.incomeCategory' | transloco }}
         </label>
@@ -202,6 +208,7 @@
         <label
           for="member-edit-association-function"
           class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+          [class.required-field-label]="fieldRequired('associationFunction')"
         >
           {{ 'members.create.fields.associationFunction' | transloco }}
         </label>
@@ -209,6 +216,7 @@
           id="member-edit-association-function"
           type="text"
           formControlName="associationFunction"
+          [required]="fieldRequired('associationFunction')"
           [attr.aria-invalid]="fieldInvalid('associationFunction') ? true : null"
           [attr.aria-describedby]="
             fieldInvalid('associationFunction') ? 'member-edit-association-function-error' : null
@@ -221,7 +229,7 @@
             class="mt-2 text-sm text-error"
             role="alert"
           >
-            {{ 'members.edit.fields.valueInvalid' | transloco }}
+            {{ 'members.edit.fields.associationFunctionInvalid' | transloco }}
           </p>
         }
       </div>

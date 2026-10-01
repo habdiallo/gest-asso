@@ -304,7 +304,7 @@
           <div class="mt-4">
             <label
               for="role-dialog-select"
-              class="mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
+              class="required-field-label mb-2 block text-[9px] font-medium uppercase tracking-[0.1em] text-text-3"
             >
               {{ 'rolesUsers.roleDialogLabel' | transloco }}
             </label>
@@ -313,6 +313,7 @@
               [value]="roleDraft()"
               [options]="roleSelectOptions"
               [placeholder]="'rolesUsers.roleDialogLabel' | transloco"
+              [required]="true"
               (valueChange)="onRoleDraftChange($event)"
             />
           </div>

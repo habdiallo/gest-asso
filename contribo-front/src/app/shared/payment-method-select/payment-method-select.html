@@ -13,7 +13,7 @@
   />
   @if (touched() && required() && !value()) {
     <p [id]="errorId" class="text-sm text-error" role="alert">
-      Le mode de règlement est obligatoire.
+      {{ 'shared.form.paymentMethod.required' | transloco }}
     </p>
   }
 </div>

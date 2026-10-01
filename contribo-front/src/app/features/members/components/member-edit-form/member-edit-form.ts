@@ -106,6 +106,10 @@ export class MemberEditForm implements OnInit {
     return control.invalid && control.touched;
   }
 
+  fieldRequired(key: 'country' | 'city' | 'phone' | 'associationFunction'): boolean {
+    return this.form.controls[key].hasValidator(Validators.required);
+  }
+
   buildRequest(): UpdateMemberRequest {
     const raw = this.form.getRawValue();
     const member = this.member();

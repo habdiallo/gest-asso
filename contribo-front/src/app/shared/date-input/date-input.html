@@ -8,7 +8,7 @@
     [attr.aria-expanded]="open()"
     [attr.aria-label]="ariaLabel() || placeholder()"
     [attr.aria-required]="required() ? true : null"
-    [attr.aria-invalid]="ariaInvalid() || (required() && !value()) ? true : null"
+    [attr.aria-invalid]="ariaInvalid() ? true : null"
     [attr.aria-describedby]="ariaDescribedBy()"
     class="app-form-control flex min-h-12 w-full items-center justify-between gap-3 rounded border border-line bg-surface-2 px-3 text-left text-text disabled:pointer-events-none disabled:opacity-40"
     (click)="toggleOpen()"
