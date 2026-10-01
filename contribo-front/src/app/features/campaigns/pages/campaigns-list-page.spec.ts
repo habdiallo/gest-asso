@@ -212,7 +212,8 @@ describe('CampaignsListPage', () => {
     expect(root.querySelector('app-financial-card')?.textContent).toContain('Brouillon');
     const statusDot = root.querySelector('[data-testid="financial-card-status-dot"]');
     expect(statusDot?.classList.contains('bg-info')).toBe(true);
-    expect(statusDot?.classList.contains('bg-success')).toBe(false);
+    expect(statusDot?.parentElement?.classList.contains('bg-info-wash')).toBe(true);
+    expect(statusDot?.parentElement?.classList.contains('text-info')).toBe(true);
   });
 
   it('shows the empty-list message when there is no campaign', async () => {
