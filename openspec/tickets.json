@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 184,
+  "nextTicketId": 185,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3334,6 +3334,7 @@
     {"id":180,"title":"Finaliser la traçabilité des tickets fusionnés avant de lancer leurs dépendants.","priority":"P1","scope":"docs","type":"chore","slug":"reconcilier-tracabilite-tickets","change":"reconcilier-tracabilite-tickets","tasks":["1.1","1.2","2.1","2.2","2.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-reconcilier-tracabilite-tickets","branchAfterInitialization":"docs/chore-180-reconcilier-tracabilite-tickets"},
     {"id":181,"title":"Implémenter l'endpoint backend GET /dashboard (tableau de bord), absent et bloquant la redirection post-connexion pour tous les rôles.","priority":"P0","scope":"back","type":"feat","slug":"endpoint-tableau-de-bord","change":"implementer-endpoint-tableau-de-bord","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","3.5","4.1","4.2","5.1","5.2","6.1","6.2","6.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/feat-000-endpoint-tableau-de-bord","branchAfterInitialization":"back/feat-181-endpoint-tableau-de-bord"},
     {"id":182,"title":"Limiter la déconnexion globale sur 401 aux réponses d'authentification ou de session.","priority":"P1","scope":"front","type":"fix","slug":"scoper-intercepteur-session-expiree","change":"scoper-intercepteur-session-expiree","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","3.1","3.2","3.3","4.1","4.2","4.3","5.1","5.2"],"dependencies":[181],"planningStatus":"planned","branchDuringInitialization":"front/fix-000-scoper-intercepteur-session-expiree","branchAfterInitialization":"front/fix-182-scoper-intercepteur-session-expiree"},
-    {"id":183,"title":"Définir le plan de tests manuels fonctionnels de l'application pour tous les rôles, hors vérification du rendu responsive.","priority":"P1","scope":"docs","type":"chore","slug":"plan-tests-manuels-fonctionnels","change":"plan-tests-manuels-fonctionnels","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","3.3","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-plan-tests-manuels-fonctionnels","branchAfterInitialization":"docs/chore-183-plan-tests-manuels-fonctionnels"}
+    {"id":183,"title":"Définir le plan de tests manuels fonctionnels de l'application pour tous les rôles, hors vérification du rendu responsive.","priority":"P1","scope":"docs","type":"chore","slug":"plan-tests-manuels-fonctionnels","change":"plan-tests-manuels-fonctionnels","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","3.3","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-plan-tests-manuels-fonctionnels","branchAfterInitialization":"docs/chore-183-plan-tests-manuels-fonctionnels"},
+    {"id":184,"title":"Corriger le chemin du cookie CSRF pour permettre à Angular de lire XSRF-TOKEN depuis les routes du SPA.","priority":"P0","scope":"back","type":"fix","slug":"corriger-path-cookie-csrf","change":"corriger-path-cookie-csrf","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/fix-000-corriger-path-cookie-csrf","branchAfterInitialization":"back/fix-184-corriger-path-cookie-csrf"}
   ]
 }

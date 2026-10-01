@@ -24,6 +24,7 @@ public class SecurityConfig {
             JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint)
             throws Exception {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfTokenRepository.setCookiePath("/");
         CsrfTokenRequestAttributeHandler csrfRequestHandler = new CsrfTokenRequestAttributeHandler();
         http
                 .csrf(csrf -> csrf
