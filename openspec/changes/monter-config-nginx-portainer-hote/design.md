@@ -17,10 +17,10 @@ first failed deployment.
   repositories.
 - Document provisioning and migration without placing the file in
   `portainer_data`.
+- Ensure the production frontend stylesheet is applied under the deployed CSP.
 
 **Non-Goals:**
 
-- No change to the frontend image or application code.
 - No change to Caddy TLS termination or PostgreSQL secrets.
 - No automatic creation of host files by the application stack.
 
@@ -38,6 +38,9 @@ first failed deployment.
   Portainer.
 - Require an explicit Git stack refresh before redeployment so the composition
   and its environment example are current.
+- Disable Angular critical CSS inlining for the production build. Angular then
+  emits a regular stylesheet link instead of relying on an inline `onload`
+  handler that the Nginx `script-src 'self'` policy blocks.
 
 ## Risks / Trade-offs
 
@@ -49,6 +52,9 @@ first failed deployment.
 - [Risk] A stale directory can remain after the failed relative mount. ->
   Mitigation: inspect it and remove it only when empty and dedicated to this
   stack.
+- [Risk] Angular may defer the complete stylesheet through an inline event
+  handler that the deployment CSP rejects. -> Mitigation: keep critical CSS
+  inlining disabled and verify the generated production index.
 
 ## Migration Plan
 

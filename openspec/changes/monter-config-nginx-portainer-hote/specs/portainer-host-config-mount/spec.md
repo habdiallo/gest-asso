@@ -44,3 +44,16 @@ recovery from a stale directory created by a failed bind mount.
   path
 - **THEN** the operator can identify and remove only that empty stale directory
   after verifying it is not shared, then redeploy from the updated Git stack
+
+### Requirement: The production frontend stylesheet SHALL load under the Nginx CSP
+
+The production frontend build SHALL expose its complete stylesheet through a
+regular stylesheet link and SHALL NOT require an inline event handler to switch
+the link from `media="print"` to an active media mode.
+
+#### Scenario: CSP does not disable the frontend layout
+
+- **WHEN** the production frontend is served with the deployment CSP
+  `script-src 'self'`
+- **THEN** the stylesheet link is active without executing inline JavaScript
+  and the login layout keeps its grid, sizing and responsive utility classes

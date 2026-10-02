@@ -8,3 +8,4 @@
 - [x] 2.1 [T-196] Remplacer le montage relatif de `nginx.portainer.conf` par `FRONTEND_NGINX_CONFIG_FILE_PATH` et synchroniser les deux compositions Portainer.
 - [x] 2.2 [T-196] Documenter la création du fichier sur l'hôte Docker, les permissions, le rafraîchissement de la stack Git et la récupération d'un ancien répertoire de montage.
 - [x] 2.3 [T-196] Valider les compositions, la parité des dépôts, le registre des tickets et préparer une PR vers `develop`.
+- [x] 2.4 [T-196] Empêcher l'inlining critique CSS Angular de produire un lien `media="print"` incompatible avec la CSP Nginx et vérifier le rendu de la page de connexion après build.
