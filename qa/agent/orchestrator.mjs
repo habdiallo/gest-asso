@@ -8,6 +8,7 @@ import { assertSafeEnvironment, loadPolicy } from './security.mjs';
 import { gitVersion, nowIso, readJson, stableId } from './utils.mjs';
 import { summarize, writeRunArtifacts } from './report.mjs';
 import { validateArtifacts } from './schema.mjs';
+import { normalizeObservations } from './observations.mjs';
 
 function makeRunId() {
   return `qa-${new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -16,8 +17,7 @@ function makeRunId() {
 function readObservations(value) {
   if (!value) return {};
   const parsed = typeof value === 'string' ? JSON.parse(readFileSync(value, 'utf8')) : value;
-  if (Array.isArray(parsed)) return Object.fromEntries(parsed.map(item => [item.scenarioId, item]));
-  return parsed;
+  return normalizeObservations(parsed);
 }
 
 function existingAnomalies(outputRoot) {

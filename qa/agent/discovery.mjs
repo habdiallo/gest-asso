@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { normalizeText, readText, relativePath, sourceReference, stableId, walkFiles } from './utils.mjs';
 
@@ -66,9 +66,9 @@ function parseRoutes(root, featureRoot) {
   return routes;
 }
 
-function parsePlanScenarios(root, planPath) {
-  if (!existsSync(planPath)) return [];
-  const content = readText(planPath);
+function parseScenarioDocument(root, path, referenceKind) {
+  if (!existsSync(path)) return [];
+  const content = readText(path);
   const scenarios = [];
   const expression = /### Requirement:\s*(.+?)\n[\s\S]*?#### Scenario:\s*(.+?)\n([\s\S]*?)(?=\n#### Scenario:|\n### Requirement:|\n## |$)/g;
   for (const match of content.matchAll(expression)) {
@@ -77,8 +77,9 @@ function parsePlanScenarios(root, planPath) {
     const then = body.match(/\*\*THEN\*\*\s+(.+)/)?.[1]?.trim() ?? '';
     const fullText = `${requirement} ${name} ${body}`;
     const feature = inferFeature(fullText);
+    const identity = referenceKind === 'openspec-spec' ? [feature, name, relativePath(root, path)] : [feature, name];
     scenarios.push({
-      scenarioId: stableId('scenario', feature, name),
+      scenarioId: stableId('scenario', ...identity),
       feature,
       name: name.trim(),
       context: requirement.trim(),
@@ -88,11 +89,44 @@ function parsePlanScenarios(root, planPath) {
       expected: then || 'Le comportement observé respecte les règles référencées.',
       priority: ['auth', 'dashboard'].includes(feature) ? 'P0' : 'P1',
       status: 'Planned',
-      references: [{ kind: 'plan', path: relativePath(root, planPath), anchor: name.trim() }],
+      references: [{ kind: referenceKind, path: relativePath(root, path), anchor: name.trim() }],
       roles: roleNames.filter(role => normalizeText(fullText).includes(normalizeText(role))),
     });
   }
   return scenarios;
+}
+
+function parsePlanScenarios(root, planPath) {
+  return parseScenarioDocument(root, planPath, 'plan');
+}
+
+function finishedChanges(root) {
+  const changesRoot = join(root, 'openspec/changes');
+  if (!existsSync(changesRoot)) return [];
+  return readdirSync(changesRoot, { withFileTypes: true })
+    .filter(entry => entry.isDirectory())
+    .map(entry => {
+      const change = entry.name;
+      const tasksPath = join(changesRoot, change, 'tasks.md');
+      if (!existsSync(tasksPath)) return null;
+      const tasks = readFileSync(tasksPath, 'utf8').match(/^- \[([ xX])\] /gm) ?? [];
+      if (!tasks.length || tasks.some(task => !task.toLowerCase().startsWith('- [x]'))) return null;
+      return {
+        change,
+        tasksPath: relativePath(root, tasksPath),
+        proposalPath: existsSync(join(changesRoot, change, 'proposal.md')) ? relativePath(root, join(changesRoot, change, 'proposal.md')) : null,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.change.localeCompare(b.change));
+}
+
+function finishedOpenSpecScenarios(root) {
+  const specsRoot = join(root, 'openspec/specs');
+  if (!existsSync(specsRoot)) return [];
+  return walkFiles(specsRoot, { extensions: ['md'] })
+    .map(path => parseScenarioDocument(root, path, 'openspec-spec'))
+    .flat();
 }
 
 export function discoverProject({ root, planPath = join(root, 'openspec/changes/plan-tests-manuels-fonctionnels/specs/manual-functional-test-plan/spec.md'), openapiPath = join(root, 'besoins/openapi.yaml') }) {
@@ -105,7 +139,17 @@ export function discoverProject({ root, planPath = join(root, 'openspec/changes/
     : [];
   const operations = parseOpenApi(root, openapiPath);
   const planScenarios = parsePlanScenarios(root, planPath);
-  const sourcePaths = [planPath, openapiPath, ...features.flatMap(feature => feature.routes.map(route => join(root, route.source.path)))].filter(existsSync);
+  const completedChanges = finishedChanges(root);
+  const finishedScenarios = finishedOpenSpecScenarios(root);
+  const scenarios = [...new Map([...planScenarios, ...finishedScenarios].map(scenario => [scenario.scenarioId, scenario])).values()];
+  const sourcePaths = [
+    planPath,
+    openapiPath,
+    ...finishedScenarios.map(scenario => join(root, scenario.references[0].path)),
+    ...completedChanges.flatMap(change => [change.tasksPath, change.proposalPath].filter(Boolean).map(path => join(root, path))),
+    ...features.flatMap(feature => feature.routes.map(route => join(root, route.source.path))),
+  ];
+  const uniqueSourcePaths = [...new Set(sourcePaths)].filter(existsSync);
   return {
     discoveredAt: new Date().toISOString(),
     features,
@@ -115,7 +159,12 @@ export function discoverProject({ root, planPath = join(root, 'openspec/changes/
     permissions: ['route access', 'operatorCanRecordPayments', 'financial actions', 'personal data isolation'],
     states: ['Planned', 'Réussi', 'Échoué', 'Bloqué', 'Non applicable'],
     dependencies: features.map(feature => ({ feature: feature.name, dependsOn: feature.name === 'shell' ? ['auth'] : [] })),
-    planScenarios,
-    sources: sourcePaths.map(path => sourceReference(root, path)),
+    planScenarios: scenarios,
+    finishedOpenSpec: {
+      changes: completedChanges,
+      scenarioCount: finishedScenarios.length,
+      sources: finishedScenarios.map(scenario => scenario.references[0].path),
+    },
+    sources: uniqueSourcePaths.map(path => sourceReference(root, path)),
   };
 }

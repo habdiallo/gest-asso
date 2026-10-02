@@ -2,9 +2,10 @@
 
 import { join, resolve } from 'node:path';
 import { runQa } from '../qa/agent/orchestrator.mjs';
+import { preflight } from '../qa/agent/session.mjs';
 
 function parseArgs(args) {
-  const options = { root: process.cwd(), profile: 'smoke', targetFeatures: [], dryRun: true };
+  const options = { root: process.cwd(), profile: 'smoke', targetFeatures: [], dryRun: true, browserCapabilities: [] };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === '--dry-run') options.dryRun = true;
@@ -21,6 +22,9 @@ function parseArgs(args) {
       options.dryRun = false;
     } else if (arg === '--run-id') options.runId = args[++index];
     else if (arg === '--resume') options.resumeFrom = resolve(options.root, args[++index]);
+    else if (arg === '--preflight') options.preflight = true;
+    else if (arg === '--url') options.appUrl = args[++index];
+    else if (arg === '--browser-capabilities') options.browserCapabilities = args[++index].split(',').map(value => value.trim()).filter(Boolean);
     else throw new Error(`Option inconnue : ${arg}`);
   }
   if (!options.environment) throw new Error('--environment est obligatoire.');
@@ -29,8 +33,15 @@ function parseArgs(args) {
 }
 
 try {
-  const result = runQa(parseArgs(process.argv.slice(2)));
-  console.log(JSON.stringify({ runId: result.runId, runDir: result.runDir, summary: result.summary }, null, 2));
+  const options = parseArgs(process.argv.slice(2));
+  if (options.preflight) {
+    const result = preflight(options);
+    console.log(JSON.stringify(result, null, 2));
+    process.exitCode = result.status === 'ready' ? 0 : 2;
+  } else {
+    const result = runQa(options);
+    console.log(JSON.stringify({ runId: result.runId, runDir: result.runDir, summary: result.summary }, null, 2));
+  }
 } catch (error) {
   console.error(`QA run refusé : ${error.message}`);
   process.exitCode = 1;

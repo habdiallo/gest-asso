@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contribo.local/qa/qa-observations.schema.json",
+  "title": "Contribo QA observations",
+  "description": "Observations produites par une session de test guidée par Claude ou Codex.",
+  "oneOf": [
+    {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    {"type": "object", "additionalProperties": {"$ref": "#/$defs/observation"}}
+  ],
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "required": ["scenarioId"],
+      "properties": {
+        "scenarioId": {"type": "string", "minLength": 1},
+        "status": {"enum": ["Réussi", "Échoué", "Bloqué", "Non applicable"]},
+        "expectedMatches": {"type": "boolean"},
+        "observation": {"type": "string"},
+        "actor": {"type": ["string", "null"]},
+        "reproducible": {"type": "boolean"},
+        "expectedKnown": {"type": "boolean"},
+        "technicalCause": {"type": ["string", "null"]},
+        "severity": {"enum": ["Blocker", "Critical", "Major", "Minor", "Trivial"]},
+        "priority": {"enum": ["P0", "P1", "P2"]},
+        "title": {"type": "string"},
+        "condition": {"type": "string"},
+        "category": {"type": "string"},
+        "technicalHints": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"type": "array", "items": {}},
+        "actionTrace": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action", "result"],
+            "properties": {
+              "action": {"type": "string", "minLength": 1},
+              "result": {"type": "string"},
+              "observedAt": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
