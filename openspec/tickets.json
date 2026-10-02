@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 195,
+  "nextTicketId": 196,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3345,6 +3345,7 @@
     {"id":191,"title":"Ajouter les traductions françaises manquantes de l'espace personnel membre.","priority":"P2","scope":"front","type":"fix","slug":"traduire-espace-personnel-membre","change":"corriger-anomalies-qa-20261002","tasks":["2.1","2.2","2.3","2.4"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/fix-000-traduire-espace-personnel-membre","branchAfterInitialization":"front/fix-191-traduire-espace-personnel-membre"},
     {"id":192,"title":"Publier les artefacts et le suivi de la campagne QA manuelle du 2 octobre 2026.","priority":"P1","scope":"infra","type":"test","slug":"suivre-campagne-qa-20261002","change":"corriger-anomalies-qa-20261002","tasks":["3.1","3.2","3.3","3.4"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/test-000-suivre-campagne-qa-20261002","branchAfterInitialization":"infra/test-192-suivre-campagne-qa-20261002"},
     {"id":193,"title":"Publier la reprise QA locale des parcours campagnes, cagnottes et tableau de bord.","priority":"P1","scope":"infra","type":"test","slug":"publier-reprise-qa-locale","change":"corriger-anomalies-qa-20261002","tasks":["4.1","4.2","4.3","4.4"],"dependencies":[192],"planningStatus":"planned","branchDuringInitialization":"infra/test-000-publier-reprise-qa-locale","branchAfterInitialization":"infra/test-193-publier-reprise-qa-locale"},
-    {"id":194,"title":"Corriger le classement QA du contrôle d'alignement visuel recherche et filtre.","priority":"P2","scope":"infra","type":"test","slug":"corriger-suivi-qa-alignement","change":"corriger-anomalies-qa-20261002","tasks":["5.1","5.2","5.3"],"dependencies":[193],"planningStatus":"planned","branchDuringInitialization":"infra/test-000-corriger-suivi-qa-alignement","branchAfterInitialization":"infra/test-194-corriger-suivi-qa-alignement"}
+    {"id":194,"title":"Corriger le classement QA du contrôle d'alignement visuel recherche et filtre.","priority":"P2","scope":"infra","type":"test","slug":"corriger-suivi-qa-alignement","change":"corriger-anomalies-qa-20261002","tasks":["5.1","5.2","5.3"],"dependencies":[193],"planningStatus":"planned","branchDuringInitialization":"infra/test-000-corriger-suivi-qa-alignement","branchAfterInitialization":"infra/test-194-corriger-suivi-qa-alignement"},
+    {"id":195,"title":"Mettre à jour l'exemple d'environnement d'intégration avec les variables exigées par la stack.","priority":"P2","scope":"infra","type":"chore","slug":"mettre-a-jour-env-integration","change":"mettre-a-jour-env-integration","tasks":["1.1","1.2","2.1","2.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/chore-000-mettre-a-jour-env-integration","branchAfterInitialization":"infra/chore-195-mettre-a-jour-env-integration"}
   ]
 }

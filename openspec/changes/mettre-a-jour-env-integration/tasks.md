@@ -1,0 +1,9 @@
+## 1. Ticket et contrat d'environnement
+
+- [x] 1.1 [T-195] Résoudre T-195, confirmer `infra/chore-195-mettre-a-jour-env-integration` et exécuter `node scripts/tickets.mjs verify T-195` avant la modification.
+- [x] 1.2 [T-195] Comparer les variables interpolées par `compose.integration.yaml` avec `integration.env.example` et recenser les écarts.
+
+## 2. Mise à jour et validation
+
+- [x] 2.1 [T-195] Mettre à jour `integration.env.example` avec les variables de proxy, TLS et ports réellement consommées, sans secret réel.
+- [x] 2.2 [T-195] Valider le fichier, le registre des tickets, le périmètre Git et préparer une PR vers `develop`.
