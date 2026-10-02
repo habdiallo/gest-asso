@@ -31,4 +31,4 @@
 ## 7. Validation et livraison
 
 - [x] 7.1 [T-188] Exécuter les tests QA, les tests de parité IA, les contrôles OpenSpec et un smoke local non destructif en mode préparation, puis documenter l'absence éventuelle de navigateur ou d'application accessible.
-- [ ] 7.2 [T-188] Mettre à jour la documentation de lancement Claude/Codex et préparer la PR `infra/feat-188-agent-qa-ia-claude-codex` vers `develop` avec les validations et limites réelles.
+- [x] 7.2 [T-188] Mettre à jour la documentation de lancement Claude/Codex et préparer la PR `infra/feat-188-agent-qa-ia-claude-codex` vers `develop` avec les validations et limites réelles.
