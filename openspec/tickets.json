@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 187,
+  "nextTicketId": 188,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3337,6 +3337,7 @@
     {"id":183,"title":"Définir le plan de tests manuels fonctionnels de l'application pour tous les rôles, hors vérification du rendu responsive.","priority":"P1","scope":"docs","type":"chore","slug":"plan-tests-manuels-fonctionnels","change":"plan-tests-manuels-fonctionnels","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","3.3","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"docs/chore-000-plan-tests-manuels-fonctionnels","branchAfterInitialization":"docs/chore-183-plan-tests-manuels-fonctionnels"},
     {"id":184,"title":"Corriger le chemin du cookie CSRF pour permettre à Angular de lire XSRF-TOKEN depuis les routes du SPA.","priority":"P0","scope":"back","type":"fix","slug":"corriger-path-cookie-csrf","change":"corriger-path-cookie-csrf","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/fix-000-corriger-path-cookie-csrf","branchAfterInitialization":"back/fix-184-corriger-path-cookie-csrf"},
     {"id":185,"title":"Signaler les champs obligatoires et rendre les messages de validation des formulaires précis sans divulguer d'information sensible.","priority":"P1","scope":"front","type":"feat","slug":"signaler-champs-requis","change":"signaler-champs-requis-et-erreurs-formulaires","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/feat-000-signaler-champs-requis","branchAfterInitialization":"front/feat-185-signaler-champs-requis"},
-    {"id":186,"title":"Supprimer complètement le mode mock runtime et les données de démonstration du frontend.","priority":"P1","scope":"front","type":"chore","slug":"supprimer-mocks-runtime","change":"supprimer-mocks-runtime","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","3.3","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/chore-000-supprimer-mocks-runtime","branchAfterInitialization":"front/chore-186-supprimer-mocks-runtime"}
+    {"id":186,"title":"Supprimer complètement le mode mock runtime et les données de démonstration du frontend.","priority":"P1","scope":"front","type":"chore","slug":"supprimer-mocks-runtime","change":"supprimer-mocks-runtime","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","3.3","4.1","4.2"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/chore-000-supprimer-mocks-runtime","branchAfterInitialization":"front/chore-186-supprimer-mocks-runtime"},
+    {"id":187,"title":"Concevoir un agent QA autonome pour analyser l'application, exécuter les campagnes manuelles et produire des rapports et tickets traçables.","priority":"P1","scope":"infra","type":"feat","slug":"agent-qa-autonome","change":"agent-qa-autonome","tasks":["1.1","1.2","2.1","2.2","3.1","3.2","4.1","4.2","5.1","5.2","6.1","6.2"],"dependencies":[183],"planningStatus":"planned","branchDuringInitialization":"infra/feat-000-agent-qa-autonome","branchAfterInitialization":"infra/feat-187-agent-qa-autonome"}
   ]
 }
