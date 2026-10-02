@@ -129,7 +129,7 @@ function finishedOpenSpecScenarios(root) {
     .flat();
 }
 
-export function discoverProject({ root, planPath = join(root, 'openspec/changes/plan-tests-manuels-fonctionnels/specs/manual-functional-test-plan/spec.md'), openapiPath = join(root, 'besoins/openapi.yaml') }) {
+export function discoverProject({ root, planPath = join(root, 'openspec/changes/plan-tests-manuels-fonctionnels/specs/manual-functional-test-plan/spec.md'), openapiPath = join(root, 'contribo-back/src/main/resources/contribo-api.yml') }) {
   const featureRoot = join(root, 'contribo-front/src/app/features');
   const features = existsSync(featureRoot)
     ? readdirSync(featureRoot, { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => {

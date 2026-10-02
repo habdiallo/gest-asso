@@ -17,7 +17,7 @@ Rendre explicite le rôle distinct du cahier fonctionnel et d OpenAPI. Le ticket
 ## Decisions
 
 Le cahier métier reste la référence des parcours, acteurs et invariants. Le
-fichier `besoins/openapi.yaml` reste la référence de la forme des échanges HTTP.
+fichier `contribo-back/src/main/resources/contribo-api.yml` reste la référence de la forme des échanges HTTP.
 Les specs OpenSpec relient une décision aux deux documents lorsque le besoin a
 un impact d'interface. Aucun client ou modèle généré ne devient une source de
 vérité indépendante.

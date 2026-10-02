@@ -77,7 +77,9 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
         mockMvc.perform(get("/auth/csrf"))
                 .andExpect(status().isNoContent())
                 .andExpect(cookie().exists("XSRF-TOKEN"))
-                .andExpect(cookie().path("XSRF-TOKEN", "/"));
+                .andExpect(cookie().path("XSRF-TOKEN", "/"))
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(
+                        result.getResponse().getHeader("X-XSRF-TOKEN")).isNotBlank());
     }
 
     @Test
@@ -96,6 +98,16 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
         mockMvc.perform(post("/auth/logout")
                         .cookie(new Cookie("__Host-contribo-session", sessionToken)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void sameOriginCookieSessionDoesNotRequireReadableCsrfCookie() throws Exception {
+        String sessionToken = tokenService.issue(UUID.randomUUID());
+
+        mockMvc.perform(post("/auth/logout")
+                        .cookie(new Cookie("__Host-contribo-session", sessionToken))
+                        .header("Sec-Fetch-Site", "same-origin"))
+                .andExpect(status().isNoContent());
     }
 
     @Test

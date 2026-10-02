@@ -1,6 +1,6 @@
 ## 1. Contrat
 
-- [x] 1.1 [T-166] Renommer les 3 tags accentués dans `besoins/openapi.yaml` : `Catégories de revenu` → `Categories de revenu`, `Règlements` → `Reglements`, `Utilisateurs et rôles` → `Utilisateurs et roles`, sans toucher aux chemins, `operationId`, schémas ni règles d'autorisation.
+- [x] 1.1 [T-166] Renommer les 3 tags accentués dans `contribo-back/src/main/resources/contribo-api.yml` : `Catégories de revenu` → `Categories de revenu`, `Règlements` → `Reglements`, `Utilisateurs et rôles` → `Utilisateurs et roles`, sans toucher aux chemins, `operationId`, schémas ni règles d'autorisation.
 - [x] 1.2 [T-166] Documenter l'exigence « tags ASCII » dans les conventions de contrat pertinentes (référencer `openspec/specs/api-design-first-governance/spec.md`).
 
 ## 2. Régénération backend

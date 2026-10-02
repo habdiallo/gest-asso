@@ -1,7 +1,7 @@
 FROM maven:3.9.11-eclipse-temurin-21 AS build
 
 WORKDIR /workspace
-COPY besoins/openapi.yaml besoins/openapi.yaml
+COPY contribo-back/src/main/resources/contribo-api.yml contribo-back/src/main/resources/contribo-api.yml
 COPY contribo-back/pom.xml contribo-back/pom.xml
 COPY contribo-back/src contribo-back/src
 

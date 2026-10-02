@@ -61,5 +61,5 @@ workflow and actual tools. Organize frontend responsibilities by feature in
 concerns in `core/` and neutral reused elements in `shared/`. Neither depends on
 features; features do not import each other directly. Do not add frontend hexagonal
 layers, ports or adapters: hexagonal architecture is reserved for the backend.
-Use the shared `besoins/openapi.yaml` contract and explicit API generation; do not
+Use the shared `contribo-back/src/main/resources/contribo-api.yml` contract and explicit API generation; do not
 assume SSR, translation libraries, a backend or an AXE runner are installed.

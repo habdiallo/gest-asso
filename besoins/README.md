@@ -1,15 +1,16 @@
 # Sources fonctionnelles et contrat API
 
-Le dossier `besoins/` sépare la description du besoin métier du contrat HTTP
-consommé par le frontend et le backend. Les deux documents sont liés, mais ils
-n'ont pas le même rôle et ne se remplacent pas.
+Le dossier `besoins/` porte la description du besoin métier. Le contrat HTTP
+OpenAPI consommé par le frontend et le backend est versionné dans les ressources
+du backend. Les deux documents sont liés, mais ils n'ont pas le même rôle et ne
+se remplacent pas.
 
 ## Quel document fait foi ?
 
 | Document | Responsabilité | Ne doit pas devenir |
 | --- | --- | --- |
 | [Cahier des user stories et règles métier](cahier-user-stories-mvp-association-v2.md) | Acteurs, parcours attendus, invariants, règles de gestion et résultats métier | Une liste implicite d'URLs, de codes HTTP ou de noms de DTO |
-| [Contrat OpenAPI](openapi.yaml) | Chemins, `operationId`, paramètres, schémas, enums, formats, réponses, erreurs déclarées et sécurité HTTP | Une copie complète des parcours, des priorités ou des règles qui ne sont pas exposées par l'API |
+| [Contrat OpenAPI](../contribo-back/src/main/resources/contribo-api.yml) | Chemins, `operationId`, paramètres, schémas, enums, formats, réponses, erreurs déclarées et sécurité HTTP | Une copie complète des parcours, des priorités ou des règles qui ne sont pas exposées par l'API |
 | [Specs OpenSpec](../openspec/specs/api-design-first-governance/spec.md) | Décisions de gouvernance, critères d'acceptation et traçabilité des évolutions | Une source concurrente des règles métier ou du contrat |
 
 Le cahier décrit ce que l'association doit pouvoir faire et les contraintes qui
@@ -28,11 +29,11 @@ fonctionnelle.
 
 1. Décrire ou confirmer le comportement attendu dans le [cahier métier](cahier-user-stories-mvp-association-v2.md) et les critères d'acceptation dans la spec OpenSpec concernée.
 2. Déterminer si le comportement nécessite un échange HTTP nouveau ou modifié.
-3. Si oui, modifier [openapi.yaml](openapi.yaml), qui est le contrat canonique partagé. Ne pas créer un second fichier OpenAPI dans le frontend ou le backend.
+3. Si oui, modifier [contribo-api.yml](../contribo-back/src/main/resources/contribo-api.yml), qui est le contrat canonique partagé. Ne pas créer un second fichier OpenAPI dans le frontend ou le backend.
 4. Valider le contrat, contrôler la parité des générateurs, puis régénérer les consommateurs dans l'ordre suivant :
 
    ```text
-   besoins/openapi.yaml
+   contribo-back/src/main/resources/contribo-api.yml
        -> validation OpenAPI
        -> client Angular et sources API backend
        -> services, mocks et tests concernés

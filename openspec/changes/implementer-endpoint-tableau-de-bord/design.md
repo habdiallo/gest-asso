@@ -1,6 +1,6 @@
 ## Context
 
-`besoins/openapi.yaml` définit `GET /dashboard` (`operationId: getDashboard`)
+`contribo-back/src/main/resources/contribo-api.yml` définit `GET /dashboard` (`operationId: getDashboard`)
 avec une réponse `DashboardResponse` (`oneOf` discriminé par `view` :
 `ManagementDashboard` pour Administrateur/Trésorier/Opérateur, `MemberDashboard`
 pour Membre). Le backend expose déjà, pour les autres fonctionnalités, une
@@ -41,7 +41,7 @@ comme une session invalide et qui renvoie l'utilisateur vers `/login`.
 - Ne pas introduire de nouveau mécanisme de cache ou de vue matérialisée
   pour ce MVP ; les agrégats sont calculés à la demande. Une optimisation de
   performance reste un change ultérieur si un besoin réel est mesuré.
-- Ne pas modifier le contrat `besoins/openapi.yaml` : ce change livre
+- Ne pas modifier le contrat `contribo-back/src/main/resources/contribo-api.yml` : ce change livre
   l'implémentation backend d'un contrat déjà stable et déjà consommé par le
   frontend (`dashboard-recent-payments-scope`).
 - Ne pas changer le comportement du frontend : aucun fichier

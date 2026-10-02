@@ -1,0 +1,47 @@
+{
+  "runId": "qa-20261002111109-51vm09",
+  "results": [
+    {
+      "resultId": "result-dc2bca15675b",
+      "scenarioId": "scenario-1187b61018c4",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:12:26.462Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "le frontend affiche la liste des cagnottes avec titre, type d'événement, période et statut, dans un espace visuellement séparé des campagnes de cotisation (RG-CAG-001)",
+      "observation": "La page /cagnottes affiche les cartes avec type d'événement, titre, bénéficiaire, période, statut, montant collecté et nombre de contributeurs.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    },
+    {
+      "resultId": "result-6f011d572441",
+      "scenarioId": "scenario-60834c581e38",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:12:26.462Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "le frontend affiche la liste des campagnes avec nom, période et statut (ouverte/clôturée)",
+      "observation": "La page /campagnes reste accessible et affiche la campagne avec son nom, sa période, son statut, son nombre de membres et le résumé financier.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    },
+    {
+      "resultId": "result-0c79aa25a2be",
+      "scenarioId": "scenario-b4e028fe7ee9",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:12:26.462Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "le frontend appelle l'API de création et affiche la nouvelle cagnotte dans la liste",
+      "observation": "Une cagnotte créée sans objectif apparaît dans la liste avec ses informations métier, 0 GNF collecté et aucun comparatif ni barre de progression.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    }
+  ]
+}

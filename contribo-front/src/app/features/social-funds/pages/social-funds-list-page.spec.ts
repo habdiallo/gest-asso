@@ -332,6 +332,40 @@ describe('SocialFundsListPage', () => {
     expect(root.textContent).not.toContain('/');
   });
 
+  it('keeps the card content visible when optional financial fields are null', async () => {
+    const fixture = await createFixture(() =>
+      of(
+        buildSocialFundPage({
+          items: [
+            {
+              id: 'c2f3a1b0-2d4e-4f5a-8b6c-9d0e1f2a3b45',
+              title: 'Cagnotte sans objectif',
+              eventType: 'WEDDING',
+              beneficiary: 'Famille QA',
+              startDate: '2026-10-02',
+              endDate: '2026-10-03',
+              status: 'OPEN',
+              collectedAmount: 0,
+              contributorCount: 0,
+              contributionCount: 0,
+              currency: 'GNF',
+              targetAmount: null as unknown as number,
+              progressRate: null as unknown as number,
+            },
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Cagnotte sans objectif');
+    expect(root.textContent).toContain('Famille QA');
+    expect(root.textContent).toContain('0 GNF');
+    expect(root.querySelector('[data-testid="financial-card-progress-bar"]')).toBeNull();
+    expect(root.textContent).not.toContain('/');
+  });
+
   it('shows the empty-list message when there is no social fund', async () => {
     const fixture = await createFixture(() => of(buildSocialFundPage({ items: [] })));
     fixture.detectChanges();

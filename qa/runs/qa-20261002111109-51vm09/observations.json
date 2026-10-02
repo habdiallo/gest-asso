@@ -1,0 +1,43 @@
+{
+  "scenario-1187b61018c4": {
+    "status": "Réussi",
+    "observation": "La page /cagnottes affiche les cartes avec type d'événement, titre, bénéficiaire, période, statut, montant collecté et nombre de contributeurs.",
+    "actor": "Administrateur",
+    "actionTrace": [
+      {
+        "action": "Ouvrir /cagnottes avec le backend local réel",
+        "result": "La liste est visible et les cartes ne sont plus blanches."
+      },
+      {
+        "action": "Contrôler la console après le chargement",
+        "result": "Aucune erreur ou alerte n'est remontée."
+      }
+    ]
+  },
+  "scenario-b4e028fe7ee9": {
+    "status": "Réussi",
+    "observation": "Une cagnotte créée sans objectif apparaît dans la liste avec ses informations métier, 0 GNF collecté et aucun comparatif ni barre de progression.",
+    "actor": "Administrateur",
+    "actionTrace": [
+      {
+        "action": "Créer une cagnotte avec titre, type, bénéficiaire et période valides, sans renseigner l'objectif",
+        "result": "La création est acceptée, le dialogue se ferme et la nouvelle carte apparaît en tête de liste."
+      },
+      {
+        "action": "Vérifier la carte nouvellement créée",
+        "result": "Le titre, le bénéficiaire, la période, le statut, 0 GNF et 0 contributeur sont visibles, sans jauge."
+      }
+    ]
+  },
+  "scenario-60834c581e38": {
+    "status": "Réussi",
+    "observation": "La page /campagnes reste accessible et affiche la campagne avec son nom, sa période, son statut, son nombre de membres et le résumé financier.",
+    "actor": "Administrateur",
+    "actionTrace": [
+      {
+        "action": "Ouvrir /campagnes",
+        "result": "La carte campagne est visible avec 5 membres, le statut Brouillon et le résumé 0 GNF / 0 GNF encaissé à 0 %."
+      }
+    ]
+  }
+}

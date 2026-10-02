@@ -47,7 +47,7 @@ sans modifier la charte graphique, les données ni les droits existants.
 - Le changement dépend de T-126 pour conserver les composants d'action et les
   cartes KPI harmonisés, ainsi que de T-127 pour préserver le comportement du
   panneau « Derniers règlements ».
-- Aucun changement de `besoins/openapi.yaml`, de migration ou de données
+- Aucun changement de `contribo-back/src/main/resources/contribo-api.yml`, de migration ou de données
   persistées.
 - Livraison prévue sur `front/fix-135-refonte-agencement-tableau-de-bord`, dans
   une PR dédiée vers `main`.

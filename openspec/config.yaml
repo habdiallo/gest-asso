@@ -2,7 +2,7 @@ schema: spec-driven
 
 context: |
   Contribo est une application de gestion associative.
-  Frontend Angular/TypeScript : contribo-front/ ; contrat API : besoins/openapi.yaml ;
+  Frontend Angular/TypeScript : contribo-front/ ; contrat API : contribo-back/src/main/resources/contribo-api.yml ;
   prototype UX/UI : design/ ; besoins métier : besoins/cahier-user-stories-mvp-association-v2.md.
   Lire CONTRIBUTING.md pour le workflow Git/OpenSpec et AGENTS.md pour les consignes des agents.
   Les conventions frontend sont dans .claude/rules/frontend/.

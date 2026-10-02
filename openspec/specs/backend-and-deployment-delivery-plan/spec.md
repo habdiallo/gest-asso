@@ -41,10 +41,9 @@ Les worktrees SHALL être créés à partir de la branche résolue du ticket et 
 
 ### Requirement: Contrat API prioritaire
 
-Les tickets SHALL traiter `besoins/openapi.yaml` comme source canonique et SHALL aligner le backend, le client Angular et les mocks lors de toute modification.
+Les tickets SHALL traiter `contribo-back/src/main/resources/contribo-api.yml` comme source canonique et SHALL aligner le backend et le client Angular généré lors de toute modification.
 
 #### Scenario: Contrat modifié
 
 - **WHEN** un ticket ajoute ou modifie une opération API
 - **THEN** la validation OpenAPI, la génération ou mise à jour des consommateurs et les tests de compatibilité sont inclus avant l'ouverture de la PR
-

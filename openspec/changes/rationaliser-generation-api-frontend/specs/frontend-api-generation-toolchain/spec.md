@@ -43,5 +43,5 @@ déclencher Java ni générer automatiquement le client.
 - **WHEN** le développeur installe les dépendances avec `npm ci`, puis exécute
   `npm run validate:api` et `npm run generate:api`
 - **THEN** les commandes utilisent le wrapper local et le générateur configuré,
-  lisent `besoins/openapi.yaml` et écrivent la sortie prévue dans
+  lisent `contribo-back/src/main/resources/contribo-api.yml` et écrivent la sortie prévue dans
   `src/app/core/api/generated/`

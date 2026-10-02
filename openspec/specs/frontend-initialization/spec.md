@@ -29,7 +29,7 @@ pas ajouter SSR, Express, traduction multilingue ou bibliothèques UI sans besoi
 
 ### Requirement: Génération API depuis le contrat partagé
 La génération SHALL produire les modèles et services Angular depuis
-`besoins/openapi.yaml`, avec une version de générateur fixée. Le code généré MUST
+`contribo-back/src/main/resources/contribo-api.yml`, avec une version de générateur fixée. Le code généré MUST
 compiler en TypeScript strict et préserver les propriétés optionnelles/nullables
 pertinentes ; il ne MUST pas être édité manuellement ni entrer dans le lint/format.
 
@@ -49,4 +49,3 @@ locale comme convention tant que le backend n'est pas disponible.
 #### Scenario: Routage d'une requête imbriquée
 - **WHEN** une requête vise `/api/v1/members/identifiant`
 - **THEN** le proxy transmet ce même chemin au serveur local configuré.
-

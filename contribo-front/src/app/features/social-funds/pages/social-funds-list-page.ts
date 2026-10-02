@@ -73,8 +73,10 @@ const PAGE_SIZE = 6;
  * `CreateSocialFundRequest` (T-84, `social-fund-create-form.ts`) et dans
  * `SocialFundSummary`. Une cagnotte sans objectif n'affiche ni barre de
  * progression ni comparatif "collecté / objectif", voir `progressBarWidth`
- * (`../social-fund-progress`, partagée avec l'écran suivi de cagnotte, T-92)
- * et le bloc `@if (socialFund.targetAmount; as targetAmount)` du template.
+ * (`../social-fund-progress`, partagée avec l'écran suivi de cagnotte, T-92).
+ * Le template accepte l'absence du champ et la valeur `null` renvoyée par
+ * certaines sérialisations JSON, tout en conservant les informations de la
+ * carte.
  */
 @Component({
   selector: 'app-social-funds-list-page',

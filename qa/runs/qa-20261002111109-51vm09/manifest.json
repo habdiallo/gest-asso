@@ -1,0 +1,652 @@
+{
+  "runId": "qa-20261002111109-51vm09",
+  "schemaVersion": 1,
+  "artifactVersion": "1.0.0",
+  "profile": "targeted",
+  "environment": {
+    "name": "local",
+    "safeForTestData": true,
+    "version": "98cdd23"
+  },
+  "sources": [
+    {
+      "kind": "source",
+      "path": "openspec/changes/plan-tests-manuels-fonctionnels/specs/manual-functional-test-plan/spec.md",
+      "sha256": "4e505e58b68ceaf203d330e6698a8d21cfcc3cb38911580fb171499de727ebe0"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-back/src/main/resources/contribo-api.yml",
+      "sha256": "cd077214c7608b4e09534487a392716ed301622030018fe441886f61978bb564"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/account-password-lifecycle/spec.md",
+      "sha256": "8b059f88593dab76c4499439c7042fd206a4b8a56fdfca10a88525dd017da039"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/actuator-and-secret-hardening/spec.md",
+      "sha256": "28a0cae9147badbdb2522c947486eea44991e11fbdb9eca0bf8ebf0bb0da3429"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/agent-generated-content-style/spec.md",
+      "sha256": "3a2024c1abac96a5c5da8eeff5145b66c235a2a66a80d64d728a1381bcbd75c0"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/ai-capabilities/spec.md",
+      "sha256": "acf07d50e9278744f68367394354fd3d5033703cfcd716bb761242c6ed8e6355"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/api-design-first-governance/spec.md",
+      "sha256": "0abc6d6a76c2d066a53a8f1f080a982b5fdd036c5d58b5fd1b80c91b9f0c4e2f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/api-rate-limiting/spec.md",
+      "sha256": "4b77ffcc4c382f9c08c1fd4703c8392202d17c437f77ae177a49bc695fb1b1b6"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/api-v1-base-path/spec.md",
+      "sha256": "c80f1f0c6d278fa061cf12ec3d45381cfc4220d773dd196bf1bfa942d3a28945"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/backend-and-deployment-delivery-plan/spec.md",
+      "sha256": "cd526f9d139187dddfd13350328af1e12abf94b70cdce3cb62b21f99fa139740"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/backend-architecture-foundation/spec.md",
+      "sha256": "c3031f770b88633b9592edb6685f37ca0c8658227101049b52135cf0ab632d3b"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/branching-release-workflow/spec.md",
+      "sha256": "3960e363e39cd14422a4d6a2c8af3be63fd4720b2af1ed2d92896320c0d48702"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/cagnottes-ui/spec.md",
+      "sha256": "8b3ec7df6b47dec115be8b6b887f182f9cecb389769a5979d0f29e5c1fdadfc9"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaign-category-bareme-visualization/spec.md",
+      "sha256": "d2953a20b1b71e2ef748524a7a29af4b01d1bf8debf06774a417a591a00870f4"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaign-detail-coherence/spec.md",
+      "sha256": "4dde9b78d394dbb35a88ba72fe8e9148a6130aa9ab439aff44a57b68eb8aac88"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaign-detail-hero-actions/spec.md",
+      "sha256": "fca522da34dac506e86dc0d279f30e40a3f51d0792c20436addec74e50f8d848"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaign-lifecycle-actions/spec.md",
+      "sha256": "fb002ea352fa94d9f14e1192b2f3f0e42c27a8261069bb82d4c3a091cab72a36"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaign-payments-table-visual/spec.md",
+      "sha256": "908252956c2cc8314d0620c833884492f831aa477cde9e810d0b3e05e0b7ac5f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/campaigns-ui/spec.md",
+      "sha256": "3789db164f8054b13f53764d819c1c1f3975858c0597b0a0b77edd91592c088d"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/ci-image-publishing/spec.md",
+      "sha256": "53b1e3f5dd9d2456eba9cfbb595422231c8d2866e775032788e80434e5e517f3"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/composants-interaction-visual/spec.md",
+      "sha256": "4f462fd0d64d5881727128df9e9f8144ae3d2d7d15cec24e626a8837057cb69f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/dashboard-recent-payments-scope/spec.md",
+      "sha256": "3f5405f254e7995364784a328360a127cbfb206b707f00451f59323fdb3375f6"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/deployment-foundation/spec.md",
+      "sha256": "38689872c474a5510361bff0f952dd4a7a2bb1dbccce96ec7b591a1409c0662d"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/desktop-sidebar-visual/spec.md",
+      "sha256": "bae749657cd132ce17729481bd9df69358292187c87a374c56d442a1e5d2287e"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/environnements-angular/spec.md",
+      "sha256": "98a672ea69594dcb04c9386ab29cf512972ac54a2d0dd4ee926e3387242083ed"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/external-social-fund-contributor/spec.md",
+      "sha256": "e19d1939da5419f41d54b2c8458809dc07d03d7d9e4357c6af43bb748e4804dc"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/frontend-initialization/spec.md",
+      "sha256": "d42d7174ce6bfd7d375c59809899050d2aabb459d94f427b6fad895f9640ea1f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/frontend-mobile-audit/spec.md",
+      "sha256": "1dcba720414e23adac5df2047b7099ad6b818f932b44532d12d66942f33a437b"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/frontend-responsive-composition/spec.md",
+      "sha256": "5edbc259184bc2d397dcef770e99536f837f597654f938d0d8801f4fa0cb140d"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/frontend-shell/spec.md",
+      "sha256": "aeda64f2788f0ac2c1f541e2c765629698b84e3f8d478bf2118d2afafd07203d"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/income-categories-ui/spec.md",
+      "sha256": "ebd289b3ad55b359c26079e2fa64a3f287098e10a3285aecefd34589f5391f09"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/member-management-ui/spec.md",
+      "sha256": "c592894e883525709597f37e94c13be300c72e63c2f4a07f7c02ad07c9c6d592"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/member-space-ui/spec.md",
+      "sha256": "fe48c8498f21b5403a7961d6cd71c0d4461b29ef896e49f04a08c50f5fe0d7b3"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/personal-account-space/spec.md",
+      "sha256": "9f45fbd825dcacb3270a895f9edb1bc1f0855d57b400d952559117c7115b374f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/pluralisation-i18n-francaise/spec.md",
+      "sha256": "8a52e736207428f30769a5473432d3984519ec3230e2fa2b10102cccb31e37dd"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/portainer-deployment/spec.md",
+      "sha256": "7ffd7d57a3a06350d1a7889600f4255382bd8c2e23f1b1243f42f0000f6e6b72"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/proxy-security-hardening/spec.md",
+      "sha256": "22bce6ecaf3e903494f889f80cb6876f0d3294ecdf00642bb3cc725419524fad"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/refactorisation-sans-regression/spec.md",
+      "sha256": "d154125b1f8b202803d5c7202a270c9a7f008f78a5bf94b6069ffe2999415bbb"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/reference-reuse-analysis/spec.md",
+      "sha256": "edb9038f51290722be1228ce897e2ecc0aee2581921f022103913091a04137c3"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/regle-i18n-frontend/spec.md",
+      "sha256": "4e62f7cc32538d7a3edf4fdb4fc8506a47f2dbae840678ce20c0a36fd128c60f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/release-image-promotion/spec.md",
+      "sha256": "2ff4f98c60e3fce797a19c941888dda31d28359a90023115e6cf06ab0efe5de7"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/reusable-action-buttons/spec.md",
+      "sha256": "de753a8a84ec8155d0551e626010570cb19b2389392e333dc9fe306a580f0559"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/reusable-financial-cards/spec.md",
+      "sha256": "e16de613193f96982d1e7d4fffaad96bedd08894314e0a50630bbc7cae0b7738"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/roles-users-ui/spec.md",
+      "sha256": "21550c475ed65a82a7c7928248c7359bea6f15d2dfbae266eaff8d1f6b1e557b"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/rsa-jwt-authentication/spec.md",
+      "sha256": "6fc59fe9186c3c32e0c3bd2e8072a75bf851dafae0023b186f52a1a4b54a47bf"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/secure-cookie-session/spec.md",
+      "sha256": "e17cf05c876bd25ef6c25e41b170ccf930eadf92ef57c98e81ef66cb4b35a441"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/security-audit-logging/spec.md",
+      "sha256": "39dc90dc04b1e6672a57948548e47c7c982b294f44300d5fecd2edc78707356f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/senior-code-review/spec.md",
+      "sha256": "1a288d12033d9ebbe23b98b43506e58bdc1c54d56a5e1be4fa4027d8e2dec75a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/shell-logout-text-resize/spec.md",
+      "sha256": "7a39b71d437f05c14ed7cd51c0c7c472afd57b807abfe1dfaa4a1e07a3092062"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/social-fund-contributor-entry/spec.md",
+      "sha256": "4c89eb9e7788cd172fe00fc0b1fa4231a6e8438ee2f52440ba3c663d16c99e72"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/specs/ticket-branch-mapping/spec.md",
+      "sha256": "eaa09d29c086f2626d3f4f33657c417f6835d221e312592ab1af932bbe027c40"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/agent-qa-autonome/tasks.md",
+      "sha256": "a296e9055ef9398dedcdd4f47d354f4b4dadfa6e4b4ba198996900c803098fcf"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/agent-qa-autonome/proposal.md",
+      "sha256": "10e0c1b022ac918019425bdeb49fb712981791def002c3d4c282bea06c206bba"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/agent-qa-ia-claude-codex/tasks.md",
+      "sha256": "6907a48eab929bd7dfc3fdda441fd333a9c32d46387750bf5ba7fdd0a1b9a56a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/agent-qa-ia-claude-codex/proposal.md",
+      "sha256": "f764e71a119aeaf22a9e6508a17a8f8fc79bc4025ac9fee69f2b079d3f069128"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/aligner-fiche-membre-design/tasks.md",
+      "sha256": "e4369414c873798147e0ef1c44adf0468752692e59b30d323d335ee693c29a43"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/aligner-fiche-membre-design/proposal.md",
+      "sha256": "0dee43b5d4ccfcd227f8549d26adc7f1decb4ed0a66ee618815edab3713fb331"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/archiver-changes-openspec-termines-4/tasks.md",
+      "sha256": "2600341d3c6e7b25385ca95c914e1f6f02e6c85e89ca8401def7890b6e2de6ee"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/archiver-changes-openspec-termines-4/proposal.md",
+      "sha256": "a60104a64b02c86d4ad5e9bf025841e5084ebf06f279c11d2bbe3cd82d0b2764"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-creation-campagne-categories/tasks.md",
+      "sha256": "0f9ca2aeca13ecfdc0675d4e610404386f26fe9c4d20ca116010dd209600eec7"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-creation-campagne-categories/proposal.md",
+      "sha256": "55b12b825943b8946669ed58b9528cbdc6dbf951329665b4972398027ae1f86e"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-encodage-noms-fichiers-generes/tasks.md",
+      "sha256": "992191a8803feb601a28dd7a897e9bdfa1e54b60c0e303d52ba70737acaeef3a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-encodage-noms-fichiers-generes/proposal.md",
+      "sha256": "298d96093fdfcea0a873584a735ed990f77ff1708151cd5826edb485796199c1"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-path-cookie-csrf/tasks.md",
+      "sha256": "1db905d68daf8281b951dda9c460feed6086d5f9e5d876829a08e6d8d79c546d"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/corriger-path-cookie-csrf/proposal.md",
+      "sha256": "e4e9a0179f0063fac01d5c7ec65e16009faeb6bf448d41d5c2140782fd1ba745"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/decomposer-repository-campagnes/tasks.md",
+      "sha256": "b9732100383db9414593009321eb6452b4aa5d7bda20f2cf064db1d67d18e1c6"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/decomposer-repository-campagnes/proposal.md",
+      "sha256": "583ab28d534f7ec1f35196825716c8e3a0b0284c4f5b18f7e424fff4c4f563b9"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/decoupler-doc-frontend-tickets/tasks.md",
+      "sha256": "13640c98894f1c500aab6c3c3eadc4e9c8c8271cc42ba8d6977e333434d34b5a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/decoupler-doc-frontend-tickets/proposal.md",
+      "sha256": "6ac98fea61fbeb71e09235c02f4fdb5ebf8c8060404787b88f7507ca7d4f7249"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/definir-strategie-etat-frontend/tasks.md",
+      "sha256": "58374f672ab007775291c60dc3dd4e0d20f5975989d56291743b09be41e046d5"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/definir-strategie-etat-frontend/proposal.md",
+      "sha256": "1791eaf52337569f625f83e6100d83436a3baf3bbede945333ecbf963c6a3ca3"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/formaliser-couche-domaine-backend/tasks.md",
+      "sha256": "4311685e86bb66593d7974cb005ecbef6e3de9c27260642a03f39bb520856d33"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/formaliser-couche-domaine-backend/proposal.md",
+      "sha256": "c80110006cc8997deaf7b27f3d54f82560456f359a32adc6595abf373d2d1076"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-configuration-deploiement-dupliquee/tasks.md",
+      "sha256": "045ecf5b171047da93ac875c4155f09fdd63875978e2440171d0aa65adcdc90a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-configuration-deploiement-dupliquee/proposal.md",
+      "sha256": "a2994c1827743d49f778afa73a48e1aabd8674bbea0ae911952ba4f3de3e1639"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-details-campagnes-cagnottes/tasks.md",
+      "sha256": "99dfa73913f8f18932dbdcb2b6bd9eea7e0cad1c2a026544463904608b279864"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-details-campagnes-cagnottes/proposal.md",
+      "sha256": "4afb859b102e9ec282ef7d7d280dfb6e0e757ed38d170bde948599ffca759e42"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-systeme-visuel/tasks.md",
+      "sha256": "81086f1977a5314328060041fe65f5ca7ac27e6ade75c9a2b6c7b4ed2067cd83"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/harmoniser-systeme-visuel/proposal.md",
+      "sha256": "99d2df700873a10bf40227e0748bf29963c76c285d0eed2c1f183b3a162b3798"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/implementer-endpoint-tableau-de-bord/tasks.md",
+      "sha256": "06f5aa7202f9273b10ee439a831db6dd18e773d0b2573f18435b8e1727c3fcba"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/implementer-endpoint-tableau-de-bord/proposal.md",
+      "sha256": "fe34799277334aa4fec74a9aeb8033a17f2720a8eac8b0f2e2c0f4544bdc8ac8"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/introduire-modele-domaine-backend/tasks.md",
+      "sha256": "f80d2f57c6bb97c386183e06e2239aa500e5a67648c519e194d2db865a90b0fc"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/introduire-modele-domaine-backend/proposal.md",
+      "sha256": "721013adcbfed376c2a4cb817a391c684187be875a2cae934e5f87c94cc58130"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/isoler-client-api-frontend/tasks.md",
+      "sha256": "6fd0e5b8f55b86825e08f3167c10f92055a34c6789260dca541445443881ddf1"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/isoler-client-api-frontend/proposal.md",
+      "sha256": "5d867b461356a946a133e5d42b98928f8bde0bc93758948112c6ed6eb6cdd7b4"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/plan-tests-manuels-fonctionnels/tasks.md",
+      "sha256": "6a5059c8917c10b99910ff13cc7a0b73f2a491c7b7ba07ff0724125026f3232b"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/plan-tests-manuels-fonctionnels/proposal.md",
+      "sha256": "6a44e8069e16c4096a47608b0d54a15771008f3d19faa1b9ae55df32a73dde16"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/rationaliser-generation-api-frontend/tasks.md",
+      "sha256": "1e3a2dc92b41e9bfd611cb0048ec6046bfdd58dcab7943678f4354637920652a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/rationaliser-generation-api-frontend/proposal.md",
+      "sha256": "99bf37e4dca1e198be297e15d1106fef72a064f7abc0719a7e932ab72add968f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/reconcilier-tracabilite-tickets/tasks.md",
+      "sha256": "55ab5cc90a69dd2fe2aeb36d0a371d88deef2e42776826e04866b107b184f6cf"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/reconcilier-tracabilite-tickets/proposal.md",
+      "sha256": "8c162315098d1d1c4e674f4e60ad064a1dbd8bac695513f1bb50524a91634c41"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/refonte-agencement-tableau-de-bord/tasks.md",
+      "sha256": "b90903823c0d972b331c6eca9151ee1fb8485b81012149a0397358e841ff7fd8"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/refonte-agencement-tableau-de-bord/proposal.md",
+      "sha256": "ac082d803b6c4a074960ac212987618985ac41f4b47acc01b49de281f7826db5"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/reintegrer-release-develop/tasks.md",
+      "sha256": "9bc1f3a2d95712f9f973ea4851c8d1874f4a62f5b1e5b466913f588414647593"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/reintegrer-release-develop/proposal.md",
+      "sha256": "629c6985f69c43e5e0edfa64759895db02c9c0cd300209b7af5e715af8ef99e5"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/scoper-intercepteur-session-expiree/tasks.md",
+      "sha256": "c28e2651296a723545fe38556ad53bbc56f80e2f9dafb2462d566a413467b148"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/scoper-intercepteur-session-expiree/proposal.md",
+      "sha256": "90402601e43e7e5030d681ab82cf3950f4e402d50ad436fdf54c87eb191b26ce"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/separer-contrat-openapi-documentation/tasks.md",
+      "sha256": "5f896ed400f8be401f0718070133276eb57f8605bca05a8315a2ae111dff4d06"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/separer-contrat-openapi-documentation/proposal.md",
+      "sha256": "e31bf23b92a787d9975f391a62488a8e2c7e5600b39bca4484c45c74709728ae"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/signaler-champs-requis-et-erreurs-formulaires/tasks.md",
+      "sha256": "4972d9f62f7faa1e2d9eb6c5aef25095a9707b8ba59acf1aeea52a85ac6716ce"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/signaler-champs-requis-et-erreurs-formulaires/proposal.md",
+      "sha256": "a156a8f20c5544cf4ecfcc98a2dffbdb95f23ee3d4a44b186bb0971f49589054"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/supprimer-mocks-runtime/tasks.md",
+      "sha256": "0325c691083d3633837b122a19b04bbe298c38f308bc243d85f4c6945e36dbb0"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/supprimer-mocks-runtime/proposal.md",
+      "sha256": "7c77ff51a6651c219322d233a4d9edd110f10382fe5c6d7a42573529ceedfe16"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/synchroniser-deploiement-portainer/tasks.md",
+      "sha256": "4e05ab711fa6ab35c417e846aad2124786b302d90540a6eb0447094ccab94603"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/synchroniser-deploiement-portainer/proposal.md",
+      "sha256": "8feb84f07546db3334b8f1d84ea92f227ffd8a4166ff243b07b5b5e8802d934f"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/synchroniser-spec-frontend-shell/tasks.md",
+      "sha256": "e81dd67ec21aa3e3a68e0e40994c220d78abe4d29a3b685dc00649ecc292b865"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/synchroniser-spec-frontend-shell/proposal.md",
+      "sha256": "f05e55b39c3a8b8aa71dae8f2a18a355c0f998c04eef8ae9e0481d116c1ae70a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/tests-backend-postgresql-reel/tasks.md",
+      "sha256": "ef4936cf63f7803d8ebf72c0ed2e897b60cbdadccd5884aff711f3029153c87e"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/tests-backend-postgresql-reel/proposal.md",
+      "sha256": "e0c3cbd181a73d5d040a4e983c8824b2db67c6d8e19ee03dc2af65ea7e933078"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/unifier-autorisation-backend/tasks.md",
+      "sha256": "b3779a3cd021a49857f1b9935552c3a1d107d8f0c29b895f3fae3a06cbc54da6"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/unifier-autorisation-backend/proposal.md",
+      "sha256": "d64f9281f7e109624ab1e9408b63a8842a07b7aff169ab335a145f8b1a04b682"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/verrouiller-version-generateur-openapi/tasks.md",
+      "sha256": "c0bfb51669090b994f8bfaa0f8588cd13975d1cf336e49b38361f89a5bb4637a"
+    },
+    {
+      "kind": "source",
+      "path": "openspec/changes/verrouiller-version-generateur-openapi/proposal.md",
+      "sha256": "1770fd1f64854476d00c208a5986f1daebc58f55313bd5e020f2ebddb14a805b"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/account/account.routes.ts",
+      "sha256": "cf2caedf1e0ef884ffe539374e26bca4b576462a926450f5b0e2c8299f2a3306"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/auth/auth.routes.ts",
+      "sha256": "4934e52ba5079214d1a6990e2840057a0a282a1540c450663f42eebc63c70fe6"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/campaigns/campaigns.routes.ts",
+      "sha256": "4bb0296b7ceed1224c3bc38500e5809ec71be54f57f099ab9abb0f70c3f4b06c"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/dashboard/dashboard.routes.ts",
+      "sha256": "29c9ed1b04445223a523d7b9a2518ffe23f67a0f12fc53d4b3cf2569476f075d"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/income-categories/income-categories.routes.ts",
+      "sha256": "c54ed7f3f9110d8b744fc069acba53ac159af674d84ad332499129cc6c8c3d2f"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/member-space/member-space.routes.ts",
+      "sha256": "44158be18ad7cdaf099c8c02a743cf668880f7b001d3a1217fcb4bffedf7e1b0"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/members/members.routes.ts",
+      "sha256": "a430b0afed8ec059765616208a676e60cbff333c5f33044fe20f12efd8dd14cb"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/roles-users/roles-users.routes.ts",
+      "sha256": "f25d687901e118d5053d98dbf0fadbc203150551754b7ad9e6d7acef47bb7813"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/shell/shell.routes.ts",
+      "sha256": "d85c4fc34eb68819ffd6911e4c1bdcd9d4bdb9152f00227ce04a2d78532af659"
+    },
+    {
+      "kind": "source",
+      "path": "contribo-front/src/app/features/social-funds/social-funds.routes.ts",
+      "sha256": "a656b8a0d19d47c9079fd2bbb7825dd4e0e1bb54eeb4c492e2bab9b97cee67b1"
+    }
+  ],
+  "artifacts": [
+    "scope.json",
+    "test-plan.md",
+    "test-results.json",
+    "anomalies.json",
+    "anomalies.md",
+    "tickets.json",
+    "tickets/",
+    "summary.json",
+    "summary.md",
+    "manifest.json"
+  ],
+  "traceability": {
+    "scenario-1187b61018c4": {
+      "resultId": "result-dc2bca15675b"
+    },
+    "scenario-60834c581e38": {
+      "resultId": "result-6f011d572441"
+    },
+    "scenario-b4e028fe7ee9": {
+      "resultId": "result-0c79aa25a2be"
+    }
+  },
+  "resumedFrom": null
+}

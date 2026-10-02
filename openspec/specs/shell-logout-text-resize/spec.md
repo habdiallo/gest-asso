@@ -37,7 +37,7 @@ Le frontend SHALL adapter la hauteur de l'en-tête mobile au texte affiché et p
 
 ### Requirement: Déconnexion accessible pour chaque rôle connecté
 
-Le frontend SHALL conserver le nom accessible « Se déconnecter », le focus visible et l'activation clavier du bouton pour les rôles Administrateur, Trésorier, Opérateur et Membre. L'activation SHALL supprimer la session locale et afficher `/login`, conformément au comportement existant de T-7 et à l'accès authentifié US-ACC-001. Le contrat `besoins/openapi.yaml` reste inchangé ; aucun nouvel appel API de déconnexion n'est requis.
+Le frontend SHALL conserver le nom accessible « Se déconnecter », le focus visible et l'activation clavier du bouton pour les rôles Administrateur, Trésorier, Opérateur et Membre. L'activation SHALL supprimer la session locale et afficher `/login`, conformément au comportement existant de T-7 et à l'accès authentifié US-ACC-001. Le contrat `contribo-back/src/main/resources/contribo-api.yml` reste inchangé ; aucun nouvel appel API de déconnexion n'est requis.
 
 #### Scenario: Activation clavier après agrandissement
 
@@ -50,4 +50,3 @@ Le frontend SHALL conserver le nom accessible « Se déconnecter », le focus vi
 - **WHEN** la session locale a été supprimée
 - **THEN** l'en-tête authentifié et son action de déconnexion ne sont plus affichés
 - **AND** le changement de thème reste accessible sur l'écran de connexion
-

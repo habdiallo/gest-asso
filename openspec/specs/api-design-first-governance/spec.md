@@ -5,12 +5,12 @@ TBD - created by archiving change cadrer-backend-deploiement-reference. Update P
 ## Requirements
 ### Requirement: Contrat OpenAPI canonique
 
-`besoins/openapi.yaml` SHALL rester l'unique source de vérité versionnée pour les endpoints, schémas, erreurs, autorisations déclarées et versions de l'API du MVP.
+`contribo-back/src/main/resources/contribo-api.yml` SHALL rester l'unique source de vérité versionnée pour les endpoints, schémas, erreurs, autorisations déclarées et versions de l'API du MVP.
 
 #### Scenario: Nouvelle opération backend
 
 - **WHEN** une opération API est nécessaire pour une fonctionnalité validée
-- **THEN** son chemin, son operationId, ses schémas, ses erreurs et ses règles d'accès sont d'abord définis dans `besoins/openapi.yaml`
+- **THEN** son chemin, son operationId, ses schémas, ses erreurs et ses règles d'accès sont d'abord définis dans `contribo-back/src/main/resources/contribo-api.yml`
 
 #### Scenario: Contrat absent ou invalide
 
@@ -19,12 +19,12 @@ TBD - created by archiving change cadrer-backend-deploiement-reference. Update P
 
 ### Requirement: Synchronisation des consommateurs
 
-Après toute modification acceptée du contrat, le client Angular généré et les mocks concernés SHALL être régénérés ou mis à jour depuis le contrat sans DTO concurrent non justifié.
+Après toute modification acceptée du contrat, le client Angular généré et les tests concernés SHALL être régénérés ou mis à jour depuis le contrat sans DTO concurrent non justifié.
 
 #### Scenario: Changement compatible du schéma
 
 - **WHEN** un champ ou une réponse est ajouté sans casser les consommateurs existants
-- **THEN** le client, les mocks et les tests du frontend reflètent le nouveau contrat avant la livraison
+- **THEN** le client et les tests du frontend reflètent le nouveau contrat avant la livraison
 
 #### Scenario: Changement incompatible
 
@@ -33,7 +33,7 @@ Après toute modification acceptée du contrat, le client Angular généré et l
 
 ### Requirement: Vérification de dérive contractuelle
 
-Les validations SHALL contrôler que le backend, le client Angular et les mocks n'introduisent pas de contrat concurrent au fichier OpenAPI canonique.
+Les validations SHALL contrôler que le backend, le client Angular et les tests n'introduisent pas de contrat concurrent au fichier OpenAPI canonique.
 
 #### Scenario: Génération reproductible
 
@@ -48,4 +48,3 @@ Le backend SHALL appliquer les exigences d'authentification et d'autorisation do
 
 - **WHEN** un compte authentifié ne possède pas le rôle ou l'autorisation requis par l'opération
 - **THEN** l'API répond par le refus prévu dans le contrat et ne modifie aucune donnée
-

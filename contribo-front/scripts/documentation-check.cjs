@@ -4,9 +4,10 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const files = [
   path.join(root, 'README.md'),
-  ...fs.readdirSync(path.join(root, 'docs'))
-    .filter(file => file.endsWith('.md'))
-    .map(file => path.join(root, 'docs', file)),
+  ...fs
+    .readdirSync(path.join(root, 'docs'))
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => path.join(root, 'docs', file)),
 ];
 const volatileReference = /\b(?:T-\d+|US-[A-Z]+-\d+)\b/;
 const failures = [];

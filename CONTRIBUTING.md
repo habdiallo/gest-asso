@@ -214,7 +214,7 @@ avec le CLI ; pas de build applicatif imposé pour une modification documentaire
 
 `contribo-front/openapitools.json` (`generator-cli.version`) et
 `contribo-back/pom.xml` (`openapi-generator.version`) pilotent deux générateurs
-distincts du même contrat `besoins/openapi.yaml` et doivent rester à la même
+distincts du même contrat `contribo-back/src/main/resources/contribo-api.yml` et doivent rester à la même
 version. Toute mise à jour de cette version se fait dans la même PR pour
 `contribo-front` et `contribo-back`, avec régénération des deux clients et
 vérification de leur compilation. `node scripts/check-openapi-generator-version.mjs`

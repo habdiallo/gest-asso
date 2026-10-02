@@ -6,7 +6,7 @@ La documentation frontend décrit les capacités visibles par l'utilisateur et l
 contrats techniques nécessaires à leur fonctionnement. Les règles métier durables
 restent dans le [cahier métier](../../besoins/cahier-user-stories-mvp-association-v2.md)
 et les décisions sont tracées dans les spécifications OpenSpec. Le contrat HTTP
-partagé est [besoins/openapi.yaml](../../besoins/openapi.yaml). Le README du
+partagé est [contribo-api.yml](../../contribo-back/src/main/resources/contribo-api.yml). Le README du
 frontend décrit l'architecture et les commandes de développement.
 
 Le cahier métier définit les parcours, les acteurs et les invariants. OpenAPI

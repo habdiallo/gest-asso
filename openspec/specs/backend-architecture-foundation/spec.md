@@ -14,7 +14,7 @@ Le futur backend SHALL isoler les invariants métier de Contribo des frameworks 
 
 ### Requirement: Adaptation du contrat OpenAPI vers les cas d'usage
 
-L'adapter REST SHALL traduire les opérations définies dans `besoins/openapi.yaml` vers des cas d'usage applicatifs et SHALL mapper les erreurs vers les réponses d'erreur du contrat.
+L'adapter REST SHALL traduire les opérations définies dans `contribo-back/src/main/resources/contribo-api.yml` vers des cas d'usage applicatifs et SHALL mapper les erreurs vers les réponses d'erreur du contrat.
 
 #### Scenario: Requête valide du MVP
 
@@ -43,4 +43,3 @@ Toute persistance retenue pour le MVP SHALL disposer d'un schéma versionné, de
 
 - **WHEN** une évolution nécessite une modification de schéma
 - **THEN** la migration est versionnée, testée sur une base représentative et associée à une procédure de retour arrière ou de correction
-

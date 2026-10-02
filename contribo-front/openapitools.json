@@ -6,7 +6,7 @@
     "generators": {
       "contribo-api": {
         "generatorName": "typescript-angular",
-        "inputSpec": "../besoins/openapi.yaml",
+        "inputSpec": "../contribo-back/src/main/resources/contribo-api.yml",
         "output": "src/app/core/api/generated",
         "additionalProperties": {
           "ngVersion": "21.2.0",

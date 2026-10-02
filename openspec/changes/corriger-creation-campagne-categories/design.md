@@ -15,7 +15,7 @@ Le parcours de modification du barème possède déjà un contournement local : 
 
 **Non-Goals:**
 
-- Modifier `besoins/openapi.yaml` ou désactiver `uniqueItems`.
+- Modifier `contribo-back/src/main/resources/contribo-api.yml` ou désactiver `uniqueItems`.
 - Modifier la validation métier des montants ou la sélection des membres.
 - Ajouter un adaptateur frontend global pour un seul payload.
 - Corriger les autres anomalies révélées par les tests manuels.

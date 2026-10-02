@@ -5,7 +5,7 @@ RUN apk add --no-cache openjdk21-jre-headless
 WORKDIR /workspace/contribo-front
 COPY contribo-front/package.json contribo-front/package-lock.json ./
 RUN npm ci
-COPY besoins/openapi.yaml /workspace/besoins/openapi.yaml
+COPY contribo-back/src/main/resources/contribo-api.yml /workspace/contribo-back/src/main/resources/contribo-api.yml
 COPY contribo-front/ ./
 
 RUN npm run generate:api && npm run build

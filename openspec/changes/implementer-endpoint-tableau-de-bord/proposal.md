@@ -1,6 +1,6 @@
 ## Why
 
-Le contrat `besoins/openapi.yaml` définit `GET /dashboard` et le frontend Angular
+Le contrat `contribo-back/src/main/resources/contribo-api.yml` définit `GET /dashboard` et le frontend Angular
 en dépend dès la connexion (la page d'accueil post-connexion l'appelle
 immédiatement). Aucun contrôleur backend ne l'implémente : `contribo-back/src/main/java/com/habdiallo/contribo/api/rest/`
 ne contient pas de `DashboardController`. La requête retourne donc un 404
@@ -14,7 +14,7 @@ inutilisable pour tous les rôles tant que cet endpoint n'existe pas.
 ## What Changes
 
 - Ajouter un `DashboardController` (adapter REST) qui implémente
-  `GET /dashboard` conformément à `besoins/openapi.yaml` : paramètres
+  `GET /dashboard` conformément à `contribo-back/src/main/resources/contribo-api.yml` : paramètres
   `campaignId` et `socialFundId` optionnels, réponse `DashboardResponse`
   (`oneOf` discriminé par `view` : `ManagementDashboard` ou `MemberDashboard`).
 - Ajouter le cas d'usage applicatif (ex. `DashboardService`) qui sélectionne la

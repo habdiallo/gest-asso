@@ -28,10 +28,9 @@ Chaque pattern ou composant candidat SHALL être classé comme réutilisable tel
 
 ### Requirement: Priorité aux sources fonctionnelles actuelles
 
-Les décisions fonctionnelles SHALL être dérivées du cahier actuel, des specs OpenSpec et du contrat `besoins/openapi.yaml`, jamais d'une fonctionnalité de la référence prise isolément.
+Les décisions fonctionnelles SHALL être dérivées du cahier actuel, des specs OpenSpec et du contrat `contribo-back/src/main/resources/contribo-api.yml`, jamais d'une fonctionnalité de la référence prise isolément.
 
 #### Scenario: Divergence entre les dépôts
 
 - **WHEN** le dépôt de référence propose un comportement différent du contrat ou du cahier actuel
 - **THEN** le comportement actuel reste prioritaire et la divergence est documentée comme question ou change séparé
-
