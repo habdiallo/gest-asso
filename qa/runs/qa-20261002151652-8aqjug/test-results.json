@@ -200,16 +200,16 @@
     {
       "resultId": "result-3f1e72f62488",
       "scenarioId": "scenario-9d665aa6c0e4",
-      "status": "Réussi",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Administrateur",
       "expected": "le champ de recherche et le select de role sont alignes sans bordure, fond ou ombre conteneur",
-      "observation": "L'écran Utilisateurs et rôles expose la recherche et le filtre de rôle, et la liste reste exploitable après la gestion des comptes QA.",
+      "observation": "L'écran Utilisateurs et rôles expose la recherche et le filtre de rôle, mais l'alignement sans bordure, fond ni ombre conteneur n'a pas été vérifié avec une preuve exploitable dans ce run.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Vérification CSS détaillée non observée."
     },
     {
       "resultId": "result-2359a618c1fe",

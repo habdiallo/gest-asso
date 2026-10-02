@@ -5,9 +5,9 @@
 - Environnement : local
 - Scénarios préparés : 129
 - Scénarios exécutés : 20
-- Tests réussis : 11
+- Tests réussis : 10
 - Tests échoués : 0
-- Tests bloqués : 5
+- Tests bloqués : 6
 - Tests non applicables : 4
 - Anomalies détectées : 0
 
@@ -25,8 +25,8 @@
 
 ## Risques et blocages
 
-- Les vérifications visuelles détaillées du dashboard et des cagnottes, la prise en compte d'un changement de rôle à la session suivante, l'autorisation effective d'un Opérateur et la journalisation backend restent à reprendre.
+- Les vérifications visuelles détaillées du dashboard, des cagnottes et de l'écran utilisateurs, la prise en compte d'un changement de rôle à la session suivante, l'autorisation effective d'un Opérateur et la journalisation backend restent à reprendre.
 
 ## Zones à investiguer
 
-- Dashboard, séparation visuelle des cagnottes, session suivante après changement de rôle, autorisation effective de l'Opérateur et logs backend.
+- Dashboard, séparation visuelle des cagnottes, alignement recherche-filtre, session suivante après changement de rôle, autorisation effective de l'Opérateur et logs backend.
