@@ -124,17 +124,32 @@ test('normalizes AI observations, traces actions and redacts sensitive text', ()
   assert.equal(observations['scenario-auth'].observation, 'Connexion avec token=[REDACTED]');
   assert.equal(observations['scenario-auth'].actionTrace[0].action, 'Soumettre le formulaire');
   assert.throws(() => normalizeObservations({ 'scenario-auth': { status: 'Inconnu' } }), /scenarioId|status/);
+  assert.throws(() => normalizeObservations({ 'scenario-auth': { scenarioId: 'scenario-members' } }), /correspondre/);
 });
 
 test('rejects malformed AI action traces', () => {
   assert.throws(() => normalizeObservations([{ scenarioId: 'scenario-auth', actionTrace: [{ action: 'Cliquer' }] }]), /actionTrace/);
 });
 
-test('reports a blocked browser preflight without inventing execution', t => {
+test('reports a blocked browser preflight without inventing execution', async t => {
   const root = fixture(t);
-  const result = preflight({ root, environment: environment(), appUrl: 'http://localhost:4200', browserCapabilities: ['observe'] });
+  const result = await preflight({ root, environment: environment(), appUrl: 'http://localhost:4200', browserCapabilities: ['observe'] });
   assert.equal(result.status, 'blocked');
   assert.deepEqual(result.missingCapabilities, ['interact']);
+});
+
+test('blocks preflight when the application URL is unreachable', async t => {
+  const root = fixture(t);
+  const result = await preflight({
+    root,
+    environment: environment(),
+    appUrl: 'http://localhost:4200',
+    browserCapabilities: ['observe', 'interact'],
+    fetchImpl: async () => { throw new Error('offline'); },
+  });
+  assert.equal(result.status, 'blocked');
+  assert.equal(result.appReachable, false);
+  assert.ok(result.blockers.some(blocker => blocker.includes('inaccessible')));
 });
 
 test('requires explicit confirmation for irreversible AI actions', () => {

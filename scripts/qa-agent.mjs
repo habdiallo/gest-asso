@@ -35,7 +35,7 @@ function parseArgs(args) {
 try {
   const options = parseArgs(process.argv.slice(2));
   if (options.preflight) {
-    const result = preflight(options);
+    const result = await preflight(options);
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.status === 'ready' ? 0 : 2;
   } else {

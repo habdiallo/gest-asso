@@ -34,8 +34,11 @@ export function normalizeObservations(value) {
   }
   if (typeof value !== 'object') fail('la racine doit être un tableau ou un objet.');
   return Object.fromEntries(Object.entries(value).map(([scenarioId, item]) => {
+    if (item?.scenarioId !== undefined && item.scenarioId !== scenarioId) {
+      fail(`${scenarioId}.scenarioId doit correspondre à la clé de la map.`);
+    }
     const observation = normalizeObservation({ scenarioId, ...item }, scenarioId);
-    return [observation.scenarioId, observation];
+    return [scenarioId, observation];
   }));
 }
 

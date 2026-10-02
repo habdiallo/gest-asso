@@ -4,7 +4,7 @@ import { gitVersion } from './utils.mjs';
 
 const requiredBrowserCapabilities = new Set(['observe', 'interact']);
 
-export function preflight({ root, environment, appVersion = gitVersion(root), appUrl, browserCapabilities = [] } = {}) {
+export async function preflight({ root, environment, appVersion = gitVersion(root), appUrl, browserCapabilities = [], fetchImpl = globalThis.fetch } = {}) {
   const policy = loadPolicy(root);
   const resolvedEnvironment = { ...environment, version: environment?.version ?? appVersion };
   assertSafeEnvironment(resolvedEnvironment, policy);
@@ -21,11 +21,28 @@ export function preflight({ root, environment, appVersion = gitVersion(root), ap
   }
   const blockers = [];
   if (!validUrl) blockers.push('URL de l application absente ou invalide.');
+  let appReachable = null;
+  if (validUrl && typeof fetchImpl === 'function') {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1500);
+    try {
+      await fetchImpl(appUrl, { method: 'GET', redirect: 'manual', signal: controller.signal });
+      appReachable = true;
+    } catch {
+      appReachable = false;
+      blockers.push('Application inaccessible à l URL déclarée.');
+    } finally {
+      clearTimeout(timeout);
+    }
+  } else if (validUrl) {
+    blockers.push('Vérification réseau indisponible dans cet hôte.');
+  }
   if (missingCapabilities.length) blockers.push(`Capacités navigateur manquantes : ${missingCapabilities.join(', ')}.`);
   return {
     status: blockers.length ? 'blocked' : 'ready',
     environment: resolvedEnvironment,
     appUrl: appUrl ?? null,
+    appReachable,
     browserCapabilities: [...capabilities],
     missingCapabilities,
     blockers,
