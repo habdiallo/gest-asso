@@ -46,12 +46,46 @@ integration.example.com {
 
 La stack monte également `nginx.portainer.conf` dans le frontend. Ce fichier
 force Nginx à écouter en HTTP sur le port 80 interne, car l'image frontend
-embarque par défaut la configuration TLS de la stack d'intégration. Le fichier
-doit rester présent à côté de `compose.portainer.yaml` dans le dépôt utilisé par
-Portainer. Il récupère l'IP client transmise par Caddy pour que les limites de
-débit Nginx restent indexées par client. La configuration couvre la plage
-Docker privée `172.16.0.0/12`; adapter `set_real_ip_from` si le réseau Docker
-`frontend` utilise une autre plage.
+embarque par défaut la configuration TLS de la stack d'intégration. Le
+montage utilise `FRONTEND_NGINX_CONFIG_FILE_PATH`, un chemin absolu du système
+de fichiers de l'hôte Docker. Ne pas placer ce fichier uniquement dans
+`portainer_data` : ce volume est visible par le conteneur Portainer, mais le
+démon Docker résout le bind mount sur l'hôte.
+
+Préparer le fichier sur l'hôte avant de déployer ou redéployer la stack :
+
+```bash
+install -d -m 755 /etc/contribo/nginx
+install -m 644 /chemin/vers/nginx.portainer.conf \
+  /etc/contribo/nginx/nginx.portainer.conf
+test -f /etc/contribo/nginx/nginx.portainer.conf
+```
+
+Définir ensuite `FRONTEND_NGINX_CONFIG_FILE_PATH` dans les variables de la
+stack, puis utiliser l'action de rafraîchissement Git de Portainer avant le
+redéploiement. Vérifier aussi que le chemin est bien un fichier régulier sur
+l'hôte avec `stat` et non un répertoire. La syntaxe longue du montage désactive
+la création automatique du chemin source : si le fichier est absent ou si le
+chemin est un répertoire, Compose refuse le démarrage avec une erreur explicite.
+Le fichier récupère l'IP client
+transmise par Caddy pour que les limites de débit Nginx restent indexées par
+client. La configuration couvre la plage Docker privée `172.16.0.0/12`;
+adapter `set_real_ip_from` si le réseau Docker `frontend` utilise une autre
+plage.
+
+Après un ancien montage avec création automatique, Docker peut avoir créé un
+répertoire au chemin configuré, par exemple
+`/etc/contribo/nginx/nginx.portainer.conf`, ou à l'ancien chemin relatif
+`/data/compose/<stack-id>/nginx.portainer.conf`. Arrêter la stack, inspecter
+le chemin concerné sur l'hôte, puis supprimer uniquement ce répertoire s'il est
+vide, dédié à cette stack et confirmé comme obsolète :
+
+```bash
+ls -ld /etc/contribo/nginx/nginx.portainer.conf
+rmdir /etc/contribo/nginx/nginx.portainer.conf
+ls -ld /data/compose/<stack-id>/nginx.portainer.conf
+rmdir /data/compose/<stack-id>/nginx.portainer.conf
+```
 
 Dans cette composition, Caddy termine le HTTPS public, mais le backend doit
 faire confiance explicitement à l'adresse IP du conteneur frontend sur le

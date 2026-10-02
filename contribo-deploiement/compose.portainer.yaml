@@ -36,7 +36,12 @@ services:
       backend:
         condition: service_healthy
     volumes:
-      - ./nginx.portainer.conf:/etc/nginx/conf.d/default.conf:ro
+      - type: bind
+        source: ${FRONTEND_NGINX_CONFIG_FILE_PATH:-/etc/contribo/nginx/nginx.portainer.conf}
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+        bind:
+          create_host_path: false
     networks:
       proxy-network:
       internal-network:
