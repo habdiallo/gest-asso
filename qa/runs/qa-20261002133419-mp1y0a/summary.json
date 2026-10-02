@@ -1,0 +1,24 @@
+{
+  "runId": "qa-20261002133419-mp1y0a",
+  "profile": "full",
+  "environment": "local",
+  "scenariosPrepared": 129,
+  "scenariosExecuted": 37,
+  "passed": 27,
+  "failed": 1,
+  "blocked": 0,
+  "notApplicable": 9,
+  "anomaliesDetected": 1,
+  "anomaliesBySeverity": {
+    "Blocker": 0,
+    "Critical": 0,
+    "Major": 1,
+    "Minor": 0,
+    "Trivial": 0
+  },
+  "tickets": [
+    "qa-ticket-4f785dbd472a"
+  ],
+  "blockers": [],
+  "uncoveredFeatures": []
+}

@@ -1,0 +1,44 @@
+{
+  "runId": "qa-20261002133419-mp1y0a",
+  "tickets": [
+    {
+      "ticketId": "qa-ticket-4f785dbd472a",
+      "kind": "fix",
+      "anomalyId": "anomaly-6991c907a97b",
+      "scenarioId": "scenario-ce2065ceb626",
+      "title": "Accès à l'espace personnel avant le changement de mot de passe",
+      "feature": "auth",
+      "description": "Le scénario Temporary login opens the restricted flow produit un écart dans l'environnement local.",
+      "preconditions": [],
+      "reproductionSteps": [
+        "Préparer la situation : a user authenticates with valid credentials while",
+        "Observer : the API returns a session marked as password-change-only and the"
+      ],
+      "observedBehavior": "Après une connexion avec un compte temporaire, l'ouverture directe de /mon-espace affiche le profil Membre avant le changement de mot de passe obligatoire. Une nouvelle tentative reproduit le même accès, alors que les actions d'onglet redirigent ensuite vers /changer-mot-de-passe.",
+      "expectedBehavior": "the API returns a session marked as password-change-only and the",
+      "severity": "Major",
+      "priority": "P1",
+      "userImpact": "Le parcours testé ne respecte pas le comportement attendu.",
+      "technicalHints": [
+        "Vérifier le guard de route de /mon-espace et le contrôle PASSWORD_CHANGE_REQUIRED avant le rendu initial."
+      ],
+      "acceptanceCriteria": [
+        "Le scénario scenario-ce2065ceb626 respecte le résultat attendu.",
+        "Le comportement reste conforme pour les rôles et états couverts."
+      ],
+      "regressionTests": [
+        "scenario-ce2065ceb626",
+        "scenario-ce2065ceb626-permissions",
+        "scenario-ce2065ceb626-error-path"
+      ],
+      "evidence": [],
+      "references": [
+        {
+          "kind": "openspec-spec",
+          "path": "openspec/specs/account-password-lifecycle/spec.md",
+          "anchor": "Temporary login opens the restricted flow"
+        }
+      ]
+    }
+  ]
+}

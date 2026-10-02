@@ -1,0 +1,19 @@
+{
+  "runId": "qa-20261002133502-nnom77",
+  "results": [
+    {
+      "resultId": "result-11bc19a8ac16",
+      "scenarioId": "scenario-10f8face3127",
+      "status": "Échoué",
+      "executedAt": "2026-10-02T13:35:02.763Z",
+      "environment": "local",
+      "actor": "Membre",
+      "expected": "le frontend affiche ses informations personnelles (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie de revenu, Fonction, Statut) en lecture seule",
+      "observation": "Le profil Membre affiche les clés i18n memberSpace.profile.role et memberSpace.profile.personalAccessTitle au lieu de libellés traduits en français.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    }
+  ]
+}

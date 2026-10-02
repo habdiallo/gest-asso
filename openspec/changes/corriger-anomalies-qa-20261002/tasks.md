@@ -15,7 +15,7 @@
 
 ## 3. T-192, publier le suivi QA
 
-- [ ] 3.1 [T-192] Résoudre T-192, confirmer `infra/test-192-suivre-campagne-qa-20261002` et exécuter `node scripts/tickets.mjs verify T-192` avant la publication des artefacts.
-- [ ] 3.2 [T-192] Ajouter les runs QA finaux, leurs anomalies et tickets locaux, sans secret, mot de passe, cookie ou token.
-- [ ] 3.3 [T-192] Ajouter un index de suivi indiquant les campagnes, compteurs, tickets correctifs, blocages et prochaine revalidation.
-- [ ] 3.4 [T-192] Exécuter les contrôles QA/OpenSpec et préparer la PR `infra/test-192-suivre-campagne-qa-20261002` vers `develop`.
+- [x] 3.1 [T-192] Résoudre T-192, confirmer `infra/test-192-suivre-campagne-qa-20261002` et exécuter `node scripts/tickets.mjs verify T-192` avant la publication des artefacts.
+- [x] 3.2 [T-192] Ajouter les runs QA finaux, leurs anomalies et tickets locaux, sans secret, mot de passe, cookie ou token.
+- [x] 3.3 [T-192] Ajouter un index de suivi indiquant les campagnes, compteurs, tickets correctifs, blocages et prochaine revalidation.
+- [x] 3.4 [T-192] Exécuter les contrôles QA/OpenSpec et préparer la PR `infra/test-192-suivre-campagne-qa-20261002` vers `develop`.

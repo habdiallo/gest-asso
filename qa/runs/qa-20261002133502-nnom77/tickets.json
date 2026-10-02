@@ -1,0 +1,44 @@
+{
+  "runId": "qa-20261002133502-nnom77",
+  "tickets": [
+    {
+      "ticketId": "qa-ticket-e57298601f31",
+      "kind": "fix",
+      "anomalyId": "anomaly-0188de71960d",
+      "scenarioId": "scenario-10f8face3127",
+      "title": "Clés i18n visibles dans le profil Membre",
+      "feature": "members",
+      "description": "Le scénario Consultation du profil produit un écart dans l'environnement local.",
+      "preconditions": [],
+      "reproductionSteps": [
+        "Préparer la situation : un utilisateur Membre ouvre son espace personnel",
+        "Observer : le frontend affiche ses informations personnelles (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie de revenu, Fonction, Statut) en lecture seule"
+      ],
+      "observedBehavior": "Le profil Membre affiche les clés i18n memberSpace.profile.role et memberSpace.profile.personalAccessTitle au lieu de libellés traduits en français.",
+      "expectedBehavior": "le frontend affiche ses informations personnelles (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie de revenu, Fonction, Statut) en lecture seule",
+      "severity": "Minor",
+      "priority": "P2",
+      "userImpact": "Le parcours testé ne respecte pas le comportement attendu.",
+      "technicalHints": [
+        "Vérifier les clés Transloco utilisées par le profil Membre et le chargement du scope de traduction member-space."
+      ],
+      "acceptanceCriteria": [
+        "Le scénario scenario-10f8face3127 respecte le résultat attendu.",
+        "Le comportement reste conforme pour les rôles et états couverts."
+      ],
+      "regressionTests": [
+        "scenario-10f8face3127",
+        "scenario-10f8face3127-permissions",
+        "scenario-10f8face3127-error-path"
+      ],
+      "evidence": [],
+      "references": [
+        {
+          "kind": "openspec-spec",
+          "path": "openspec/specs/member-space-ui/spec.md",
+          "anchor": "Consultation du profil"
+        }
+      ]
+    }
+  ]
+}

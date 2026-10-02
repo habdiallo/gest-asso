@@ -1,0 +1,24 @@
+{
+  "runId": "qa-20261002133502-nnom77",
+  "anomalies": [
+    {
+      "anomalyId": "anomaly-0188de71960d",
+      "fingerprint": "f0a07dd980eefe07a730371398aaebc21b4174362d9ee941b8be6449223c194b",
+      "scenarioId": "scenario-10f8face3127",
+      "feature": "members",
+      "classification": "confirmed",
+      "category": "functional",
+      "severity": "Minor",
+      "priority": "P2",
+      "title": "Clés i18n visibles dans le profil Membre",
+      "condition": "Ouverture du profil Membre dans l'espace personnel",
+      "expected": "le frontend affiche ses informations personnelles (Nom, Prénom, Nom d'usage, Pays, Ville, Téléphone, Catégorie de revenu, Fonction, Statut) en lecture seule",
+      "observed": "Le profil Membre affiche les clés i18n memberSpace.profile.role et memberSpace.profile.personalAccessTitle au lieu de libellés traduits en français.",
+      "environment": "local",
+      "evidence": [],
+      "technicalHints": [
+        "Vérifier les clés Transloco utilisées par le profil Membre et le chargement du scope de traduction member-space."
+      ]
+    }
+  ]
+}
