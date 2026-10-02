@@ -47,7 +47,7 @@ services:
       internal-network:
         ipv4_address: ${FRONTEND_INTERNAL_IP:-172.30.0.10}
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --spider http://localhost/ || exit 1"]
+      test: ["CMD-SHELL", "wget --quiet --spider http://127.0.0.1/ || exit 1"]
       interval: 10s
       timeout: 3s
       start_period: 10s

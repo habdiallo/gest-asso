@@ -57,3 +57,15 @@ the link from `media="print"` to an active media mode.
   `script-src 'self'`
 - **THEN** the stylesheet link is active without executing inline JavaScript
   and the login layout keeps its grid, sizing and responsive utility classes
+
+### Requirement: The frontend healthcheck SHALL use an IPv4 loopback address
+
+The frontend healthcheck SHALL probe `127.0.0.1` instead of `localhost` so it
+does not depend on IPv6 being enabled or configured inside the container.
+
+#### Scenario: Portainer frontend is healthy with a read-only Nginx mount
+
+- **WHEN** the Portainer Nginx configuration is mounted at
+  `/etc/nginx/conf.d/default.conf` with read-only permissions
+- **THEN** the frontend healthcheck reaches Nginx through `127.0.0.1` and
+  reports healthy even if the entrypoint cannot modify the mounted file

@@ -41,6 +41,9 @@ first failed deployment.
 - Disable Angular critical CSS inlining for the production build. Angular then
   emits a regular stylesheet link instead of relying on an inline `onload`
   handler that the Nginx `script-src 'self'` policy blocks.
+- Probe the frontend health endpoint through `127.0.0.1` instead of
+  `localhost`, because the container resolves the latter to IPv6 while the
+  mounted Portainer server listens on IPv4.
 
 ## Risks / Trade-offs
 
@@ -55,6 +58,9 @@ first failed deployment.
 - [Risk] Angular may defer the complete stylesheet through an inline event
   handler that the deployment CSP rejects. -> Mitigation: keep critical CSS
   inlining disabled and verify the generated production index.
+- [Risk] The Nginx entrypoint cannot update the read-only mounted config to add
+  its default IPv6 listener. -> Mitigation: keep the intentional read-only
+  mount and make the healthcheck use the configured IPv4 loopback address.
 
 ## Migration Plan
 

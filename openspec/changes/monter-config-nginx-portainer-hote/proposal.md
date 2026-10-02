@@ -15,6 +15,8 @@ l'hôte. Le frontend échoue donc lorsque Docker ne trouve pas le fichier source
   Portainer existante.
 - Rendre le chargement de la feuille CSS de production compatible avec la CSP
   Nginx, sans autoriser de script inline supplémentaire.
+- Rendre le healthcheck frontend indépendant de la résolution IPv6 de
+  `localhost` lorsque la configuration Nginx est montée en lecture seule.
 - Maintenir la synchronisation entre le dépôt applicatif et
   `gest-asso-deploiement`.
 
