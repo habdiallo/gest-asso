@@ -9,7 +9,13 @@ import {
   MemberStatus,
   UserRole,
 } from '@core/api';
-import type { Campaign, CampaignPage, CurrentUser, IncomeCategory } from '@core/api';
+import type {
+  Campaign,
+  CampaignPage,
+  CreateCampaignRequest,
+  CurrentUser,
+  IncomeCategory,
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { SessionService } from '@core/session/session.service';
@@ -506,7 +512,7 @@ describe('CampaignsListPage', () => {
 
   it('opens the create dialog, submits the campaign and reloads the first page (T-65)', async () => {
     const requestedPages: number[] = [];
-    let createRequest: unknown;
+    let serializedRequest: unknown;
     const fixture = await createFixture(
       (page) => {
         requestedPages.push(page);
@@ -514,7 +520,7 @@ describe('CampaignsListPage', () => {
       },
       {
         createCampaign: (request) => {
-          createRequest = request;
+          serializedRequest = JSON.parse(JSON.stringify(request));
           return of({ id: 'new-campaign' } as unknown as Campaign);
         },
       },
@@ -553,7 +559,13 @@ describe('CampaignsListPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(createRequest).toMatchObject({ name: 'Solidarité octobre' });
+    expect(serializedRequest).toMatchObject({
+      name: 'Solidarité octobre',
+      categoryAmounts: [{ incomeCategoryId: demoIncomeCategories[0].id, amount: 0 }],
+    });
+    expect(
+      Array.isArray((serializedRequest as Partial<CreateCampaignRequest>).categoryAmounts),
+    ).toBe(true);
     expect(fixture.componentInstance.createDialogOpen()).toBe(false);
     expect(requestedPages).toEqual([0, 0]);
   });

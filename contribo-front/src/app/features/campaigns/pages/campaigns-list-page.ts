@@ -23,6 +23,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
 import { Subject, debounceTime } from 'rxjs';
 import { CampaignCreateForm } from '../components/campaign-create-form/campaign-create-form';
+import { toCategoryAmountsArray } from '../campaign-category-amounts';
 import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel, campaignStatusTone } from '../campaign-status-labels';
 
@@ -234,8 +235,15 @@ export class CampaignsListPage {
     this.creating.set(true);
     this.createError.set(false);
 
+    const payload: CreateCampaignRequest = {
+      ...request,
+      categoryAmounts: toCategoryAmountsArray(
+        request.categoryAmounts,
+      ) as unknown as CreateCampaignRequest['categoryAmounts'],
+    };
+
     this.campaignsService
-      .createCampaign(request)
+      .createCampaign(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
