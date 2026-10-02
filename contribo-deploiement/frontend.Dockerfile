@@ -21,4 +21,4 @@ COPY --from=build /workspace/contribo-front/dist/contribo-front/browser /usr/sha
 
 EXPOSE 80 443
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
-    CMD wget --quiet --no-check-certificate --spider https://localhost/ || wget --quiet --spider http://localhost/ || exit 1
+    CMD wget --quiet --no-check-certificate --spider https://127.0.0.1/ || wget --quiet --spider http://127.0.0.1/ || exit 1
