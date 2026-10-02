@@ -32,6 +32,49 @@ Dans Portainer, les chemins peuvent être remplacés par
 `DB_PASSWORD_FILE_PATH`, `RSA_PUBLIC_KEY_FILE_PATH`,
 `RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
 
+Un exemple complet de variables pour cette stack est disponible dans
+`contribo-deploiement/portainer.env.example`. Le proxy Caddy doit rejoindre le
+réseau externe `frontend` et peut relayer le trafic vers le service frontend
+sur HTTP interne :
+
+```caddyfile
+integration.example.com {
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    reverse_proxy frontend:80
+}
+```
+
+La stack monte également `nginx.portainer.conf` dans le frontend. Ce fichier
+force Nginx à écouter en HTTP sur le port 80 interne, car l'image frontend
+embarque par défaut la configuration TLS de la stack d'intégration. Le fichier
+doit rester présent à côté de `compose.portainer.yaml` dans le dépôt utilisé par
+Portainer. Il récupère l'IP client transmise par Caddy pour que les limites de
+débit Nginx restent indexées par client. La configuration couvre la plage
+Docker privée `172.16.0.0/12`; adapter `set_real_ip_from` si le réseau Docker
+`frontend` utilise une autre plage.
+
+Dans cette composition, Caddy termine le HTTPS public, mais le backend doit
+faire confiance explicitement à l'adresse IP du conteneur frontend sur le
+réseau `contribo-internal`. Définir `TRUSTED_PROXY_HEADERS=true` et
+`TRUSTED_PROXY_ADDRESSES=172.30.0.10` dans les variables de la stack. La
+composition fixe cette adresse avec `FRONTEND_INTERNAL_IP` sur le réseau
+`INTERNAL_NETWORK_SUBNET`. Les variables de certificat TLS du frontend restent
+inutiles pour Portainer.
+
+Par défaut, utiliser :
+
+```text
+INTERNAL_NETWORK_SUBNET=172.30.0.0/24
+FRONTEND_INTERNAL_IP=172.30.0.10
+TRUSTED_PROXY_ADDRESSES=172.30.0.10
+```
+
+Choisir une plage qui n'est utilisée par aucun autre réseau Docker de l'hôte.
+Si `contribo-internal` existe déjà avec une ancienne configuration, arrêter la
+stack, vérifier avec `docker network inspect contribo-internal` qu'elle ne
+contient que les conteneurs Contribo, puis la recréer lors du prochain
+déploiement. Ne pas supprimer un réseau partagé par d'autres stacks.
+
 Le bootstrap ne s'exécute que si aucun compte administrateur ni autre compte
 utilisateur n'existe. Il crée l'association, une catégorie de revenu, le
 membre technique et son compte administrateur avec `must_change_password`.
