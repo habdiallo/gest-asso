@@ -29,7 +29,8 @@ first failed deployment.
 - Add `FRONTEND_NGINX_CONFIG_FILE_PATH` with a default such as
   `/etc/contribo/nginx/nginx.portainer.conf`.
 - Mount `${FRONTEND_NGINX_CONFIG_FILE_PATH}` read-only at
-  `/etc/nginx/conf.d/default.conf`.
+  `/etc/nginx/conf.d/default.conf` with `bind.create_host_path: false`, so
+  Compose fails explicitly when the source file is missing or is a directory.
 - Provision the same file on the Docker host, outside the Portainer data
   volume, with mode `0644` and a parent directory mode `0755`.
 - Keep the deployment repository composition byte-identical to the application
@@ -51,11 +52,12 @@ first failed deployment.
 
 ## Migration Plan
 
-1. Create the host directory and copy the tracked Nginx configuration there.
-2. Set `FRONTEND_NGINX_CONFIG_FILE_PATH` in the Portainer stack environment.
-3. Pull the updated Git stack from `main` and redeploy.
-4. If the old source path is an empty directory, remove that directory after
-   stopping the stack, then redeploy.
+1. Stop the stack and remove any empty stale directory at the configured host
+   path or at the old relative source path, only after verifying it is
+   dedicated to this stack.
+2. Create the host directory and copy the tracked Nginx configuration there.
+3. Set `FRONTEND_NGINX_CONFIG_FILE_PATH` in the Portainer stack environment.
+4. Pull the updated Git stack from `main` and redeploy.
 5. Verify the frontend container healthcheck and the Caddy route.
 
 Rollback restores the previous composition and removes the new host path only

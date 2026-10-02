@@ -64,18 +64,25 @@ test -f /etc/contribo/nginx/nginx.portainer.conf
 Définir ensuite `FRONTEND_NGINX_CONFIG_FILE_PATH` dans les variables de la
 stack, puis utiliser l'action de rafraîchissement Git de Portainer avant le
 redéploiement. Vérifier aussi que le chemin est bien un fichier régulier sur
-l'hôte avec `stat` et non un répertoire. Le fichier récupère l'IP client
+l'hôte avec `stat` et non un répertoire. La syntaxe longue du montage désactive
+la création automatique du chemin source : si le fichier est absent ou si le
+chemin est un répertoire, Compose refuse le démarrage avec une erreur explicite.
+Le fichier récupère l'IP client
 transmise par Caddy pour que les limites de débit Nginx restent indexées par
 client. La configuration couvre la plage Docker privée `172.16.0.0/12`;
 adapter `set_real_ip_from` si le réseau Docker `frontend` utilise une autre
 plage.
 
-Après l'ancien montage relatif, Docker peut avoir créé un répertoire tel que
+Après un ancien montage avec création automatique, Docker peut avoir créé un
+répertoire au chemin configuré, par exemple
+`/etc/contribo/nginx/nginx.portainer.conf`, ou à l'ancien chemin relatif
 `/data/compose/<stack-id>/nginx.portainer.conf`. Arrêter la stack, inspecter
-ce chemin sur l'hôte, puis supprimer uniquement ce répertoire s'il est vide,
-dédié à cette stack et confirmé comme obsolète :
+le chemin concerné sur l'hôte, puis supprimer uniquement ce répertoire s'il est
+vide, dédié à cette stack et confirmé comme obsolète :
 
 ```bash
+ls -ld /etc/contribo/nginx/nginx.portainer.conf
+rmdir /etc/contribo/nginx/nginx.portainer.conf
 ls -ld /data/compose/<stack-id>/nginx.portainer.conf
 rmdir /data/compose/<stack-id>/nginx.portainer.conf
 ```
