@@ -1,0 +1,24 @@
+{
+  "runId": "qa-20261002133419-mp1y0a",
+  "anomalies": [
+    {
+      "anomalyId": "anomaly-6991c907a97b",
+      "fingerprint": "6dfbed031cbec2209aac1efed42f96c28865df831de584e8bc9a6c0b56c3a119",
+      "scenarioId": "scenario-ce2065ceb626",
+      "feature": "auth",
+      "classification": "confirmed",
+      "category": "security",
+      "severity": "Major",
+      "priority": "P1",
+      "title": "Accès à l'espace personnel avant le changement de mot de passe",
+      "condition": "Session temporaire active avant la première définition du mot de passe",
+      "expected": "the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen",
+      "observed": "Après une connexion avec un compte temporaire, l'ouverture directe de /mon-espace affiche le profil Membre avant le changement de mot de passe obligatoire. Une nouvelle tentative reproduit le même accès, alors que les actions d'onglet redirigent ensuite vers /changer-mot-de-passe.",
+      "environment": "local",
+      "evidence": [],
+      "technicalHints": [
+        "Vérifier le guard de route de /mon-espace et le contrôle PASSWORD_CHANGE_REQUIRED avant le rendu initial."
+      ]
+    }
+  ]
+}
