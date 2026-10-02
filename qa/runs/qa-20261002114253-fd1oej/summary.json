@@ -1,0 +1,31 @@
+{
+  "runId": "qa-20261002114253-fd1oej",
+  "profile": "targeted",
+  "environment": "local",
+  "scenariosPrepared": 54,
+  "scenariosExecuted": 3,
+  "passed": 3,
+  "failed": 0,
+  "blocked": 0,
+  "notApplicable": 0,
+  "anomaliesDetected": 0,
+  "anomaliesBySeverity": {
+    "Blocker": 0,
+    "Critical": 0,
+    "Major": 0,
+    "Minor": 0,
+    "Trivial": 0
+  },
+  "tickets": [],
+  "blockers": [],
+  "uncoveredFeatures": [
+    "account",
+    "auth",
+    "campaigns",
+    "dashboard",
+    "income-categories",
+    "member-space",
+    "shell",
+    "social-funds"
+  ]
+}

@@ -123,6 +123,10 @@ describe('RolesUsersPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
+    const tableHost = root.querySelector('app-data-table');
+    expect(tableHost?.className).toContain('hidden tablet:block');
+    expect(tableHost?.querySelector('caption')?.textContent).toContain('Utilisateurs et rôles');
+    expect(root.querySelector('[role="list"]')?.className).toContain('tablet:hidden');
     expect(root.textContent).toContain('Fatou Sow');
     expect(root.textContent).toContain('Opérateur');
     expect(root.textContent).toContain('Autorisé');

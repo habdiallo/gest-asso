@@ -23,6 +23,7 @@ import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -118,6 +119,7 @@ const MEMBERS_PAGE_SIZE = 10;
     RouterLink,
     ActionButton,
     ApiErrorRetry,
+    DataTable,
     EmptyState,
     FormDialog,
     LoadingSkeleton,

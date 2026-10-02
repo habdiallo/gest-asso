@@ -13,6 +13,7 @@ Le ticket T-186 a supprimé le runtime MSW du frontend, mais sa livraison a lais
 - Fiabiliser les mutations authentifiées quand le navigateur ne rend pas le cookie CSRF lisible, sans désactiver la protection pour les requêtes cross-site.
 - Centraliser le contrat OpenAPI dans `contribo-back/src/main/resources/contribo-api.yml`, comme source unique du backend, du client Angular, des images Docker et de l'agent QA.
 - Rendre le rendu des cartes cagnottes tolérant aux champs financiers optionnels absents ou renvoyés à `null`, afin de conserver les informations métier et de masquer uniquement la jauge lorsqu'aucun objectif n'est défini.
+- Rétablir le rendu responsive des collections : le composant `app-data-table` est utilisé sur desktop et tablette, tandis que les cartes mobiles existantes restent affichées sous le breakpoint `tablet`, sans modifier les règles métier ni la pagination.
 
 ## Capabilities
 
