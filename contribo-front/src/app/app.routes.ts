@@ -96,7 +96,7 @@ export const routes: Routes = [
     path: 'mon-espace',
     // Espace personnel du membre (T-95) : profil en lecture seule, réservé à
     // un utilisateur authentifié, quel que soit son rôle applicatif.
-    canMatch: [authenticatedMatch],
+    canMatch: [activeSessionMatch],
     loadChildren: () =>
       import('@features/member-space/member-space.routes').then((m) => m.MEMBER_SPACE_ROUTES),
   },

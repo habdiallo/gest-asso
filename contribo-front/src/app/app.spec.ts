@@ -10,7 +10,10 @@ import fr from '@assets/i18n/fr.json';
 import { App } from './app';
 import { routes } from './app.routes';
 
-function buildLoginResponse(role: CurrentUser['role']): LoginResponse {
+function buildLoginResponse(
+  role: CurrentUser['role'],
+  mustChangePassword = false,
+): LoginResponse {
   return {
     accessToken: 'session-token-value',
     tokenType: 'Bearer',
@@ -33,6 +36,7 @@ function buildLoginResponse(role: CurrentUser['role']): LoginResponse {
       role,
       operatorCanRecordPayments: false,
       accountActive: true,
+      mustChangePassword,
     },
   };
 }
@@ -282,6 +286,14 @@ describe('App', () => {
     await RouterTestingHarness.create('/categories-de-revenu');
 
     expect(TestBed.inject(Router).url).toBe('/login');
+  });
+
+  it('redirects a limited session away from the member space', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('MEMBER', true));
+
+    await RouterTestingHarness.create('/mon-espace');
+
+    expect(TestBed.inject(Router).url).toBe('/changer-mot-de-passe');
   });
 
   // T-99 (RG-DATA-001) : un Membre ne consulte que ses propres données via

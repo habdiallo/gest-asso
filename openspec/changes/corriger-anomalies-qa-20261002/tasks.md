@@ -1,10 +1,10 @@
 ## 1. T-190, bloquer les sessions limitées
 
-- [ ] 1.1 [T-190] Résoudre T-190, confirmer `front/fix-190-bloquer-session-limitee-routes-metier` et exécuter `node scripts/tickets.mjs verify T-190` avant le code.
-- [ ] 1.2 [T-190] Modifier la garde de `/mon-espace` pour refuser une session portant `mustChangePassword=true` et rediriger vers `/changer-mot-de-passe`.
-- [ ] 1.3 [T-190] Ajouter le test de non-régression de la garde pour une session limitée et conserver l'accès pour une session active.
-- [ ] 1.4 [T-190] Exécuter les tests frontend ciblés, la suite frontend et le build, puis relire le diff.
-- [ ] 1.5 [T-190] Préparer la PR `front/fix-190-bloquer-session-limitee-routes-metier` vers `develop` avec les validations réelles.
+- [x] 1.1 [T-190] Résoudre T-190, confirmer `front/fix-190-bloquer-session-limitee-routes-metier` et exécuter `node scripts/tickets.mjs verify T-190` avant le code.
+- [x] 1.2 [T-190] Modifier la garde de `/mon-espace` pour refuser une session portant `mustChangePassword=true` et rediriger vers `/changer-mot-de-passe`.
+- [x] 1.3 [T-190] Ajouter le test de non-régression de la garde pour une session limitée et conserver l'accès pour une session active.
+- [x] 1.4 [T-190] Exécuter les tests frontend ciblés, la suite frontend et le build, puis relire le diff.
+- [x] 1.5 [T-190] Préparer la PR `front/fix-190-bloquer-session-limitee-routes-metier` vers `develop` avec les validations réelles.
 
 ## 2. T-191, traduire l'espace personnel
 
