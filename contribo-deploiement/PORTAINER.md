@@ -32,6 +32,21 @@ Dans Portainer, les chemins peuvent être remplacés par
 `DB_PASSWORD_FILE_PATH`, `RSA_PUBLIC_KEY_FILE_PATH`,
 `RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
 
+Un exemple complet de variables pour cette stack est disponible dans
+`contribo-deploiement/portainer.env.example`. Le proxy Caddy doit rejoindre le
+réseau externe `frontend` et peut relayer le trafic vers le service frontend
+sur HTTP interne :
+
+```caddyfile
+integration.example.com {
+    reverse_proxy frontend:80
+}
+```
+
+Dans cette composition, Caddy termine le HTTPS public. Les variables de
+certificat TLS du frontend et `TRUSTED_PROXY_ADDRESSES` de la composition
+d'intégration ne sont pas nécessaires pour la stack Portainer.
+
 Le bootstrap ne s'exécute que si aucun compte administrateur ni autre compte
 utilisateur n'existe. Il crée l'association, une catégorie de revenu, le
 membre technique et son compte administrateur avec `must_change_password`.
