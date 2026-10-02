@@ -4,10 +4,10 @@
   "environment": "local",
   "scenariosPrepared": 129,
   "scenariosExecuted": 20,
-  "passed": 15,
+  "passed": 11,
   "failed": 0,
-  "blocked": 0,
-  "notApplicable": 5,
+  "blocked": 5,
+  "notApplicable": 4,
   "anomaliesDetected": 0,
   "anomaliesBySeverity": {
     "Blocker": 0,

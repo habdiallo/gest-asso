@@ -74,16 +74,16 @@
     {
       "resultId": "result-d4532c84667a",
       "scenarioId": "scenario-1187b61018c4",
-      "status": "Réussi",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Administrateur",
       "expected": "le frontend affiche la liste des cagnottes avec titre, type d'événement, période et statut, dans un espace visuellement séparé des campagnes de cotisation (RG-CAG-001)",
-      "observation": "La page /cagnottes sépare les collectes sociales des campagnes et affiche titre, type, période, statut, montant collecté et contributeurs.",
+      "observation": "La liste des cagnottes est accessible, mais la séparation visuelle avec les campagnes de cotisation n'a pas été vérifiée avec une preuve exploitable dans ce run.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Preuve visuelle insuffisante pour confirmer le critère RG-CAG-001."
     },
     {
       "resultId": "result-eab3c4d90957",
@@ -116,16 +116,16 @@
     {
       "resultId": "result-cba91f6c0b3b",
       "scenarioId": "scenario-5314e779af32",
-      "status": "Réussi",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Administrateur",
       "expected": "une carte affiche le montant encaissé et le taux de collecte de cette campagne, et une",
-      "observation": "Le dashboard est accessible et affiche les cartes de bilan, avec les sélecteurs de campagne et de cagnotte. Un filtre de cagnotte QA peut être sélectionné.",
+      "observation": "Le dashboard et ses sélecteurs sont accessibles, mais les valeurs attendues des cartes de bilan de la campagne n'ont pas été observées individuellement dans ce run.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Vérification visuelle incomplète des cartes de bilan."
     },
     {
       "resultId": "result-99aa40fd1065",
@@ -214,16 +214,16 @@
     {
       "resultId": "result-2359a618c1fe",
       "scenarioId": "scenario-aec22efebdd0",
-      "status": "Non applicable",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Visiteur non authentifié",
       "expected": "un événement d'échec est écrit avec le même niveau de détail externe pour ces cas",
-      "observation": "Le formulaire vide affiche les validations obligatoires et une tentative invalide affiche un message générique. La journalisation backend n'est pas observable depuis l'interface.",
+      "observation": "Le formulaire vide affiche les validations obligatoires et une tentative invalide affiche un message générique, mais l'événement de journalisation backend attendu n'est pas observable depuis l'interface.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Accès aux logs backend indisponible pendant ce run."
     },
     {
       "resultId": "result-4f338a053c37",
@@ -242,30 +242,30 @@
     {
       "resultId": "result-de22992aca14",
       "scenarioId": "scenario-c3c39c3850f1",
-      "status": "Réussi",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Administrateur",
       "expected": "le frontend appelle l'API de mise à jour du rôle et reflète le nouveau rôle dans la liste et dans la navigation de l'utilisateur concerné à sa prochaine session",
-      "observation": "Les rôles des comptes QA ont été modifiés depuis la page d'administration et la liste reflète les rôles sélectionnés.",
+      "observation": "La liste d'administration reflète les rôles sélectionnés, mais la navigation de l'utilisateur après ouverture d'une nouvelle session n'a pas été vérifiée dans ce run.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Nouvelle session non observée."
     },
     {
       "resultId": "result-5b5e3cc40b93",
       "scenarioId": "scenario-dd6ff7d05346",
-      "status": "Réussi",
+      "status": "Bloqué",
       "executedAt": "2026-10-02T15:16:52.885Z",
       "environment": "local",
       "actor": "Administrateur",
       "expected": "le frontend appelle l'API correspondante et l'Opérateur concerné obtient l'accès aux actions d'enregistrement de règlements et de contributions dès sa prochaine consultation",
-      "observation": "L'autorisation d'enregistrement a été activée pour un compte Opérateur QA et l'état autorisé est visible dans la liste.",
+      "observation": "L'état autorisé est visible dans la liste d'administration, mais l'accès effectif de l'Opérateur aux actions de règlement et de contribution lors de sa prochaine consultation n'a pas été vérifié dans ce run.",
       "evidence": [],
       "reproducible": true,
       "expectedKnown": true,
-      "technicalCause": null
+      "technicalCause": "Consultation avec la session Opérateur non observée."
     },
     {
       "resultId": "result-93efdac429df",
