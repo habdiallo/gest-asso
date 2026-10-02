@@ -43,6 +43,12 @@ integration.example.com {
 }
 ```
 
+La stack monte également `nginx.portainer.conf` dans le frontend. Ce fichier
+force Nginx à écouter en HTTP sur le port 80 interne, car l'image frontend
+embarque par défaut la configuration TLS de la stack d'intégration. Le fichier
+doit rester présent à côté de `compose.portainer.yaml` dans le dépôt utilisé par
+Portainer.
+
 Dans cette composition, Caddy termine le HTTPS public. Les variables de
 certificat TLS du frontend et `TRUSTED_PROXY_ADDRESSES` de la composition
 d'intégration ne sont pas nécessaires pour la stack Portainer.
