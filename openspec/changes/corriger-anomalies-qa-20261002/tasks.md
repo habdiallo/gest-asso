@@ -25,4 +25,4 @@
 - [x] 4.1 [T-193] Résoudre T-193, confirmer `infra/test-193-publier-reprise-qa-locale` et exécuter `node scripts/tickets.mjs verify T-193` avant la publication.
 - [x] 4.2 [T-193] Ajouter le run QA local final et mettre à jour l'index avec ses compteurs et ses limites.
 - [x] 4.3 [T-193] Vérifier l'absence de secrets dans les artefacts, contrôler le périmètre Git et nettoyer uniquement les données de test de la base locale.
-- [ ] 4.4 [T-193] Préparer la PR `infra/test-193-publier-reprise-qa-locale` vers `develop` avec les validations réelles.
+- [x] 4.4 [T-193] Préparer la PR `infra/test-193-publier-reprise-qa-locale` vers `develop` avec les validations réelles.
