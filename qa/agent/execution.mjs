@@ -1,5 +1,5 @@
 import { hashObject, normalizeText, nowIso, stableId } from './utils.mjs';
-import { redactEvidence } from './security.mjs';
+import { redactEvidence, redactText } from './security.mjs';
 
 const resultStatuses = new Set(['Réussi', 'Échoué', 'Bloqué', 'Non applicable']);
 const severities = new Set(['Blocker', 'Critical', 'Major', 'Minor', 'Trivial']);
@@ -18,11 +18,11 @@ export function compareScenario(scenario, observation, { environment, policy } =
     environment,
     actor: input.actor ?? null,
     expected: scenario.expected,
-    observation: input.observation ?? '',
+    observation: redactText(input.observation ?? ''),
     evidence: redactEvidence(input.evidence ?? [], policy),
     reproducible: input.reproducible !== false,
     expectedKnown: input.expectedKnown !== false,
-    technicalCause: input.technicalCause ?? null,
+    technicalCause: input.technicalCause ? redactText(input.technicalCause) : null,
   };
 }
 
