@@ -9,6 +9,9 @@ valeurs sensibles.
 
 - Conserver des placeholders explicites pour les valeurs dépendantes de
   l'environnement.
+- Documenter l'adresse IP exacte du frontend telle qu'elle est observée par le
+  backend, car Nginx relaie les appels API de Caddy vers le backend et le
+  résolveur compare cette adresse sans interpréter les plages CIDR.
 - Utiliser `FRONTEND_HTTP_PORT` et `FRONTEND_HTTPS_PORT`, consommées par la
   stack, à la place de `FRONTEND_PORT`.
 - Garder les références d'images sous forme de tags de release ou de digests,
