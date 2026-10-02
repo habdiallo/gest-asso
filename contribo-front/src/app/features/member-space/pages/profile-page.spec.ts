@@ -90,6 +90,16 @@ describe('ProfilePage', () => {
     expect(root.textContent).toContain('Actif');
   });
 
+  it('renders French labels instead of raw translation keys', async () => {
+    const fixture = await createFixture(buildCurrentUser());
+
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(text).toContain('Rôle');
+    expect(text).toContain('Accès personnel');
+    expect(text).not.toContain('memberSpace.profile.role');
+    expect(text).not.toContain('memberSpace.profile.personalAccessTitle');
+  });
+
   it('shows a placeholder for optional fields left blank', async () => {
     const fixture = await createFixture(buildCurrentUser());
 

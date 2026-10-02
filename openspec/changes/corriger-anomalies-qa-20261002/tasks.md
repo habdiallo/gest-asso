@@ -8,10 +8,10 @@
 
 ## 2. T-191, traduire l'espace personnel
 
-- [ ] 2.1 [T-191] Résoudre T-191, confirmer `front/fix-191-traduire-espace-personnel-membre` et exécuter `node scripts/tickets.mjs verify T-191` avant le code.
-- [ ] 2.2 [T-191] Ajouter les traductions françaises des clés `memberSpace.profile.role` et `memberSpace.profile.personalAccessTitle`.
-- [ ] 2.3 [T-191] Ajouter ou compléter le test du template du profil pour vérifier les libellés visibles et l'absence de clés brutes.
-- [ ] 2.4 [T-191] Exécuter les tests frontend ciblés, la suite frontend et le build, puis préparer la PR vers `develop`.
+- [x] 2.1 [T-191] Résoudre T-191, confirmer `front/fix-191-traduire-espace-personnel-membre` et exécuter `node scripts/tickets.mjs verify T-191` avant le code.
+- [x] 2.2 [T-191] Ajouter les traductions françaises des clés `memberSpace.profile.role` et `memberSpace.profile.personalAccessTitle`.
+- [x] 2.3 [T-191] Ajouter ou compléter le test du template du profil pour vérifier les libellés visibles et l'absence de clés brutes.
+- [x] 2.4 [T-191] Exécuter les tests frontend ciblés, la suite frontend et le build, puis préparer la PR vers `develop`.
 
 ## 3. T-192, publier le suivi QA
 
