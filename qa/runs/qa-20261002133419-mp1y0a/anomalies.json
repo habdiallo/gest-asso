@@ -12,7 +12,7 @@
       "priority": "P1",
       "title": "Accès à l'espace personnel avant le changement de mot de passe",
       "condition": "Session temporaire active avant la première définition du mot de passe",
-      "expected": "the API returns a session marked as password-change-only and the",
+      "expected": "the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen",
       "observed": "Après une connexion avec un compte temporaire, l'ouverture directe de /mon-espace affiche le profil Membre avant le changement de mot de passe obligatoire. Une nouvelle tentative reproduit le même accès, alors que les actions d'onglet redirigent ensuite vers /changer-mot-de-passe.",
       "environment": "local",
       "evidence": [],

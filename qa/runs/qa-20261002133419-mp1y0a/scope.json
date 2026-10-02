@@ -1172,9 +1172,9 @@
         "data": [],
         "steps": [
           "Préparer la situation : a user authenticates with valid credentials while",
-          "Observer : the API returns a session marked as password-change-only and the"
+          "Observer : the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen"
         ],
-        "expected": "the API returns a session marked as password-change-only and the",
+        "expected": "the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen",
         "priority": "P0",
         "status": "Planned",
         "references": [
@@ -5055,9 +5055,9 @@
         "data": [],
         "steps": [
           "Préparer la situation : un compte actif fournit des identifiants valides",
-          "Observer : la réponse contient un access token [REDACTED]é RS256 dont le sujet est l'UUID du compte et dont l'expiration respecte la configuration"
+          "Observer : la réponse contient un access token Bearer signé RS256 dont le sujet est l'UUID du compte et dont l'expiration respecte la configuration"
         ],
-        "expected": "la réponse contient un access token [REDACTED]é RS256 dont le sujet est l'UUID du compte et dont l'expiration respecte la configuration",
+        "expected": "la réponse contient un access token Bearer signé RS256 dont le sujet est l'UUID du compte et dont l'expiration respecte la configuration",
         "priority": "P0",
         "status": "Planned",
         "references": [
@@ -5165,7 +5165,7 @@
         "scenarioId": "scenario-08d80f95ae66",
         "feature": "auth",
         "name": "Hydratation après rechargement",
-        "context": "Contrat de login sans [REDACTED] frontend",
+        "context": "Contrat de login sans bearer token frontend",
         "preconditions": [],
         "data": [],
         "steps": [

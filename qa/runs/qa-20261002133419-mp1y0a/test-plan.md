@@ -1265,8 +1265,8 @@ Features non couvertes : aucune
 - Données : à définir
 - Étapes :
   1. Préparer la situation : a user authenticates with valid credentials while
-  2. Observer : the API returns a session marked as password-change-only and the
-- Résultat attendu : the API returns a session marked as password-change-only and the
+  2. Observer : the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen
+- Résultat attendu : the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen
 - Références : openspec/specs/account-password-lifecycle/spec.md
 
 ### scenario-d31270033974 - Ouverture réussie

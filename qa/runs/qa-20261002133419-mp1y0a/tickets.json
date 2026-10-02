@@ -12,10 +12,10 @@
       "preconditions": [],
       "reproductionSteps": [
         "Préparer la situation : a user authenticates with valid credentials while",
-        "Observer : the API returns a session marked as password-change-only and the"
+        "Observer : the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen"
       ],
       "observedBehavior": "Après une connexion avec un compte temporaire, l'ouverture directe de /mon-espace affiche le profil Membre avant le changement de mot de passe obligatoire. Une nouvelle tentative reproduit le même accès, alors que les actions d'onglet redirigent ensuite vers /changer-mot-de-passe.",
-      "expectedBehavior": "the API returns a session marked as password-change-only and the",
+      "expectedBehavior": "the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen",
       "severity": "Major",
       "priority": "P1",
       "userImpact": "Le parcours testé ne respecte pas le comportement attendu.",

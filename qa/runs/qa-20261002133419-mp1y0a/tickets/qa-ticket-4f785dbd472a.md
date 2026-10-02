@@ -15,7 +15,7 @@ Le scénario Temporary login opens the restricted flow produit un écart dans l'
 ## Reproduction
 
 1. Préparer la situation : a user authenticates with valid credentials while
-2. Observer : the API returns a session marked as password-change-only and the
+2. Observer : the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen
 
 ## Comportement observé
 
@@ -23,9 +23,9 @@ Après une connexion avec un compte temporaire, l'ouverture directe de /mon-espa
 
 ## Comportement attendu
 
-the API returns a session marked as password-change-only and the
+the API returns a session marked as password-change-only and the frontend directs the user to the mandatory password change screen
 
-## Critères d acceptance
+## Critères d'acceptation
 
 - Le scénario scenario-ce2065ceb626 respecte le résultat attendu.
 - Le comportement reste conforme pour les rôles et états couverts.
