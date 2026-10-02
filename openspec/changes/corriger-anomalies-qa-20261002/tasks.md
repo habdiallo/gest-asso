@@ -19,3 +19,10 @@
 - [x] 3.2 [T-192] Ajouter les runs QA finaux, leurs anomalies et tickets locaux, sans secret, mot de passe, cookie ou token.
 - [x] 3.3 [T-192] Ajouter un index de suivi indiquant les campagnes, compteurs, tickets correctifs, blocages et prochaine revalidation.
 - [x] 3.4 [T-192] Exécuter les contrôles QA/OpenSpec et préparer la PR `infra/test-192-suivre-campagne-qa-20261002` vers `develop`.
+
+## 4. T-193, publier la reprise QA locale
+
+- [x] 4.1 [T-193] Résoudre T-193, confirmer `infra/test-193-publier-reprise-qa-locale` et exécuter `node scripts/tickets.mjs verify T-193` avant la publication.
+- [x] 4.2 [T-193] Ajouter le run QA local final et mettre à jour l'index avec ses compteurs et ses limites.
+- [x] 4.3 [T-193] Vérifier l'absence de secrets dans les artefacts, contrôler le périmètre Git et nettoyer uniquement les données de test de la base locale.
+- [ ] 4.4 [T-193] Préparer la PR `infra/test-193-publier-reprise-qa-locale` vers `develop` avec les validations réelles.
