@@ -26,3 +26,9 @@
 - [x] 4.2 [T-193] Ajouter le run QA local final et mettre à jour l'index avec ses compteurs et ses limites.
 - [x] 4.3 [T-193] Vérifier l'absence de secrets dans les artefacts, contrôler le périmètre Git et nettoyer uniquement les données de test de la base locale.
 - [x] 4.4 [T-193] Préparer la PR `infra/test-193-publier-reprise-qa-locale` vers `develop` avec les validations réelles.
+
+## 5. T-194, corriger le classement de l'alignement visuel
+
+- [x] 5.1 [T-194] Résoudre T-194, confirmer `infra/test-194-corriger-suivi-qa-alignement` et exécuter `node scripts/tickets.mjs verify T-194` avant la modification des artefacts.
+- [x] 5.2 [T-194] Reclasser `scenario-9d665aa6c0e4` selon l'observation réellement disponible et synchroniser les compteurs du run et de l'index QA.
+- [x] 5.3 [T-194] Exécuter les validations JSON et tickets, puis préparer la PR `infra/test-194-corriger-suivi-qa-alignement` vers `develop`.
