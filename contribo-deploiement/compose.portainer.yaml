@@ -10,6 +10,8 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
       RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
       RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      TRUSTED_PROXY_HEADERS: ${TRUSTED_PROXY_HEADERS:-true}
+      TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:?TRUSTED_PROXY_ADDRESSES must be set}
       BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
       BOOTSTRAP_ADMIN_IDENTIFIER: ${BOOTSTRAP_ADMIN_IDENTIFIER:-admin}
       BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password

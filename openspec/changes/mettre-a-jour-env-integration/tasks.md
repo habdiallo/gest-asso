@@ -9,3 +9,4 @@
 - [x] 2.2 [T-195] Valider le fichier, le registre des tickets, le périmètre Git et préparer une PR vers `develop`.
 - [x] 2.3 [T-195] Ajouter un exemple Portainer cohérent avec les réseaux externes, la base PostgreSQL existante et la terminaison TLS par Caddy.
 - [x] 2.4 [T-195] Corriger la stack Portainer pour monter la configuration Nginx HTTP dédiée, documenter le fichier requis et synchroniser le dépôt consommé par Portainer.
+- [x] 2.5 [T-195] Traiter la revue Portainer : restaurer l'IP client pour les limites de débit, activer la confiance proxy backend et rétablir HSTS.

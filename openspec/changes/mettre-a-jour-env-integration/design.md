@@ -19,6 +19,10 @@ valeurs sensibles.
 - Monter `nginx.portainer.conf` dans le frontend Portainer pour remplacer la
   configuration TLS embarquée par une configuration HTTP interne. Caddy reste
   le seul composant exposé en HTTPS et relaie vers `frontend:80`.
+- Activer `TRUSTED_PROXY_HEADERS` et renseigner l'adresse exacte du conteneur
+  frontend observée par le backend. La configuration Nginx Portainer restaure
+  l'IP client depuis le header Caddy pour conserver les limites par client et
+  réémet HSTS.
 - Conserver ce fichier avec `compose.portainer.yaml` dans le dépôt de
   déploiement consommé par Portainer, puis synchroniser la copie de référence
   du dépôt applicatif.

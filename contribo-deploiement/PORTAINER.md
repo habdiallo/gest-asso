@@ -39,6 +39,7 @@ sur HTTP interne :
 
 ```caddyfile
 integration.example.com {
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
     reverse_proxy frontend:80
 }
 ```
@@ -47,11 +48,21 @@ La stack monte également `nginx.portainer.conf` dans le frontend. Ce fichier
 force Nginx à écouter en HTTP sur le port 80 interne, car l'image frontend
 embarque par défaut la configuration TLS de la stack d'intégration. Le fichier
 doit rester présent à côté de `compose.portainer.yaml` dans le dépôt utilisé par
+Portainer. Il récupère l'IP client transmise par Caddy pour que les limites de
+débit Nginx restent indexées par client. La configuration couvre la plage
+Docker privée `172.16.0.0/12`; adapter `set_real_ip_from` si le réseau Docker
+`frontend` utilise une autre plage.
+
+Dans cette composition, Caddy termine le HTTPS public, mais le backend doit
+faire confiance explicitement à l'adresse IP du conteneur frontend sur le
+réseau `contribo-internal`. Définir `TRUSTED_PROXY_HEADERS=true` et
+`TRUSTED_PROXY_ADDRESSES` avec cette adresse exacte dans les variables de la
+stack. Les variables de certificat TLS du frontend restent inutiles pour
 Portainer.
 
-Dans cette composition, Caddy termine le HTTPS public. Les variables de
-certificat TLS du frontend et `TRUSTED_PROXY_ADDRESSES` de la composition
-d'intégration ne sont pas nécessaires pour la stack Portainer.
+Pour retrouver l'adresse observée par le backend après un déploiement, utiliser
+`docker inspect` sur le conteneur frontend et relever son adresse du réseau
+`contribo-internal`. Elle peut changer après une recréation du conteneur.
 
 Le bootstrap ne s'exécute que si aucun compte administrateur ni autre compte
 utilisateur n'existe. Il crée l'association, une catégorie de revenu, le
