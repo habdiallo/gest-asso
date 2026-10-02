@@ -1,4 +1,5 @@
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
+import { activeSessionMatch } from '@core/session/authenticated.guard';
 import { routes } from './app.routes';
 
 describe('application routes', () => {
@@ -27,5 +28,13 @@ describe('application routes', () => {
     expect(accountRoute).toBeDefined();
     expect(accountRoute?.canMatch).toHaveLength(1);
     expect(accountRoute?.loadChildren).toBeTypeOf('function');
+  });
+
+  it('uses the active session guard for the member space route', () => {
+    const memberSpaceRoute = routes.find(
+      (route) => route.path === NAVIGATION_PATHS.memberSpace.slice(1),
+    );
+
+    expect(memberSpaceRoute?.canMatch).toEqual([activeSessionMatch]);
   });
 });
