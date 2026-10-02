@@ -23,6 +23,9 @@ valeurs sensibles.
   frontend observée par le backend. La configuration Nginx Portainer restaure
   l'IP client depuis le header Caddy pour conserver les limites par client et
   réémet HSTS.
+- Déclarer une plage IP dédiée au réseau interne géré par la stack et fixer
+  `FRONTEND_INTERNAL_IP` dans cette plage. Ainsi, `TRUSTED_PROXY_ADDRESSES` ne
+  change pas lors d'une recréation du frontend.
 - Conserver ce fichier avec `compose.portainer.yaml` dans le dépôt de
   déploiement consommé par Portainer, puis synchroniser la copie de référence
   du dépôt applicatif.

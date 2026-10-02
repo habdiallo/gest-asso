@@ -56,13 +56,24 @@ Docker privée `172.16.0.0/12`; adapter `set_real_ip_from` si le réseau Docker
 Dans cette composition, Caddy termine le HTTPS public, mais le backend doit
 faire confiance explicitement à l'adresse IP du conteneur frontend sur le
 réseau `contribo-internal`. Définir `TRUSTED_PROXY_HEADERS=true` et
-`TRUSTED_PROXY_ADDRESSES` avec cette adresse exacte dans les variables de la
-stack. Les variables de certificat TLS du frontend restent inutiles pour
-Portainer.
+`TRUSTED_PROXY_ADDRESSES=172.30.0.10` dans les variables de la stack. La
+composition fixe cette adresse avec `FRONTEND_INTERNAL_IP` sur le réseau
+`INTERNAL_NETWORK_SUBNET`. Les variables de certificat TLS du frontend restent
+inutiles pour Portainer.
 
-Pour retrouver l'adresse observée par le backend après un déploiement, utiliser
-`docker inspect` sur le conteneur frontend et relever son adresse du réseau
-`contribo-internal`. Elle peut changer après une recréation du conteneur.
+Par défaut, utiliser :
+
+```text
+INTERNAL_NETWORK_SUBNET=172.30.0.0/24
+FRONTEND_INTERNAL_IP=172.30.0.10
+TRUSTED_PROXY_ADDRESSES=172.30.0.10
+```
+
+Choisir une plage qui n'est utilisée par aucun autre réseau Docker de l'hôte.
+Si `contribo-internal` existe déjà avec une ancienne configuration, arrêter la
+stack, vérifier avec `docker network inspect contribo-internal` qu'elle ne
+contient que les conteneurs Contribo, puis la recréer lors du prochain
+déploiement. Ne pas supprimer un réseau partagé par d'autres stacks.
 
 Le bootstrap ne s'exécute que si aucun compte administrateur ni autre compte
 utilisateur n'existe. Il crée l'association, une catégorie de revenu, le

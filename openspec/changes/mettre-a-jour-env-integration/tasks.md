@@ -10,3 +10,4 @@
 - [x] 2.3 [T-195] Ajouter un exemple Portainer cohérent avec les réseaux externes, la base PostgreSQL existante et la terminaison TLS par Caddy.
 - [x] 2.4 [T-195] Corriger la stack Portainer pour monter la configuration Nginx HTTP dédiée, documenter le fichier requis et synchroniser le dépôt consommé par Portainer.
 - [x] 2.5 [T-195] Traiter la revue Portainer : restaurer l'IP client pour les limites de débit, activer la confiance proxy backend et rétablir HSTS.
+- [x] 2.6 [T-195] Stabiliser l'IP interne du frontend et documenter la recréation sûre du réseau Docker si sa configuration existante doit être remplacée.
