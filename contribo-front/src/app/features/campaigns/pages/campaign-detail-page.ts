@@ -38,6 +38,7 @@ import { formatCalendarDate } from '../campaign-dates';
 import { campaignStatusLabel } from '../campaign-status-labels';
 import { CampaignDuesTab } from '../components/campaign-dues-tab/campaign-dues-tab';
 import { CampaignPaymentsTab } from '../components/campaign-payments-tab/campaign-payments-tab';
+import { toCategoryAmountsArray } from '../campaign-category-amounts';
 
 /** Identifiant d'un onglet de l'écran détail de campagne (T-60, US-COT-004). */
 export type CampaignDetailTab = 'situation' | 'categories' | 'payments';
@@ -371,14 +372,10 @@ export class CampaignDetailPage {
         amount: amounts[index] ?? 0,
       }),
     );
-    // `categoryAmounts` est typé `Set<...>` par le générateur (uniqueItems du
-    // contrat), mais le corps JSON transmis doit rester un tableau : un vrai
-    // `Set` se sérialiserait en `{}` (`JSON.stringify(new Set(...))`). On
-    // conserve donc un tableau au moment de l'appel, avec ce transtypage vers
-    // le type généré uniquement pour satisfaire le compilateur.
     const payload: UpdateCampaignCategoryAmountsRequest = {
-      categoryAmounts:
-        categoryAmountInputs as unknown as UpdateCampaignCategoryAmountsRequest['categoryAmounts'],
+      categoryAmounts: toCategoryAmountsArray(
+        categoryAmountInputs,
+      ) as unknown as UpdateCampaignCategoryAmountsRequest['categoryAmounts'],
     };
 
     this.submittingBareme.set(true);
