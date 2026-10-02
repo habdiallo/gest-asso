@@ -9,7 +9,7 @@
   avant de demander Spring, JPA, un package backend ou un test backend.
 - Ne pas exiger SSR, Transloco, des composants `ds-*` ou une bibliothèque absente.
   Le prototype `design/` fournit des références UX, pas une implémentation serveur.
-- API : `besoins/openapi.yaml` ; les clients générés ne sont pas édités à la main.
+- API : `contribo-back/src/main/resources/contribo-api.yml` ; les clients générés ne sont pas édités à la main.
   Vérifier endpoints, schémas, nullabilité, erreurs, pagination et autorisations
   contre le contrat réellement concerné.
 - Métier : `besoins/cahier-user-stories-mvp-association-v2.md` et les specs du change.

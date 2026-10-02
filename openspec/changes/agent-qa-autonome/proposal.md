@@ -28,6 +28,6 @@ Aucune exigence existante n'est modifiée. Le plan `manual-functional-test-plan`
 
 - Ticket local T-187, scope `infra`, type `feat`, branche `infra/feat-187-agent-qa-autonome`, dépendant de T-183, PR prévue vers `develop`.
 - Futur outillage d'agent, format des artefacts QA, index des runs et mécanisme de déduplication dans les répertoires dédiés à définir en conception.
-- Lecture des sources existantes : `contribo-front/src/app/features/`, `besoins/cahier-user-stories-mvp-association-v2.md`, `besoins/openapi.yaml`, les specs OpenSpec et le plan de T-183.
+- Lecture des sources existantes : `contribo-front/src/app/features/`, `besoins/cahier-user-stories-mvp-association-v2.md`, `contribo-back/src/main/resources/contribo-api.yml`, les specs OpenSpec et le plan de T-183.
 - Utilisation possible d'un navigateur ou d'une session d'environnement de recette pour l'observation manuelle. Aucun accès aux données de production ne doit être requis.
 - Aucun changement de comportement métier, d'API ou de données de production n'est inclus dans cette proposition. Les éventuels tickets de correction issus d'un run seront des évolutions séparées avec leur propre scope et leur propre branche.

@@ -1,0 +1,47 @@
+{
+  "runId": "qa-20261002114253-fd1oej",
+  "results": [
+    {
+      "resultId": "result-1b74d9c96b26",
+      "scenarioId": "scenario-af1d944c1e2b",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:42:53.154Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "les mêmes données, transitions, navigations et résultats visibles sont produits",
+      "observation": "Le parcours nominal reste fonctionnel après la correction responsive. Les tests frontend confirment la présence de la table partagée, des cartes mobiles et de la pagination sans modification des requêtes métier.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    },
+    {
+      "resultId": "result-2be74abb8a9b",
+      "scenarioId": "scenario-f4356953b712",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:42:53.154Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "le frontend affiche la liste des utilisateurs avec leur rôle applicatif (Administrateur, Trésorier, Opérateur, Membre) et, pour les Opérateurs, l'état de leur attribut `peut_enregistrer_paiements`",
+      "observation": "La page /roles-utilisateurs affiche une table accessible sur la largeur desktop, avec le rôle applicatif, l'autorisation opérateur, l'état du compte et l'action de modification.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    },
+    {
+      "resultId": "result-10ad60d00ed7",
+      "scenarioId": "scenario-fda78a9b9184",
+      "status": "Réussi",
+      "executedAt": "2026-10-02T11:42:53.154Z",
+      "environment": "local",
+      "actor": "Administrateur",
+      "expected": "le frontend liste les membres avec leurs informations et distingue visuellement les membres actifs des membres inactifs (RG-MEM-007)",
+      "observation": "La page /membres affiche une table accessible sur la largeur desktop, avec ses en-têtes, ses lignes, les statuts et les actions de consultation.",
+      "evidence": [],
+      "reproducible": true,
+      "expectedKnown": true,
+      "technicalCause": null
+    }
+  ]
+}

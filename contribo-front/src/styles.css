@@ -141,6 +141,7 @@
   --spacing-table: 47.5rem;
 
   /* Seuils conservés, nommés par composition plutôt que répétés comme des valeurs arbitraires. */
+  --breakpoint-tablet: 41.3125rem;
   --breakpoint-content: 41.3125rem;
   --breakpoint-shell: 51.3125rem;
   --breakpoint-login: 73.8125rem;

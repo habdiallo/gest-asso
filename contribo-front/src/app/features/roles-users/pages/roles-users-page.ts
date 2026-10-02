@@ -11,6 +11,7 @@ import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { PageHeader } from '@shared/page-header/page-header';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
@@ -65,6 +66,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   imports: [
     TranslocoPipe,
     ActionButton,
+    DataTable,
     EmptyState,
     PageHeader,
     FormDialog,

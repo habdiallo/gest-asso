@@ -276,7 +276,11 @@ describe('MembersListPage', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
+    const tableHost = root.querySelector('app-data-table');
     const row = root.querySelector('tbody tr');
+    expect(tableHost?.className).toContain('hidden tablet:block');
+    expect(tableHost?.querySelector('caption')?.textContent).toContain('Membres');
+    expect(root.querySelector('[role="list"]')?.className).toContain('tablet:hidden');
     expect(row?.textContent).toContain('Diallo');
     expect(row?.textContent).toContain('Amadou');
     expect(row?.textContent).toContain('Bah');

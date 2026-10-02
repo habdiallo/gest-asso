@@ -52,7 +52,8 @@ public class SecurityConfig {
                 || "TRACE".equals(request.getMethod())
                 || "/auth/csrf".equals(RequestPaths.pathWithinApplication(request))
                 || "/auth/login".equals(RequestPaths.pathWithinApplication(request))
-                || request.getHeader("Authorization") != null) {
+                || request.getHeader("Authorization") != null
+                || "same-origin".equalsIgnoreCase(request.getHeader("Sec-Fetch-Site"))) {
             return false;
         }
         Cookie[] cookies = request.getCookies();

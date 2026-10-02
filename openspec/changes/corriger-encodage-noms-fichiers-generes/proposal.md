@@ -19,7 +19,7 @@ texte des tags dans le contrat lui-même.
 
 ## What Changes
 
-- Renommer les tags accentués de `besoins/openapi.yaml` vers des libellés
+- Renommer les tags accentués de `contribo-back/src/main/resources/contribo-api.yml` vers des libellés
   ASCII équivalents (`Categories de revenu`, `Reglements`,
   `Utilisateurs et roles`), sans changer les chemins, `operationId`, schémas
   ou règles d'autorisation d'aucune opération.
@@ -44,7 +44,7 @@ Aucune.
 
 ## Impact
 
-- `besoins/openapi.yaml` : renommage de 3 tags (`Catégories de revenu`,
+- `contribo-back/src/main/resources/contribo-api.yml` : renommage de 3 tags (`Catégories de revenu`,
   `Règlements`, `Utilisateurs et rôles`), consommé par les deux générateurs.
 - Code applicatif frontend qui importe les services générés concernés
   (features `income-categories`, `roles-users`, règlements dans `campaigns`/

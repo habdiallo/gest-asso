@@ -8,4 +8,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class DataTable {
   readonly caption = input.required<string>();
   readonly busy = input(false);
+  readonly tableClass = input('');
 }

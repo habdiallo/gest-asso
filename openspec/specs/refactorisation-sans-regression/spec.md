@@ -61,7 +61,7 @@ Un élément MUST NOT être supprimé comme code mort tant que ses imports stati
 
 ### Requirement: Alias stables pour les imports profonds
 
-Le frontend MUST utiliser des alias TypeScript pour les imports qui traversent plusieurs racines stables, notamment `@assets/*` pour `src/assets/*` et `@mocks/*` pour `src/mocks/*` lorsque ces alias sont retenus par l'audit. Les alias existants `@core/*`, `@shared/*`, `@features/*` et `@api` MUST respecter les frontières d'architecture et ne MUST NOT masquer une dépendance directe entre features.
+Le frontend MUST utiliser des alias TypeScript pour les imports qui traversent plusieurs racines stables, notamment `@assets/*` pour `src/assets/*`. Les alias existants `@core/*`, `@shared/*`, `@features/*` et `@api` MUST respecter les frontières d'architecture et ne MUST NOT masquer une dépendance directe entre features.
 
 #### Scenario: Import global profond migré
 
@@ -75,7 +75,7 @@ Le frontend MUST utiliser des alias TypeScript pour les imports qui traversent p
 
 #### Scenario: Dépendance entre features
 
-- **WHEN** un import ou un mock tente de relier directement deux features
+- **WHEN** un import tente de relier directement deux features
 - **THEN** l'alias ne contourne pas le contrôle d'architecture et la dépendance est refusée, déplacée vers une frontière neutre ou traitée par un ticket distinct
 
 ### Requirement: Validation progressive et livraison traçable
@@ -131,4 +131,3 @@ utilisables sans débordement.
 
 - **WHEN** la réponse API contient plus d'une page avec une taille de page de 10
 - **THEN** les contrôles de pagination sont affichés et permettent de naviguer entre les pages, sur desktop comme sur mobile
-

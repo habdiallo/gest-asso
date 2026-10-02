@@ -3,7 +3,7 @@ import type { PaymentMethod } from '@core/api';
 import { PAYMENT_METHOD_OPTIONS } from '@shared/payment-method-select/payment-method-options';
 
 /**
- * Libellés français des statuts de campagne (RG cf. `besoins/openapi.yaml`,
+ * Libellés français des statuts de campagne (RG cf. `contribo-back/src/main/resources/contribo-api.yml`,
  * schéma `CampaignStatus`) : à venir avant le début, ouverte jusqu'à la
  * clôture explicite, clôturée après clôture. Décision applicative : le
  * cahier ne fixe pas de libellé exact pour `UPCOMING`/`OPEN`, `CLOSED`

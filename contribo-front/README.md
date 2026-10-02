@@ -84,7 +84,7 @@ créées à l'initialisation. Les composants générés utilisent OnPush et CSS.
 
 ## API Design First et proxy
 
-Le contrat HTTP partagé est [besoins/openapi.yaml](../besoins/openapi.yaml), OpenAPI
+Le contrat HTTP partagé est [contribo-api.yml](../contribo-back/src/main/resources/contribo-api.yml), OpenAPI
 3.1, avec une base relative `/api/v1`. Le besoin fonctionnel et les règles de
 gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md).
 La distinction et l'ordre de décision sont décrits dans
@@ -123,11 +123,12 @@ npm run generate:api
 ```
 
 Après une modification du contrat, aligner les services et les tests concernés.
-Le client généré reste une sortie reproductible de `besoins/openapi.yaml` et ne
+Le client généré reste une sortie reproductible de `contribo-back/src/main/resources/contribo-api.yml` et ne
 devient jamais une source métier ou un contrat parallèle.
 
-`provideHttpClient()` est installé. Relier les credentials Bearer à la session
-réelle dans l'intégration d'authentification, sans faux jeton ni hôte dans les features.
+`provideHttpClient()` est installé. La session réelle repose sur le cookie
+HttpOnly `__Host-contribo-session`, transmis avec `withCredentials: true` par
+l'intercepteur d'authentification, sans faux jeton ni hôte dans les features.
 
 `proxy.conf.json` redirige `/api/**` vers `http://localhost:8080` sans réécriture.
 `8080` est une convention de développement à ajuster lorsque le backend existe.

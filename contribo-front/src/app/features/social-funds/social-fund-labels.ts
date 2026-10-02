@@ -2,7 +2,7 @@ import { SocialEventType, SocialFundStatus } from '@core/api';
 
 /**
  * Libellés français des statuts de cagnotte (T-82, schéma `SocialFundStatus` de
- * `besoins/openapi.yaml`). Domaine indépendant des campagnes de cotisation
+ * `contribo-back/src/main/resources/contribo-api.yml`). Domaine indépendant des campagnes de cotisation
  * (RG-CAG-001) : pas de mapping partagé avec `dashboard-status-labels.ts`.
  */
 const SOCIAL_FUND_STATUS_LABELS: Record<SocialFundStatus, string> = {

@@ -71,7 +71,12 @@ paths:
       security: []
       responses:
         '204':
-          description: Token CSRF initialisé dans un cookie.
+          description: Token CSRF initialisé dans un cookie et retourné dans l'en-tête de réponse.
+          headers:
+            X-XSRF-TOKEN:
+              description: Valeur non secrète à recopier dans l'en-tête des requêtes mutantes.
+              schema:
+                type: string
 
   /auth/password/change:
     post:

@@ -73,7 +73,7 @@ describe('sessionExpiredInterceptor', () => {
     expect(observedError).toBeTruthy();
   });
 
-  it('keeps the session and propagates a 401 from a business endpoint', () => {
+  it('clears the session and redirects when a business endpoint returns 401', () => {
     let observedError: unknown;
     httpClient
       .get('/api/v1/members')
@@ -86,8 +86,8 @@ describe('sessionExpiredInterceptor', () => {
         { status: 401, statusText: 'Unauthorized' },
       );
 
-    expect(session.user()).not.toBeNull();
-    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(session.user()).toBeNull();
+    expect(navigateSpy).toHaveBeenCalledWith('/login');
     expect(observedError).toBeTruthy();
   });
 

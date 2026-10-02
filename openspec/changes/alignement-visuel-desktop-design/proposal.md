@@ -28,5 +28,5 @@ Le même écart existe dans le dialogue de configuration : le comportement méti
 
 - Zones concernées pour T-122 : `contribo-front/src/app/features/roles-users/`, les traductions françaises associées, les mocks et les tests de composant.
 - Les composants partagés `action-button`, `custom-select` et `form-dialog` peuvent être réutilisés ou ajustés uniquement si l'alignement de T-122 l'exige, sans introduire de comportement spécifique aux rôles et utilisateurs dans `shared/`.
-- Aucun impact backend, contrat API `besoins/openapi.yaml`, migration ou dépendance npm.
+- Aucun impact backend, contrat API `contribo-back/src/main/resources/contribo-api.yml`, migration ou dépendance npm.
 - La branche et la PR de T-122 restent `front/fix-122-alignement-visuel-roles-utilisateurs` vers `main`, après le prérequis T-121.

@@ -5,14 +5,14 @@ TBD - created by archiving change aligner-backend-api-v1. Update Purpose after a
 ## Requirements
 ### Requirement: Le backend expose le contrat sous le préfixe /api/v1
 Le backend Spring Boot (`contribo-back`) SHALL exposer l'intégralité des chemins définis dans
-`besoins/openapi.yaml` (authentification et ressources métier) sous le préfixe `/api/v1`, via le
+`contribo-back/src/main/resources/contribo-api.yml` (authentification et ressources métier) sous le préfixe `/api/v1`, via le
 context-path du serveur, sans qu'aucun proxy intermédiaire (Nginx, proxy de développement Angular)
 n'ait à réécrire les chemins pour que le contrat soit respecté.
 
 #### Scenario: Connexion directe au backend sans proxy
 - **WHEN** un client envoie `POST /api/v1/auth/login` directement au backend (ex.
   `http://localhost:8080/api/v1/auth/login` en développement local)
-- **THEN** le backend répond comme le décrit `besoins/openapi.yaml` pour l'opération `login`,
+- **THEN** le backend répond comme le décrit `contribo-back/src/main/resources/contribo-api.yml` pour l'opération `login`,
   sans nécessiter de réécriture de chemin par un tiers
 
 #### Scenario: Ressource métier générée depuis le contrat
@@ -66,4 +66,3 @@ appliquer une politique distincte (ex. limitation de débit), jamais pour rééc
 - **WHEN** un client envoie `GET /api/v1/members` à travers Nginx avec une session valide
 - **THEN** Nginx transmet la requête telle quelle (même chemin `/api/v1/members`) au backend, qui
   répond `200`
-

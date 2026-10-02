@@ -2,7 +2,7 @@
 
 Le frontend Angular expose actuellement les parcours suivants : connexion et changement de mot de passe, tableau de bord, membres, catégories de revenu, campagnes de cotisation, cagnottes, utilisateurs et rôles, compte personnel et espace personnel du membre. Les routes et les fonctionnalités sont organisées par feature dans `contribo-front/src/app/features/`.
 
-Le plan doit être exécutable sur un environnement intégrant le frontend et une API conforme à `besoins/openapi.yaml`. Il doit s'appuyer sur le cahier des user stories et les règles métier, notamment la séparation entre rôle applicatif et fonction associative, les quatre rôles disponibles et l'attribut global `operatorCanRecordPayments`.
+Le plan doit être exécutable sur un environnement intégrant le frontend et une API conforme à `contribo-back/src/main/resources/contribo-api.yml`. Il doit s'appuyer sur le cahier des user stories et les règles métier, notamment la séparation entre rôle applicatif et fonction associative, les quatre rôles disponibles et l'attribut global `operatorCanRecordPayments`.
 
 Le tableau de bord est un point de contrôle de disponibilité important. T-181 a corrigé l'absence de `GET /dashboard` sur la branche de référence. Le plan conserve donc un contrôle de prérequis général pour vérifier que cette opération critique reste disponible et signaler tout blocage sans le masquer par un résultat simulé.
 

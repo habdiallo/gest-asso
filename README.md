@@ -5,7 +5,7 @@ Prototype responsive de l’application de gestion associative, construit à par
 ## Sources de vérité
 
 Le [cahier métier](besoins/cahier-user-stories-mvp-association-v2.md) décrit les
-parcours, les invariants et les règles de gestion. Le [contrat OpenAPI](besoins/openapi.yaml)
+parcours, les invariants et les règles de gestion. Le [contrat OpenAPI](contribo-back/src/main/resources/contribo-api.yml)
 décrit les échanges HTTP consommés par le frontend et le backend. Ces documents
 sont complémentaires et leur séparation, les liens entre eux et la chaîne de
 génération sont détaillés dans [besoins/README.md](besoins/README.md).
@@ -71,7 +71,7 @@ Le frontend suit une architecture par fonctionnalités (`features/`, `core/`, `s
 avec routage lazy, ESLint Angular/TypeScript, Prettier, Vitest et génération API explicite.
 Voir [le README frontend](contribo-front/README.md) pour les commandes et configurations.
 L'architecture hexagonale est réservée au backend. Le contrat partagé reste
-`besoins/openapi.yaml` et le prototype reste `design/`.
+`contribo-back/src/main/resources/contribo-api.yml` et le prototype reste `design/`.
 
 ## Skills et agents IA
 

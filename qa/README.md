@@ -24,6 +24,11 @@ Le profil `smoke` prépare les contrôles critiques, `full` reprend la couvertur
 
 Les runs sont écrits dans `qa/runs/<runId>/` et contiennent un inventaire, un plan, les résultats, les anomalies, les tickets QA, un manifeste et une synthèse. Les tickets QA sont des artefacts de correction. Leur promotion dans le registre local et leur branche dédiée restent soumises au workflow du dépôt.
 
+Le contrat OpenAPI utilisé par la découverte et les manifestes QA est
+`contribo-back/src/main/resources/contribo-api.yml`. Les runs déjà présents dans
+`qa/runs/` sont des instantanés historiques et conservent volontairement les
+chemins et références observés au moment de leur exécution.
+
 Les formats sont définis dans `qa/schemas/`, la politique de données dans `qa/policy.json` et les tests de comportement dans `tests/qa-agent.test.mjs`.
 
 Le contrat d'observations est défini dans `qa/schemas/qa-observations.schema.json`. Le mode guidé de `qa/agent/adapters.mjs` reste disponible comme fallback tant que le skill IA et les capacités navigateur de l'hôte ne couvrent pas tous les parcours. Une action sensible reste non applicable tant que la confirmation attendue n'est pas fournie.

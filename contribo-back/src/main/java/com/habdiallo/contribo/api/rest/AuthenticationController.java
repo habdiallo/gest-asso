@@ -73,8 +73,10 @@ public class AuthenticationController {
 
     @GetMapping("/auth/csrf")
     public ResponseEntity<Void> csrf(CsrfToken token) {
-        token.getToken();
-        return ResponseEntity.noContent().build();
+        String csrfToken = token.getToken();
+        return ResponseEntity.noContent()
+                .header("X-XSRF-TOKEN", csrfToken)
+                .build();
     }
 
     @PostMapping("/auth/password/change")

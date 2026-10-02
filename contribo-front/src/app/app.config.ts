@@ -16,8 +16,9 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { TranslocoHttpLoader } from '@core/i18n/transloco-http.loader';
-import { EspacePersonnelService } from '@core/api';
+import { AuthentificationService, EspacePersonnelService } from '@core/api';
 import { authInterceptor } from '@core/session/auth.interceptor';
+import { csrfInterceptor } from '@core/session/csrf.interceptor';
 import { sessionExpiredInterceptor } from '@core/session/session-expired.interceptor';
 import { SessionService } from '@core/session/session.service';
 
@@ -53,7 +54,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(
       withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
-      withInterceptors([authInterceptor, sessionExpiredInterceptor]),
+      withInterceptors([authInterceptor, csrfInterceptor, sessionExpiredInterceptor]),
     ),
     provideRouter(routes),
     provideTransloco({
@@ -74,6 +75,10 @@ export const appConfig: ApplicationConfig = {
       const session = inject(SessionService);
       const espacePersonnel = inject(EspacePersonnelService);
       return hydrateCurrentUser(session, espacePersonnel);
+    }),
+    provideAppInitializer(() => {
+      const authentification = inject(AuthentificationService);
+      return firstValueFrom(authentification.getCsrfToken().pipe(catchError(() => of(null))));
     }),
   ],
 };

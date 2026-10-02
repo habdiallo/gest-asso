@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 export const MIN_NODE_MAJOR = 22;
 export const MIN_JAVA_MAJOR = 11;
 export const GENERATOR_KEY = 'contribo-api';
+export const OPENAPI_SPEC_PATH = '../contribo-back/src/main/resources/contribo-api.yml';
 
 const frontendRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const require = createRequire(import.meta.url);
@@ -122,7 +123,7 @@ function main(command) {
     return;
   }
   if (command === 'validate') {
-    runGenerator(['validate', '-i', '../besoins/openapi.yaml']);
+    runGenerator(['validate', '-i', OPENAPI_SPEC_PATH]);
     return;
   }
   if (command === 'generate') {

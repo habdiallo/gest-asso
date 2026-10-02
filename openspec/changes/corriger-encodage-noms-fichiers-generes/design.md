@@ -18,7 +18,7 @@ accentués sont mieux transformés : `espace-personnel`, `tableau-de-bord` »),
 ces deux tags de référence (`Espace personnel`, `Tableau de bord`) ne
 contiennent en réalité aucun caractère accentué : ce ne sont pas des
 contre-exemples. Vérification faite sur l'ensemble des 10 tags du contrat
-(`grep -n "tags:" besoins/openapi.yaml`), les 3 tags accentués sont
+(`grep -n "tags:" contribo-back/src/main/resources/contribo-api.yml`), les 3 tags accentués sont
 systématiquement et intégralement affectés, sans exception. Ce n'est donc
 pas une incohérence de traitement entre tags, mais un défaut de
 sanitization du générateur qui s'applique uniformément à tout caractère
@@ -54,7 +54,7 @@ générateur différent (`spring` vs `typescript-angular`), donc il faudrait
 maintenir deux contournements distincts pour le même défaut, et (b) un tag
 displayable en toutes lettres accentuées dans le contrat n'apporte aucune
 valeur ici : les tags ne sont consommés que pour la génération de code, jamais
-affichés. Renommer les 3 tags dans `besoins/openapi.yaml`
+affichés. Renommer les 3 tags dans `contribo-back/src/main/resources/contribo-api.yml`
 (`Catégories de revenu` → `Categories de revenu`,
 `Règlements` → `Reglements`, `Utilisateurs et rôles` → `Utilisateurs et roles`)
 corrige les deux générateurs d'un seul coup, sans configuration

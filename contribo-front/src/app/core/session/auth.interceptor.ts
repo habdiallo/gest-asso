@@ -1,4 +1,3 @@
-import { inject } from '@angular/core';
 import type { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

@@ -1,7 +1,7 @@
 # Contribo backend
 
 Le backend est construit à partir du contrat HTTP OpenAPI partagé dans
-[`../besoins/openapi.yaml`](../besoins/openapi.yaml). Le besoin fonctionnel et les
+[`src/main/resources/contribo-api.yml`](src/main/resources/contribo-api.yml). Le besoin fonctionnel et les
 règles de gestion restent dans le [cahier métier](../besoins/cahier-user-stories-mvp-association-v2.md) :
 le backend ne doit pas déduire une nouvelle règle d'un DTO généré. La séparation
 des responsabilités et la chaîne complète sont détaillées dans
@@ -48,7 +48,7 @@ mvn verify
 ```
 
 Les sources générées sous `target/` ne sont pas éditées manuellement. Une
-modification d'interface commence dans `besoins/openapi.yaml`, après clarification
+modification d'interface commence dans `src/main/resources/contribo-api.yml`, après clarification
 du besoin métier, puis le client Angular, les adaptateurs et les tests concernés
 sont régénérés ou alignés avant la livraison.
 

@@ -23,6 +23,7 @@ import { Subject, debounceTime } from 'rxjs';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
+import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { FormDialog } from '@shared/form-dialog/form-dialog';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
@@ -76,7 +77,7 @@ const MEMBERS_PAGE_SIZE = 10;
  * elles sont nécessaires à ses opérations courantes.
  *
  * Filtre par catégorie de revenu (T-26) : `GET /members`
- * (`besoins/openapi.yaml`, `listMembers`) n'expose aucun paramètre de requête
+ * (`contribo-back/src/main/resources/contribo-api.yml`, `listMembers`) n'expose aucun paramètre de requête
  * pour filtrer par catégorie (seuls `page`, `size`, `q` et `status` existent),
  * contrairement au filtre statut qui pourra s'appuyer sur `MemberStatusFilter`.
  * Ce ticket n'invente donc pas de paramètre serveur : le filtre s'applique
@@ -118,6 +119,7 @@ const MEMBERS_PAGE_SIZE = 10;
     RouterLink,
     ActionButton,
     ApiErrorRetry,
+    DataTable,
     EmptyState,
     FormDialog,
     LoadingSkeleton,
@@ -346,9 +348,10 @@ export class MembersListPage {
       .subscribe({
         next: (creation: MemberCreationResponse | MemberDetails) => {
           const member = 'member' in creation ? creation.member : creation;
-          const credentials = 'credentials' in creation
-            ? creation.credentials
-            : { identifier: '', temporaryPassword: '' };
+          const credentials =
+            'credentials' in creation
+              ? creation.credentials
+              : { identifier: '', temporaryPassword: '' };
           this.loadPage(0);
           if (session !== this.createDialogSession) {
             return;
@@ -378,7 +381,9 @@ export class MembersListPage {
       return;
     }
     void navigator.clipboard.writeText(confirmation.credentials.temporaryPassword).then(() => {
-      this.createdConfirmation.update((current) => current ? { ...current, copied: true } : current);
+      this.createdConfirmation.update((current) =>
+        current ? { ...current, copied: true } : current,
+      );
     });
   }
 

@@ -52,20 +52,23 @@ export class LoginPage {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    this.authService.getCsrfToken().pipe(switchMap(() => this.authService.login(this.form.getRawValue()))).subscribe({
-      next: (response) => {
-        this.submitting.set(false);
-        this.sessionService.setSession(response);
-        void this.router.navigateByUrl(
-          response.user.mustChangePassword
-            ? NAVIGATION_PATHS.passwordChange
-            : NAVIGATION_PATHS.dashboard,
-        );
-      },
-      error: () => {
-        this.submitting.set(false);
-        this.errorMessage.set('auth.login.error');
-      },
-    });
+    this.authService
+      .getCsrfToken()
+      .pipe(switchMap(() => this.authService.login(this.form.getRawValue())))
+      .subscribe({
+        next: (response) => {
+          this.submitting.set(false);
+          this.sessionService.setSession(response);
+          void this.router.navigateByUrl(
+            response.user.mustChangePassword
+              ? NAVIGATION_PATHS.passwordChange
+              : NAVIGATION_PATHS.dashboard,
+          );
+        },
+        error: () => {
+          this.submitting.set(false);
+          this.errorMessage.set('auth.login.error');
+        },
+      });
   }
 }

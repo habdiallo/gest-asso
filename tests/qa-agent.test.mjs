@@ -22,7 +22,7 @@ function fixture(t) {
   put(root, 'contribo-front/src/app/features/auth/auth.routes.ts', "export const ROUTES = [{ path: 'login' }];\n");
   put(root, 'contribo-front/src/app/features/dashboard/dashboard.routes.ts', "export const ROUTES = [{ path: 'dashboard' }];\n");
   put(root, 'contribo-front/src/app/features/members/members.routes.ts', "export const ROUTES = [{ path: 'membres' }];\n");
-  put(root, 'besoins/openapi.yaml', 'paths:\n  /auth/login:\n    post:\n      summary: Se connecter\n      operationId: login\n  /dashboard:\n    get:\n      summary: Consulter le tableau de bord\n      operationId: getDashboard\n');
+  put(root, 'contribo-back/src/main/resources/contribo-api.yml', 'paths:\n  /auth/login:\n    post:\n      summary: Se connecter\n      operationId: login\n  /dashboard:\n    get:\n      summary: Consulter le tableau de bord\n      operationId: getDashboard\n');
   const spec = [
     '## ADDED Requirements',
     '',
@@ -71,6 +71,8 @@ test('discovers features, routes, API operations and stable scenarios', t => {
   assert.deepEqual(inventory.features.map(feature => feature.name), ['auth', 'dashboard', 'members']);
   assert.ok(inventory.routes.some(route => route.path === 'login'));
   assert.ok(inventory.operations.some(operation => operation.operationId === 'getDashboard'));
+  assert.ok(inventory.sources.some(source => source.path === 'contribo-back/src/main/resources/contribo-api.yml'));
+  assert.ok(!inventory.sources.some(source => source.path === 'besoins/openapi.yaml'));
   assert.equal(inventory.planScenarios[0].scenarioId, discoverProject({ root }).planScenarios[0].scenarioId);
   assert.equal(inventory.finishedOpenSpec.scenarioCount, 1);
   assert.ok(inventory.finishedOpenSpec.changes.some(change => change.change === 'livrer-fonctionnalite-membres'));

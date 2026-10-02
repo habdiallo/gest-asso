@@ -27,6 +27,6 @@ Aucune exigence produit existante n'est modifiée. Les specs fonctionnelles exis
 ## Impact
 
 - Documentation et artefacts OpenSpec uniquement dans ce change.
-- Sources de référence: `besoins/cahier-user-stories-mvp-association-v2.md`, `besoins/openapi.yaml`, les routes et fonctionnalités de `contribo-front/src/app/`, ainsi que les specs OpenSpec fonctionnelles existantes.
+- Sources de référence: `besoins/cahier-user-stories-mvp-association-v2.md`, `contribo-back/src/main/resources/contribo-api.yml`, les routes et fonctionnalités de `contribo-front/src/app/`, ainsi que les specs OpenSpec fonctionnelles existantes.
 - Aucun changement de code frontend ou backend, de contrat API, de migration, de dépendance ou de configuration d'exécution.
 - Ticket local: T-183, scope `docs`, type `chore`, branche `docs/chore-183-plan-tests-manuels-fonctionnels`, PR prévue vers `develop` si la livraison est demandée.

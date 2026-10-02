@@ -4,7 +4,7 @@
 `GET /dashboard` SHALL retourner un `ManagementDashboard` (`view: MANAGEMENT`)
 pour les rôles Administrateur, Trésorier et Opérateur, et un `MemberDashboard`
 (`view: MEMBER`) pour le rôle Membre, conformément au discriminant `view` du
-schéma `DashboardResponse` de `besoins/openapi.yaml`.
+schéma `DashboardResponse` de `contribo-back/src/main/resources/contribo-api.yml`.
 
 #### Scenario: Administrateur, Trésorier ou Opérateur connecté
 - **WHEN** un compte de rôle Administrateur, Trésorier ou Opérateur appelle

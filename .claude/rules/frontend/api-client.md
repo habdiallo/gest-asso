@@ -5,19 +5,19 @@ paths:
   - "contribo-front/angular.json"
   - "contribo-front/openapitools.json"
   - "contribo-front/proxy.conf.json"
-  - "besoins/openapi.yaml"
+  - "contribo-back/src/main/resources/contribo-api.yml"
 ---
 
 # Client API — Contribo, API Design First
 
 ## Contrat unique
 
-- `besoins/openapi.yaml` est la source de vérité des échanges frontend/backend.
+- `contribo-back/src/main/resources/contribo-api.yml` est la source de vérité des échanges frontend/backend.
 - Les tags OpenAPI du contrat sont exclusivement en ASCII (pas d'accent) : les générateurs actuellement épinglés (Angular et Spring) suppriment les caractères accentués sans translittération lors de la génération des noms de fichiers/classes, ce qui produit des symboles tronqués illisibles des deux côtés. Voir l'exigence « Tags du contrat en ASCII » de `openspec/specs/api-design-first-governance/spec.md`.
 - Consommer `operationId`, requêtes/réponses, enums, formats et codes d'erreur sans inventer de comportement serveur.
 - Préfixe contractuel : `/api/v1`, pas `/api` seul.
 - Aucun backend n'est présent. Le proxy de développement couvre `/api/**`, sans réécriture, vers `localhost:8080` (convention à ajuster à l'intégration backend).
-- La génération Angular est configurée dans `openapitools.json` depuis `../besoins/openapi.yaml`, avec générateur fixé et alias `@api`.
+- La génération Angular est configurée dans `openapitools.json` depuis `../contribo-back/src/main/resources/contribo-api.yml`, avec générateur fixé et alias `@api`.
 - Ne pas prétendre que le client se régénère au build, aux tests ou au démarrage.
 
 ## Génération et consommation
