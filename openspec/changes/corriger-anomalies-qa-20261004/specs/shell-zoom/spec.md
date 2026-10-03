@@ -1,6 +1,4 @@
-# shell-zoom Specification
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: La navigation reste lisible au zoom élevé
 
@@ -15,4 +13,3 @@ La navigation basse SHALL éviter tout chevauchement de libellés à 200 pour ce
 
 - **WHEN** l'utilisateur atteint la déconnexion avec Tab
 - **THEN** le focus est visible et le nom accessible est `Se déconnecter`
-

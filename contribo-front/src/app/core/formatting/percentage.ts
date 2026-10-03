@@ -11,5 +11,8 @@ export function formatPercentage(rate: number): string {
     throw new Error(`Un taux doit être un nombre fini : ${rate}`);
   }
 
-  return percentageFormatter.format(rate);
+  const roundedRate = Math.round((rate + Number.EPSILON) * 10) / 10;
+  const displayRate = rate < 100 && roundedRate >= 100 ? Math.floor(rate * 10) / 10 : roundedRate;
+
+  return percentageFormatter.format(displayRate);
 }

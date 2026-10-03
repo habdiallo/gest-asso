@@ -1,6 +1,4 @@
-# campaign-display Specification
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Les taux de collecte sont normalisés pour l'affichage
 
@@ -15,4 +13,3 @@ Les vues de campagne SHALL afficher un taux de collecte avec au maximum une déc
 
 - **WHEN** un indicateur reçoit une valeur comme `0.29296875`
 - **THEN** le texte visible est limité à une décimale au maximum et la valeur brute reste distincte du texte de présentation
-

@@ -203,6 +203,7 @@ describe('CampaignsListPage', () => {
     if (!baseCampaign.financialSummary) {
       throw new Error('The campaign fixture must include a financial summary');
     }
+    const baseFinancialSummary = baseCampaign.financialSummary;
 
     const fixture = await createFixture(() =>
       of(
@@ -211,8 +212,12 @@ describe('CampaignsListPage', () => {
             {
               ...baseCampaign,
               financialSummary: {
-                ...baseCampaign.financialSummary,
+                expectedAmount: baseFinancialSummary.expectedAmount,
+                collectedAmount: baseFinancialSummary.collectedAmount,
+                remainingAmount: baseFinancialSummary.remainingAmount,
                 collectionRate: 28.571428571428573,
+                dueCounts: baseFinancialSummary.dueCounts,
+                currency: baseFinancialSummary.currency,
               },
             },
           ],

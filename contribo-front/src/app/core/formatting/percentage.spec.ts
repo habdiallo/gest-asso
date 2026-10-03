@@ -10,6 +10,11 @@ describe('formatPercentage', () => {
     expect(formatPercentage(0.29296875)).toBe('0,3');
   });
 
+  it('does not display an incomplete collection as 100 percent', () => {
+    expect(formatPercentage(99.95)).toBe('99,9');
+    expect(formatPercentage(100)).toBe('100');
+  });
+
   it('rejects non-finite values', () => {
     expect(() => formatPercentage(Number.NaN)).toThrow('Un taux doit être un nombre fini');
   });
