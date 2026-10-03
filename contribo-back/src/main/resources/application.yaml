@@ -35,7 +35,7 @@ info:
 
 security:
   jwt:
-    expiration-seconds: ${JWT_EXPIRATION_SECONDS:900}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:1800}
   rsa:
     public-key: ${RSA_PUBLIC_KEY:classpath:certs/public.pem}
     private-key: ${RSA_PRIVATE_KEY:classpath:certs/private.pem}
