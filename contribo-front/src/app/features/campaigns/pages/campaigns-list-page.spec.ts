@@ -198,6 +198,39 @@ describe('CampaignsListPage', () => {
     expect(root.textContent).toContain('67%');
   });
 
+  it('normalizes long collection rates in the campaign card', async () => {
+    const baseCampaign = buildCampaignPage().items[0];
+    if (!baseCampaign.financialSummary) {
+      throw new Error('The campaign fixture must include a financial summary');
+    }
+    const baseFinancialSummary = baseCampaign.financialSummary;
+
+    const fixture = await createFixture(() =>
+      of(
+        buildCampaignPage({
+          items: [
+            {
+              ...baseCampaign,
+              financialSummary: {
+                expectedAmount: baseFinancialSummary.expectedAmount,
+                collectedAmount: baseFinancialSummary.collectedAmount,
+                remainingAmount: baseFinancialSummary.remainingAmount,
+                collectionRate: 28.571428571428573,
+                dueCounts: baseFinancialSummary.dueCounts,
+                currency: baseFinancialSummary.currency,
+              },
+            },
+          ],
+        }),
+      ),
+    );
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(text).toContain('28,6%');
+    expect(text).not.toContain('28.571428571428573');
+  });
+
   it('renders the status segments and exposes the upcoming campaign state', async () => {
     const fixture = await createFixture(() =>
       of(

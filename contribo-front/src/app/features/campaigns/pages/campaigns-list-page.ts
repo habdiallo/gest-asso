@@ -13,6 +13,7 @@ import { CampagnesService, CampaignStatus, UserRole } from '@core/api';
 import type { CampaignPage, CreateCampaignRequest } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { formatGnfAmountCondensed } from '@core/formatting/currency';
+import { formatPercentage } from '@core/formatting/percentage';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
@@ -136,6 +137,7 @@ export class CampaignsListPage {
 
   readonly formatCalendarDate = formatCalendarDate;
   readonly formatAmount = formatGnfAmountCondensed;
+  readonly formatRate = formatPercentage;
   readonly campaignStatusLabel = campaignStatusLabel;
   readonly campaignStatusTone = campaignStatusTone;
 

@@ -186,7 +186,7 @@
                   'dashboard.management.collectedDuesMeta'
                     | transloco
                       : {
-                          rate: scope.financialSummary.collectionRate,
+                          rate: formatRate(scope.financialSummary.collectionRate),
                           expected: formatAmountCondensed(scope.financialSummary.expectedAmount)
                             .text,
                         }
@@ -606,7 +606,7 @@
                           formatAmountCondensed(financialSummary.collectedAmount);
                         <div class="flex justify-between font-data text-[10px] text-text-3">
                           <span [title]="collectedAmount.fullText">{{ collectedAmount.text }}</span>
-                          <span>{{ financialSummary.collectionRate }}%</span>
+                          <span>{{ formatRate(financialSummary.collectionRate) }}%</span>
                         </div>
                         <div class="mt-2 h-[5px] overflow-hidden rounded-full bg-surface-2">
                           <span

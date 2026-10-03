@@ -354,6 +354,8 @@ describe('CampaignDetailPage', () => {
     expect(root.textContent).toContain('Reste à encaisser');
     expect(root.textContent).toContain('2 000 000 GNF');
     expect(root.textContent).toContain('40 / 60');
+    expect(root.textContent).toContain('66,7% collectés');
+    expect(root.textContent).not.toContain('66.7% collectés');
   });
 
   it('does not invent financial metrics when financialSummary is absent', async () => {

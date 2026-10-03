@@ -30,6 +30,7 @@ import { EMPTY, forkJoin } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
 import { formatGnfAmountCondensed, formatGnfAmountDetailed } from '@core/formatting/currency';
+import { formatPercentage } from '@core/formatting/percentage';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -234,6 +235,7 @@ export class DashboardPage {
   readonly formatAmount = formatGnfAmountDetailed;
   /** Montants condensés (K/M/Mds) des indicateurs de synthèse, alignés sur `design/` et les autres listes (campagnes, cagnottes). */
   readonly formatAmountCondensed = formatGnfAmountCondensed;
+  readonly formatRate = formatPercentage;
   readonly formatCalendarDate = formatCalendarDate;
   readonly formatInstant = formatInstant;
   readonly campaignStatusLabel = campaignStatusLabel;

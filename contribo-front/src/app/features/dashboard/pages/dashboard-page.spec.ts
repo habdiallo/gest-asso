@@ -393,6 +393,37 @@ describe('DashboardPage', () => {
     expect(progressFill?.style.width).toBe('67%');
   });
 
+  it('normalizes the visible campaign rate without changing the progress width', async () => {
+    const dashboard = buildManagementDashboard({
+      recentCampaigns: [
+        {
+          id: 'e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20',
+          name: 'Solidarité septembre',
+          startDate: '2026-09-01',
+          endDate: '2026-09-30',
+          status: 'OPEN',
+          memberCount: 86,
+          financialSummary: {
+            expectedAmount: 512000,
+            collectedAmount: 1500,
+            remainingAmount: 510500,
+            collectionRate: 0.29296875,
+            dueCounts: { total: 86, paid: 1, partiallyPaid: 0, unpaid: 85 },
+            currency: 'GNF',
+          },
+        },
+      ],
+    });
+    const fixture = await createFixture(() => of(dashboard));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('0,3%');
+    expect(root.textContent).not.toContain('0.29296875%');
+    const progressFill = root.querySelector<HTMLElement>('.bg-gradient-to-r.from-gold-hover');
+    expect(progressFill?.style.width).toBe('0.29296875%');
+  });
+
   it('hides the financial section entirely when financialOverview is absent', async () => {
     const dashboard = buildManagementDashboard({ financialOverview: undefined });
     const fixture = await createFixture(() => of(dashboard));

@@ -20,6 +20,7 @@ import type {
 } from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { formatGnfAmountDetailed } from '@core/formatting/currency';
+import { formatPercentage } from '@core/formatting/percentage';
 import { SessionService } from '@core/session/session.service';
 import type { TranslationKey } from '@core/i18n/translation-keys';
 import { ActionButton } from '@shared/action-button/action-button';
@@ -187,7 +188,7 @@ export class CampaignDetailPage {
         label: this.transloco.translate('campaigns.detail.metrics.collected'),
         value: this.formatGnfAmountDetailed(summary.collectedAmount),
         hint: this.transloco.translate('campaigns.detail.metrics.rate', {
-          rate: summary.collectionRate,
+          rate: formatPercentage(summary.collectionRate),
         }),
       },
       {
