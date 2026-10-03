@@ -111,6 +111,7 @@
     </dependencies>
 
     <build>
+        <finalName>contribo-back</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
