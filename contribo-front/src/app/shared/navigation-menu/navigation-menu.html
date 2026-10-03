@@ -54,6 +54,7 @@
           [routerLinkActiveOptions]="{ exact: exactRouteMatch(item.path) }"
           routerLinkActive="mobile-nav-link-active"
           ariaCurrentWhenActive="page"
+          [attr.aria-label]="item.label"
           [class]="linkClasses()"
         >
           <svg
@@ -85,7 +86,10 @@
               }
             }
           </svg>
-          <span [class.mobile-nav-label-long]="item.path === navigationPaths.rolesAndUsers">
+          <span
+            class="mobile-nav-link-label"
+            [class.mobile-nav-label-long]="item.path === navigationPaths.rolesAndUsers"
+          >
             {{ item.label }}
           </span>
         </a>

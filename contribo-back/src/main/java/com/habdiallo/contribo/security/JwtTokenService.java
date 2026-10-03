@@ -28,8 +28,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 @Service
 public class JwtTokenService {
 
-    private static final long MAX_EXPIRATION_SECONDS = 900;
-
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;
     private final long expirationSeconds;
@@ -39,14 +37,14 @@ public class JwtTokenService {
             JwtEncoder encoder,
             JwtDecoder decoder,
             @Value("${security.jwt.expiration-seconds}") long expirationSeconds) {
-        validateExpiration(expirationSeconds);
+        SessionDurationPolicy.validate(expirationSeconds);
         this.encoder = encoder;
         this.decoder = decoder;
         this.expirationSeconds = expirationSeconds;
     }
 
     public JwtTokenService(RSAPublicKey publicKey, RSAPrivateKey privateKey, long expirationSeconds) {
-        validateExpiration(expirationSeconds);
+        SessionDurationPolicy.validate(expirationSeconds);
         RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         this.encoder = new NimbusJwtEncoder(new ImmutableJWKSet<SecurityContext>(new JWKSet(rsaKey)));
         NimbusJwtDecoder rsaDecoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
@@ -103,12 +101,6 @@ public class JwtTokenService {
 
     public int expirationSeconds() {
         return Math.toIntExact(expirationSeconds);
-    }
-
-    private static void validateExpiration(long expirationSeconds) {
-        if (expirationSeconds < 1 || expirationSeconds > MAX_EXPIRATION_SECONDS) {
-            throw new IllegalArgumentException("JWT expiration must be between 1 and 900 seconds");
-        }
     }
 
     public record ParsedToken(UUID userId, boolean passwordChangeOnly) {

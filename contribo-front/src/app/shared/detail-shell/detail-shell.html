@@ -38,7 +38,10 @@
             {{ intro() }}
           </p>
         </div>
-        <div class="flex w-full flex-wrap gap-2.5 content:w-auto" detail-actions-slot>
+        <div
+          class="flex w-full flex-wrap gap-2.5 content:w-auto max-[1023px]:[&>app-action-button>a]:w-full max-[1023px]:[&>app-action-button>button]:w-full"
+          detail-actions-slot
+        >
           <ng-content select="[detail-actions]" />
         </div>
       </div>

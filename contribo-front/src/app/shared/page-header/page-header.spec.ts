@@ -26,6 +26,9 @@ describe('PageHeader', () => {
     expect(root.querySelector('header > div > p:last-child')?.textContent?.trim()).toBe(
       '86 membres actifs.',
     );
+    const actions = root.querySelector('header > div:last-child');
+    expect(actions?.className).toContain('max-[1023px]:w-full');
+    expect(actions?.className).toContain('max-[1023px]:[&>app-action-button>button]:w-full');
     expect(root.querySelector('button')?.textContent?.trim()).toBe('Ajouter');
   });
 });

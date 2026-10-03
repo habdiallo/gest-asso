@@ -178,6 +178,16 @@ describe('NavigationMenu', () => {
       ),
     ).toBe(true);
     expect(
+      Array.from(root.querySelectorAll('.mobile-nav-link')).every(
+        (link) => link.getAttribute('aria-label') === link.textContent?.trim(),
+      ),
+    ).toBe(true);
+    expect(
+      Array.from(root.querySelectorAll('.mobile-nav-link > span')).every(
+        (label) => label.classList.contains('mobile-nav-label-long') || label.textContent?.trim(),
+      ),
+    ).toBe(true);
+    expect(
       Array.from(root.querySelectorAll('nav a'))
         .map((link) => link.getAttribute('href'))
         .sort(),

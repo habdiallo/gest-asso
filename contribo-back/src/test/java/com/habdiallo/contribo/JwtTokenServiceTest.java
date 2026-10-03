@@ -51,4 +51,27 @@ class JwtTokenServiceTest {
                 .untilAsserted(() -> assertThatThrownBy(() -> tokenService.parseUserId(token))
                         .isInstanceOf(InvalidTokenException.class));
     }
+
+    @Test
+    void acceptsTheThirtyMinuteSessionLimit() {
+        KeyPair keyPair = TestRsaKeyMaterial.generate();
+        JwtTokenService tokenService = new JwtTokenService(
+                (java.security.interfaces.RSAPublicKey) keyPair.getPublic(),
+                (java.security.interfaces.RSAPrivateKey) keyPair.getPrivate(),
+                1_800);
+
+        assertThat(tokenService.expirationSeconds()).isEqualTo(1_800);
+    }
+
+    @Test
+    void rejectsSessionDurationsAboveThirtyMinutes() {
+        KeyPair keyPair = TestRsaKeyMaterial.generate();
+
+        assertThatThrownBy(() -> new JwtTokenService(
+                (java.security.interfaces.RSAPublicKey) keyPair.getPublic(),
+                (java.security.interfaces.RSAPrivateKey) keyPair.getPrivate(),
+                1_801))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Session expiration must be between 1 and 1800 seconds");
+    }
 }

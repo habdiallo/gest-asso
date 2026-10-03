@@ -140,6 +140,20 @@ describe('App', () => {
     );
   });
 
+  it('keeps the open profile menu above the bottom navigation layer', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('.mobile-header')?.classList.contains('z-40')).toBe(true);
+    expect(root.querySelector('.mobile-bottom-nav')?.classList.contains('z-20')).toBe(true);
+    expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
+  });
+
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
     'keeps the complete logout action for %s and removes the authenticated shell after activation',
     async (role) => {
