@@ -14,10 +14,11 @@ environnements. Les chemins réels sont ceux des variables
 `RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
 
 La préparation est automatisée par `prepare-secrets.sh`. Elle lit les chemins
-de l'environnement Compose, crée la paire RSA si nécessaire, applique le
-propriétaire UID/GID `10001`, limite les modes à `400`, puis vérifie la lecture
-effective avec cet UID. Elle ne génère jamais un mot de passe PostgreSQL ou un
-mot de passe bootstrap.
+de l'environnement Compose, crée la paire RSA si nécessaire, crée un fichier
+bootstrap vide si le bootstrap est désactivé, applique le propriétaire UID/GID
+`10001`, limite les modes à `400`, puis vérifie la lecture effective avec cet
+UID. Elle ne génère jamais un mot de passe PostgreSQL ou un mot de passe
+bootstrap.
 
 ```bash
 sudo ./contribo-deploiement/prepare-secrets.sh \
@@ -27,12 +28,18 @@ sudo ./contribo-deploiement/prepare-secrets.sh \
   --check-only
 ```
 
-Le fichier `db_password` doit être créé au même endroit. Pour créer le premier
-administrateur, créer aussi `bootstrap_admin_password` avec au moins 12
-caractères et activer `BOOTSTRAP_ADMIN_ENABLED=true` dans les variables de la
-stack. Le secret est lu dans le conteneur via
+Le fichier `db_password` doit être créé au même endroit. Le fichier
+`bootstrap_admin_password` doit exister même lorsque
+`BOOTSTRAP_ADMIN_ENABLED=false`, car il est toujours monté par la stack. Dans
+ce cas, un fichier vide suffit. Pour créer le premier administrateur, renseigner
+ce fichier avec au moins 12 caractères et activer
+`BOOTSTRAP_ADMIN_ENABLED=true` dans les variables de la stack. Le secret est lu dans le conteneur via
 `/run/secrets/bootstrap_admin_password`, puis il n'est jamais réutilisé pour
 réinitialiser un compte existant.
+
+Lorsque `BOOTSTRAP_ADMIN_ENABLED=true`, ajouter `--require-bootstrap` aux deux
+commandes du script afin de refuser un fichier vide. Avec le bootstrap désactivé,
+le fichier vide créé par le script est suffisant pour le montage Compose.
 
 Dans Portainer, les chemins peuvent être remplacés par ces mêmes variables.
 Ne pas supposer que le chemin est `/opt` ou `/etc` : l'environnement utilisé par

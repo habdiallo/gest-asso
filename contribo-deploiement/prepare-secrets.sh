@@ -150,23 +150,21 @@ openssl rsa -pubout -in "$RSA_PRIVATE_PATH" -out "$DERIVED_PUBLIC_PATH" >/dev/nu
 cmp -s "$DERIVED_PUBLIC_PATH" "$RSA_PUBLIC_PATH" \
     || fail "RSA private and public keys do not match: $RSA_PRIVATE_PATH, $RSA_PUBLIC_PATH"
 
-if [ "$REQUIRE_BOOTSTRAP" = true ] || [ -e "$BOOTSTRAP_PATH" ]; then
-    require_non_empty BOOTSTRAP_ADMIN_PASSWORD "$BOOTSTRAP_PATH"
+if [ "$CHECK_ONLY" = false ] && [ ! -e "$BOOTSTRAP_PATH" ]; then
+    : > "$BOOTSTRAP_PATH"
 fi
 
-for path in "$DB_PASSWORD_PATH" "$RSA_PUBLIC_PATH" "$RSA_PRIVATE_PATH"; do
+[ -f "$BOOTSTRAP_PATH" ] || fail "BOOTSTRAP_ADMIN_PASSWORD secret is missing: $BOOTSTRAP_PATH"
+if [ "$REQUIRE_BOOTSTRAP" = true ]; then
+    [ -s "$BOOTSTRAP_PATH" ] || fail "BOOTSTRAP_ADMIN_PASSWORD secret is empty: $BOOTSTRAP_PATH"
+fi
+
+for path in "$DB_PASSWORD_PATH" "$RSA_PUBLIC_PATH" "$RSA_PRIVATE_PATH" "$BOOTSTRAP_PATH"; do
     if [ "$CHECK_ONLY" = false ]; then
         chown "$RUNTIME_UID:$RUNTIME_GID" "$path"
         chmod 400 "$path"
     fi
 done
-
-if [ -e "$BOOTSTRAP_PATH" ]; then
-    if [ "$CHECK_ONLY" = false ]; then
-        chown "$RUNTIME_UID:$RUNTIME_GID" "$BOOTSTRAP_PATH"
-        chmod 400 "$BOOTSTRAP_PATH"
-    fi
-fi
 
 command -v setpriv >/dev/null 2>&1 || fail 'setpriv from util-linux is required for the UID readability check'
 
@@ -176,10 +174,13 @@ for path in "$DB_PASSWORD_PATH" "$RSA_PUBLIC_PATH" "$RSA_PRIVATE_PATH"; do
         || fail "secret is not readable by UID $RUNTIME_UID: $path"
 done
 
-if [ "$REQUIRE_BOOTSTRAP" = true ] || [ -e "$BOOTSTRAP_PATH" ]; then
+setpriv --reuid="$RUNTIME_UID" --regid="$RUNTIME_GID" --clear-groups \
+    sh -c 'test -r "$1"' sh "$BOOTSTRAP_PATH" \
+    || fail "bootstrap secret is not readable by UID $RUNTIME_UID: $BOOTSTRAP_PATH"
+if [ "$REQUIRE_BOOTSTRAP" = true ]; then
     setpriv --reuid="$RUNTIME_UID" --regid="$RUNTIME_GID" --clear-groups \
-        sh -c 'test -r "$1" && test -s "$1"' sh "$BOOTSTRAP_PATH" \
-        || fail "bootstrap secret is not readable by UID $RUNTIME_UID: $BOOTSTRAP_PATH"
+        sh -c 'test -s "$1"' sh "$BOOTSTRAP_PATH" \
+        || fail "bootstrap secret is empty: $BOOTSTRAP_PATH"
 fi
 
 printf 'prepare-secrets: secrets are ready for UID %s, paths validated from %s\n' \
