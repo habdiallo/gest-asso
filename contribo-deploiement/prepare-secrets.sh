@@ -122,11 +122,13 @@ prepare_parent "$RSA_PUBLIC_PATH"
 prepare_parent "$RSA_PRIVATE_PATH"
 prepare_parent "$BOOTSTRAP_PATH"
 
+RSA_PRIVATE_CREATED=false
 if [ "$CHECK_ONLY" = false ] && [ ! -e "$RSA_PRIVATE_PATH" ]; then
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$RSA_PRIVATE_PATH" >/dev/null 2>&1
+    RSA_PRIVATE_CREATED=true
 fi
 
-if [ "$CHECK_ONLY" = false ] && [ -s "$RSA_PRIVATE_PATH" ] && [ ! -e "$RSA_PUBLIC_PATH" ]; then
+if [ "$CHECK_ONLY" = false ] && [ -s "$RSA_PRIVATE_PATH" ] && { [ "$RSA_PRIVATE_CREATED" = true ] || [ ! -e "$RSA_PUBLIC_PATH" ]; }; then
     openssl rsa -pubout -in "$RSA_PRIVATE_PATH" -out "$RSA_PUBLIC_PATH" >/dev/null 2>&1
 fi
 
@@ -140,6 +142,13 @@ require_non_empty() {
 require_non_empty DB_PASSWORD "$DB_PASSWORD_PATH"
 require_non_empty RSA_PRIVATE_KEY "$RSA_PRIVATE_PATH"
 require_non_empty RSA_PUBLIC_KEY "$RSA_PUBLIC_PATH"
+
+DERIVED_PUBLIC_PATH=$(mktemp)
+trap 'rm -f "$DERIVED_PUBLIC_PATH"' EXIT INT TERM
+openssl rsa -pubout -in "$RSA_PRIVATE_PATH" -out "$DERIVED_PUBLIC_PATH" >/dev/null 2>&1 \
+    || fail "RSA private key is invalid: $RSA_PRIVATE_PATH"
+cmp -s "$DERIVED_PUBLIC_PATH" "$RSA_PUBLIC_PATH" \
+    || fail "RSA private and public keys do not match: $RSA_PRIVATE_PATH, $RSA_PUBLIC_PATH"
 
 if [ "$REQUIRE_BOOTSTRAP" = true ] || [ -e "$BOOTSTRAP_PATH" ]; then
     require_non_empty BOOTSTRAP_ADMIN_PASSWORD "$BOOTSTRAP_PATH"
