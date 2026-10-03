@@ -47,13 +47,13 @@ vérification par `stat` avant redéploiement.
 
 ### Requirement: Le déploiement permet un rollback par tag
 
-La documentation SHALL recommander un tag d'image versionné et SHALL décrire le
-changement de `IMAGE_TAG` comme procédure de rollback sans modifier les secrets
-ni les données.
+La documentation SHALL recommander des références versionnées ou des digests pour
+`BACKEND_IMAGE` et `FRONTEND_IMAGE`, issus du même run CI, et SHALL décrire leur
+remplacement comme procédure de rollback sans modifier les secrets ni les données.
 
 #### Scenario: Retour à une version précédente
 
-- **WHEN** l'administrateur remplace `IMAGE_TAG` par une version publiée
-  précédente et redéploie la stack
+- **WHEN** l'administrateur remplace `BACKEND_IMAGE` et `FRONTEND_IMAGE` par la
+  paire de références publiée précédente et redéploie la stack
 - **THEN** Portainer utilise les deux images de cette version et la procédure ne
   nécessite pas de reconstruire l'image localement
