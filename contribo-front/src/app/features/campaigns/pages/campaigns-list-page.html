@@ -146,7 +146,9 @@
               [progressRate]="financialSummary?.collectionRate ?? null"
               [financialFallback]="'campaigns.list.consultation' | transloco"
               [footerLabel]="financialSummary ? ('campaigns.list.collected' | transloco) : null"
-              [footerValue]="financialSummary ? financialSummary.collectionRate + '%' : null"
+              [footerValue]="
+                financialSummary ? formatRate(financialSummary.collectionRate) + '%' : null
+              "
             />
           </li>
         }
