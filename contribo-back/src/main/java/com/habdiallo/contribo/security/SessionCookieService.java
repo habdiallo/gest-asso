@@ -3,6 +3,7 @@ package com.habdiallo.contribo.security;
 import java.time.Duration;
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -17,8 +18,8 @@ public class SessionCookieService {
 
     private final Duration maxAge;
 
-    public SessionCookieService() {
-        this.maxAge = Duration.ofMinutes(15);
+    public SessionCookieService(@Value("${security.jwt.expiration-seconds}") long expirationSeconds) {
+        this.maxAge = Duration.ofSeconds(SessionDurationPolicy.validate(expirationSeconds));
     }
 
     public String readSession(HttpServletRequest request) {
