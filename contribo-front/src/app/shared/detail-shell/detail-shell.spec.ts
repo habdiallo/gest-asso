@@ -45,5 +45,7 @@ describe('DetailShell', () => {
     expect(root.querySelector('app-detail-metrics')).toBeTruthy();
     expect(root.querySelector('[detail-tabs]')?.textContent).toContain('Onglets');
     expect(root.querySelector('button')?.textContent).toContain('Enregistrer');
+    const actions = root.querySelector('[detail-actions-slot]');
+    expect(actions?.className).toContain('max-[1023px]:[&>app-action-button>button]:w-full');
   });
 });
