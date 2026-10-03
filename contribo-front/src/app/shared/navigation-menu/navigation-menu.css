@@ -40,17 +40,28 @@
 .mobile-nav-link > span {
   min-width: 0;
   max-width: 100%;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   text-align: center;
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .mobile-nav-label-long {
   max-width: 100%;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  overflow-wrap: normal;
+  white-space: nowrap;
   line-height: 1.05;
   text-align: center;
+}
+
+@media (max-width: 420px) {
+  .mobile-nav-link {
+    font-size: 0.4375rem;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-nav-label-long {
+    font-size: 0.4rem;
+  }
 }
 
 @media (min-width: 1181px) {
