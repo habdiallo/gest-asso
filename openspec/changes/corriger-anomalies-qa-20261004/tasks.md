@@ -16,8 +16,8 @@
 
 ## 3. T-203, porter la session à 30 minutes
 
-- [ ] 3.1 [T-203] Résoudre T-203, confirmer `back/fix-203-session-trente-minutes` et exécuter `node scripts/tickets.mjs verify T-203` avant le code.
-- [ ] 3.2 [T-203] Remplacer la durée codée en dur du cookie par la propriété de durée JWT partagée et porter le défaut d'intégration à 1800 secondes.
-- [ ] 3.3 [T-203] Porter la borne maximale de validation à 1800 secondes avec un message d'erreur cohérent.
-- [ ] 3.4 [T-203] Ajouter les tests de cohérence entre expiration JWT et `Max-Age` du cookie, ainsi que la conservation des attributs de sécurité.
-- [ ] 3.5 [T-203] Exécuter les validations backend pertinentes et préparer la PR vers `develop`.
+- [x] 3.1 [T-203] Résoudre T-203, confirmer `back/fix-203-session-trente-minutes` et exécuter `node scripts/tickets.mjs verify T-203` avant le code.
+- [x] 3.2 [T-203] Remplacer la durée codée en dur du cookie par la propriété de durée JWT partagée et porter le défaut d'intégration à 1800 secondes.
+- [x] 3.3 [T-203] Porter la borne maximale de validation à 1800 secondes avec un message d'erreur cohérent.
+- [x] 3.4 [T-203] Ajouter les tests de cohérence entre expiration JWT et `Max-Age` du cookie, ainsi que la conservation des attributs de sécurité.
+- [x] 3.5 [T-203] Exécuter les validations backend pertinentes et préparer la PR vers `develop`.
