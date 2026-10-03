@@ -3,6 +3,8 @@
   --sidebar-width: 256px;
   --topbar-height: 78px;
   --topbar-padding: 48px;
+  --mobile-header-space: 4.5rem;
+  --mobile-bottom-nav-space: 6.25rem;
 }
 
 .mobile-header {
@@ -106,6 +108,14 @@
   right: -0.25rem;
   z-index: 30;
   width: min(18rem, calc(100vw - 2rem));
+  max-height: min(
+    32rem,
+    calc(
+      100dvh - var(--mobile-header-space) - var(--mobile-bottom-nav-space) -
+        env(safe-area-inset-bottom)
+    )
+  );
+  overflow-y: auto;
   padding: 0.65rem;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-menu);
@@ -173,6 +183,7 @@
 .mobile-profile-action {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.65rem;
   min-height: 2.75rem;
   padding: 0.55rem 0.65rem;
@@ -212,12 +223,14 @@
 
 .mobile-profile-action-label {
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
   overflow: hidden;
+  overflow-wrap: anywhere;
   font-size: 0.78rem;
   font-weight: 600;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: center;
+  white-space: normal;
 }
 
 .mobile-profile-action-arrow {
@@ -246,6 +259,7 @@
 }
 
 .mobile-bottom-nav {
+  z-index: 20;
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
 }
