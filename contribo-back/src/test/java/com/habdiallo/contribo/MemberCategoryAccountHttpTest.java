@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.hamcrest.Matchers.matchesPattern;
+
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -90,7 +92,8 @@ class MemberCategoryAccountHttpTest extends RsaIntegrationTestSupport {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.member.status").value("ACTIVE"))
                 .andExpect(jsonPath("$.member.account.role").value("MEMBER"))
-                .andExpect(jsonPath("$.credentials.identifier").isNotEmpty())
+                .andExpect(jsonPath("$.member.account.identifier").doesNotExist())
+                .andExpect(jsonPath("$.credentials.identifier").value(matchesPattern("fdiallo-\\d{4}")))
                 .andExpect(jsonPath("$.credentials.temporaryPassword").isNotEmpty());
 
         Integer memberCount = jdbcTemplate.queryForObject(
@@ -195,7 +198,13 @@ class MemberCategoryAccountHttpTest extends RsaIntegrationTestSupport {
         mockMvc.perform(get("/users")
                         .header("Authorization", bearer(ADMIN_USER_ID)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page.totalElements").value(2));
+                .andExpect(jsonPath("$.page.totalElements").value(2))
+                .andExpect(jsonPath("$.items[0].identifier").doesNotExist());
+
+        mockMvc.perform(get("/users/{userId}", ADMIN_USER_ID)
+                        .header("Authorization", bearer(ADMIN_USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.identifier").value("admin"));
 
         mockMvc.perform(post("/income-categories")
                         .header("Authorization", bearer(ADMIN_USER_ID))

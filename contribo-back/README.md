@@ -57,6 +57,14 @@ par Spring Boot Actuator sur `/actuator/health`. Ce socle ne contient encore
 aucune logique métier. Les migrations fournissent uniquement le support
 structurel nécessaire aux tickets métier suivants.
 
+La migration `V4__migrate_phone_member_identifiers.sql` constitue une exception
+contrôlée : elle remplace les identifiants de connexion des comptes membres qui
+utilisent encore leur téléphone. Elle conserve les comptes et leurs historiques,
+et enregistre la correspondance dans
+`user_account_identifier_migration_t200`. La procédure de contrôle et de rollback
+est documentée dans
+[`contribo-deploiement/MEMBER-IDENTIFIER-MIGRATION.md`](../contribo-deploiement/MEMBER-IDENTIFIER-MIGRATION.md).
+
 ## Tests d'intégration et prérequis Docker
 
 Le backend ne fait pas d'ORM : chaque `Jdbc*Repository` écrit son SQL à la main

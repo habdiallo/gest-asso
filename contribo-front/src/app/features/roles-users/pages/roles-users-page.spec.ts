@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
-import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
+import type {
+  TemporaryCredentials,
+  UserAccount,
+  UserAccountListItem,
+  UserAccountPage,
+} from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import { Subject, of, throwError } from 'rxjs';
@@ -27,7 +32,7 @@ if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
   };
 }
 
-function buildAccount(overrides: Partial<UserAccount> = {}): UserAccount {
+function buildAccount(overrides: Partial<UserAccountListItem> = {}): UserAccountListItem {
   return {
     id: 'a5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d10',
     role: UserRole.Administrator,
@@ -39,7 +44,7 @@ function buildAccount(overrides: Partial<UserAccount> = {}): UserAccount {
 }
 
 function buildPage(
-  items: UserAccount[],
+  items: UserAccountListItem[],
   overrides: Partial<UserAccountPage['page']> = {},
 ): UserAccountPage {
   return {
@@ -56,6 +61,9 @@ async function createFixture(
   resetUserCredentials?: (
     ...args: Parameters<UtilisateursEtRolesService['resetUserCredentials']>
   ) => ReturnType<UtilisateursEtRolesService['resetUserCredentials']>,
+  getUser?: (
+    ...args: Parameters<UtilisateursEtRolesService['getUser']>
+  ) => ReturnType<UtilisateursEtRolesService['getUser']>,
 ): Promise<ComponentFixture<RolesUsersPage>> {
   await TestBed.configureTestingModule({
     imports: [
@@ -74,6 +82,7 @@ async function createFixture(
           listUsers,
           updateUserAccess,
           resetUserCredentials,
+          getUser: getUser ?? (() => of({ identifier: 'awacamara-4821' } as UserAccount) as never),
         } as unknown as UtilisateursEtRolesService,
       },
     ],
@@ -153,6 +162,30 @@ describe('RolesUsersPage', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Inactif');
     expect(fixture.nativeElement.querySelector('.bg-surface-2')).not.toBeNull();
+  });
+
+  it('shows the login identifier only after opening the user details', async () => {
+    const account = buildAccount();
+    const details: UserAccount = {
+      ...account,
+      identifier: 'awacamara-4821',
+    };
+    const fixture = await createFixture(
+      () => of(buildPage([account])) as never,
+      undefined,
+      undefined,
+      () => of(details) as never,
+    );
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('awacamara-4821');
+    (
+      fixture.nativeElement.querySelector('button[aria-label*="Awa Camara"]') as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Identifiant de connexion');
+    expect(fixture.nativeElement.textContent).toContain('awacamara-4821');
   });
 
   it('regenerates and displays a temporary password for the selected account', async () => {
@@ -250,7 +283,7 @@ describe('RolesUsersPage', () => {
       return element as T;
     }
 
-    function accountForRoleTests(): UserAccount {
+    function accountForRoleTests(): UserAccountListItem {
       return buildAccount({
         id: 'f5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d14',
         role: UserRole.Member,
@@ -272,7 +305,7 @@ describe('RolesUsersPage', () => {
 
     it('appelle updateUserAccess avec le nouveau rôle et recharge la liste avec les critères courants', async () => {
       const account = accountForRoleTests();
-      const updated: UserAccount = { ...account, role: UserRole.Treasurer };
+      const updated: UserAccountListItem = { ...account, role: UserRole.Treasurer };
       const updateUserAccess = vi.fn(() => of(updated) as never);
       let listCallCount = 0;
       const listUsers = vi.fn(
@@ -310,7 +343,7 @@ describe('RolesUsersPage', () => {
         role: UserRole.Member,
         member: { id: 'n5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d22', displayName: 'Sekou Kaba' },
       });
-      const updated: UserAccount = { ...account, role: UserRole.Treasurer };
+      const updated: UserAccountListItem = { ...account, role: UserRole.Treasurer };
       const updateUserAccess = vi.fn(() => of(updated) as never);
       let listCallCount = 0;
       const listUsers = vi.fn(
@@ -351,7 +384,7 @@ describe('RolesUsersPage', () => {
         role: UserRole.Member,
         member: { id: 'r5c2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d26', displayName: 'Awa Camara' },
       });
-      const pendingA = new Subject<UserAccount>();
+      const pendingA = new Subject<UserAccountListItem>();
       const updateUserAccess = vi.fn(() => pendingA.asObservable() as never);
       const fixture = await createFixture(
         () => of(buildPage([accountA, accountB])) as never,

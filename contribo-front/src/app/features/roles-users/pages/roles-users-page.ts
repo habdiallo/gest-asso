@@ -8,7 +8,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
-import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
+import type {
+  TemporaryCredentials,
+  UserAccount,
+  UserAccountListItem,
+  UserAccountPage,
+} from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
 import { DataTable } from '@shared/data-table/data-table';
@@ -106,7 +111,7 @@ export class RolesUsersPage {
   readonly loadError = signal(false);
   private readonly result = signal<UserAccountPage | null>(null);
 
-  readonly users = computed<UserAccount[]>(() => this.result()?.items ?? []);
+  readonly users = computed<UserAccountListItem[]>(() => this.result()?.items ?? []);
   readonly pageMetadata = computed(() => this.result()?.page ?? null);
   readonly hasLoadedOnce = computed(() => this.result() !== null);
   readonly hasPreviousPage = computed(() => this.page() > 0);
@@ -119,7 +124,7 @@ export class RolesUsersPage {
 
   readonly userRoleLabel = userRoleLabel;
   readonly operatorAuthorizationLabel = operatorAuthorizationLabel;
-  readonly accountInitials = (account: UserAccount): string => {
+  readonly accountInitials = (account: UserAccountListItem): string => {
     const parts = account.member.displayName.trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) {
       return '?';
@@ -132,7 +137,8 @@ export class RolesUsersPage {
   };
 
   /** Compte dont la fiche de changement de rôle (T-53) est ouverte, ou `null` si fermée. */
-  readonly roleDialogAccount = signal<UserAccount | null>(null);
+  readonly roleDialogAccount = signal<UserAccountListItem | null>(null);
+  readonly roleDialogDetails = signal<UserAccount | null>(null);
   /** Rôle sélectionné dans le dialogue, initialisé au rôle courant à l'ouverture. */
   readonly roleDraft = signal<UserRole | null>(null);
   /**
@@ -221,18 +227,37 @@ export class RolesUsersPage {
   }
 
   /** Ouvre la fiche de changement de rôle (T-53) pour le compte donné. */
-  openRoleDialog(account: UserAccount): void {
+  openRoleDialog(account: UserAccountListItem): void {
     this.roleDialogAccount.set(account);
+    this.roleDialogDetails.set(null);
     this.roleDraft.set(account.role);
     this.operatorAuthorizationDraft.set(account.operatorCanRecordPayments);
     this.roleSaveError.set(false);
     this.resetCredentialsError.set(false);
     this.resetCredentialsResult.set(null);
+    this.usersService
+      .getUser(account.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (details) => {
+          if (this.roleDialogAccount()?.id !== account.id) {
+            return;
+          }
+          this.roleDialogDetails.set(details);
+          if (details.role) {
+            this.roleDraft.set(details.role);
+          }
+          if (typeof details.operatorCanRecordPayments === 'boolean') {
+            this.operatorAuthorizationDraft.set(details.operatorCanRecordPayments);
+          }
+        },
+      });
   }
 
   /** Ferme la fiche, quelle que soit la cause (Échap, bouton Annuler, succès). */
   closeRoleDialog(): void {
     this.roleDialogAccount.set(null);
+    this.roleDialogDetails.set(null);
     this.roleDraft.set(null);
     this.operatorAuthorizationDraft.set(false);
     this.roleSaveError.set(false);
@@ -250,7 +275,7 @@ export class RolesUsersPage {
     this.operatorAuthorizationDraft.set((event.target as HTMLInputElement).checked);
   }
 
-  resetCredentials(account: UserAccount): void {
+  resetCredentials(account: UserAccountListItem): void {
     if (this.resettingCredentials()) {
       return;
     }
@@ -278,7 +303,9 @@ export class RolesUsersPage {
       return;
     }
     void navigator.clipboard.writeText(result.credentials.temporaryPassword).then(() => {
-      this.resetCredentialsResult.update((current) => current ? { ...current, copied: true } : current);
+      this.resetCredentialsResult.update((current) =>
+        current ? { ...current, copied: true } : current,
+      );
     });
   }
 
@@ -296,7 +323,7 @@ export class RolesUsersPage {
    * qu'une ligne qui ne correspond plus au filtre de rôle actif disparaisse
    * et que les métadonnées de pagination restent cohérentes.
    */
-  confirmRoleChange(event: Event, account: UserAccount): void {
+  confirmRoleChange(event: Event, account: UserAccountListItem): void {
     event.preventDefault();
     if (this.savingRole()) {
       return;

@@ -2116,13 +2116,27 @@ components:
         mustChangePassword:
           type: boolean
           readOnly: true
-    UserAccount:
+    UserAccountListItem:
       unevaluatedProperties: false
       allOf:
         - $ref: '#/components/schemas/UserAccountSummary'
         - type: object
           required: [member]
           properties:
+            member:
+              $ref: '#/components/schemas/PersonSummary'
+    UserAccount:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/UserAccountSummary'
+        - type: object
+          required: [identifier, member]
+          properties:
+            identifier:
+              type: string
+              minLength: 1
+              maxLength: 150
+              readOnly: true
             member:
               $ref: '#/components/schemas/PersonSummary'
     UpdateUserAccessRequest:
@@ -2144,7 +2158,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/UserAccount'
+            $ref: '#/components/schemas/UserAccountListItem'
         page:
           $ref: '#/components/schemas/PageMetadata'
 
