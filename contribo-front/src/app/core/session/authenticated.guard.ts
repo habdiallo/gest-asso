@@ -30,3 +30,12 @@ export const passwordChangeMatch: CanMatchFn = () => {
     .ensureHydrated()
     .then(() => session.isAuthenticated() && session.mustChangePassword());
 };
+
+/**
+ * Hydrate une route publique qui doit conserver le shell authentifié, sans
+ * imposer de condition d'accès à la route elle-même.
+ */
+export const sessionHydrationMatch: CanMatchFn = () =>
+  inject(SessionHydrationService)
+    .ensureHydrated()
+    .then(() => true);

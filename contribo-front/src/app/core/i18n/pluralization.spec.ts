@@ -53,6 +53,15 @@ describe('French pluralized translations', () => {
     );
   });
 
+  it('formats plural counts with the active locale', () => {
+    const transloco = TestBed.inject(TranslocoService);
+    const formattedCount = new Intl.NumberFormat('fr').format(1234);
+
+    expect(transloco.translate('members.summary', { active: 1234, total: 1234 })).toBe(
+      `${formattedCount} membres actifs sur ${formattedCount} membres enregistrés`,
+    );
+  });
+
   it('pluralizes the displayed payment count without changing the total parameter', () => {
     const transloco = TestBed.inject(TranslocoService);
 

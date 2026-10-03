@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { CategoriesDeRevenuService } from '@core/api';
+import { CategoriesDeRevenuService, EspacePersonnelService } from '@core/api';
 import type { CurrentUser, IncomeCategory, LoginResponse } from '@core/api';
 import { SessionService } from '@core/session/session.service';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -10,10 +10,7 @@ import fr from '@assets/i18n/fr.json';
 import { App } from './app';
 import { routes } from './app.routes';
 
-function buildLoginResponse(
-  role: CurrentUser['role'],
-  mustChangePassword = false,
-): LoginResponse {
+function buildLoginResponse(role: CurrentUser['role'], mustChangePassword = false): LoginResponse {
   return {
     accessToken: 'session-token-value',
     tokenType: 'Bearer',
@@ -60,6 +57,10 @@ describe('App', () => {
           useValue: {
             listIncomeCategories: () => of([] as IncomeCategory[]),
           } as unknown as CategoriesDeRevenuService,
+        },
+        {
+          provide: EspacePersonnelService,
+          useValue: { getCurrentUser: () => of(null) },
         },
       ],
     }).compileComponents();

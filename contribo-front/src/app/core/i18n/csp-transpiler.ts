@@ -11,6 +11,7 @@ interface PluralExpression {
 
 interface RenderContext {
   params: Record<string, unknown>;
+  numberFormatter: Intl.NumberFormat;
   pluralRules: Intl.PluralRules;
 }
 
@@ -123,7 +124,12 @@ function renderPluralExpressions(value: string, context: RenderContext): string 
       ? context.pluralRules.select(numericParameter)
       : 'other';
     const selected = expression.options[category] ?? expression.options['other'];
-    const replacement = selected.replaceAll('#', String(rawParameter ?? ''));
+    const replacement = selected.replaceAll(
+      '#',
+      Number.isFinite(numericParameter)
+        ? context.numberFormatter.format(numericParameter)
+        : String(rawParameter ?? ''),
+    );
     rendered += renderPluralExpressions(replacement, context);
     index = expressionEnd + 1;
   }
@@ -140,10 +146,12 @@ function interpolateSingleBraces(value: string, params: Record<string, unknown>)
 
 export class CspTranspiler extends DefaultTranspiler {
   private locale = DEFAULT_LOCALE;
+  private numberFormatter = new Intl.NumberFormat(DEFAULT_LOCALE);
   private pluralRules = new Intl.PluralRules(DEFAULT_LOCALE);
 
   onLangChanged(lang: string): void {
     this.locale = lang || DEFAULT_LOCALE;
+    this.numberFormatter = new Intl.NumberFormat(this.locale);
     this.pluralRules = new Intl.PluralRules(this.locale);
   }
 
@@ -154,7 +162,11 @@ export class CspTranspiler extends DefaultTranspiler {
 
     return super.transpile({
       value: interpolateSingleBraces(
-        renderPluralExpressions(value, { params, pluralRules: this.pluralRules }),
+        renderPluralExpressions(value, {
+          params,
+          numberFormatter: this.numberFormatter,
+          pluralRules: this.pluralRules,
+        }),
         params,
       ),
       params,
