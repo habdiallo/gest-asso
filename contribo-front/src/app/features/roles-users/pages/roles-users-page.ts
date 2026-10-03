@@ -244,12 +244,6 @@ export class RolesUsersPage {
             return;
           }
           this.roleDialogDetails.set(details);
-          if (details.role) {
-            this.roleDraft.set(details.role);
-          }
-          if (typeof details.operatorCanRecordPayments === 'boolean') {
-            this.operatorAuthorizationDraft.set(details.operatorCanRecordPayments);
-          }
         },
       });
   }

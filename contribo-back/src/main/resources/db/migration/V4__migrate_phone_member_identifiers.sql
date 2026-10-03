@@ -30,18 +30,18 @@ BEGIN
                 WHERE backup.account_id = ua.id)
     LOOP
         normalized_first_name := regexp_replace(
-            lower(translate(account_row.first_name,
+            translate(lower(account_row.first_name),
                 'àáâäãåçéèêëìíîïñòóôöõùúûüýÿ',
-                'aaaaaaceeeeiiiinooooouuuuyy')),
+                'aaaaaaceeeeiiiinooooouuuuyy'),
             '[^a-z0-9 ]', ' ', 'g');
         SELECT coalesce(string_agg(match[2], '' ORDER BY ordinal), '')
           INTO initials
           FROM regexp_matches(trim(regexp_replace(normalized_first_name, ' +', ' ', 'g')),
                               '(^| )([a-z0-9])[^ ]*', 'g') WITH ORDINALITY AS matches(match, ordinal);
         normalized_last_name := regexp_replace(
-            lower(translate(account_row.last_name,
+            translate(lower(account_row.last_name),
                 'àáâäãåçéèêëìíîïñòóôöõùúûüýÿ',
-                'aaaaaaceeeeiiiinooooouuuuyy')),
+                'aaaaaaceeeeiiiinooooouuuuyy'),
             '[^a-z0-9]', '', 'g');
         prefix := left(coalesce(nullif(initials || normalized_last_name, ''), 'member'), 145);
         code := floor(random() * 10000)::INTEGER;

@@ -188,6 +188,27 @@ describe('RolesUsersPage', () => {
     expect(fixture.nativeElement.textContent).toContain('awacamara-4821');
   });
 
+  it('does not let a late detail response overwrite the role draft', async () => {
+    const account = buildAccount({ role: UserRole.Member });
+    const pendingDetails = new Subject<UserAccount>();
+    const fixture = await createFixture(
+      () => of(buildPage([account])) as never,
+      undefined,
+      undefined,
+      () => pendingDetails.asObservable() as never,
+    );
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector('button[aria-label*="Awa Camara"]') as HTMLButtonElement
+    ).click();
+    fixture.componentInstance.onRoleDraftChange(UserRole.Treasurer);
+    pendingDetails.next({ ...account, identifier: 'awacamara-4821' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.roleDraft()).toBe(UserRole.Treasurer);
+  });
+
   it('regenerates and displays a temporary password for the selected account', async () => {
     const account = buildAccount();
     const credentials: TemporaryCredentials = {
