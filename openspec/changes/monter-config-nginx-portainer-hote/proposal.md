@@ -13,6 +13,10 @@ l'hôte. Le frontend échoue donc lorsque Docker ne trouve pas le fichier source
   volume interne `portainer_data`.
 - Ajouter les vérifications et la procédure de migration pour une stack
   Portainer existante.
+- Rendre le chargement de la feuille CSS de production compatible avec la CSP
+  Nginx, sans autoriser de script inline supplémentaire.
+- Rendre le healthcheck frontend indépendant de la résolution IPv6 de
+  `localhost` lorsque la configuration Nginx est montée en lecture seule.
 - Maintenir la synchronisation entre le dépôt applicatif et
   `gest-asso-deploiement`.
 
@@ -29,7 +33,8 @@ l'hôte. Le frontend échoue donc lorsque Docker ne trouve pas le fichier source
 
 ## Impact
 
-Le fichier `compose.portainer.yaml`, les exemples d'environnement et la
-documentation des deux dépôts Portainer sont concernés. Aucun changement du
-code applicatif, de l'API ou des données PostgreSQL n'est prévu. Le déploiement
-nécessite la création préalable du fichier sur l'hôte Docker.
+Le fichier `compose.portainer.yaml`, les exemples d'environnement, la
+configuration de build frontend et la documentation des deux dépôts Portainer
+sont concernés. Aucun changement de l'API ou des données PostgreSQL n'est
+prévu. Le déploiement nécessite la création préalable du fichier sur l'hôte
+Docker.
