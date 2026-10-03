@@ -27,5 +27,5 @@ Prérequis : T-197 fusionné dans develop
 
 ## 4. Livrer le correctif
 
-- [ ] 4.1 [T-199] Vérifier la parité avec `gest-asso-deploiement` et préparer une PR miroir uniquement si un manifeste partagé a été modifié.
-- [ ] 4.2 [T-199] Mettre à jour les artefacts OpenSpec et la documentation de revue, exécuter les validations finales, pousser uniquement la branche du ticket et ouvrir une PR vers `develop` sans la fusionner sans demande explicite.
+- [x] 4.1 [T-199] Vérifier la parité avec `gest-asso-deploiement` et préparer une PR miroir uniquement si un manifeste partagé a été modifié.
+- [x] 4.2 [T-199] Mettre à jour les artefacts OpenSpec et la documentation de revue, exécuter les validations finales, pousser uniquement la branche du ticket et ouvrir une PR vers `develop` sans la fusionner sans demande explicite.
