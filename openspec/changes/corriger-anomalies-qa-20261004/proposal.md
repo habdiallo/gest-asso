@@ -19,4 +19,3 @@ La campagne QA d'intégration du 3 octobre 2026 a confirmé deux défauts d'affi
 - Aucun changement métier sur les calculs financiers.
 - Aucun mécanisme de renouvellement glissant de session.
 - Aucune modification des données de test de l'environnement d'intégration.
-
