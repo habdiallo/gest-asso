@@ -41,18 +41,21 @@ public class MemberService {
     private final AuthorizationService authorizationService;
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
+    private final MemberIdentifierGenerator memberIdentifierGenerator;
 
     public MemberService(
             MemberRepository memberRepository,
             MemberDuesRepository memberDuesRepository,
             AuthorizationService authorizationService,
             PasswordEncoder passwordEncoder,
-            TemporaryPasswordGenerator temporaryPasswordGenerator) {
+            TemporaryPasswordGenerator temporaryPasswordGenerator,
+            MemberIdentifierGenerator memberIdentifierGenerator) {
         this.memberRepository = memberRepository;
         this.memberDuesRepository = memberDuesRepository;
         this.authorizationService = authorizationService;
         this.passwordEncoder = passwordEncoder;
         this.temporaryPasswordGenerator = temporaryPasswordGenerator;
+        this.memberIdentifierGenerator = memberIdentifierGenerator;
     }
 
     public MemberPage list(
@@ -105,9 +108,19 @@ public class MemberService {
                     List.of(new FieldError(
                             "incomeCategoryId", "VALIDATION_ERROR", "La catégorie de revenu est inconnue.")));
         }
-        String identifier = request.getPhone() == null || request.getPhone().isBlank()
-                ? "member-" + UUID.randomUUID()
-                : request.getPhone();
+        String identifier = null;
+        for (int attempt = 0; attempt < 10_000; attempt++) {
+            String candidate = memberIdentifierGenerator.generate(request.getFirstName(), request.getLastName());
+            if (!memberRepository.identifierExists(actor.associationId(), candidate)) {
+                identifier = candidate;
+                break;
+            }
+        }
+        if (identifier == null) {
+            throw new BusinessConflictException(
+                    com.habdiallo.contribo.api.generated.model.ErrorCode.BUSINESS_CONFLICT,
+                    "Impossible de générer un identifiant de connexion disponible.");
+        }
         String temporaryPassword = temporaryPasswordGenerator.generate();
         String passwordHash = passwordEncoder.encode(temporaryPassword);
         UUID memberId = memberRepository.create(

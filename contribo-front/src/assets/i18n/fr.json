@@ -762,6 +762,7 @@
   "rolesUsers.roleDialogKicker": "Utilisateurs et rôles",
   "rolesUsers.roleDialogIdentityActive": "{name} · Compte actif",
   "rolesUsers.roleDialogIdentityInactive": "{name} · Compte inactif",
+  "rolesUsers.identifierLabel": "Identifiant de connexion",
   "rolesUsers.roleDialogLabel": "Rôle applicatif",
   "rolesUsers.roleDialogSectionRole": "Rôle applicatif",
   "rolesUsers.operatorAuthorizationTitle": "Autorisation de l’opérateur",

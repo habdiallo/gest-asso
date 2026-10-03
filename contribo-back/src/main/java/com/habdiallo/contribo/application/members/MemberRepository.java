@@ -25,6 +25,8 @@ public interface MemberRepository {
 
     boolean incomeCategoryExists(UUID associationId, UUID incomeCategoryId);
 
+    boolean identifierExists(UUID associationId, String identifier);
+
     UUID create(UUID associationId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction,
             String identifier, String passwordHash, boolean mustChangePassword);

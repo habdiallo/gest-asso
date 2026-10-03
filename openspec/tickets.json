@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 200,
+  "nextTicketId": 201,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3350,6 +3350,7 @@
     {"id":196,"title":"Monter la configuration Nginx Portainer depuis un chemin absolu de l'hôte Docker.","priority":"P1","scope":"infra","type":"fix","slug":"monter-config-nginx-portainer-hote","change":"monter-config-nginx-portainer-hote","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5"],"dependencies":[195],"planningStatus":"planned","branchDuringInitialization":"infra/fix-000-monter-config-nginx-portainer-hote","branchAfterInitialization":"infra/fix-196-monter-config-nginx-portainer-hote"},
     {"id":197,"title":"Réduire et durcir les images Docker backend et frontend avec des layers cacheables et des runtimes minimaux.","priority":"P2","scope":"infra","type":"perf","slug":"optimiser-images-java-jlink","change":"optimiser-images-java-jlink","tasks":["1.1","1.2","1.3","1.4","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2","4.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/perf-000-optimiser-images-java-jlink","branchAfterInitialization":"infra/perf-197-optimiser-images-java-jlink"},
     {"id":198,"title":"Corriger le démarrage frontend sous CSP et réduire la lenteur de chargement de la page de connexion.","priority":"P0","scope":"fullstack","type":"fix","slug":"corriger-csp-traductions-performance","change":"corriger-csp-traductions-performance","tasks":["1.1","1.2","1.3","2.1","2.2","2.3","2.4","3.1","3.2","3.3","4.1","4.2","4.3"],"dependencies":[196],"planningStatus":"planned","branchDuringInitialization":"fullstack/fix-000-corriger-csp-traductions-performance","branchAfterInitialization":"fullstack/fix-198-corriger-csp-traductions-performance"},
-    {"id":199,"title":"Corriger la lecture des secrets sous Portainer et fiabiliser les détails techniques des images Docker.","priority":"P0","scope":"infra","type":"fix","slug":"durcir-secrets-runtime-portainer","change":"durcir-secrets-runtime-portainer","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2"],"dependencies":[197],"planningStatus":"planned","branchDuringInitialization":"infra/fix-000-durcir-secrets-runtime-portainer","branchAfterInitialization":"infra/fix-199-durcir-secrets-runtime-portainer"}
+    {"id":199,"title":"Corriger la lecture des secrets sous Portainer et fiabiliser les détails techniques des images Docker.","priority":"P0","scope":"infra","type":"fix","slug":"durcir-secrets-runtime-portainer","change":"durcir-secrets-runtime-portainer","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2"],"dependencies":[197],"planningStatus":"planned","branchDuringInitialization":"infra/fix-000-durcir-secrets-runtime-portainer","branchAfterInitialization":"infra/fix-199-durcir-secrets-runtime-portainer"},
+    {"id":200,"title":"Attribuer un identifiant de connexion stable aux membres sans utiliser leur numéro de téléphone.","priority":"P1","scope":"fullstack","type":"feat","slug":"attribuer-identifiants-membres","change":"attribuer-identifiants-membres","tasks":["1.1","1.2","1.3","2.1","2.2","2.3","2.4","3.1","3.2","3.3","4.1","4.2","4.3","5.1"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"fullstack/feat-000-attribuer-identifiants-membres","branchAfterInitialization":"fullstack/feat-200-attribuer-identifiants-membres"}
   ]
 }

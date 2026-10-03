@@ -109,6 +109,15 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     @Override
+    public boolean identifierExists(UUID associationId, String identifier) {
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(
+                "SELECT EXISTS (SELECT 1 FROM user_accounts WHERE association_id = ? AND identifier = ?)",
+                Boolean.class,
+                associationId,
+                identifier));
+    }
+
+    @Override
     public UUID create(UUID associationId, String firstName, String lastName, String preferredName,
             String country, String city, String phone, UUID incomeCategoryId, String associationFunction,
             String identifier, String passwordHash, boolean mustChangePassword) {

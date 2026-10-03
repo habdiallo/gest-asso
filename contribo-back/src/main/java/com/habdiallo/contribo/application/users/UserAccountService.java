@@ -12,6 +12,7 @@ import com.habdiallo.contribo.api.generated.model.PersonSummary;
 import com.habdiallo.contribo.api.generated.model.UpdateUserAccessRequest;
 import com.habdiallo.contribo.api.generated.model.TemporaryCredentials;
 import com.habdiallo.contribo.api.generated.model.UserAccount;
+import com.habdiallo.contribo.api.generated.model.UserAccountListItem;
 import com.habdiallo.contribo.api.generated.model.UserAccountPage;
 import com.habdiallo.contribo.api.generated.model.UserRole;
 import com.habdiallo.contribo.application.access.AuthorizationService;
@@ -49,10 +50,10 @@ public class UserAccountService {
                 actorId, com.habdiallo.contribo.domain.access.UserRole.ADMINISTRATOR);
         int pageNumber = page == null ? 0 : page;
         int pageSize = size == null ? 20 : size;
-        List<UserAccount> items = repository.findPage(
+        List<UserAccountListItem> items = repository.findPage(
                         actor.associationId(), pageNumber, pageSize, query, toDomainRole(role))
                 .stream()
-                .map(this::toModel)
+                .map(this::toListModel)
                 .toList();
         long total = repository.count(actor.associationId(), query, toDomainRole(role));
         int totalPages = total == 0 ? 0 : Math.toIntExact((total + pageSize - 1) / pageSize);
@@ -104,6 +105,17 @@ public class UserAccountService {
 
     private UserAccount toModel(UserAccountRecord account) {
         return new UserAccount(
+                account.id(),
+                UserRole.fromValue(account.role()),
+                account.operatorCanRecordPayments(),
+                account.active(),
+                account.identifier(),
+                new PersonSummary(account.memberId(), account.firstName() + " " + account.lastName()))
+                .mustChangePassword(account.mustChangePassword());
+    }
+
+    private UserAccountListItem toListModel(UserAccountRecord account) {
+        return new UserAccountListItem(
                 account.id(),
                 UserRole.fromValue(account.role()),
                 account.operatorCanRecordPayments(),
