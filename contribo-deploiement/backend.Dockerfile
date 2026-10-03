@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.m2/repository \
 FROM eclipse-temurin:21-jdk-jammy AS jlink
 
 WORKDIR /opt/app
-COPY --from=build /workspace/contribo-back/target/contribo-back-0.1.0-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/contribo-back/target/contribo-back.jar app.jar
 
 RUN set -eux; \
     mkdir extracted; \
@@ -37,7 +37,7 @@ RUN set -eux; \
         --strip-debug \
         --no-man-pages \
         --no-header-files \
-        --compress=2 \
+        --compress=zip-6 \
         --output /opt/java-runtime; \
     rm -rf /opt/app/extracted /opt/app/app.jar
 
@@ -57,7 +57,7 @@ RUN useradd --system --uid 10001 --home-dir /app --shell /usr/sbin/nologin contr
 
 WORKDIR /app
 COPY --from=jlink --chown=contribo:contribo /opt/java-runtime /opt/java
-COPY --from=build --chown=contribo:contribo /workspace/contribo-back/target/contribo-back-0.1.0-SNAPSHOT.jar app.jar
+COPY --from=build --chown=contribo:contribo /workspace/contribo-back/target/contribo-back.jar app.jar
 COPY --chmod=0755 contribo-deploiement/backend-entrypoint.sh /usr/local/bin/backend-entrypoint.sh
 
 USER contribo

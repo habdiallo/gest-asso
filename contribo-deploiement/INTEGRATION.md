@@ -29,6 +29,19 @@ Les fichiers référencés par `DB_PASSWORD_FILE_PATH`,
 Le mot de passe PostgreSQL est lu par le script d'entrée et les clés RSA sont
 consommées directement comme ressources `file:` par Spring Security.
 
+Sur un hôte Linux, préparer et contrôler ces fichiers avec le script partagé
+avant de lancer Compose. Le script lit les chemins réellement configurés dans
+`integration.env`, il ne dépend donc pas d'un chemin `/opt` ou `/etc` codé en
+dur :
+
+```bash
+sudo ./contribo-deploiement/prepare-secrets.sh \
+  --env-file contribo-deploiement/integration.env
+sudo ./contribo-deploiement/prepare-secrets.sh \
+  --env-file contribo-deploiement/integration.env \
+  --check-only
+```
+
 ## Rollback
 
 Conserver le tag actuellement déployé et le tag précédent dans le suivi de

@@ -29,13 +29,13 @@ publie les deux images GHCR avec `latest-int` et `sha-<commit>`. Un push sur
 `main` publie `latest` et `sha-<commit>`. Un tag `vX.Y.Z` publie les tags semver
 correspondants et le SHA du commit.
 
-Portainer utilise `IMAGE_TAG=latest-int` pour l'intégration et un tag semver
-immuable pour la production. Pour revenir en arrière, remplacer `IMAGE_TAG` par
-la version précédente et redéployer la stack.
+Portainer utilise une paire cohérente de références `BACKEND_IMAGE` et
+`FRONTEND_IMAGE`, idéalement les deux digests publiés par le même run CI. Pour
+revenir en arrière, remplacer les deux références par la paire précédente et
+redéployer la stack.
 
 ## Hotfix
 
 1. Créer `hotfix/<description>` depuis `main`.
 2. Ouvrir une PR vers `main` et attendre les validations.
 3. Après fusion, réintégrer le hotfix dans `develop`.
-

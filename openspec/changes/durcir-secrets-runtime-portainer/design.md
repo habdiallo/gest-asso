@@ -104,9 +104,10 @@ nécessaire.
 5. En cas d'échec, redéployer la paire de digests précédente et conserver les
    secrets corrigés. Ne supprimer aucune donnée PostgreSQL.
 
-## Open Questions
+## Operational Decisions
 
-- Confirmer avant implémentation si l'hôte Portainer impose une politique de
-  groupe dédiée qui doit être conservée au lieu du propriétaire UID 10001.
-- Confirmer si la CI doit publier une preuve explicite de la matrice de modes
-  Linux dans le résumé du workflow ou seulement dans les logs de tests.
+- Le chemin des secrets n'est pas imposé par le ticket. Le script lit les
+  variables `*_FILE_PATH` de l'environnement Compose, avec
+  `/opt/contribo/secrets` comme fallback historique de Portainer.
+- La CI publie la preuve de la matrice de permissions dans les logs du job
+  backend. Le résumé du workflow reste réservé aux digests d'images publiés.

@@ -34,6 +34,9 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Test backend entrypoint secret checks
+        working-directory: ${{ github.workspace }}
+        run: tests/backend-entrypoint.test.sh
       - name: Generate ephemeral RSA keys
         run: |
           mkdir -p target/test-rsa

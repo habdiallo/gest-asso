@@ -45,7 +45,7 @@ vérification par `stat` avant redéploiement.
 - **THEN** l'administrateur peut restaurer la paire de digests précédente sans
   modifier les secrets ni les données PostgreSQL
 
-### Requirement: Le déploiement permet un rollback par tag
+### Requirement: Le déploiement permet un rollback par paire d'images
 
 La documentation SHALL recommander des références versionnées ou des digests pour
 `BACKEND_IMAGE` et `FRONTEND_IMAGE`, issus du même run CI, et SHALL décrire leur

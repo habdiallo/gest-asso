@@ -30,6 +30,8 @@ constituent pas un budget CI universel.
   dépendances lors d'une modification de code uniquement.
 - Monter `/root/.m2/repository` et `/root/.npm` comme caches BuildKit.
 - Construire le runtime Java avec `jdeps` puis `jlink` dans une étape dédiée.
+- Produire un artefact Maven stable `contribo-back.jar`, indépendant de la
+  version Maven, puis utiliser `--compress=zip-6` avec le JDK 21+.
 - Ajouter explicitement les modules cryptographiques et de sécurité nécessaires
   au chargement RSA et à TLS.
 - Utiliser une base glibc Ubuntu dans le runtime backend avec les certificats CA,
@@ -72,6 +74,12 @@ Les critères d'acceptation sont les suivants :
 La CI utilise déjà Buildx avec les caches GitHub Actions `backend` et `frontend`.
 Toute modification de ces Dockerfiles reconstruit donc les images et vérifie les
 étapes de génération dans le workflow des images.
+
+Les images de base restent référencées par des tags de famille maintenus par les
+images officielles Temurin, Maven et Ubuntu. Chaque build CI reconstruit les
+étapes et le digest publié dans le résumé du workflow devient la référence
+immuable de déploiement. Une mise à jour de base doit donc passer par un run CI
+complet avant d'être promue.
 
 ## Repli et rollback
 

@@ -9,16 +9,22 @@ externes `backend` et `frontend` existent déjà sur l'hôte Portainer. Le rése
 
 Créer une paire RSA dédiée à chaque environnement. La clé privée ne doit jamais
 être ajoutée au dépôt, passée en variable multi-ligne ou partagée entre les
-environnements.
+environnements. Les chemins réels sont ceux des variables
+`DB_PASSWORD_FILE_PATH`, `RSA_PUBLIC_KEY_FILE_PATH`,
+`RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
+
+La préparation est automatisée par `prepare-secrets.sh`. Elle lit les chemins
+de l'environnement Compose, crée la paire RSA si nécessaire, applique le
+propriétaire UID/GID `10001`, limite les modes à `400`, puis vérifie la lecture
+effective avec cet UID. Elle ne génère jamais un mot de passe PostgreSQL ou un
+mot de passe bootstrap.
 
 ```bash
-install -d -m 700 /opt/contribo/secrets
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
-  -out /opt/contribo/secrets/rsa_private.pem
-openssl rsa -pubout -in /opt/contribo/secrets/rsa_private.pem \
-  -out /opt/contribo/secrets/rsa_public.pem
-chmod 600 /opt/contribo/secrets/rsa_private.pem
-chmod 644 /opt/contribo/secrets/rsa_public.pem
+sudo ./contribo-deploiement/prepare-secrets.sh \
+  --env-file /chemin/vers/portainer.env
+sudo ./contribo-deploiement/prepare-secrets.sh \
+  --env-file /chemin/vers/portainer.env \
+  --check-only
 ```
 
 Le fichier `db_password` doit être créé au même endroit. Pour créer le premier
@@ -28,9 +34,10 @@ stack. Le secret est lu dans le conteneur via
 `/run/secrets/bootstrap_admin_password`, puis il n'est jamais réutilisé pour
 réinitialiser un compte existant.
 
-Dans Portainer, les chemins peuvent être remplacés par
-`DB_PASSWORD_FILE_PATH`, `RSA_PUBLIC_KEY_FILE_PATH`,
-`RSA_PRIVATE_KEY_FILE_PATH` et `BOOTSTRAP_ADMIN_PASSWORD_FILE_PATH`.
+Dans Portainer, les chemins peuvent être remplacés par ces mêmes variables.
+Ne pas supposer que le chemin est `/opt` ou `/etc` : l'environnement utilisé par
+la stack est la source de vérité. Le fichier Compose conserve `/opt/contribo/secrets`
+comme fallback historique lorsque ces variables sont absentes.
 
 Un exemple complet de variables pour cette stack est disponible dans
 `contribo-deploiement/portainer.env.example`. Le proxy Caddy doit rejoindre le
@@ -168,6 +175,14 @@ synchronisées, Portainer doit continuer à pointer vers la branche `main` de
 `gest-asso-deploiement`.
 
 ## Vérifier et revenir en arrière
+
+Avant chaque pull d'image, exécuter le contrôle sans mutation :
+
+```bash
+sudo ./contribo-deploiement/prepare-secrets.sh \
+  --env-file /chemin/vers/portainer.env \
+  --check-only
+```
 
 Vérifier le healthcheck du backend, l'accès à l'application via le proxy et une
 connexion suivie d'une requête authentifiée. Après chaque déploiement, conserver
