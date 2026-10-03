@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import fr from '@assets/i18n/fr.json';
 import { AmountInput } from './amount-input';
 
@@ -50,7 +50,7 @@ describe('AmountInput', () => {
           preloadLangs: true,
         }),
       ],
-      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
+      providers: [provideCspTranspiler()],
     }).compileComponents();
   });
 

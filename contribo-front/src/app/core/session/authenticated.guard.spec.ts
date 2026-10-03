@@ -2,8 +2,10 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { EspacePersonnelService } from '@core/api';
 import type { CurrentUser, LoginResponse } from '@core/api';
-import { authenticatedMatch } from './authenticated.guard';
+import { of } from 'rxjs';
+import { authenticatedMatch, sessionHydrationMatch } from './authenticated.guard';
 import { SessionService } from './session.service';
 
 @Component({
@@ -46,9 +48,14 @@ describe('authenticatedMatch', () => {
       providers: [
         provideRouter([
           { path: 'dashboard', canMatch: [authenticatedMatch], component: DashboardStub },
+          { path: 'acces-refuse', canMatch: [sessionHydrationMatch], component: DashboardStub },
           { path: 'login', component: DashboardStub },
           { path: '**', redirectTo: 'login' },
         ]),
+        {
+          provide: EspacePersonnelService,
+          useValue: { getCurrentUser: () => of(null) },
+        },
       ],
     });
   });
@@ -65,6 +72,18 @@ describe('authenticatedMatch', () => {
 
     const harness = await RouterTestingHarness.create('/dashboard');
 
+    expect(harness.routeNativeElement?.textContent).toContain('Tableau de bord');
+  });
+
+  it('hydrates the session before rendering the access-denied shell', async () => {
+    const currentUser = buildLoginResponse('MEMBER').user;
+    TestBed.overrideProvider(EspacePersonnelService, {
+      useValue: { getCurrentUser: () => of(currentUser) },
+    });
+
+    const harness = await RouterTestingHarness.create('/acces-refuse');
+
+    expect(TestBed.inject(SessionService).user()).toEqual(currentUser);
     expect(harness.routeNativeElement?.textContent).toContain('Tableau de bord');
   });
 });
