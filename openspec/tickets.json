@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 198,
+  "nextTicketId": 200,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3348,6 +3348,7 @@
     {"id":194,"title":"Corriger le classement QA du contrôle d'alignement visuel recherche et filtre.","priority":"P2","scope":"infra","type":"test","slug":"corriger-suivi-qa-alignement","change":"corriger-anomalies-qa-20261002","tasks":["5.1","5.2","5.3"],"dependencies":[193],"planningStatus":"planned","branchDuringInitialization":"infra/test-000-corriger-suivi-qa-alignement","branchAfterInitialization":"infra/test-194-corriger-suivi-qa-alignement"},
     {"id":195,"title":"Mettre à jour l'exemple d'environnement d'intégration avec les variables exigées par la stack.","priority":"P2","scope":"infra","type":"chore","slug":"mettre-a-jour-env-integration","change":"mettre-a-jour-env-integration","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/chore-000-mettre-a-jour-env-integration","branchAfterInitialization":"infra/chore-195-mettre-a-jour-env-integration"},
     {"id":196,"title":"Monter la configuration Nginx Portainer depuis un chemin absolu de l'hôte Docker.","priority":"P1","scope":"infra","type":"fix","slug":"monter-config-nginx-portainer-hote","change":"monter-config-nginx-portainer-hote","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5"],"dependencies":[195],"planningStatus":"planned","branchDuringInitialization":"infra/fix-000-monter-config-nginx-portainer-hote","branchAfterInitialization":"infra/fix-196-monter-config-nginx-portainer-hote"},
-    {"id":197,"title":"Réduire et durcir les images Docker backend et frontend avec des layers cacheables et des runtimes minimaux.","priority":"P2","scope":"infra","type":"perf","slug":"optimiser-images-java-jlink","change":"optimiser-images-java-jlink","tasks":["1.1","1.2","1.3","1.4","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2","4.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/perf-000-optimiser-images-java-jlink","branchAfterInitialization":"infra/perf-197-optimiser-images-java-jlink"}
+    {"id":197,"title":"Réduire et durcir les images Docker backend et frontend avec des layers cacheables et des runtimes minimaux.","priority":"P2","scope":"infra","type":"perf","slug":"optimiser-images-java-jlink","change":"optimiser-images-java-jlink","tasks":["1.1","1.2","1.3","1.4","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2","4.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"infra/perf-000-optimiser-images-java-jlink","branchAfterInitialization":"infra/perf-197-optimiser-images-java-jlink"},
+    {"id":199,"title":"Corriger la lecture des secrets sous Portainer et fiabiliser les détails techniques des images Docker.","priority":"P0","scope":"infra","type":"fix","slug":"durcir-secrets-runtime-portainer","change":"durcir-secrets-runtime-portainer","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","2.5","2.6","3.1","3.2","3.3","3.4","4.1","4.2"],"dependencies":[197],"planningStatus":"planned","branchDuringInitialization":"infra/fix-000-durcir-secrets-runtime-portainer","branchAfterInitialization":"infra/fix-199-durcir-secrets-runtime-portainer"}
   ]
 }
