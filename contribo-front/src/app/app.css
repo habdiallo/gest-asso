@@ -183,6 +183,7 @@
 .mobile-profile-action {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.65rem;
   min-height: 2.75rem;
   padding: 0.55rem 0.65rem;
@@ -222,12 +223,13 @@
 
 .mobile-profile-action-label {
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
   overflow: hidden;
   overflow-wrap: anywhere;
   font-size: 0.78rem;
   font-weight: 600;
   text-overflow: ellipsis;
+  text-align: center;
   white-space: normal;
 }
 
