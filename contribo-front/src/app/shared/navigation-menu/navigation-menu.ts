@@ -104,7 +104,7 @@ export class NavigationMenu {
   readonly linkClasses = computed(() =>
     this.orientation() === 'vertical'
       ? 'sidebar-link'
-      : 'mobile-nav-link min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-icon)] px-1 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[1181px]:flex-none min-[1181px]:text-sm',
+      : 'mobile-nav-link min-w-0 flex-1 rounded-[var(--radius-icon)] px-1 py-2 text-center text-xs text-text-2 transition-colors hover:text-text min-[1181px]:flex-none min-[1181px]:text-sm',
   );
 
   /**
