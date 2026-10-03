@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import fr from '@assets/i18n/fr.json';
 
 describe('French pluralized translations', () => {
@@ -13,7 +13,7 @@ describe('French pluralized translations', () => {
           preloadLangs: true,
         }),
       ],
-      providers: [provideTranslocoMessageformat({ locales: 'fr' })],
+      providers: [provideCspTranspiler()],
     });
   });
 

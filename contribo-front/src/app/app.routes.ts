@@ -1,17 +1,16 @@
 import { inject } from '@angular/core';
 import type { RedirectFunction, Routes } from '@angular/router';
 import { UserRole } from '@core/api';
-import {
-  activeSessionMatch,
-  authenticatedMatch,
-  passwordChangeMatch,
-} from '@core/session/authenticated.guard';
+import { activeSessionMatch, passwordChangeMatch } from '@core/session/authenticated.guard';
 import { roleGuard } from '@core/session/role.guard';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
 import { SessionService } from '@core/session/session.service';
+import { SessionHydrationService } from '@core/session/session-hydration';
 
-const sessionEntryRedirect: RedirectFunction = () => {
+const sessionEntryRedirect: RedirectFunction = async () => {
   const session = inject(SessionService);
+  await inject(SessionHydrationService).ensureHydrated();
+
   if (!session.isAuthenticated()) {
     return 'login';
   }

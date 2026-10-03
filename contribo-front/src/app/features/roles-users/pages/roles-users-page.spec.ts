@@ -3,7 +3,7 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type { TemporaryCredentials, UserAccount, UserAccountPage } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import { Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
 import { RolesUsersPage } from './roles-users-page';
@@ -67,10 +67,14 @@ async function createFixture(
       }),
     ],
     providers: [
-      provideTranslocoMessageformat({ locales: 'fr' }),
+      provideCspTranspiler(),
       {
         provide: UtilisateursEtRolesService,
-        useValue: { listUsers, updateUserAccess, resetUserCredentials } as unknown as UtilisateursEtRolesService,
+        useValue: {
+          listUsers,
+          updateUserAccess,
+          resetUserCredentials,
+        } as unknown as UtilisateursEtRolesService,
       },
     ],
   }).compileComponents();

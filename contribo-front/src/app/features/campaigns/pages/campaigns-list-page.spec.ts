@@ -17,7 +17,7 @@ import type {
   IncomeCategory,
 } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
+import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import { SessionService } from '@core/session/session.service';
 import type { Observable } from 'rxjs';
 import { Subject, of, throwError } from 'rxjs';
@@ -127,7 +127,7 @@ async function createFixture(
       }),
     ],
     providers: [
-      provideTranslocoMessageformat({ locales: 'fr' }),
+      provideCspTranspiler(),
       provideRouter([]),
       {
         provide: CampagnesService,

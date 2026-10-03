@@ -173,6 +173,25 @@ Vérifier le healthcheck du backend, l'accès à l'application via le proxy et u
 connexion suivie d'une requête authentifiée. Après chaque déploiement, conserver
 les deux digests précédents.
 
+Après le redéploiement frontend, vérifier depuis un poste client que l'image et
+le fichier Nginx monté correspondent bien à la candidate :
+
+```bash
+docker inspect contribo-frontend --format '{{.Config.Image}}'
+docker inspect contribo-frontend --format '{{range .Mounts}}{{println .Source .Destination}}{{end}}'
+curl -fsSI https://integration.example.com/login
+curl -fsSI https://integration.example.com/assets/i18n/fr.json
+curl -fsSI https://integration.example.com/fonts/outfit-300.woff2
+```
+
+La réponse de `/login` doit contenir la CSP sans `unsafe-eval`, la réponse du
+fichier de traduction doit être servie sans cache persistant, et les bundles
+hashés ainsi que les polices doivent porter un cache longue durée. Ouvrir
+ensuite `/login` avec le cache vidé puis une seconde fois avec le cache chaud,
+et confirmer dans la console que les libellés français et la police locale sont
+présents sans erreur CSP bloquante. Si le fichier monté diffère du dépôt, mettre
+à jour `FRONTEND_NGINX_CONFIG_FILE_PATH` sur l'hôte puis redéployer la stack.
+
 Pour un rollback, remplacer `BACKEND_IMAGE` et `FRONTEND_IMAGE` par la paire de
 digests précédente puis redéployer la stack. Les deux images reviennent alors à
 la même version. Les secrets RSA et les données PostgreSQL restent inchangés.

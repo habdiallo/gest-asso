@@ -5,49 +5,18 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import type { ApplicationConfig } from '@angular/core';
-import {
-  HttpErrorResponse,
-  provideHttpClient,
-  withInterceptors,
-  withXsrfConfiguration,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { catchError, firstValueFrom, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
-import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { TranslocoHttpLoader } from '@core/i18n/transloco-http.loader';
-import { AuthentificationService, EspacePersonnelService } from '@core/api';
+import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import { authInterceptor } from '@core/session/auth.interceptor';
 import { csrfInterceptor } from '@core/session/csrf.interceptor';
 import { sessionExpiredInterceptor } from '@core/session/session-expired.interceptor';
-import { SessionService } from '@core/session/session.service';
+export { hydrateCurrentUser } from '@core/session/session-hydration';
 
 import { routes } from './app.routes';
-
-/**
- * Hydrate l'utilisateur courant depuis /api/v1/me. Seule une erreur 401 invalide la
- * session portée par cookie : une panne transitoire (5xx, erreur réseau) ne doit pas
- * déconnecter un utilisateur dont la session reste valide.
- */
-export function hydrateCurrentUser(
-  session: SessionService,
-  espacePersonnel: EspacePersonnelService,
-): Promise<void> {
-  return firstValueFrom(
-    espacePersonnel.getCurrentUser().pipe(
-      catchError((error: unknown) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          session.clear();
-        }
-        return of(null);
-      }),
-    ),
-  ).then((user) => {
-    if (user) {
-      session.setUser(user);
-    }
-  });
-}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -66,19 +35,10 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
-    provideTranslocoMessageformat({ locales: 'fr' }),
+    provideCspTranspiler(),
     provideAppInitializer(() => {
       const transloco = inject(TranslocoService);
       return firstValueFrom(transloco.load(transloco.getActiveLang()));
-    }),
-    provideAppInitializer(() => {
-      const session = inject(SessionService);
-      const espacePersonnel = inject(EspacePersonnelService);
-      return hydrateCurrentUser(session, espacePersonnel);
-    }),
-    provideAppInitializer(() => {
-      const authentification = inject(AuthentificationService);
-      return firstValueFrom(authentification.getCsrfToken().pipe(catchError(() => of(null))));
     }),
   ],
 };

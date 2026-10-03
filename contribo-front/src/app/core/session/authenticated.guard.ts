@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import type { CanMatchFn } from '@angular/router';
 import { SessionService } from './session.service';
+import { SessionHydrationService } from './session-hydration';
 
 /**
  * Sélectionne une route uniquement pour un utilisateur authentifié. Le garde
@@ -9,14 +10,23 @@ import { SessionService } from './session.service';
  * Ne remplace pas `roleGuard`, qui reste responsable des routes protégées par
  * rôle applicatif.
  */
-export const authenticatedMatch: CanMatchFn = () => inject(SessionService).isAuthenticated();
+export const authenticatedMatch: CanMatchFn = () => {
+  const session = inject(SessionService);
+  return inject(SessionHydrationService)
+    .ensureHydrated()
+    .then(() => session.isAuthenticated());
+};
 
 export const activeSessionMatch: CanMatchFn = () => {
   const session = inject(SessionService);
-  return session.isAuthenticated() && !session.mustChangePassword();
+  return inject(SessionHydrationService)
+    .ensureHydrated()
+    .then(() => session.isAuthenticated() && !session.mustChangePassword());
 };
 
 export const passwordChangeMatch: CanMatchFn = () => {
   const session = inject(SessionService);
-  return session.isAuthenticated() && session.mustChangePassword();
+  return inject(SessionHydrationService)
+    .ensureHydrated()
+    .then(() => session.isAuthenticated() && session.mustChangePassword());
 };
