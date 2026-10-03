@@ -16,6 +16,7 @@ import type {
 } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ActionButton } from '@shared/action-button/action-button';
+import { ApiErrorRetry } from '@shared/api-error-retry/api-error-retry';
 import { DataTable } from '@shared/data-table/data-table';
 import { EmptyState } from '@shared/empty-state/empty-state';
 import { PageHeader } from '@shared/page-header/page-header';
@@ -71,6 +72,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   imports: [
     TranslocoPipe,
     ActionButton,
+    ApiErrorRetry,
     DataTable,
     EmptyState,
     PageHeader,
@@ -139,6 +141,7 @@ export class RolesUsersPage {
   /** Compte dont la fiche de changement de rôle (T-53) est ouverte, ou `null` si fermée. */
   readonly roleDialogAccount = signal<UserAccountListItem | null>(null);
   readonly roleDialogDetails = signal<UserAccount | null>(null);
+  readonly roleDialogDetailsError = signal(false);
   /** Rôle sélectionné dans le dialogue, initialisé au rôle courant à l'ouverture. */
   readonly roleDraft = signal<UserRole | null>(null);
   /**
@@ -159,6 +162,7 @@ export class RolesUsersPage {
 
   private readonly refetch = new Subject<void>();
   private searchDebounceHandle: ReturnType<typeof setTimeout> | undefined;
+  private roleDialogDetailsRequest = 0;
 
   constructor() {
     this.refetch
@@ -230,20 +234,41 @@ export class RolesUsersPage {
   openRoleDialog(account: UserAccountListItem): void {
     this.roleDialogAccount.set(account);
     this.roleDialogDetails.set(null);
+    this.roleDialogDetailsError.set(false);
     this.roleDraft.set(account.role);
     this.operatorAuthorizationDraft.set(account.operatorCanRecordPayments);
     this.roleSaveError.set(false);
     this.resetCredentialsError.set(false);
     this.resetCredentialsResult.set(null);
+    this.loadRoleDialogDetails(account);
+  }
+
+  loadRoleDialogDetails(account: UserAccountListItem): void {
+    const request = ++this.roleDialogDetailsRequest;
+    this.roleDialogDetailsError.set(false);
     this.usersService
       .getUser(account.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (details) => {
-          if (this.roleDialogAccount()?.id !== account.id) {
+          if (
+            this.roleDialogAccount()?.id !== account.id ||
+            request !== this.roleDialogDetailsRequest
+          ) {
             return;
           }
           this.roleDialogDetails.set(details);
+          this.roleDialogDetailsError.set(false);
+        },
+        error: () => {
+          if (
+            this.roleDialogAccount()?.id !== account.id ||
+            request !== this.roleDialogDetailsRequest
+          ) {
+            return;
+          }
+          this.roleDialogDetails.set(null);
+          this.roleDialogDetailsError.set(true);
         },
       });
   }
@@ -252,6 +277,8 @@ export class RolesUsersPage {
   closeRoleDialog(): void {
     this.roleDialogAccount.set(null);
     this.roleDialogDetails.set(null);
+    this.roleDialogDetailsError.set(false);
+    this.roleDialogDetailsRequest += 1;
     this.roleDraft.set(null);
     this.operatorAuthorizationDraft.set(false);
     this.roleSaveError.set(false);

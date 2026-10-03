@@ -763,6 +763,7 @@
   "rolesUsers.roleDialogIdentityActive": "{name} · Compte actif",
   "rolesUsers.roleDialogIdentityInactive": "{name} · Compte inactif",
   "rolesUsers.identifierLabel": "Identifiant de connexion",
+  "rolesUsers.roleDialogDetailsError": "Impossible de charger l'identifiant de connexion. Réessayez.",
   "rolesUsers.roleDialogLabel": "Rôle applicatif",
   "rolesUsers.roleDialogSectionRole": "Rôle applicatif",
   "rolesUsers.operatorAuthorizationTitle": "Autorisation de l’opérateur",
