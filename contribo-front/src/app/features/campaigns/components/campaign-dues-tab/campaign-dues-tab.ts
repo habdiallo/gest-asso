@@ -88,6 +88,7 @@ export class CampaignDuesTab implements OnInit {
   readonly duePage = signal<DuePage | null>(null);
   readonly formatAmount = formatGnfAmountDetailed;
   readonly statusLabels = DUE_STATUS_TRANSLATION_KEYS;
+  readonly dueStatus = DueStatus.Due;
   readonly paidStatus = DueStatus.Paid;
   readonly overdueStatus = DueStatus.Overdue;
 
@@ -170,6 +171,20 @@ export class CampaignDuesTab implements OnInit {
   categoryShortLabel(label: string): string {
     const categoryLetter = label.match(/[A-D](?!.*[A-D])/i)?.[0];
     return categoryLetter ? `Cat. ${categoryLetter.toUpperCase()}` : label;
+  }
+
+  mobileDueAmount(due: Due): string {
+    return this.formatAmount(due.status === this.dueStatus ? due.dueAmount : due.remainingAmount);
+  }
+
+  mobileDueLabel(due: Due): TranslationKey {
+    if (due.status === this.dueStatus) {
+      return 'campaigns.detail.cotisations.mobile.due';
+    }
+    if (due.status === this.paidStatus) {
+      return 'campaigns.detail.cotisations.mobile.paid';
+    }
+    return 'campaigns.detail.cotisations.mobile.remaining';
   }
 
   previousPage(): void {

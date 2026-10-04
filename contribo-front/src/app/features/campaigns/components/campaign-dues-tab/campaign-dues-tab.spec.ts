@@ -182,7 +182,7 @@ describe('CampaignDuesTab', () => {
     expect(root.textContent).toContain('Partiellement payé');
     const mobileCard = root.querySelector('[data-testid="campaign-dues-mobile-cards"] li');
     expect(mobileCard?.textContent).toContain('Amadou Diallo');
-    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(100_000));
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(50_000));
     expect(mobileCard?.textContent).toContain('Partiellement payé');
   });
 

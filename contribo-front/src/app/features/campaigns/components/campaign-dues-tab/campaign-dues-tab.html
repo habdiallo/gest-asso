@@ -1,5 +1,21 @@
 <div [attr.aria-busy]="loading()">
-  <div class="mb-7 grid gap-3 tablet:grid-cols-[minmax(0,1fr)_auto]">
+  <div class="mb-4 flex items-center justify-between gap-4 tablet:hidden">
+    <h2 class="font-display text-2xl text-text">
+      {{ 'campaigns.detail.cotisations.mobile.title' | transloco }}
+    </h2>
+    <app-custom-select
+      controlId="campaign-dues-status-filter-mobile"
+      [options]="statusSelectOptions"
+      [value]="statusFilter()"
+      [placeholder]="'campaigns.detail.cotisations.filter.mobileButton' | transloco"
+      [ariaLabel]="'campaigns.detail.cotisations.filter.label' | transloco"
+      [compact]="true"
+      [showFilterIcon]="true"
+      (valueChange)="onStatusFilterChange($event)"
+    />
+  </div>
+
+  <div class="mb-7 hidden gap-3 tablet:grid tablet:grid-cols-[minmax(0,1fr)_auto]">
     <div>
       <label for="campaign-dues-search" class="sr-only">
         {{ 'campaigns.detail.cotisations.searchLabel' | transloco }}
@@ -38,6 +54,33 @@
         (valueChange)="onStatusFilterChange($event)"
       />
     </div>
+  </div>
+
+  <div class="mb-7 tablet:hidden">
+    <label for="campaign-dues-search-mobile" class="sr-only">
+      {{ 'campaigns.detail.cotisations.searchLabel' | transloco }}
+    </label>
+    <input
+      id="campaign-dues-search-mobile"
+      type="search"
+      [value]="searchQuery()"
+      [placeholder]="'campaigns.detail.cotisations.searchPlaceholder' | transloco"
+      class="app-form-control h-11 w-full rounded-icon border border-line bg-surface px-[15px] pl-[42px] text-data text-text placeholder:text-text-3"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+    <svg
+      class="pointer-events-none relative -mt-8 ml-3.5 h-[17px] w-[17px] text-text-3"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </svg>
   </div>
 
   @if (loading()) {
@@ -155,71 +198,35 @@
           }
         </tbody>
       </app-data-table>
-      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="campaign-dues-mobile-cards">
+      <ul
+        class="mt-4 overflow-hidden rounded-card border border-line bg-surface tablet:hidden"
+        data-testid="campaign-dues-mobile-cards"
+      >
         @for (due of result.items; track due.id) {
-          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <div class="flex min-w-0 items-center gap-3">
-                <span
-                  class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold-wash font-data text-[11px] font-semibold text-gold"
-                  aria-hidden="true"
-                >
-                  {{ memberInitials(due.member.displayName) }}
-                </span>
-                <p class="min-w-0 break-words font-medium text-text">
-                  {{ due.member.displayName }}
-                </p>
-              </div>
-              <app-status-badge
-                class="shrink-0"
-                [label]="statusLabels[due.status] | transloco"
-                [tone]="
-                  due.status === paidStatus
-                    ? 'success'
-                    : due.status === overdueStatus
-                      ? 'error'
-                      : 'warning'
-                "
-              />
+          <li
+            class="grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 border-b border-line px-3.5 py-3.5 last:border-b-0"
+          >
+            <div class="min-w-0">
+              <p class="truncate font-medium text-text">{{ due.member.displayName }}</p>
+              <p class="responsive-meta mt-1 truncate text-text-3">
+                {{ categoryShortLabel(due.incomeCategorySnapshot.label) }} ·
+                {{ mobileDueAmount(due) }}
+                {{ mobileDueLabel(due) | transloco }}
+              </p>
             </div>
-            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-              @if (showIncomeCategory()) {
-                <div class="min-w-0">
-                  <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                    {{ 'campaigns.detail.cotisations.columns.incomeCategory' | transloco }}
-                  </dt>
-                  <dd class="responsive-body mt-1 break-words text-text-2">
-                    {{ categoryShortLabel(due.incomeCategorySnapshot.label) }}
-                  </dd>
-                </div>
-              }
-              <div class="min-w-0">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.cotisations.columns.dueAmount' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words font-data text-text-2">
-                  {{ formatAmount(due.dueAmount) }}
-                </dd>
-              </div>
-              <div class="min-w-0">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.cotisations.columns.paidAmount' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words font-data text-text-2">
-                  {{ formatAmount(due.paidAmount) }}
-                </dd>
-              </div>
-              <div class="min-w-0">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.cotisations.columns.remainingAmount' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words font-data text-text-2">
-                  {{ formatAmount(due.remainingAmount) }}
-                </dd>
-              </div>
-            </dl>
+            <app-status-badge
+              class="shrink-0"
+              [label]="statusLabels[due.status] | transloco"
+              [tone]="
+                due.status === paidStatus
+                  ? 'success'
+                  : due.status === overdueStatus
+                    ? 'error'
+                    : 'warning'
+              "
+            />
             @if (canRecordPaymentsNow() && due.status !== paidStatus) {
-              <div class="mt-4 [&>app-action-button>button]:w-full">
+              <div class="col-span-2 mt-2 [&>app-action-button>button]:min-h-9">
                 <app-action-button
                   type="button"
                   variant="secondary"
