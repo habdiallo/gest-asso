@@ -1,12 +1,20 @@
+# Composition locale et CI. Le déploiement (staging, production) est défini
+# uniquement dans le dépôt gest-asso-deploiement.
+#
+# Secrets : un répertoire monté en lecture seule sur /run/secrets, préparé par
+#   contribo-deploiement/init-secrets.sh --local --dir .local-secrets --generate-db-password
+# Images : construites localement, ou fournies par BACKEND_IMAGE / FRONTEND_IMAGE
+#   avec `docker compose up --no-build` (utilisé par la CI).
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-contribo}
-      POSTGRES_USER: ${POSTGRES_USER:-contribo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: contribo
+      POSTGRES_USER: contribo
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     volumes:
       - contribo-db-data:/var/lib/postgresql/data
+      - ${SECRETS_DIR_PATH:-../.local-secrets}:/run/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -14,27 +22,29 @@ services:
       retries: 10
 
   backend:
+    image: ${BACKEND_IMAGE:-contribo-back:local}
     build:
       context: ..
       dockerfile: contribo-deploiement/backend.Dockerfile
     environment:
-      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-contribo}
-      DB_USERNAME: ${POSTGRES_USER:-contribo}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
-      RSA_PUBLIC_KEY: file:/run/secrets/rsa_public_key
-      RSA_PRIVATE_KEY: file:/run/secrets/rsa_private_key
+      DB_URL: jdbc:postgresql://db:5432/contribo
+      DB_USERNAME: contribo
+      RSA_PUBLIC_KEY: file:/run/secrets/rsa_public.pem
+      RSA_PRIVATE_KEY: file:/run/secrets/rsa_private.pem
       TRUSTED_PROXY_HEADERS: ${TRUSTED_PROXY_HEADERS:-false}
       TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:-}
-    secrets:
-      - rsa_public_key
-      - rsa_private_key
+      # Premier administrateur : fichier bootstrap_admin_password dans le répertoire de secrets.
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+    volumes:
+      - ${SECRETS_DIR_PATH:-../.local-secrets}:/run/secrets:ro
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
 
   frontend:
+    image: ${FRONTEND_IMAGE:-contribo-front:local}
     build:
       context: ..
       dockerfile: contribo-deploiement/frontend.Dockerfile
@@ -42,18 +52,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "${FRONTEND_PORT:-8081}:80"
-    volumes:
-      - ./nginx.local.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./proxy-common.conf:/etc/nginx/conf.d/proxy-common.conf:ro
-      - ./nginx-rate-limits.conf:/etc/nginx/includes/nginx-rate-limits.conf:ro
-      - ./nginx-application-locations.conf:/etc/nginx/includes/nginx-application-locations.conf:ro
+      - "127.0.0.1:${FRONTEND_PORT:-8081}:8080"
 
 volumes:
   contribo-db-data:
-
-secrets:
-  rsa_public_key:
-    file: ${RSA_PUBLIC_KEY_FILE_PATH:?RSA_PUBLIC_KEY_FILE_PATH must be set}
-  rsa_private_key:
-    file: ${RSA_PRIVATE_KEY_FILE_PATH:?RSA_PRIVATE_KEY_FILE_PATH must be set}

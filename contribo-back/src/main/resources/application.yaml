@@ -1,10 +1,13 @@
 spring:
   application:
     name: contribo-back
+  config:
+    # Chaque fichier du répertoire de secrets devient une propriété (db_password, bootstrap_admin_password).
+    import: optional:configtree:${SECRETS_DIR:/run/secrets}/
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/contribo}
     username: ${DB_USERNAME:contribo}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:${db_password:}}
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:10}
   flyway:
@@ -52,7 +55,7 @@ bootstrap:
   admin:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
     identifier: ${BOOTSTRAP_ADMIN_IDENTIFIER:admin}
-    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:${bootstrap_admin_password:}}
     password-file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE:}
     association-name: ${BOOTSTRAP_ASSOCIATION_NAME:Contribo}
     currency: ${BOOTSTRAP_ASSOCIATION_CURRENCY:GNF}

@@ -218,7 +218,7 @@ distincts du même contrat `contribo-back/src/main/resources/contribo-api.yml` e
 version. Toute mise à jour de cette version se fait dans la même PR pour
 `contribo-front` et `contribo-back`, avec régénération des deux clients et
 vérification de leur compilation. `node scripts/check-openapi-generator-version.mjs`
-contrôle cet alignement (exécuté en CI dans `frontend-compilation.yml` avant
+contrôle cet alignement (exécuté en CI dans le job `Frontend tests and build` de `backend-frontend-images.yml` avant
 `npm run generate:api`) et échoue explicitement si une version est absente ou
 si les deux divergent.
 Depuis `contribo-front/`, exécuter également `npm run check:api` avant la

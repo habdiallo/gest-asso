@@ -1,0 +1,102 @@
+name: Promote release
+
+# Un tag vX.Y.Z (minuscule) posé sur la tête de release/vX.Y.Z, fusionnée dans main
+# par un merge commit, retague sans rebuild les images de ce commit, à condition
+# qu'elles soient exactement celles déployées en staging, puis ouvre la PR de
+# production dans le dépôt de déploiement.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+  promote:
+    name: Retag tested images and open the production PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check that the tagged commit is in main
+        run: |
+          set -euo pipefail
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Le tag $GITHUB_REF_NAME doit pointer sur la tête de la release fusionnée dans main (merge commit, pas de squash)."
+            exit 1
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # La production reçoit exactement la candidate déployée en staging (digests lus
+      # dans le dépôt de déploiement), à condition qu'elle ait été construite depuis
+      # le commit tagué (label OCI revision). Un commit ajouté après la validation
+      # staging, ou une staging qui porte une autre version, fait échouer la promotion.
+      - name: Resolve the staging candidate and check it was built from the tagged commit
+        id: digests
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          staging="$RUNNER_TEMP/staging-compose.yaml"
+          gh api -H 'Accept: application/vnd.github.raw' \
+            repos/habdiallo/gest-asso-deploiement/contents/staging/compose.yaml > "$staging"
+          for image in contribo-back contribo-front; do
+            digest=$(scripts/staging-image-digest.sh "$staging" "$image")
+            revision=$(docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAMESPACE}/${image}@${digest}" \
+              --format '{{index .Image.Config.Labels "org.opencontainers.image.revision"}}')
+            if [ "$revision" != "$GITHUB_SHA" ]; then
+              echo "::error::${image} déployé en staging (${digest}) provient du commit '${revision}', pas du commit tagué ${GITHUB_SHA}."
+              exit 1
+            fi
+            echo "${image}=${digest}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Retag the validated images
+        id: retag
+        shell: bash
+        env:
+          BACKEND_DIGEST: ${{ steps.digests.outputs.contribo-back }}
+          FRONTEND_DIGEST: ${{ steps.digests.outputs.contribo-front }}
+        run: |
+          set -euo pipefail
+          for pair in "contribo-back=${BACKEND_DIGEST}" "contribo-front=${FRONTEND_DIGEST}"; do
+            image=${pair%%=*}
+            digest=${pair#*=}
+            repository="${REGISTRY}/${IMAGE_NAMESPACE}/${image}"
+            docker buildx imagetools create --tag "${repository}:${GITHUB_REF_NAME}" "${repository}@${digest}"
+            published=$(docker buildx imagetools inspect "${repository}:${GITHUB_REF_NAME}" --format '{{json .Manifest.Digest}}' | tr -d '"')
+            if [ "$published" != "$digest" ]; then
+              echo "::error::${repository}:${GITHUB_REF_NAME} pointe sur $published au lieu de $digest"
+              exit 1
+            fi
+            echo "${image}=${repository}:${GITHUB_REF_NAME}@${digest}" >> "$GITHUB_OUTPUT"
+            echo "${image}: ${repository}:${GITHUB_REF_NAME}@${digest}" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Open or update the production pull request in the deployment repository
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
+          BACKEND_REF: ${{ steps.retag.outputs.contribo-back }}
+          FRONTEND_REF: ${{ steps.retag.outputs.contribo-front }}
+        run: scripts/open-deployment-pr.sh production "$BACKEND_REF" "$FRONTEND_REF" "$GITHUB_REF_NAME"

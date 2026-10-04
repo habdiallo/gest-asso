@@ -1,0 +1,22 @@
+# Les PR Dependabot ciblent develop et passent par la CI complète (tests, scan, smoke test).
+# Leurs branches dependabot/* sont acceptées par le contrôle Workflow conventions.
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /contribo-deploiement
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore(infra)
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: chore(infra)

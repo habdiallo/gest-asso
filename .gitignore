@@ -10,3 +10,6 @@
 
 # Backend build outputs.
 /contribo-back/target/
+
+# Secrets locaux (compose.yaml, init-secrets.sh --local)
+.local-secrets/

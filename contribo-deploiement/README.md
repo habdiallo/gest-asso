@@ -1,34 +1,38 @@
 # Déploiement local Contribo
 
-La stack locale démarre PostgreSQL, le backend et le frontend derrière Nginx.
-Le frontend est accessible sur `http://localhost:8081` et les appels
-`/api/v1` sont routés vers le backend. PostgreSQL n'est pas exposé par défaut.
+`compose.yaml` démarre PostgreSQL, le backend et le frontend (Nginx non root,
+port interne 8080). Le frontend est accessible sur `http://localhost:8081` et
+les appels `/api/v1` sont routés vers le backend. PostgreSQL n'est pas exposé.
+
+C'est la seule composition de ce dépôt : elle sert au développement local et
+au smoke test de la CI. Le déploiement (staging, production) est défini dans
+`habdiallo/gest-asso-deploiement`, voir [PORTAINER.md](PORTAINER.md).
 
 ## Démarrer
 
-Depuis la racine du dépôt :
+Depuis la racine du dépôt, préparer une fois le répertoire de secrets local
+(non versionné) : mot de passe PostgreSQL et paire RSA générés.
 
 ```bash
+contribo-deploiement/init-secrets.sh --local --dir .local-secrets --generate-db-password
 docker compose -f contribo-deploiement/compose.yaml up --build
+scripts/smoke-test.sh http://localhost:8081
 ```
 
-Les valeurs par défaut servent uniquement au développement local. Le mot de
-passe PostgreSQL doit être fourni explicitement et aucune clé RSA ne doit être
-versionnée. Générer une paire RSA locale, puis injecter
-`RSA_PUBLIC_KEY_FILE_PATH` et `RSA_PRIVATE_KEY_FILE_PATH` avec `POSTGRES_DB`,
-`POSTGRES_USER`, `POSTGRES_PASSWORD`, `BACKEND_PORT` et `FRONTEND_PORT` sans
-les versionner.
+Le répertoire est monté en lecture seule sur `/run/secrets` : PostgreSQL lit
+`db_password`, le backend lit tous les fichiers nativement. Pour un autre
+répertoire, définir `SECRETS_DIR_PATH`.
+
+Premier administrateur : écrire un mot de passe d'au moins 12 caractères dans
+`.local-secrets/bootstrap_admin_password`, puis démarrer avec
+`BOOTSTRAP_ADMIN_ENABLED=true`. Supprimer ensuite le fichier.
+
+Pour tester des images déjà construites ou publiées sans rebuild :
 
 ```bash
-mkdir -p .local-secrets
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
-  -out .local-secrets/rsa_private.pem
-openssl rsa -pubout -in .local-secrets/rsa_private.pem \
-  -out .local-secrets/rsa_public.pem
-RSA_PUBLIC_KEY_FILE_PATH="$PWD/.local-secrets/rsa_public.pem" \
-RSA_PRIVATE_KEY_FILE_PATH="$PWD/.local-secrets/rsa_private.pem" \
-POSTGRES_PASSWORD='change-me-locally' \
-docker compose -f contribo-deploiement/compose.yaml up --build
+BACKEND_IMAGE=ghcr.io/habdiallo/contribo-back@sha256:<digest> \
+FRONTEND_IMAGE=ghcr.io/habdiallo/contribo-front@sha256:<digest> \
+docker compose -f contribo-deploiement/compose.yaml up --no-build --wait
 ```
 
 ## Arrêter
