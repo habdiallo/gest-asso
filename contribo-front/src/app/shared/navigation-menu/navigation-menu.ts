@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import type { NavigationItem } from '@core/navigation/navigation-item';
 import { navigationItemsForRole } from '@core/navigation/navigation-items';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
@@ -84,6 +86,18 @@ export class NavigationMenu {
 
   readonly orientation = input<NavigationMenuOrientation>('horizontal');
 
+  /**
+   * Chemin courant, sans requête ni fragment. Signal pour que le composant OnPush
+   * recalcule l'état actif mobile à chaque navigation.
+   */
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects.split(/[?#]/, 1)[0]),
+    ),
+    { initialValue: this.router.url.split(/[?#]/, 1)[0] },
+  );
+
   readonly items = computed(() => navigationItemsForRole(this.sessionService.user()?.role ?? null));
   readonly iconPaths = SIDEBAR_ICONS;
   readonly dashboardIconRectOrigins = DASHBOARD_ICON_RECT_ORIGINS;
@@ -134,7 +148,7 @@ export class NavigationMenu {
   readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
 
   readonly isMobileItemActive = (path: string): boolean => {
-    const currentPath = this.router.url.split(/[?#]/, 1)[0];
+    const currentPath = this.currentPath();
     if (path === NAVIGATION_PATHS.dashboard) {
       return currentPath === path;
     }
@@ -144,7 +158,9 @@ export class NavigationMenu {
         NAVIGATION_PATHS.memberSpace,
         NAVIGATION_PATHS.rolesAndUsers,
         NAVIGATION_PATHS.incomeCategories,
-      ].some((destination) => currentPath === destination || currentPath.startsWith(`${destination}/`));
+      ].some(
+        (destination) => currentPath === destination || currentPath.startsWith(`${destination}/`),
+      );
     }
     return currentPath === path || currentPath.startsWith(`${path}/`);
   };
