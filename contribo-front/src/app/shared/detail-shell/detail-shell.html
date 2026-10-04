@@ -1,7 +1,7 @@
-<main class="mx-auto max-w-shell px-4 py-8 pb-9 sm:px-6 lg:px-12 lg:py-10 lg:pb-16">
+<main class="mx-auto max-w-shell px-4 py-6 pb-9 tablet:px-6 tablet:py-8 tablet:pb-12 lg:px-12 lg:py-10 lg:pb-16">
   <a
     [routerLink]="backRouterLink()"
-    class="inline-flex min-h-11 items-center gap-2 rounded px-1 text-[10px] font-medium uppercase tracking-[0.1em] text-gold outline-none transition-colors hover:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+    class="inline-flex min-h-11 items-center gap-2 rounded px-1 text-sm font-medium normal-case tracking-normal text-gold outline-none transition-colors hover:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash tablet:text-[10px] tablet:uppercase tablet:tracking-[0.1em]"
   >
     <svg
       class="h-4 w-4"
@@ -15,26 +15,27 @@
     >
       <path d="M19 12H5M12 19l-7-7 7-7" />
     </svg>
-    {{ backLabel() }}
+    <span class="tablet:hidden">{{ mobileBackLabel() || backLabel() }}</span>
+    <span class="hidden tablet:inline">{{ backLabel() }}</span>
   </a>
 
   @if (showHero()) {
     <section
-      class="relative mt-8 overflow-hidden rounded-card border border-line bg-surface p-5 shadow-card sm:p-[30px]"
+      class="relative mt-6 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none tablet:mt-8 tablet:overflow-hidden tablet:rounded-card tablet:border tablet:border-line tablet:bg-surface tablet:p-[30px] tablet:shadow-card"
     >
       <div
-        class="pointer-events-none absolute -right-40 -top-56 h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)]"
+        class="pointer-events-none absolute -right-40 -top-56 hidden h-[340px] w-[340px] rounded-full border border-[color:color-mix(in_srgb,var(--gold)_22%,transparent)] shadow-[0_0_80px_var(--gold-wash)] tablet:block"
         aria-hidden="true"
       ></div>
-      <div class="relative z-10 flex flex-col items-start justify-between gap-6 content:flex-row">
+      <div class="relative z-10 flex flex-col items-start justify-between gap-5 content:flex-row tablet:gap-6">
         <div class="min-w-0">
           <p class="font-data text-eyebrow font-medium uppercase tracking-eyebrow text-gold">
             {{ kicker() }}
           </p>
-          <h1 class="mt-2 font-sans text-[27px] font-medium leading-tight text-text">
+          <h1 class="mt-2 font-sans text-[36px] font-medium leading-[1.05] text-text tablet:text-[27px] tablet:leading-tight">
             {{ title() }}
           </h1>
-          <p class="mt-1 text-[15px] font-light leading-normal text-text-2">
+          <p class="mt-2 text-[17px] font-light leading-[1.45] text-text-2 tablet:mt-1 tablet:text-[15px] tablet:leading-normal">
             {{ intro() }}
           </p>
         </div>
@@ -46,7 +47,7 @@
         </div>
       </div>
 
-      <div class="relative z-10 mt-7 border-t border-line pt-6" detail-metrics-slot>
+      <div class="relative z-10 mt-5 border-0 pt-0 tablet:mt-7 tablet:border-t tablet:border-line tablet:pt-6" detail-metrics-slot>
         <ng-content select="[detail-metrics]" />
       </div>
     </section>

@@ -6,7 +6,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type {
   TemporaryCredentials,
@@ -25,7 +26,7 @@ import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { StatusBadge } from '@shared/status-badge/status-badge';
 import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { CustomSelect } from '@shared/custom-select/custom-select';
-import { Subject, catchError, of, switchMap } from 'rxjs';
+import { Subject, catchError, map, of, switchMap } from 'rxjs';
 import { operatorAuthorizationLabel, userRoleLabel } from '../roles-users-labels';
 
 const PAGE_SIZE = 10;
@@ -70,6 +71,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-roles-users-page',
   imports: [
+    RouterLink,
     TranslocoPipe,
     ActionButton,
     ApiErrorRetry,
@@ -85,8 +87,14 @@ const SEARCH_DEBOUNCE_MS = 300;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolesUsersPage {
+  private readonly route = inject(ActivatedRoute);
   private readonly usersService = inject(UtilisateursEtRolesService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly openedFromPlus = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('from') === 'plus')),
+    { initialValue: this.route.snapshot.queryParamMap.get('from') === 'plus' },
+  );
 
   readonly roleOptions: readonly UserRole[] = [
     UserRole.Administrator,

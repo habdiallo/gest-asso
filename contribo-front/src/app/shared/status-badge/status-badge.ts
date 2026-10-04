@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 export type StatusBadgeTone = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 
 const STATUS_BADGE_BASE_CLASSES =
-  'inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-data text-badge font-medium uppercase tracking-label';
+  'inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 font-sans text-xs font-semibold normal-case tracking-normal tablet:font-data tablet:text-badge tablet:font-medium tablet:uppercase tablet:tracking-label';
 
 const STATUS_BADGE_TONE_CLASSES: Record<StatusBadgeTone, string> = {
   success: 'bg-success-wash text-success',

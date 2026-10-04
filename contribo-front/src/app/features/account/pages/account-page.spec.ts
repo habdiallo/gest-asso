@@ -2,13 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
 import type { CurrentUser } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import fr from '@assets/i18n/fr.json';
 import { AccountPage } from './account-page';
+import { BehaviorSubject } from 'rxjs';
 
 function buildCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
   return {
@@ -33,7 +34,11 @@ function buildCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
   };
 }
 
-async function createFixture(user: CurrentUser | null): Promise<ComponentFixture<AccountPage>> {
+async function createFixture(
+  user: CurrentUser | null,
+  fromPlus = false,
+): Promise<ComponentFixture<AccountPage>> {
+  const queryParamMap = new BehaviorSubject(convertToParamMap(fromPlus ? { from: 'plus' } : {}));
   await TestBed.configureTestingModule({
     imports: [
       AccountPage,
@@ -43,7 +48,18 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
         preloadLangs: true,
       }),
     ],
-    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideRouter([]),
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParamMap: queryParamMap.asObservable(),
+          snapshot: { queryParamMap: queryParamMap.value },
+        },
+      },
+    ],
   }).compileComponents();
 
   const session = TestBed.inject(SessionService);
@@ -65,6 +81,22 @@ describe('AccountPage', () => {
 
   afterEach(() => {
     TestBed.inject(HttpTestingController).verify();
+  });
+
+  it('keeps the dashboard return for a direct entry', async () => {
+    const fixture = await createFixture(buildCurrentUser());
+
+    expect(fixture.nativeElement.querySelector('a[href="/dashboard"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).toBeNull();
+  });
+
+  it('returns to Plus when opened from Plus', async () => {
+    const fixture = await createFixture(buildCurrentUser(), true);
+
+    const backLink = fixture.nativeElement.querySelector('a[href="/plus"]') as HTMLAnchorElement;
+    expect(backLink).not.toBeNull();
+    expect(backLink.classList.contains('min-[1181px]:hidden')).toBe(true);
+    expect(fixture.nativeElement.querySelector('a[href="/dashboard"]')).toBeNull();
   });
 
   it('renders the account identity, role, association, theme and read-only GNF currency', async () => {

@@ -59,6 +59,7 @@
   <!-- Barre supérieure mobile/tablette (< 1181px), remplace la barre latérale masquée. -->
   <header
     class="mobile-header fixed inset-x-0 top-0 z-40 flex min-h-14 flex-wrap items-center justify-between gap-2 border-b border-line bg-surface px-4 py-2 min-[1181px]:hidden"
+    [class.mobile-shell-hidden-on-detail]="nativeMobileDetailRoute()"
   >
     <div class="mobile-brand">
       <span class="mobile-brand-mark" aria-hidden="true">
@@ -157,6 +158,7 @@
   <!-- Navigation basse mobile/tablette (< 1181px), équivalent de la barre latérale à cette taille. -->
   <div
     class="mobile-bottom-nav fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface min-[1181px]:hidden"
+    [class.mobile-shell-hidden-on-detail]="nativeMobileDetailRoute()"
   >
     <app-navigation-menu orientation="horizontal" />
   </div>
@@ -164,6 +166,7 @@
   <div
     id="contenu-principal"
     class="app-content responsive-body pt-16 pb-16 min-[1181px]:pt-0 min-[1181px]:pb-0 min-[1181px]:pl-64"
+    [class.mobile-native-detail-content]="nativeMobileDetailRoute()"
   >
     <!-- Barre supérieure desktop (>= 1181px), cf. design/styles.css .topbar. -->
     <header class="desktop-topbar hidden min-[1181px]:flex">

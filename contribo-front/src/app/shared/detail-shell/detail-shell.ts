@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 export class DetailShell {
   readonly backRouterLink = input.required<string | readonly unknown[]>();
   readonly backLabel = input.required<string>();
+  readonly mobileBackLabel = input<string | null>(null);
   readonly kicker = input.required<string>();
   readonly title = input.required<string>();
   readonly intro = input.required<string>();

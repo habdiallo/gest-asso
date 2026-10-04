@@ -7,7 +7,7 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'danger';
 export type ActionButtonType = 'button' | 'submit' | 'reset';
 
 const ACTION_BUTTON_BASE_CLASSES =
-  'inline-flex h-11 min-h-11 min-w-32 items-center justify-center gap-2 rounded border border-transparent px-4 py-2 font-data text-control font-medium uppercase tracking-control whitespace-nowrap cursor-pointer outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-[180ms] focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash active:scale-[0.985] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] disabled:transform-none disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-[0.42] aria-disabled:transform-none aria-disabled:shadow-none';
+  'inline-flex h-11 min-h-11 min-w-32 items-center justify-center gap-2 rounded border border-transparent px-4 py-2 font-sans text-sm font-semibold normal-case tracking-normal whitespace-nowrap cursor-pointer outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-[180ms] focus-visible:border-gold focus-visible:ring-[3px] focus-visible:ring-gold-wash active:scale-[0.985] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-[0.42] disabled:transform-none disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-[0.42] aria-disabled:transform-none aria-disabled:shadow-none tablet:font-data tablet:text-control tablet:font-medium tablet:uppercase tablet:tracking-control';
 
 const ACTION_BUTTON_VARIANT_CLASSES: Record<ActionButtonVariant, string> = {
   primary:

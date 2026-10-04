@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import type { NavigationItem } from '@core/navigation/navigation-item';
 import { navigationItemsForRole } from '@core/navigation/navigation-items';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
@@ -31,6 +33,7 @@ const SIDEBAR_ICONS: Readonly<Record<string, readonly string[]>> = {
     'M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
   ],
   [NAVIGATION_PATHS.memberSpace]: ['M4 21a8 8 0 0 1 16 0'],
+  [NAVIGATION_PATHS.more]: ['M5 12h.01M12 12h.01M19 12h.01'],
 };
 
 /**
@@ -59,6 +62,17 @@ const MOBILE_DASHBOARD_ITEM: NavigationItem = {
   path: NAVIGATION_PATHS.dashboard,
 };
 
+const MOBILE_MORE_ITEM: NavigationItem = {
+  label: 'Plus',
+  path: NAVIGATION_PATHS.more,
+};
+
+const MOBILE_PRIMARY_PATHS = new Set<string>([
+  NAVIGATION_PATHS.members,
+  NAVIGATION_PATHS.campaigns,
+  NAVIGATION_PATHS.socialFunds,
+]);
+
 @Component({
   selector: 'app-navigation-menu',
   imports: [RouterLink, RouterLinkActive],
@@ -67,9 +81,22 @@ const MOBILE_DASHBOARD_ITEM: NavigationItem = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationMenu {
+  private readonly router = inject(Router);
   private readonly sessionService = inject(SessionService);
 
   readonly orientation = input<NavigationMenuOrientation>('horizontal');
+
+  /**
+   * Chemin courant, sans requête ni fragment. Signal pour que le composant OnPush
+   * recalcule l'état actif mobile à chaque navigation.
+   */
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects.split(/[?#]/, 1)[0]),
+    ),
+    { initialValue: this.router.url.split(/[?#]/, 1)[0] },
+  );
 
   readonly items = computed(() => navigationItemsForRole(this.sessionService.user()?.role ?? null));
   readonly iconPaths = SIDEBAR_ICONS;
@@ -80,8 +107,15 @@ export class NavigationMenu {
   );
   readonly mobileItems = computed(() => {
     const roleItems = this.items();
-    return roleItems.length > 0 ? [MOBILE_DASHBOARD_ITEM, ...roleItems] : [];
+    if (roleItems.length === 0) {
+      return [];
+    }
+
+    const primaryItems = roleItems.filter((item) => MOBILE_PRIMARY_PATHS.has(item.path));
+    return [MOBILE_DASHBOARD_ITEM, ...primaryItems, MOBILE_MORE_ITEM];
   });
+
+  readonly mobileLabel = (item: NavigationItem): string => item.label;
 
   readonly verticalSections = computed(() => {
     const administrative = (path: string): boolean =>
@@ -114,4 +148,22 @@ export class NavigationMenu {
    * exact).
    */
   readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
+
+  readonly isMobileItemActive = (path: string): boolean => {
+    const currentPath = this.currentPath();
+    if (path === NAVIGATION_PATHS.dashboard) {
+      return currentPath === path;
+    }
+    if (path === NAVIGATION_PATHS.more) {
+      return [
+        NAVIGATION_PATHS.more,
+        NAVIGATION_PATHS.memberSpace,
+        NAVIGATION_PATHS.rolesAndUsers,
+        NAVIGATION_PATHS.incomeCategories,
+      ].some(
+        (destination) => currentPath === destination || currentPath.startsWith(`${destination}/`),
+      );
+    }
+    return currentPath === path || currentPath.startsWith(`${path}/`);
+  };
 }

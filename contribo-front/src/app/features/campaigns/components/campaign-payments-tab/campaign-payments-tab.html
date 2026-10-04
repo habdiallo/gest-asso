@@ -1,5 +1,5 @@
 <section aria-labelledby="campaign-payments-title">
-  <div class="mb-3 flex min-h-16 flex-wrap items-center justify-between gap-5">
+  <div class="mb-3 hidden min-h-16 flex-wrap items-center justify-between gap-5 tablet:flex">
     <div>
       <h2 id="campaign-payments-title" class="text-base font-medium text-text">
         {{ 'campaigns.detail.payments.title' | transloco }}
@@ -97,37 +97,33 @@
           }
         </tbody>
       </app-data-table>
-      <ul class="mt-4 grid gap-3 tablet:hidden" data-testid="campaign-payments-mobile-cards">
+      <ul
+        class="mt-4 overflow-hidden rounded-card border border-line bg-surface tablet:hidden"
+        data-testid="campaign-payments-mobile-cards"
+      >
+        <div class="px-4 pb-3 pt-4">
+          <h2 class="font-display text-2xl text-text">
+            {{ 'campaigns.detail.payments.title' | transloco }}
+          </h2>
+          <p class="mt-2 text-sm text-text-2">
+            {{ 'campaigns.detail.payments.description' | transloco }}
+          </p>
+        </div>
         @for (payment of result.items; track payment.id) {
-          <li class="rounded-card border border-line bg-surface p-4 shadow-card">
-            <div class="flex min-w-0 items-start justify-between gap-3">
-              <p class="min-w-0 break-words font-medium text-text">
-                {{ payment.member.displayName }}
-              </p>
-              <p
-                class="shrink-0 text-right font-data text-sm font-medium tabular-nums text-success"
-              >
-                + {{ formatAmount(payment.amount) }}
-              </p>
-            </div>
-            <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-3">
-              <div class="min-w-0">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.payments.columns.method' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words text-text-2">
-                  {{ methodLabel(payment.method) }}
-                </dd>
-              </div>
-              <div class="min-w-0 text-right">
-                <dt class="responsive-label uppercase tracking-[0.1em] text-text-3">
-                  {{ 'campaigns.detail.payments.columns.date' | transloco }}
-                </dt>
-                <dd class="responsive-body mt-1 break-words text-text-2">
-                  {{ formatDate(payment.paymentDate) }}
-                </dd>
-              </div>
-            </dl>
+          <li
+            class="grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 border-t border-line px-4 py-3.5"
+          >
+            <p class="min-w-0 truncate font-medium text-text">
+              {{ payment.member.displayName }}
+            </p>
+            <p class="responsive-meta min-w-0 truncate text-right text-text-3">
+              {{ methodLabel(payment.method) }} · {{ formatDate(payment.paymentDate) }}
+            </p>
+            <p
+              class="col-start-1 row-start-2 font-data text-sm font-medium tabular-nums text-success"
+            >
+              + {{ formatAmount(payment.amount) }}
+            </p>
           </li>
         }
       </ul>

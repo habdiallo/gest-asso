@@ -190,6 +190,17 @@ body {
   overflow-x: hidden;
 }
 
+@media (max-width: 1180px) {
+  .mobile-shell-hidden-on-detail {
+    display: none;
+  }
+
+  .mobile-native-detail-content {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
 .responsive-page-intro {
   font-size: 15px;
   line-height: 1.45;

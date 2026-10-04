@@ -36,8 +36,8 @@ describe('DetailTabs', () => {
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
     expect(tabs[0].getAttribute('aria-controls')).toBe('campaign-panel-dues');
     expect(tabs[1].tabIndex).toBe(-1);
-    expect(tabs[0].classList.contains('bg-gold-wash')).toBe(true);
-    expect(tabs[1].classList.contains('bg-gold-wash')).toBe(false);
+    expect(tabs[0].classList.contains('bg-surface')).toBe(true);
+    expect(tabs[1].classList.contains('bg-surface')).toBe(false);
 
     const tabList = fixture.nativeElement.querySelector('[role="tablist"]') as HTMLElement;
     expect(tabList.className).toContain('grid-cols-3');

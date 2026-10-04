@@ -63,16 +63,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Utilisateurs & rôles',
-      'Catégories',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/roles-utilisateurs',
-      '/categories-de-revenu',
+      '/plus',
     ]);
   });
 
@@ -88,14 +86,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Mon espace',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/mon-espace',
+      '/plus',
     ]);
   });
 
@@ -111,14 +109,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Mon espace',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/mon-espace',
+      '/plus',
     ]);
   });
 
@@ -129,8 +127,8 @@ describe('NavigationMenu', () => {
     fixture.detectChanges();
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
-    expect(links.map((link) => link.textContent?.trim())).toEqual(['Accueil', 'Mon espace']);
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/dashboard', '/mon-espace']);
+    expect(links.map((link) => link.textContent?.trim())).toEqual(['Accueil', 'Plus']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/dashboard', '/plus']);
   });
 
   it.each([
@@ -163,7 +161,10 @@ describe('NavigationMenu', () => {
     fixture.detectChanges();
     expect(root.querySelector('.sidebar-nav-section')).toBeNull();
     expect(root.querySelector('nav')?.classList.contains('mobile-nav')).toBe(true);
-    const mobilePaths = ['/dashboard', ...paths];
+    const mobilePaths =
+      role === 'MEMBER'
+        ? ['/dashboard', '/plus']
+        : ['/dashboard', '/membres', '/campagnes', '/cagnottes', '/plus'];
     expect(root.querySelectorAll('.mobile-nav-link')).toHaveLength(mobilePaths.length);
     expect(root.querySelector('.mobile-nav-link')?.textContent?.trim()).toBe('Accueil');
     expect(root.querySelector('nav')?.classList.contains('overflow-x-auto')).toBe(true);
@@ -238,6 +239,7 @@ describe('NavigationMenu', () => {
         provideRouter([
           { path: 'dashboard', pathMatch: 'full', component: BlankPage },
           { path: 'membres', component: BlankPage },
+          { path: 'mon-espace', component: BlankPage },
         ]),
       ],
     });
@@ -261,5 +263,49 @@ describe('NavigationMenu', () => {
         fixture.nativeElement.querySelector('a[href="/dashboard"]') as HTMLAnchorElement
       ).classList.contains('mobile-nav-link-active'),
     ).toBe(false);
+
+    await router.navigateByUrl('/mon-espace');
+    fixture.detectChanges();
+    const moreLink = fixture.nativeElement.querySelector('a[href="/plus"]') as HTMLAnchorElement;
+    expect(moreLink.classList.contains('mobile-nav-link-active')).toBe(true);
+    expect(moreLink.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('keeps the Plus item active when opening a Plus destination from the Plus screen', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [NavigationMenu],
+      providers: [
+        provideRouter([
+          { path: 'dashboard', pathMatch: 'full', component: BlankPage },
+          { path: 'membres', component: BlankPage },
+          { path: 'plus', component: BlankPage },
+          { path: 'mon-espace', component: BlankPage },
+        ]),
+      ],
+    });
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/plus');
+
+    const fixture = TestBed.createComponent(NavigationMenu);
+    fixture.componentRef.setInput('orientation', 'horizontal');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const moreLink = fixture.nativeElement.querySelector('a[href="/plus"]') as HTMLAnchorElement;
+    expect(moreLink.classList.contains('mobile-nav-link-active')).toBe(true);
+
+    await router.navigateByUrl('/mon-espace');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(moreLink.classList.contains('mobile-nav-link-active')).toBe(true);
+    expect(moreLink.getAttribute('aria-current')).toBe('page');
+
+    await router.navigateByUrl('/membres');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(moreLink.classList.contains('mobile-nav-link-active')).toBe(false);
+    expect(moreLink.getAttribute('aria-current')).toBeNull();
   });
 });
