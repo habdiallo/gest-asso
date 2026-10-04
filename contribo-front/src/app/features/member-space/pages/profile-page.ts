@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { MemberSummary } from '@core/api';
 import { MemberStatus } from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -28,7 +29,7 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [TranslocoPipe, DetailTabs, PageHeader, StatusBadge, MyDues, MyContributions],
+  imports: [RouterLink, TranslocoPipe, DetailTabs, PageHeader, StatusBadge, MyDues, MyContributions],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

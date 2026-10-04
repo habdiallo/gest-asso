@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import type { CurrentUser } from '@core/api';
 import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
 import { EspacePersonnelService } from '@core/api';
@@ -44,6 +45,7 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
       }),
     ],
     providers: [
+      provideRouter([]),
       {
         provide: SessionService,
         useValue: { user: signal(user) } as unknown as SessionService,

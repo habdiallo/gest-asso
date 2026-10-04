@@ -54,6 +54,8 @@
           [routerLinkActiveOptions]="{ exact: exactRouteMatch(item.path) }"
           routerLinkActive="mobile-nav-link-active"
           ariaCurrentWhenActive="page"
+          [class.mobile-nav-link-active]="isMobileItemActive(item.path)"
+          [attr.aria-current]="isMobileItemActive(item.path) ? 'page' : null"
           [attr.aria-label]="item.label"
           [class]="linkClasses()"
         >

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import type { NavigationItem } from '@core/navigation/navigation-item';
 import { navigationItemsForRole } from '@core/navigation/navigation-items';
 import { NAVIGATION_PATHS } from '@core/navigation/navigation-paths';
@@ -79,6 +79,7 @@ const MOBILE_PRIMARY_PATHS = new Set<string>([
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationMenu {
+  private readonly router = inject(Router);
   private readonly sessionService = inject(SessionService);
 
   readonly orientation = input<NavigationMenuOrientation>('horizontal');
@@ -131,4 +132,20 @@ export class NavigationMenu {
    * exact).
    */
   readonly exactRouteMatch = (path: string): boolean => path === NAVIGATION_PATHS.dashboard;
+
+  readonly isMobileItemActive = (path: string): boolean => {
+    const currentPath = this.router.url.split(/[?#]/, 1)[0];
+    if (path === NAVIGATION_PATHS.dashboard) {
+      return currentPath === path;
+    }
+    if (path === NAVIGATION_PATHS.more) {
+      return [
+        NAVIGATION_PATHS.more,
+        NAVIGATION_PATHS.memberSpace,
+        NAVIGATION_PATHS.rolesAndUsers,
+        NAVIGATION_PATHS.incomeCategories,
+      ].some((destination) => currentPath === destination || currentPath.startsWith(`${destination}/`));
+    }
+    return currentPath === path || currentPath.startsWith(`${path}/`);
+  };
 }

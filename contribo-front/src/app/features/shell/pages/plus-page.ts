@@ -45,6 +45,12 @@ const PERSONAL_DESTINATIONS: readonly PlusDestination[] = [
 export class PlusPage {
   private readonly session = inject(SessionService);
 
+  readonly kickerKey = computed(() =>
+    this.session.user()?.role === UserRole.Administrator
+      ? 'shell.plus.kicker'
+      : 'memberSpace.kicker',
+  );
+
   readonly destinations = computed(() =>
     this.session.user()?.role === UserRole.Administrator
       ? ADMINISTRATOR_DESTINATIONS

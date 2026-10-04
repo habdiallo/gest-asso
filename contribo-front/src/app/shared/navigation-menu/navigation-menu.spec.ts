@@ -239,6 +239,7 @@ describe('NavigationMenu', () => {
         provideRouter([
           { path: 'dashboard', pathMatch: 'full', component: BlankPage },
           { path: 'membres', component: BlankPage },
+          { path: 'mon-espace', component: BlankPage },
         ]),
       ],
     });
@@ -262,5 +263,11 @@ describe('NavigationMenu', () => {
         fixture.nativeElement.querySelector('a[href="/dashboard"]') as HTMLAnchorElement
       ).classList.contains('mobile-nav-link-active'),
     ).toBe(false);
+
+    await router.navigateByUrl('/mon-espace');
+    fixture.detectChanges();
+    const moreLink = fixture.nativeElement.querySelector('a[href="/plus"]') as HTMLAnchorElement;
+    expect(moreLink.classList.contains('mobile-nav-link-active')).toBe(true);
+    expect(moreLink.getAttribute('aria-current')).toBe('page');
   });
 });
