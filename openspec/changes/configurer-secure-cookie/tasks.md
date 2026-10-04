@@ -19,4 +19,4 @@
 ## 4. Valider et préparer la livraison
 
 - [x] 4.1 [T-209] Exécuter les validations backend et de configuration adaptées, puis vérifier que les compositions non locales restent sécurisées et que les modifications étrangères sont exclues du diff.
-- [ ] 4.2 [T-209] Relire le diff du ticket, mettre à jour les cases réellement terminées et préparer une PR `T-209` vers `develop` selon le modèle du dépôt, sans fusion ni auto-merge.
+- [x] 4.2 [T-209] Relire le diff du ticket, mettre à jour les cases réellement terminées et préparer une PR `T-209` vers `develop` selon le modèle du dépôt, sans fusion ni auto-merge.
