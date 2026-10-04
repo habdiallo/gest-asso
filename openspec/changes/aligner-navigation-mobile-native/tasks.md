@@ -20,4 +20,4 @@
 ## Livraison
 
 - [x] 4.1 [T-209] Vérifier le registre local et la validation OpenSpec.
-- [ ] 4.2 [T-209] Préparer et publier la PR vers `develop`.
+- [x] 4.2 [T-209] Préparer et publier la PR vers `develop`.
