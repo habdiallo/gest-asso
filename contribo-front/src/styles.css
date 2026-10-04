@@ -285,3 +285,37 @@ body {
 .app-form-control:focus-visible {
   outline: none;
 }
+
+/* Groupes d'actions des dialogues : deux actions restent côte à côte sur mobile
+   lorsque la largeur le permet, puis s'empilent sans tronquer les libellés. */
+@media (max-width: 820px) {
+  .form-dialog-content .form-dialog-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.75rem;
+    background: var(--surface-glass);
+  }
+
+  .form-dialog-content .form-dialog-actions > app-action-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .form-dialog-content .form-dialog-actions > app-action-button > button,
+  .form-dialog-content .form-dialog-actions > app-action-button > a {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 19rem) {
+  .form-dialog-content .form-dialog-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

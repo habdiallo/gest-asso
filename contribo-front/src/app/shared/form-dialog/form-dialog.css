@@ -1,0 +1,17 @@
+@media (max-width: 820px) {
+  .form-dialog-mobile {
+    height: calc(
+      100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom))
+    );
+    max-height: calc(
+      100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom))
+    );
+    margin-block-start: max(1rem, env(safe-area-inset-top));
+    margin-block-end: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .form-dialog-content {
+    overscroll-behavior: contain;
+    scroll-padding-block: 1rem;
+  }
+}
