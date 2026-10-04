@@ -33,6 +33,11 @@ configuration Nginx (HTTP sur le port 8080, utilisateur non root) et la plage
 du proxy d'entrée se règle par la variable `TRUSTED_PROXY_CIDR`. Caddy porte
 TLS, la redirection HTTPS et HSTS, et relaie vers `frontend:8080`.
 
+Les stacks staging et production du dépôt de déploiement doivent fournir
+`SESSION_COOKIE_SECURE=true`. Cette valeur est aussi le défaut du backend lorsque
+la variable est absente. La valeur `false` est réservée à la composition locale
+avec frontend HTTP.
+
 ## Déployer, vérifier, revenir en arrière
 
 Voir [RELEASING.md](../RELEASING.md) : la CI ouvre dans le dépôt de déploiement

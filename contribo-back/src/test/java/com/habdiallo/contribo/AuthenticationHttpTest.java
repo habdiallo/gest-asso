@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.habdiallo.contribo.security.JwtTokenService;
+import com.habdiallo.contribo.security.SessionCookieService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -91,12 +92,12 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
         mockMvc.perform(post("/auth/logout")
                         .cookie(
                                 new Cookie("XSRF-TOKEN", csrfToken),
-                                new Cookie("__Host-contribo-session", sessionToken))
+                                new Cookie(SessionCookieService.SESSION_COOKIE, sessionToken))
                         .header("X-XSRF-TOKEN", csrfToken))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(post("/auth/logout")
-                        .cookie(new Cookie("__Host-contribo-session", sessionToken)))
+                        .cookie(new Cookie(SessionCookieService.SESSION_COOKIE, sessionToken)))
                 .andExpect(status().isForbidden());
     }
 
@@ -105,7 +106,7 @@ class AuthenticationHttpTest extends RsaIntegrationTestSupport {
         String sessionToken = tokenService.issue(UUID.randomUUID());
 
         mockMvc.perform(post("/auth/logout")
-                        .cookie(new Cookie("__Host-contribo-session", sessionToken))
+                        .cookie(new Cookie(SessionCookieService.SESSION_COOKIE, sessionToken))
                         .header("Sec-Fetch-Site", "same-origin"))
                 .andExpect(status().isNoContent());
     }

@@ -21,7 +21,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint)
+            JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint,
+            SessionCookieService sessionCookieService)
             throws Exception {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfTokenRepository.setCookiePath("/");
@@ -30,7 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
                         .csrfTokenRequestHandler(csrfRequestHandler)
-                        .requireCsrfProtectionMatcher(this::requiresCookieCsrf))
+                        .requireCsrfProtectionMatcher(request -> requiresCookieCsrf(request, sessionCookieService)))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
@@ -46,7 +47,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private boolean requiresCookieCsrf(HttpServletRequest request) {
+    private boolean requiresCookieCsrf(HttpServletRequest request, SessionCookieService sessionCookieService) {
         if ("GET".equals(request.getMethod())
                 || "HEAD".equals(request.getMethod())
                 || "TRACE".equals(request.getMethod())
@@ -61,7 +62,7 @@ public class SecurityConfig {
             return false;
         }
         for (Cookie cookie : cookies) {
-            if (SessionCookieService.SESSION_COOKIE.equals(cookie.getName())) {
+            if (sessionCookieService.sessionCookieName().equals(cookie.getName())) {
                 return true;
             }
         }

@@ -37,6 +37,8 @@ info:
     version: 0.1.0-SNAPSHOT
 
 security:
+  session-cookie:
+    secure: ${SESSION_COOKIE_SECURE:true}
   jwt:
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:1800}
   rsa:

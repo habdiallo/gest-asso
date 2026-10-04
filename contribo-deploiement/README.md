@@ -8,6 +8,10 @@ C'est la seule composition de ce dépôt : elle sert au développement local et
 au smoke test de la CI. Le déploiement (staging, production) est défini dans
 `habdiallo/gest-asso-deploiement`, voir [PORTAINER.md](PORTAINER.md).
 
+Le backend local active `SESSION_COOKIE_SECURE=false` par défaut pour fonctionner
+avec le frontend HTTP sur `http://localhost:8081`. Pour reproduire le comportement
+des environnements HTTPS, lancer la composition avec `SESSION_COOKIE_SECURE=true`.
+
 ## Démarrer
 
 Depuis la racine du dépôt, préparer une fois le répertoire de secrets local

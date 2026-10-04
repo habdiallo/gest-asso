@@ -31,6 +31,7 @@ services:
       DB_USERNAME: contribo
       RSA_PUBLIC_KEY: file:/run/secrets/rsa_public.pem
       RSA_PRIVATE_KEY: file:/run/secrets/rsa_private.pem
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       TRUSTED_PROXY_HEADERS: ${TRUSTED_PROXY_HEADERS:-false}
       TRUSTED_PROXY_ADDRESSES: ${TRUSTED_PROXY_ADDRESSES:-}
       # Premier administrateur : fichier bootstrap_admin_password dans le répertoire de secrets.

@@ -1178,7 +1178,7 @@ components:
       type: apiKey
       in: cookie
       name: __Host-contribo-session
-      description: Cookie de session HttpOnly émis par POST /auth/login.
+      description: Cookie de session HttpOnly émis par POST /auth/login. En développement HTTP local, le nom est contribo-session et l'attribut Secure est désactivé.
 
   parameters:
     Page:
