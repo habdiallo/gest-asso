@@ -14,4 +14,4 @@
 
 - [x] 3.1 [T-207] Ajouter ou compléter les tests ciblés du composant partagé pour le rendu mobile, les groupes d'actions et les contrôles accessibles.
 - [ ] 3.2 [T-207] Exécuter les tests frontend, le lint, le formatage et le build, puis vérifier le rendu aux largeurs mobiles ciblées.
-- [ ] 3.3 [T-207] Relire le diff ciblé, valider OpenSpec et le registre des tickets, puis préparer la PR vers `develop` sans fusion ni publication non demandée.
+- [x] 3.3 [T-207] Relire le diff ciblé, valider OpenSpec et le registre des tickets, puis préparer la PR vers `develop` sans fusion ni publication non demandée.
