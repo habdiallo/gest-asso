@@ -293,6 +293,26 @@ describe('MembersListPage', () => {
     expect(root.textContent).toContain('86 membres actifs sur 91 membres enregistrés');
   });
 
+  it('renders the mobile member list as compact rows with aligned status and phone', async () => {
+    const fixture = await createFixture(() => of(buildMemberPage()));
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const mobileList = root.querySelector('[role="list"]');
+    const mobileRow = mobileList?.querySelector('[role="listitem"]');
+
+    expect(mobileList?.className).toContain('divide-y');
+    expect(mobileList?.className).toContain('border-y');
+    expect(mobileRow?.className).toContain('min-h-24');
+    expect(mobileRow?.querySelector('strong')?.className).toContain('truncate');
+    expect(mobileRow?.querySelector('app-status-badge')).toBeTruthy();
+    expect(mobileRow?.querySelector('dl')).toBeNull();
+    expect(mobileRow?.textContent).toContain('Conakry');
+    expect(mobileRow?.textContent).toContain('Président');
+    expect(mobileRow?.textContent).toContain('Catégorie B');
+    expect(mobileRow?.textContent).toContain('+224 622 12 34 56');
+  });
+
   it('shows a placeholder for optional fields left absent by the API', async () => {
     const fixture = await createFixture(() =>
       of(
