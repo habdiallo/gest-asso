@@ -2,7 +2,7 @@
   <app-page-header
     [kicker]="kickerKey() | transloco"
     [title]="'shell.plus.title' | transloco"
-    [intro]="'shell.plus.subtitle' | transloco"
+    [intro]="subtitleKey() | transloco"
   />
 
   @if (user(); as user) {
