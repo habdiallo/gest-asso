@@ -62,3 +62,34 @@ COMMIT;
 ```
 
 Avant de valider, contrôler le nombre de lignes modifiées et vérifier qu'il correspond aux lignes attendues de l'audit T-204. Une ligne exclue par la clause `NOT EXISTS` doit être traitée manuellement après analyse, jamais forcée par une désactivation de contrainte. Le rollback ne supprime ni compte ni historique. Il doit être suivi d'un redéploiement de la version précédente et d'une vérification de connexion.
+
+### Revenir aux identifiants d'avant T-200
+
+Si le rollback doit également annuler la migration V4 et restaurer les identifiants téléphone, utiliser l'audit T-200. La valeur courante peut encore être `new_identifier` si V5 n'a pas corrigé le compte, ou `corrected_identifier` si V5 l'a corrigé. La jointure externe conserve donc les comptes T-200 sans ligne T-204 :
+
+```sql
+BEGIN;
+
+UPDATE user_accounts ua
+SET identifier = t200.old_identifier,
+    updated_at = CURRENT_TIMESTAMP
+FROM user_account_identifier_migration_t200 t200
+LEFT JOIN user_account_identifier_correction_t204 t204
+  ON t204.account_id = t200.account_id
+WHERE ua.id = t200.account_id
+  AND (
+      ua.identifier = t200.new_identifier
+      OR ua.identifier = t204.corrected_identifier
+  )
+  AND NOT EXISTS (
+      SELECT 1
+      FROM user_accounts conflict
+      WHERE conflict.association_id = t200.association_id
+        AND conflict.identifier = t200.old_identifier
+        AND conflict.id <> ua.id
+  );
+
+COMMIT;
+```
+
+Avant de valider, contrôler le nombre de lignes modifiées et le comparer aux comptes T-200 dont l'identifiant courant vaut `new_identifier` ou `corrected_identifier`. Une ligne exclue par la clause `NOT EXISTS` doit être traitée manuellement après analyse, jamais forcée par une désactivation de contrainte. Cette procédure ne supprime ni compte ni audit et doit être suivie d'un redéploiement de la version précédente et d'une vérification de connexion.
