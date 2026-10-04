@@ -28,6 +28,12 @@ features.
   Les libellés peuvent aussi revenir à la ligne sans agrandir la page
   horizontalement. L'ordre existant, action secondaire puis action principale,
   sera conservé.
+- Le breakpoint mobile reprendra le jeton `--breakpoint-shell` avec une
+  condition d'intervalle strictement inférieure, afin de ne laisser aucun trou
+  entre les règles mobiles et les utilitaires desktop `min-[821px]`.
+- Le pied d'actions sticky aura une bordure supérieure, un espacement vertical
+  et un fond opaque partagés par tous les formulaires, y compris ceux qui ne
+  déclarent pas ces classes localement.
 
 ## Validation
 
