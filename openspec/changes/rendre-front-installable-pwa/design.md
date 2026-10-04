@@ -41,7 +41,9 @@ Ajouter les tests de configuration et de build nécessaires, puis vérifier dans
 
 ### Stabiliser le focus et la fermeture extérieure sur mobile
 
-Éviter l'autofocus programmatique sur mobile lorsqu'il n'est pas indispensable. Pour les champs qui doivent recevoir le focus, conserver une taille de texte compatible avec les règles de zoom des navigateurs mobiles et vérifier le résultat avec le clavier virtuel. Le dialogue ou menu de déconnexion doit écouter l'interaction extérieure sur son conteneur ou son backdrop, ignorer les clics internes, gérer Escape lorsque le composant le permet et rendre le focus au bouton déclencheur après fermeture. Cette logique reste colocalisée dans le composant partagé ou le composant de navigation concerné, sans état global supplémentaire.
+Éviter l'autofocus programmatique sur mobile lorsqu'il n'est pas indispensable. Pour les champs qui doivent recevoir le focus, appliquer une taille de texte calculée d'au moins `16px` aux inputs, selects et textareas concernés. Cette approche est préférée à l'ajout de `maximum-scale=1` dans la balise viewport, car elle évite le zoom automatique tout en laissant le zoom volontaire disponible pour les utilisateurs. Vérifier le résultat avec le clavier virtuel. Le dialogue ou menu de déconnexion doit écouter l'interaction extérieure sur son conteneur ou son backdrop, ignorer les clics internes, gérer Escape lorsque le composant le permet et rendre le focus au bouton déclencheur après fermeture. Cette logique reste colocalisée dans le composant partagé ou le composant de navigation concerné, sans état global supplémentaire.
+
+Référence de diagnostic et de choix CSS : [2 ways to avoid the automatic zoom-in on input fields](https://medium.com/@rares.popescu/2-ways-to-avoid-the-automatic-zoom-in-on-input-fields-8a71479e542e). La restriction `maximum-scale=1` est explicitement écartée pour préserver l'accessibilité du zoom utilisateur.
 
 ## Risks / Trade-offs
 

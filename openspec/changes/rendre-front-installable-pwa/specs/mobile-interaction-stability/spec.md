@@ -2,7 +2,7 @@
 
 ### Requirement: Focus mobile sans zoom automatique
 
-Le frontend SHALL éviter qu'un autofocus ou un focus programmatique sur mobile provoque un zoom de viewport ou un déplacement inattendu du contenu. Lorsqu'un champ doit recevoir le focus automatiquement, sa présentation SHALL rester compatible avec les règles de zoom des navigateurs mobiles et le focus SHALL rester accessible.
+Le frontend SHALL éviter qu'un autofocus ou un focus programmatique sur mobile provoque un zoom de viewport ou un déplacement inattendu du contenu. Lorsqu'un champ doit recevoir le focus automatiquement, les inputs, selects et textareas concernés SHALL avoir une taille de texte calculée d'au moins `16px`, sans désactiver le zoom volontaire de la page avec `maximum-scale=1`.
 
 #### Scenario: Ouverture d'un formulaire sur mobile
 
@@ -12,7 +12,7 @@ Le frontend SHALL éviter qu'un autofocus ou un focus programmatique sur mobile 
 #### Scenario: Champ nécessitant un focus initial
 
 - **WHEN** un parcours exige qu'un champ reçoive le focus à l'ouverture
-- **THEN** le focus est visible, le clavier peut être utilisé normalement et la taille de texte du champ n'entraîne pas de zoom automatique du navigateur
+- **THEN** le focus est visible, le clavier peut être utilisé normalement, la taille de texte calculée du champ est d'au moins `16px` et le navigateur n'effectue pas de zoom automatique
 
 ### Requirement: Fermeture extérieure du dialogue ou menu de déconnexion
 
