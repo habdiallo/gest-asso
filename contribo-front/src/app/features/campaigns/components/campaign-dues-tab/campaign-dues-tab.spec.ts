@@ -11,7 +11,12 @@ import {
   ReglementsService,
   UserRole,
 } from '@core/api';
-import type { CreatePaymentRequest, CurrentUser, DuePage, PaymentCreationResponse } from '@core/api';
+import type {
+  CreatePaymentRequest,
+  CurrentUser,
+  DuePage,
+  PaymentCreationResponse,
+} from '@core/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import type { Observable } from 'rxjs';
@@ -184,6 +189,25 @@ describe('CampaignDuesTab', () => {
     expect(mobileCard?.textContent).toContain('Amadou Diallo');
     expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(50_000));
     expect(mobileCard?.textContent).toContain('Partiellement payé');
+  });
+
+  it('shows the paid amount for a paid due on mobile', async () => {
+    const paidDue = {
+      ...result.items[0],
+      dueAmount: 100_000,
+      paidAmount: 75_000,
+      remainingAmount: 0,
+      status: DueStatus.Paid,
+    };
+    const fixture = await createFixture(() => of({ ...result, items: [paidDue] }));
+
+    const mobileCard = fixture.nativeElement.querySelector(
+      '[data-testid="campaign-dues-mobile-cards"] li',
+    );
+    expect(mobileCard?.textContent).toContain(formatGnfAmountDetailed(75_000));
+    expect(fixture.componentInstance.mobileDueAmount(paidDue)).toBe(
+      formatGnfAmountDetailed(75_000),
+    );
   });
 
   it('hides the income category column for an Opérateur (RG-MEM-008, T-62)', async () => {

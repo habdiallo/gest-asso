@@ -22,6 +22,7 @@
   "shell.plus.kicker": "Administration",
   "shell.plus.title": "Plus",
   "shell.plus.subtitle": "Votre espace de gestion",
+  "shell.plus.personalSubtitle": "Votre espace personnel",
   "shell.plus.section": "Réglages et espaces",
   "shell.plus.back": "Retour à Plus",
   "shell.plus.destinations.roles.title": "Utilisateurs et rôles",

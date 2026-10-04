@@ -209,7 +209,9 @@
             <div class="min-w-0">
               <p class="truncate font-medium text-text">{{ due.member.displayName }}</p>
               <p class="responsive-meta mt-1 truncate text-text-3">
-                {{ categoryShortLabel(due.incomeCategorySnapshot.label) }} ·
+                @if (showIncomeCategory()) {
+                  {{ categoryShortLabel(due.incomeCategorySnapshot.label) }} ·
+                }
                 {{ mobileDueAmount(due) }}
                 {{ mobileDueLabel(due) | transloco }}
               </p>

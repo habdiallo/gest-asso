@@ -321,6 +321,29 @@ describe('App', () => {
     expect(root.querySelector('.desktop-breadcrumb strong')?.textContent?.trim()).toBe('Campagnes');
   });
 
+  it('keeps the mobile shell for direct secondary entries and hides it only from Plus', async () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    fixture.detectChanges();
+
+    await router.navigateByUrl('/categories-de-revenu');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.nativeMobileDetailRoute()).toBe(false);
+
+    await router.navigateByUrl('/categories-de-revenu?from=plus');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.nativeMobileDetailRoute()).toBe(true);
+
+    await router.navigateByUrl('/mon-compte');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.nativeMobileDetailRoute()).toBe(false);
+
+    await router.navigateByUrl('/mon-compte?from=plus');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.nativeMobileDetailRoute()).toBe(true);
+  });
+
   it('redirects an unknown unauthenticated route to login', async () => {
     const harness = await RouterTestingHarness.create('/unknown');
     expect(TestBed.inject(Router).url).toBe('/login');

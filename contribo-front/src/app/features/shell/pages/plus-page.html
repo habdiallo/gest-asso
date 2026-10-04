@@ -8,6 +8,7 @@
   @if (user(); as user) {
     <a
       [routerLink]="profilePath()"
+      [queryParams]="{ from: 'plus' }"
       class="mb-7 flex items-center gap-3 rounded-card border border-line bg-surface p-4 shadow-card outline-none transition-colors hover:border-line-strong focus-visible:ring-[3px] focus-visible:ring-gold-wash"
     >
       <span
@@ -39,7 +40,7 @@
         <a
           [routerLink]="destination.path"
           [queryParams]="{ from: 'plus' }"
-          class="group flex min-h-[76px] items-center gap-3 py-4 outline-none transition-colors hover:text-gold-hover focus-visible:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+          class="group flex min-h-[76px] items-center gap-3 py-4 outline-none transition-colors hover:text-gold-hover focus-visible:text-gold-hover focus-visible:ring-[3px] focus-visible:ring-gold-wash focus-visible:ring-offset-2"
         >
           <span
             class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gold-wash text-gold-hover"

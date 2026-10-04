@@ -53,9 +53,14 @@ function currentRouteTitle(router: Router): string {
 }
 
 function isNativeMobileDetailRoute(url: string): boolean {
-  const path = url.split(/[?#]/, 1)[0];
-  return /^(\/campagnes\/|\/membres\/|\/cagnottes\/|\/roles-utilisateurs|\/categories-de-revenu|\/compte|\/mon-espace)/.test(
-    path,
+  const [path, query = ''] = url.split('?', 2);
+  const isPlusDestination = new URLSearchParams(query).get('from') === 'plus';
+  if (/^(\/campagnes\/|\/membres\/|\/cagnottes\/)/.test(path)) {
+    return true;
+  }
+  return (
+    isPlusDestination &&
+    /^(\/roles-utilisateurs|\/categories-de-revenu|\/mon-compte|\/mon-espace)/.test(path)
   );
 }
 

@@ -57,6 +57,11 @@ export class PlusPage {
       ? 'shell.plus.kicker'
       : 'memberSpace.kicker',
   );
+  readonly subtitleKey = computed(() =>
+    this.session.user()?.role === UserRole.Administrator
+      ? 'shell.plus.subtitle'
+      : 'shell.plus.personalSubtitle',
+  );
 
   readonly destinations = computed(() =>
     this.session.user()?.role === UserRole.Administrator

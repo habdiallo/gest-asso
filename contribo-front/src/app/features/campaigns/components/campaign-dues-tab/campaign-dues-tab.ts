@@ -174,7 +174,13 @@ export class CampaignDuesTab implements OnInit {
   }
 
   mobileDueAmount(due: Due): string {
-    return this.formatAmount(due.status === this.dueStatus ? due.dueAmount : due.remainingAmount);
+    const amount =
+      due.status === this.dueStatus
+        ? due.dueAmount
+        : due.status === this.paidStatus
+          ? due.paidAmount
+          : due.remainingAmount;
+    return this.formatAmount(amount);
   }
 
   mobileDueLabel(due: Due): TranslationKey {
