@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { CategoriesDeRevenuService } from '@core/api';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
 import type { Observable } from 'rxjs';
-import { Subject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
 import { IncomeCategoriesPage } from './income-categories-page';
 
@@ -42,7 +42,9 @@ function buildCategory(overrides: Partial<IncomeCategory> = {}): IncomeCategory 
 
 async function createFixture(
   listIncomeCategories: () => Observable<IncomeCategory[]>,
+  fromPlus = false,
 ): Promise<ComponentFixture<IncomeCategoriesPage>> {
+  const queryParamMap = new BehaviorSubject(convertToParamMap(fromPlus ? { from: 'plus' } : {}));
   await TestBed.configureTestingModule({
     imports: [
       IncomeCategoriesPage,
@@ -54,6 +56,13 @@ async function createFixture(
     ],
     providers: [
       provideRouter([]),
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParamMap: queryParamMap.asObservable(),
+          snapshot: { queryParamMap: queryParamMap.value },
+        },
+      },
       provideCspTranspiler(),
       {
         provide: CategoriesDeRevenuService,
@@ -68,6 +77,18 @@ async function createFixture(
 }
 
 describe('IncomeCategoriesPage', () => {
+  it('does not show a Plus return link for a direct entry', async () => {
+    const fixture = await createFixture(() => of([]));
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).toBeNull();
+  });
+
+  it('shows a Plus return link when opened from Plus', async () => {
+    const fixture = await createFixture(() => of([]), true);
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).not.toBeNull();
+  });
+
   it('shows a loading state while the request is pending', async () => {
     const pending = new Subject<IncomeCategory[]>();
     const fixture = await createFixture(() => pending.asObservable());

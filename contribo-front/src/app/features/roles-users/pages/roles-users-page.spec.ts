@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type {
   TemporaryCredentials,
@@ -10,7 +10,7 @@ import type {
 } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
-import { Subject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import fr from '@assets/i18n/fr.json';
 import { RolesUsersPage } from './roles-users-page';
 
@@ -65,7 +65,9 @@ async function createFixture(
   getUser?: (
     ...args: Parameters<UtilisateursEtRolesService['getUser']>
   ) => ReturnType<UtilisateursEtRolesService['getUser']>,
+  fromPlus = false,
 ): Promise<ComponentFixture<RolesUsersPage>> {
+  const queryParamMap = new BehaviorSubject(convertToParamMap(fromPlus ? { from: 'plus' } : {}));
   await TestBed.configureTestingModule({
     imports: [
       RolesUsersPage,
@@ -77,6 +79,13 @@ async function createFixture(
     ],
     providers: [
       provideRouter([]),
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParamMap: queryParamMap.asObservable(),
+          snapshot: { queryParamMap: queryParamMap.value },
+        },
+      },
       provideCspTranspiler(),
       {
         provide: UtilisateursEtRolesService,
@@ -96,6 +105,24 @@ async function createFixture(
 }
 
 describe('RolesUsersPage', () => {
+  it('does not show a Plus return link for a direct entry', async () => {
+    const fixture = await createFixture(() => of(buildPage([])) as never);
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).toBeNull();
+  });
+
+  it('shows a Plus return link when opened from Plus', async () => {
+    const fixture = await createFixture(
+      () => of(buildPage([])) as never,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).not.toBeNull();
+  });
+
   it('shows a loading state while the request is pending', async () => {
     const pending = new Subject<UserAccountPage>();
     const fixture = await createFixture(() => pending.asObservable() as never);

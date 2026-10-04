@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import type { CurrentUser } from '@core/api';
 import { CurrencyCode, MemberStatus, UserRole } from '@core/api';
 import { EspacePersonnelService } from '@core/api';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { SessionService } from '@core/session/session.service';
 import fr from '@assets/i18n/fr.json';
@@ -34,7 +34,11 @@ function buildCurrentUser(overrides: Partial<CurrentUser['member']> = {}): Curre
   };
 }
 
-async function createFixture(user: CurrentUser | null): Promise<ComponentFixture<ProfilePage>> {
+async function createFixture(
+  user: CurrentUser | null,
+  fromPlus = false,
+): Promise<ComponentFixture<ProfilePage>> {
+  const queryParamMap = new BehaviorSubject(convertToParamMap(fromPlus ? { from: 'plus' } : {}));
   await TestBed.configureTestingModule({
     imports: [
       ProfilePage,
@@ -46,6 +50,13 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
     ],
     providers: [
       provideRouter([]),
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParamMap: queryParamMap.asObservable(),
+          snapshot: { queryParamMap: queryParamMap.value },
+        },
+      },
       {
         provide: SessionService,
         useValue: { user: signal(user) } as unknown as SessionService,
@@ -68,6 +79,18 @@ async function createFixture(user: CurrentUser | null): Promise<ComponentFixture
 }
 
 describe('ProfilePage', () => {
+  it('does not show a Plus return link for a direct entry', async () => {
+    const fixture = await createFixture(buildCurrentUser());
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).toBeNull();
+  });
+
+  it('shows a Plus return link when opened from Plus', async () => {
+    const fixture = await createFixture(buildCurrentUser(), true);
+
+    expect(fixture.nativeElement.querySelector('a[href="/plus"]')).not.toBeNull();
+  });
+
   it('renders the connected member personal information', async () => {
     const fixture = await createFixture(
       buildCurrentUser({

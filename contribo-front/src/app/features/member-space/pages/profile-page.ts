@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import type { MemberSummary } from '@core/api';
 import { MemberStatus } from '@core/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -11,6 +12,7 @@ import { StatusBadge } from '@shared/status-badge/status-badge';
 import { MyDues } from '../components/my-dues';
 import { MyContributions } from '../components/my-contributions';
 import { memberStatusLabel } from '../member-status-labels';
+import { map } from 'rxjs';
 
 /**
  * Écran profil personnel en lecture seule (T-95, US-MBR-001) : informations
@@ -29,13 +31,27 @@ import { memberStatusLabel } from '../member-status-labels';
  */
 @Component({
   selector: 'app-profile-page',
-  imports: [RouterLink, TranslocoPipe, DetailTabs, PageHeader, StatusBadge, MyDues, MyContributions],
+  imports: [
+    RouterLink,
+    TranslocoPipe,
+    DetailTabs,
+    PageHeader,
+    StatusBadge,
+    MyDues,
+    MyContributions,
+  ],
   templateUrl: './profile-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePage {
+  private readonly route = inject(ActivatedRoute);
   private readonly session = inject(SessionService);
   private readonly transloco = inject(TranslocoService);
+
+  readonly openedFromPlus = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('from') === 'plus')),
+    { initialValue: this.route.snapshot.queryParamMap.get('from') === 'plus' },
+  );
 
   readonly member = computed<MemberSummary | null>(() => this.session.user()?.member ?? null);
 
