@@ -6,6 +6,13 @@
   min-height: 4rem;
   justify-content: center;
   align-items: stretch;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: 0.5rem;
+  scrollbar-width: none;
+}
+
+.mobile-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .mobile-nav-link {
@@ -70,6 +77,33 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+}
+
+@media (min-width: 421px) and (max-width: 1180px) {
+  .mobile-nav {
+    justify-content: flex-start;
+  }
+
+  .mobile-nav-link {
+    flex: 0 0 clamp(5.5rem, 13vw, 7rem);
+  }
+}
+
+@media (min-width: 421px) and (max-width: 535px) {
+  .mobile-nav {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  .mobile-nav::-webkit-scrollbar {
+    display: block;
+    height: 0.35rem;
+  }
+
+  .mobile-nav::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: var(--line-strong);
   }
 }
 
