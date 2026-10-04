@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  inject,
+  signal,
+  viewChild,
+  type ElementRef,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { ActivatedRouteSnapshot } from '@angular/router';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -54,6 +63,10 @@ export class App {
   private readonly sessionService = inject(SessionService);
   private readonly router = inject(Router);
 
+  private readonly mobileProfileButton =
+    viewChild<ElementRef<HTMLButtonElement>>('mobileProfileButton');
+  private readonly mobileProfileMenu = viewChild<ElementRef<HTMLDivElement>>('mobileProfileMenu');
+
   readonly isAuthenticated = this.sessionService.isAuthenticated;
   readonly mobileProfileOpen = signal(false);
   /** Libellé du fil d'Ariane (T-117) : dérivé du titre de la route active, mis à jour à chaque navigation. */
@@ -91,6 +104,43 @@ export class App {
   }
 
   toggleMobileProfile(): void {
-    this.mobileProfileOpen.update((open) => !open);
+    if (this.mobileProfileOpen()) {
+      this.closeMobileProfile(true);
+      return;
+    }
+
+    this.mobileProfileOpen.set(true);
+  }
+
+  @HostListener('document:pointerdown', ['$event'])
+  handleDocumentPointerDown(event: PointerEvent): void {
+    if (!this.mobileProfileOpen()) {
+      return;
+    }
+
+    const target = event.target;
+    if (
+      !(target instanceof Node) ||
+      this.mobileProfileButton()?.nativeElement.contains(target) ||
+      this.mobileProfileMenu()?.nativeElement.contains(target)
+    ) {
+      return;
+    }
+
+    this.closeMobileProfile(true);
+  }
+
+  @HostListener('document:keydown.escape')
+  handleEscape(): void {
+    if (this.mobileProfileOpen()) {
+      this.closeMobileProfile(true);
+    }
+  }
+
+  private closeMobileProfile(restoreFocus: boolean): void {
+    this.mobileProfileOpen.set(false);
+    if (restoreFocus) {
+      this.mobileProfileButton()?.nativeElement.focus();
+    }
   }
 }

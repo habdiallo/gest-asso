@@ -241,6 +241,16 @@ body {
   line-height: 1;
 }
 
+/* iOS Safari and related mobile browsers zoom focused form controls below 16px.
+   Keep user-controlled zoom available instead of restricting the viewport scale. */
+@media (max-width: 47.999rem) {
+  input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* --gold-hover plutôt que --gold : en thème clair, --gold (#b38f4d sur #faf8f5) ne fournit
    que 2,85:1 de contraste, sous le minimum WCAG AA de 3:1 pour un indicateur non textuel ;
    --gold-hover (#9c7a3c) atteint 3,76:1 dans les deux thèmes. */

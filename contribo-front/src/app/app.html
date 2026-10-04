@@ -81,6 +81,7 @@
       <button
         type="button"
         class="mobile-profile-button"
+        #mobileProfileButton
         [attr.aria-label]="sidebarProfileLabelKey | transloco"
         [attr.aria-expanded]="mobileProfileOpen()"
         aria-controls="mobile-profile-menu"
@@ -101,7 +102,7 @@
         </svg>
       </button>
       @if (mobileProfileOpen()) {
-        <div id="mobile-profile-menu" class="mobile-profile-menu">
+        <div id="mobile-profile-menu" #mobileProfileMenu class="mobile-profile-menu">
           @if (sidebarProfile(); as profile) {
             <div class="mobile-profile-summary">
               <div class="mobile-profile-avatar" aria-hidden="true">{{ profile.initials }}</div>

@@ -10,7 +10,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:tooling": "node --test scripts/tooling.test.cjs scripts/api-generation.test.mjs",
+    "test:tooling": "node --test scripts/tooling.test.cjs scripts/api-generation.test.mjs scripts/pwa-validation.test.mjs",
+    "test:pwa": "node --test scripts/pwa-validation.test.mjs",
     "test:documentation": "node scripts/documentation-check.cjs",
     "lint": "ng lint",
     "format": "prettier . --write",
@@ -28,6 +29,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@angular/service-worker": "21.2.23",
     "@jsverse/transloco": "^8.4.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

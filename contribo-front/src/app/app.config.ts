@@ -17,6 +17,7 @@ import { sessionExpiredInterceptor } from '@core/session/session-expired.interce
 export { hydrateCurrentUser } from '@core/session/session-hydration';
 
 import { routes } from './app.routes';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -39,6 +40,10 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const transloco = inject(TranslocoService);
       return firstValueFrom(transloco.load(transloco.getActiveLang()));
+    }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
 };

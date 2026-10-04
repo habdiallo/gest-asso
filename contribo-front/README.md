@@ -32,6 +32,34 @@ Depuis `contribo-front/`, lancer `npm start`, puis ouvrir
 `http://localhost:4200/login`. Les requêtes `/api/**` sont transmises au backend
 réel par `proxy.conf.json`.
 
+## Installation PWA et mises à jour
+
+Le build de production fournit une application installable avec le manifeste
+`public/manifest.webmanifest` et le service worker Angular. Le service worker est
+activé uniquement en production et met en cache les ressources statiques du shell
+de l'application. Les appels `/api/**`, les cookies de session et les données
+privées ne sont jamais mis en cache.
+
+Pour vérifier le bundle PWA localement :
+
+```bash
+npm run build
+npm run test:pwa
+```
+
+L'installation est proposée par le navigateur sous HTTPS ou sur `localhost`.
+L'application démarre sur `/login`, puis s'ouvre en mode `standalone`. Pour
+publier une nouvelle version, déployer le bundle de production avec le fichier
+`ngsw.json` généré, conserver les routes de navigation vers `index.html` et
+permettre la récupération de `ngsw-worker.js`. Après un déploiement, le service
+worker détecte la nouvelle version et la prend en compte selon le cycle de mise à
+jour Angular.
+
+En cas de rollback, redéployer le bundle précédent et supprimer le service worker
+du navigateur concerné depuis les outils de développement si une version obsolète
+reste active. Le développement avec `npm start` conserve le service worker
+désactivé pour éviter qu'un cache local masque les changements.
+
 ## Architecture par fonctionnalités
 
 ```text
