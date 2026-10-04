@@ -33,17 +33,22 @@ Le workflow SHALL publier les images backend et frontend uniquement sous des ré
 
 ### Requirement: Les images sont analysées et attestées
 
-Le workflow SHALL analyser chaque image backend et frontend construite avec un scanner de vulnérabilités avant toute publication, SHALL échouer si une vulnérabilité `CRITICAL` corrigeable est détectée, et SHALL attacher un SBOM et une attestation de provenance à chaque image publiée.
+Le workflow SHALL construire chaque image backend et frontend une seule fois, SHALL analyser ce digest exact avec un scanner de vulnérabilités avant de lui attribuer un tag déployable, SHALL échouer si une vulnérabilité `CRITICAL` corrigeable est détectée, et SHALL attacher un SBOM et une attestation de provenance à chaque image publiée. Le digest publié MUST être celui qui a été scanné et testé.
 
 #### Scenario: Image saine publiée
 
 - **WHEN** une image ne contient aucune vulnérabilité `CRITICAL` corrigeable
 - **THEN** elle est publiée avec un SBOM et une attestation de provenance consultables dans le registre
 
+#### Scenario: Artefact publié identique à l'artefact contrôlé
+
+- **WHEN** une image passe le scan et le smoke test
+- **THEN** ses tags `sha-*` et `candidate-*` pointent sur le digest exact qui a été scanné et testé, sans nouveau build
+
 #### Scenario: Vulnérabilité critique détectée
 
 - **WHEN** le scan détecte une vulnérabilité `CRITICAL` pour laquelle un correctif existe
-- **THEN** le workflow échoue et aucune des deux images n'est publiée
+- **THEN** le workflow échoue et aucune des deux images ne reçoit de tag déployable
 
 ### Requirement: Smoke test conteneurisé avant publication
 

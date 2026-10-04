@@ -33,14 +33,21 @@ mutable `latest` tag.
 
 The production release SHALL use the same backend and frontend image digests that
 passed staging. A push or merge to `main` MUST NOT rebuild a different production
-image for that release. Pushing the `vX.Y.Z` tag SHALL retag those digests and
-SHALL open a pull request in the deployment repository that sets the production
-image references to `vX.Y.Z@sha256:<digest>`.
+image for that release. Pushing the `vX.Y.Z` tag SHALL read the digests
+currently deployed in staging, SHALL refuse the promotion unless those images
+were built from the tagged commit, SHALL retag those exact digests and SHALL
+open a pull request in the deployment repository that sets the production image
+references to `vX.Y.Z@sha256:<digest>`.
 
 #### Scenario: Validated release is merged
 
 - **WHEN** a release pull request is merged into `main` after staging validation and the `vX.Y.Z` tag is pushed
 - **THEN** the production deployment pull request references the candidate digests without a new Docker build
+
+#### Scenario: Commit added after staging validation
+
+- **WHEN** a commit is added to the release after the staging deployment and that new commit is tagged
+- **THEN** the promotion fails because the images deployed in staging were not built from the tagged commit, and nothing is retagged
 
 #### Scenario: Production promotion is performed
 

@@ -189,16 +189,20 @@ test('le workflow publie les candidates release et ne reconstruit pas sur main',
   assert.doesNotMatch(workflow, /type=semver,/);
 });
 
-test('les images sont scannées, testées et attestées avant publication', () => {
+test('les images sont construites une fois, puis scannées, testées et publiées par digest', () => {
   const workflow = readFileSync(resolve(__dirname, '../.github/workflows/backend-frontend-images.yml'), 'utf8');
+  assert.equal((workflow.match(/uses: docker\/build-push-action@/g) ?? []).length, 2, 'un seul build par image');
+  const build = workflow.indexOf('docker/build-push-action@');
   const scan = workflow.indexOf('aquasecurity/trivy-action@');
   const smoke = workflow.indexOf('scripts/smoke-test.sh');
-  const push = workflow.indexOf('push: true');
-  assert.ok(scan > 0 && smoke > scan && push > smoke, 'scan puis smoke test puis publication');
+  const publish = workflow.indexOf('docker buildx imagetools create');
+  assert.ok(build > 0 && scan > build && smoke > scan && publish > smoke, 'build, scan, smoke test puis publication');
+  assert.match(workflow, /image-ref: \$\{\{ steps\.refs\.outputs\.backend \}\}/, 'le scan porte sur l artefact construit');
+  assert.match(workflow, /BACKEND_IMAGE: \$\{\{ steps\.refs\.outputs\.backend \}\}/, 'le smoke test porte sur l artefact construit');
   assert.match(workflow, /aquasecurity\/trivy-action@[0-9a-f]{40}/, 'trivy-action épinglé par SHA');
   assert.match(workflow, /severity: CRITICAL/);
-  assert.match(workflow, /provenance: mode=max/);
-  assert.match(workflow, /sbom: true/);
+  assert.match(workflow, /'mode=max'/);
+  assert.match(workflow, /sbom: \$\{\{ env\.PUBLISH == 'true' \}\}/);
 });
 
 test('la promotion de release retague sans rebuild', () => {
@@ -206,5 +210,10 @@ test('la promotion de release retague sans rebuild', () => {
   assert.match(workflow, /- 'v\[0-9\]\+\.\[0-9\]\+\.\[0-9\]\+'/);
   assert.match(workflow, /imagetools create --tag/);
   assert.doesNotMatch(workflow, /build-push-action/);
+  const staging = workflow.indexOf('scripts/staging-image-digest.sh');
+  const revision = workflow.indexOf('org.opencontainers.image.revision');
+  const retag = workflow.indexOf('imagetools create --tag');
+  assert.ok(staging > 0 && revision > staging && retag > revision, 'la candidate de staging et son commit sont vérifiés avant le retag');
+  assert.doesNotMatch(workflow, /:sha-\$\{GITHUB_SHA/, 'le tag mutable sha-* ne sert pas à choisir la production');
   assert.match(workflow, /open-deployment-pr\.sh production/);
 });

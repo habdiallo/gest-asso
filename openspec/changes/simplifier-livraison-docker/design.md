@@ -66,23 +66,35 @@ de ticket, et chaque déploiement passerait par `develop`.
 
 ### D2. Promotion par retag et PR GitOps
 
-- `develop`, `release/*`, `hotfix/*` : build, scan, smoke test, puis push
-  `sha-<commit>` (et le tag `candidate-*` existant pour release et hotfix).
+- `develop`, `release/*`, `hotfix/*` : **un seul build** par image, poussé avec
+  SBOM et provenance sous un tag `validation-<run>-<attempt>` non déployable.
+  Ce digest exact est scanné et testé, puis reçoit `sha-<commit>` (et
+  `candidate-*` pour release et hotfix) par `imagetools create`, qui conserve
+  le digest (vérifié localement sur un registre avec attestations, et contrôlé
+  après chaque retag dans le workflow). Sur une PR, l'image est construite une
+  fois et chargée localement ; rien n'est publié.
+- Images de base épinglées par digest dans les Dockerfiles (tag conservé pour
+  la lisibilité et pour Dependabot).
 - Après une candidate release ou hotfix : un job ouvre ou met à jour une PR
   dans `gest-asso-deploiement` qui modifie uniquement les deux lignes `image:`
   de `staging/compose.yaml` (`scripts/update-deployment-images.sh`, testé).
-- Tag `v[0-9]+.[0-9]+.[0-9]+` : un workflow `promote-release.yml` résout les
-  digests de `sha-<commit>`, échoue s'ils sont absents, applique
-  `docker buildx imagetools create --tag ...:vX.Y.Z <image>@<digest>`, puis
-  ouvre une PR qui modifie `production/compose.yaml` avec
-  `vX.Y.Z@sha256:<digest>`. Le tag doit pointer sur la tête de la release,
+- Tag `v[0-9]+.[0-9]+.[0-9]+` : un workflow `promote-release.yml` lit les
+  digests déployés dans `staging/compose.yaml` du dépôt de déploiement, vérifie
+  que leur label `org.opencontainers.image.revision` est le commit tagué,
+  applique `docker buildx imagetools create --tag ...:vX.Y.Z <image>@<digest>`,
+  puis ouvre une PR qui modifie `production/compose.yaml` avec
+  `vX.Y.Z@sha256:<digest>`. Le tag mutable `sha-*` ne sert pas à choisir la
+  production : un rebuild ultérieur du même commit pourrait le déplacer. Le tag doit pointer sur la tête de la release,
   fusionnée dans `main` par merge commit : c'est le seul commit dont les images
   `sha-<commit>` existent. Le workflow vérifie qu'il est dans `main`.
 - Plus aucun alias mutable : `latest-int` est supprimé.
 
 Le jeton `DEPLOYMENT_REPO_TOKEN` (aujourd'hui en lecture) est remplacé par un
 jeton fin limité à `gest-asso-deploiement` avec `contents: write` et
-`pull-requests: write`. La PR est ouverte avec `gh pr create` sur une branche
+`pull-requests: write`. Il est fourni à Git par l'assistant
+`gh auth git-credential`, jamais dans une URL ni dans la configuration du
+clone. La branche `deploy/*` n'est jamais force-poussée : une relance
+identique la réutilise, une branche divergente arrête le job sans écraser. La PR est ouverte avec `gh pr create` sur une branche
 `deploy/<env>-<libellé>` par `scripts/open-deployment-pr.sh` ; aucune fusion
 automatique.
 

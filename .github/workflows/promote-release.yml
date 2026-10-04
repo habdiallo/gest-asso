@@ -1,8 +1,9 @@
 name: Promote release
 
 # Un tag vX.Y.Z (minuscule) posé sur la tête de release/vX.Y.Z, fusionnée dans main
-# par un merge commit, retague les images déjà testées en staging sans rebuild,
-# puis ouvre la PR de production dans le dépôt de déploiement.
+# par un merge commit, retague sans rebuild les images de ce commit, à condition
+# qu'elles soient exactement celles déployées en staging, puis ouvre la PR de
+# production dans le dépôt de déploiement.
 on:
   push:
     tags:
@@ -46,19 +47,49 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Retag the tested images
-        id: retag
+      # La production reçoit exactement la candidate déployée en staging (digests lus
+      # dans le dépôt de déploiement), à condition qu'elle ait été construite depuis
+      # le commit tagué (label OCI revision). Un commit ajouté après la validation
+      # staging, ou une staging qui porte une autre version, fait échouer la promotion.
+      - name: Resolve the staging candidate and check it was built from the tagged commit
+        id: digests
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
         run: |
           set -euo pipefail
+          staging="$RUNNER_TEMP/staging-compose.yaml"
+          gh api -H 'Accept: application/vnd.github.raw' \
+            repos/habdiallo/gest-asso-deploiement/contents/staging/compose.yaml > "$staging"
           for image in contribo-back contribo-front; do
-            repository="${REGISTRY}/${IMAGE_NAMESPACE}/${image}"
-            source="${repository}:sha-${GITHUB_SHA::7}"
-            if ! digest=$(docker buildx imagetools inspect "$source" --format '{{json .Manifest.Digest}}' | tr -d '"'); then
-              echo "::error::Image testée introuvable : $source. Le commit tagué doit avoir été publié comme candidate."
+            digest=$(scripts/staging-image-digest.sh "$staging" "$image")
+            revision=$(docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAMESPACE}/${image}@${digest}" \
+              --format '{{index .Image.Config.Labels "org.opencontainers.image.revision"}}')
+            if [ "$revision" != "$GITHUB_SHA" ]; then
+              echo "::error::${image} déployé en staging (${digest}) provient du commit '${revision}', pas du commit tagué ${GITHUB_SHA}."
               exit 1
             fi
+            echo "${image}=${digest}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Retag the validated images
+        id: retag
+        shell: bash
+        env:
+          BACKEND_DIGEST: ${{ steps.digests.outputs.contribo-back }}
+          FRONTEND_DIGEST: ${{ steps.digests.outputs.contribo-front }}
+        run: |
+          set -euo pipefail
+          for pair in "contribo-back=${BACKEND_DIGEST}" "contribo-front=${FRONTEND_DIGEST}"; do
+            image=${pair%%=*}
+            digest=${pair#*=}
+            repository="${REGISTRY}/${IMAGE_NAMESPACE}/${image}"
             docker buildx imagetools create --tag "${repository}:${GITHUB_REF_NAME}" "${repository}@${digest}"
+            published=$(docker buildx imagetools inspect "${repository}:${GITHUB_REF_NAME}" --format '{{json .Manifest.Digest}}' | tr -d '"')
+            if [ "$published" != "$digest" ]; then
+              echo "::error::${repository}:${GITHUB_REF_NAME} pointe sur $published au lieu de $digest"
+              exit 1
+            fi
             echo "${image}=${repository}:${GITHUB_REF_NAME}@${digest}" >> "$GITHUB_OUTPUT"
             echo "${image}: ${repository}:${GITHUB_REF_NAME}@${digest}" >> "$GITHUB_STEP_SUMMARY"
           done

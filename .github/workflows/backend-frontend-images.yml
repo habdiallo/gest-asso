@@ -41,6 +41,8 @@ jobs:
         run: |
           tests/init-secrets.test.sh
           tests/update-deployment-images.test.sh
+          tests/staging-image-digest.test.sh
+          tests/open-deployment-pr.test.sh
       - name: Generate ephemeral RSA keys
         run: |
           mkdir -p target/test-rsa
@@ -89,9 +91,17 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # Chaque image est construite UNE seule fois :
+    # - PR : chargée localement (contribo-*:ci), rien n'est publié ;
+    # - push : poussée avec SBOM et provenance sous un tag de validation non déployable.
+    # Ce digest exact est scanné et testé, puis reçoit ses tags sha-*/candidate-* par
+    # retag (imagetools create conserve le digest). Le digest publié est donc l'artefact contrôlé.
+    env:
+      PUBLISH: ${{ github.event_name == 'push' }}
+      VALIDATION_TAG: validation-${{ github.run_id }}-${{ github.run_attempt }}
     outputs:
-      backend-digest: ${{ steps.backend-push.outputs.digest }}
-      frontend-digest: ${{ steps.frontend-push.outputs.digest }}
+      backend-digest: ${{ steps.backend-build.outputs.digest }}
+      frontend-digest: ${{ steps.frontend-build.outputs.digest }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -99,33 +109,96 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Build backend image for validation
+      - name: Login to GHCR
+        if: env.PUBLISH == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute candidate image tag
+        id: image-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate_tag=""
+          if [[ "$GITHUB_REF" == refs/heads/release/* || "$GITHUB_REF" == refs/heads/hotfix/* ]]; then
+            candidate_tag="candidate-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::12}"
+          fi
+          echo "candidate_tag=$candidate_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Extract backend image metadata
+        id: backend-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-back
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
+
+      - name: Extract frontend image metadata
+        id: frontend-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-front
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
+
+      - name: Build backend image once
+        id: backend-build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: contribo-deploiement/backend.Dockerfile
-          load: true
-          provenance: false
-          tags: contribo-back:ci
+          load: ${{ env.PUBLISH != 'true' }}
+          push: ${{ env.PUBLISH == 'true' }}
+          provenance: ${{ env.PUBLISH == 'true' && 'mode=max' || 'false' }}
+          sbom: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ env.PUBLISH == 'true' && format('{0}/{1}/contribo-back:{2}', env.REGISTRY, env.IMAGE_NAMESPACE, env.VALIDATION_TAG) || 'contribo-back:ci' }}
+          labels: ${{ steps.backend-meta.outputs.labels }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
 
-      - name: Build frontend image for validation
+      - name: Build frontend image once
+        id: frontend-build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: contribo-deploiement/frontend.Dockerfile
-          load: true
-          provenance: false
-          tags: contribo-front:ci
+          load: ${{ env.PUBLISH != 'true' }}
+          push: ${{ env.PUBLISH == 'true' }}
+          provenance: ${{ env.PUBLISH == 'true' && 'mode=max' || 'false' }}
+          sbom: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ env.PUBLISH == 'true' && format('{0}/{1}/contribo-front:{2}', env.REGISTRY, env.IMAGE_NAMESPACE, env.VALIDATION_TAG) || 'contribo-front:ci' }}
+          labels: ${{ steps.frontend-meta.outputs.labels }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Resolve the exact artefacts under validation
+        id: refs
+        env:
+          BACKEND_DIGEST: ${{ steps.backend-build.outputs.digest }}
+          FRONTEND_DIGEST: ${{ steps.frontend-build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          if [ "$PUBLISH" = true ]; then
+            echo "backend=${REGISTRY}/${IMAGE_NAMESPACE}/contribo-back@${BACKEND_DIGEST}" >> "$GITHUB_OUTPUT"
+            echo "frontend=${REGISTRY}/${IMAGE_NAMESPACE}/contribo-front@${FRONTEND_DIGEST}" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=contribo-back:ci" >> "$GITHUB_OUTPUT"
+            echo "frontend=contribo-front:ci" >> "$GITHUB_OUTPUT"
+          fi
 
       # Épinglé par SHA de commit (v0.36.0) : les tags de cette action ont déjà été compromis.
       - name: Scan backend image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image-ref: contribo-back:ci
+          image-ref: ${{ steps.refs.outputs.backend }}
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: '1'
@@ -133,8 +206,11 @@ jobs:
 
       - name: Scan frontend image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image-ref: contribo-front:ci
+          image-ref: ${{ steps.refs.outputs.frontend }}
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: '1'
@@ -143,8 +219,8 @@ jobs:
 
       - name: Smoke test the containerized stack
         env:
-          BACKEND_IMAGE: contribo-back:ci
-          FRONTEND_IMAGE: contribo-front:ci
+          BACKEND_IMAGE: ${{ steps.refs.outputs.backend }}
+          FRONTEND_IMAGE: ${{ steps.refs.outputs.frontend }}
         run: |
           set -euo pipefail
           contribo-deploiement/init-secrets.sh --local --dir .local-secrets --generate-db-password
@@ -159,87 +235,48 @@ jobs:
         if: always()
         run: docker compose -p contribo-ci -f contribo-deploiement/compose.yaml down --volumes
 
-      - name: Compute candidate image tag
-        if: github.event_name == 'push'
-        id: image-tag
+      - name: Publish the validated digests under their release tags
+        if: env.PUBLISH == 'true'
         shell: bash
+        env:
+          BACKEND_REF: ${{ steps.refs.outputs.backend }}
+          FRONTEND_REF: ${{ steps.refs.outputs.frontend }}
+          BACKEND_TAGS: ${{ steps.backend-meta.outputs.tags }}
+          FRONTEND_TAGS: ${{ steps.frontend-meta.outputs.tags }}
         run: |
           set -euo pipefail
-          candidate_tag=""
-          if [[ "$GITHUB_REF" == refs/heads/release/* || "$GITHUB_REF" == refs/heads/hotfix/* ]]; then
-            candidate_tag="candidate-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::12}"
-          fi
-          echo "candidate_tag=$candidate_tag" >> "$GITHUB_OUTPUT"
-
-      - name: Login to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract backend image metadata
-        if: github.event_name == 'push'
-        id: backend-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-back
-          tags: |
-            type=sha,prefix=sha-
-            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
-
-      - name: Publish backend image with SBOM and provenance
-        if: github.event_name == 'push'
-        id: backend-push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: contribo-deploiement/backend.Dockerfile
-          push: true
-          provenance: mode=max
-          sbom: true
-          tags: ${{ steps.backend-meta.outputs.tags }}
-          labels: ${{ steps.backend-meta.outputs.labels }}
-          cache-from: type=gha,scope=backend
-
-      - name: Extract frontend image metadata
-        if: github.event_name == 'push'
-        id: frontend-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/contribo-front
-          tags: |
-            type=sha,prefix=sha-
-            type=raw,value=${{ steps.image-tag.outputs.candidate_tag }},enable=${{ steps.image-tag.outputs.candidate_tag != '' }}
-
-      - name: Publish frontend image with SBOM and provenance
-        if: github.event_name == 'push'
-        id: frontend-push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: contribo-deploiement/frontend.Dockerfile
-          push: true
-          provenance: mode=max
-          sbom: true
-          tags: ${{ steps.frontend-meta.outputs.tags }}
-          labels: ${{ steps.frontend-meta.outputs.labels }}
-          cache-from: type=gha,scope=frontend
+          publish() {
+            local ref=$1 tags=$2 tag published
+            local args=()
+            while IFS= read -r tag; do
+              [ -n "$tag" ] && args+=(--tag "$tag")
+            done <<< "$tags"
+            docker buildx imagetools create "${args[@]}" "$ref"
+            while IFS= read -r tag; do
+              [ -n "$tag" ] || continue
+              published=$(docker buildx imagetools inspect "$tag" --format '{{json .Manifest.Digest}}' | tr -d '"')
+              if [ "$published" != "${ref##*@}" ]; then
+                echo "::error::$tag pointe sur $published au lieu de l'artefact validé ${ref##*@}"
+                exit 1
+              fi
+            done <<< "$tags"
+          }
+          publish "$BACKEND_REF" "$BACKEND_TAGS"
+          publish "$FRONTEND_REF" "$FRONTEND_TAGS"
 
       - name: Publish image digests in the workflow summary
-        if: github.event_name == 'push'
+        if: env.PUBLISH == 'true'
         env:
           CANDIDATE_TAG: ${{ steps.image-tag.outputs.candidate_tag }}
-          BACKEND_DIGEST: ${{ steps.backend-push.outputs.digest }}
-          FRONTEND_DIGEST: ${{ steps.frontend-push.outputs.digest }}
+          BACKEND_REF: ${{ steps.refs.outputs.backend }}
+          FRONTEND_REF: ${{ steps.refs.outputs.frontend }}
         run: |
           set -euo pipefail
           {
             echo '## Published image digests'
             echo
-            echo "Backend: ghcr.io/${IMAGE_NAMESPACE}/contribo-back@${BACKEND_DIGEST}"
-            echo "Frontend: ghcr.io/${IMAGE_NAMESPACE}/contribo-front@${FRONTEND_DIGEST}"
+            echo "Backend: ${BACKEND_REF}"
+            echo "Frontend: ${FRONTEND_REF}"
             if [ -n "$CANDIDATE_TAG" ]; then
               echo
               echo "Candidate tag: ${CANDIDATE_TAG}"
