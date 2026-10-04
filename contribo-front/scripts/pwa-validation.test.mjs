@@ -28,7 +28,7 @@ test('publishes an installable Contribo manifest with required icons', () => {
     assert.ok(icon, `manifest must declare a ${size}x${size} icon`);
     assert.equal(icon.type, 'image/png');
     assert.ok(existsSync(resolve(frontendRoot, 'public', icon.src)));
-    assert.deepEqual(readPngDimensions(resolve('public', icon.src)), {
+    assert.deepEqual(readPngDimensions(resolve(frontendRoot, 'public', icon.src)), {
       width: size,
       height: size,
     });
@@ -56,7 +56,10 @@ test('does not configure API or private data caching', () => {
 test('keeps mobile zoom available while avoiding the small-input trigger', () => {
   const index = readText('src/index.html');
   const styles = readText('src/styles.css');
-  assert.match(index, /name="viewport" content="width=device-width, initial-scale=1"/);
+  assert.match(
+    index,
+    /name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/,
+  );
   assert.doesNotMatch(index, /maximum-scale\s*=/);
   assert.match(styles, /@media \(max-width: 47\.999rem\)/);
   assert.match(styles, /font-size: 16px/);

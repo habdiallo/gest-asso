@@ -127,7 +127,7 @@ export class App {
       return;
     }
 
-    this.closeMobileProfile(true);
+    this.closeMobileProfile(false);
   }
 
   @HostListener('document:keydown.escape')

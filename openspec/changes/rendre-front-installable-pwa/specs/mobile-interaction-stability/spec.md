@@ -21,7 +21,7 @@ Le frontend SHALL fermer le dialogue ou menu de déconnexion lorsqu'une interact
 #### Scenario: Appui à l'extérieur sur mobile
 
 - **WHEN** le dialogue ou menu de déconnexion est ouvert sur mobile et que l'utilisateur touche une zone extérieure
-- **THEN** le composant se ferme, le backdrop ou panneau disparaît et le focus revient sur le contrôle qui l'a ouvert lorsque celui-ci existe encore
+- **THEN** le composant se ferme, le backdrop ou panneau disparaît et le focus de la cible touchée n'est pas remplacé par le contrôle qui l'a ouvert
 
 #### Scenario: Appui à l'intérieur
 

@@ -16,7 +16,7 @@
 - [x] 3.3 [T-206] Identifier les champs et dialogues qui déclenchent un autofocus ou un focus programmatique sur mobile, sans modifier les parcours métier.
 - [x] 3.4 [T-206] Ajuster la stratégie de focus et appliquer au moins `16px` aux champs mobiles concernés, sans utiliser `maximum-scale=1`, afin d'éviter le zoom de viewport tout en conservant le zoom utilisateur.
 - [x] 3.5 [T-206] Fermer le dialogue ou menu de déconnexion sur interaction extérieure, tout en laissant les interactions internes ouvertes et fonctionnelles.
-- [x] 3.6 [T-206] Restaurer le focus sur le contrôle déclencheur après fermeture extérieure ou avec Escape, puis couvrir les cas dans les tests d'interaction.
+- [x] 3.6 [T-206] Restaurer le focus sur le contrôle déclencheur après fermeture avec Escape, préserver le focus de la cible après fermeture extérieure, puis couvrir les cas dans les tests d'interaction.
 
 ## 4. Valider et livrer
 

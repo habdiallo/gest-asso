@@ -154,7 +154,7 @@ describe('App', () => {
     expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
   });
 
-  it('closes the mobile profile menu after an outside pointer interaction and restores focus', () => {
+  it('closes the mobile profile menu after an outside pointer interaction without stealing focus', () => {
     TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -165,12 +165,16 @@ describe('App', () => {
     fixture.detectChanges();
     expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
 
-    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    const outsideButton = document.createElement('button');
+    document.body.append(outsideButton);
+    outsideButton.focus();
+    outsideButton.dispatchEvent(new Event('pointerdown', { bubbles: true }));
     fixture.detectChanges();
 
     expect(root.querySelector('.mobile-profile-menu')).toBeNull();
     expect(profileButton.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(profileButton);
+    expect(document.activeElement).toBe(outsideButton);
+    outsideButton.remove();
   });
 
   it('keeps the mobile profile menu open for an inside pointer interaction', () => {
