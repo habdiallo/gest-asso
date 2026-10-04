@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8f5ef" />
+    <title>Contribo Native Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="prototype-shell">
+      <div class="device" aria-label="Prototype mobile Contribo">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons" aria-hidden="true"><span>⌁</span><span>▮▮▮</span><span>▰</span></div>
+        </div>
+        <div id="app" class="app" aria-live="polite"></div>
+        <div id="sheet-root"></div>
+        <div id="toast-root" class="toast-root" aria-live="polite"></div>
+        <div class="home-indicator" aria-hidden="true"></div>
+      </div>
+      <aside class="prototype-note">
+        <p class="eyebrow">Native design / Contribo</p>
+        <h1>Une gestion associative pensée pour le mobile.</h1>
+        <p>Parcours de référence : consulter la situation, agir rapidement, confirmer sans perdre le contexte.</p>
+        <div class="note-rule"></div>
+        <p class="note-small">Prototype local · les données sont fictives · aucune action n'est envoyée au site métier.</p>
+      </aside>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

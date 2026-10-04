@@ -63,16 +63,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Utilisateurs & rôles',
-      'Catégories',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/roles-utilisateurs',
-      '/categories-de-revenu',
+      '/plus',
     ]);
   });
 
@@ -88,14 +86,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Mon espace',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/mon-espace',
+      '/plus',
     ]);
   });
 
@@ -111,14 +109,14 @@ describe('NavigationMenu', () => {
       'Membres',
       'Cotisations',
       'Cagnottes',
-      'Mon espace',
+      'Plus',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/dashboard',
       '/membres',
       '/campagnes',
       '/cagnottes',
-      '/mon-espace',
+      '/plus',
     ]);
   });
 
@@ -129,8 +127,8 @@ describe('NavigationMenu', () => {
     fixture.detectChanges();
 
     const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('nav a'));
-    expect(links.map((link) => link.textContent?.trim())).toEqual(['Accueil', 'Mon espace']);
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/dashboard', '/mon-espace']);
+    expect(links.map((link) => link.textContent?.trim())).toEqual(['Accueil', 'Plus']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/dashboard', '/plus']);
   });
 
   it.each([
@@ -163,7 +161,10 @@ describe('NavigationMenu', () => {
     fixture.detectChanges();
     expect(root.querySelector('.sidebar-nav-section')).toBeNull();
     expect(root.querySelector('nav')?.classList.contains('mobile-nav')).toBe(true);
-    const mobilePaths = ['/dashboard', ...paths];
+    const mobilePaths =
+      role === 'MEMBER'
+        ? ['/dashboard', '/plus']
+        : ['/dashboard', '/membres', '/campagnes', '/cagnottes', '/plus'];
     expect(root.querySelectorAll('.mobile-nav-link')).toHaveLength(mobilePaths.length);
     expect(root.querySelector('.mobile-nav-link')?.textContent?.trim()).toBe('Accueil');
     expect(root.querySelector('nav')?.classList.contains('overflow-x-auto')).toBe(true);

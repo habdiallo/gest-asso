@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { CategoriesDeRevenuService } from '@core/api';
+import { provideRouter } from '@angular/router';
 import type { IncomeCategory } from '@core/api';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideCspTranspiler } from '@core/i18n/csp-transpiler';
@@ -52,6 +53,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       provideCspTranspiler(),
       {
         provide: CategoriesDeRevenuService,

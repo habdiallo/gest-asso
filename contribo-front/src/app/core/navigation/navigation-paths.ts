@@ -7,5 +7,6 @@ export const NAVIGATION_PATHS = {
   rolesAndUsers: '/roles-utilisateurs',
   memberSpace: '/mon-espace',
   account: '/mon-compte',
+  more: '/plus',
   passwordChange: '/changer-mot-de-passe',
 } as const;

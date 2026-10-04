@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { CategoriesDeRevenuService } from '@core/api';
 import type { IncomeCategory } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -47,6 +48,7 @@ const PAGE_SIZE = 10;
 @Component({
   selector: 'app-income-categories-page',
   imports: [
+    RouterLink,
     TranslocoPipe,
     ActionButton,
     DataTable,

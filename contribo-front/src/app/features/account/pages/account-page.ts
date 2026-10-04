@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CurrencyCode } from '@core/api';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SIDEBAR_ROLE_LABEL_KEYS } from '@core/navigation/sidebar-profile';
@@ -16,7 +17,7 @@ const CURRENCY_LABEL_KEYS: Record<CurrencyCode, string> = {
 
 @Component({
   selector: 'app-account-page',
-  imports: [TranslocoPipe, PageHeader, ActionButton, StatusBadge],
+  imports: [RouterLink, TranslocoPipe, PageHeader, ActionButton, StatusBadge],
   templateUrl: './account-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

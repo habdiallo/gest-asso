@@ -31,6 +31,7 @@ const SIDEBAR_ICONS: Readonly<Record<string, readonly string[]>> = {
     'M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
   ],
   [NAVIGATION_PATHS.memberSpace]: ['M4 21a8 8 0 0 1 16 0'],
+  [NAVIGATION_PATHS.more]: ['M5 12h.01M12 12h.01M19 12h.01'],
 };
 
 /**
@@ -59,6 +60,17 @@ const MOBILE_DASHBOARD_ITEM: NavigationItem = {
   path: NAVIGATION_PATHS.dashboard,
 };
 
+const MOBILE_MORE_ITEM: NavigationItem = {
+  label: 'Plus',
+  path: NAVIGATION_PATHS.more,
+};
+
+const MOBILE_PRIMARY_PATHS = new Set<string>([
+  NAVIGATION_PATHS.members,
+  NAVIGATION_PATHS.campaigns,
+  NAVIGATION_PATHS.socialFunds,
+]);
+
 @Component({
   selector: 'app-navigation-menu',
   imports: [RouterLink, RouterLinkActive],
@@ -80,7 +92,12 @@ export class NavigationMenu {
   );
   readonly mobileItems = computed(() => {
     const roleItems = this.items();
-    return roleItems.length > 0 ? [MOBILE_DASHBOARD_ITEM, ...roleItems] : [];
+    if (roleItems.length === 0) {
+      return [];
+    }
+
+    const primaryItems = roleItems.filter((item) => MOBILE_PRIMARY_PATHS.has(item.path));
+    return [MOBILE_DASHBOARD_ITEM, ...primaryItems, MOBILE_MORE_ITEM];
   });
 
   readonly verticalSections = computed(() => {

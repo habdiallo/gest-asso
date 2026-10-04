@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type {
   TemporaryCredentials,
@@ -75,6 +76,7 @@ async function createFixture(
       }),
     ],
     providers: [
+      provideRouter([]),
       provideCspTranspiler(),
       {
         provide: UtilisateursEtRolesService,

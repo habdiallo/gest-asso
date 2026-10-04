@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { UserRole, UtilisateursEtRolesService } from '@core/api';
 import type {
   TemporaryCredentials,
@@ -70,6 +71,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-roles-users-page',
   imports: [
+    RouterLink,
     TranslocoPipe,
     ActionButton,
     ApiErrorRetry,
