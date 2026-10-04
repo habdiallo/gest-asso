@@ -56,6 +56,6 @@ PR : vers develop ; la PR compagnon dans `gest-asso-deploiement` est suivie en s
 
 ## 9. Livrer
 
-- [ ] 9.1 [T-208] Ajouter explicitement les fichiers du ticket, committer `chore(infra): T-208 <résumé>`, pousser la branche et ouvrir la PR vers `develop` avec le modèle du dépôt, les validations réellement exécutées et les points BREAKING.
+- [x] 9.1 [T-208] Ajouter explicitement les fichiers du ticket, committer `chore(infra): T-208 <résumé>`, pousser la branche et ouvrir la PR vers `develop` avec le modèle du dépôt, les validations réellement exécutées et les points BREAKING.
 - [ ] 9.2 [T-208] Préparer la PR compagnon dans `gest-asso-deploiement` (`compose.base.yaml`, `networks.yaml`, `staging/compose.yaml`, `production/compose.yaml`, répertoire de secrets, port 8080, CIDR de confiance, Caddy) et remplacer le secret `DEPLOYMENT_REPO_TOKEN` par un jeton fin avec écriture du contenu et des PR sur ce seul dépôt.
 - [ ] 9.3 [T-208] Après fusion, sur la première release contenant T-208 : vérifier la PR staging générée, le smoke test staging, le retag `vX.Y.Z`, la PR production et le rollback par revert.
