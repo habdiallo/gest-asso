@@ -154,6 +154,62 @@ describe('App', () => {
     expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
   });
 
+  it('closes the mobile profile menu after an outside pointer interaction without stealing focus', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const profileButton = root.querySelector('.mobile-profile-button') as HTMLButtonElement;
+    profileButton.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
+
+    const outsideButton = document.createElement('button');
+    document.body.append(outsideButton);
+    outsideButton.focus();
+    outsideButton.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(root.querySelector('.mobile-profile-menu')).toBeNull();
+    expect(profileButton.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(outsideButton);
+    outsideButton.remove();
+  });
+
+  it('keeps the mobile profile menu open for an inside pointer interaction', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    (root.querySelector('.mobile-profile-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const menu = root.querySelector('.mobile-profile-menu') as HTMLDivElement;
+
+    menu.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(root.querySelector('.mobile-profile-menu')).toBeTruthy();
+  });
+
+  it('closes the mobile profile menu with Escape and restores focus', () => {
+    TestBed.inject(SessionService).setSession(buildLoginResponse('ADMINISTRATOR'));
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const profileButton = root.querySelector('.mobile-profile-button') as HTMLButtonElement;
+    profileButton.click();
+    fixture.detectChanges();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(root.querySelector('.mobile-profile-menu')).toBeNull();
+    expect(document.activeElement).toBe(profileButton);
+  });
+
   it.each<CurrentUser['role']>(['ADMINISTRATOR', 'TREASURER', 'OPERATOR', 'MEMBER'])(
     'keeps the complete logout action for %s and removes the authenticated shell after activation',
     async (role) => {
