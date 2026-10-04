@@ -90,6 +90,23 @@
   }
 }
 
+@media (min-width: 421px) and (max-width: 535px) {
+  .mobile-nav {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  .mobile-nav::-webkit-scrollbar {
+    display: block;
+    height: 0.35rem;
+  }
+
+  .mobile-nav::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: var(--line-strong);
+  }
+}
+
 @media (min-width: 1181px) {
   .mobile-nav {
     min-height: 0;
