@@ -166,6 +166,7 @@ describe('NavigationMenu', () => {
     const mobilePaths = ['/dashboard', ...paths];
     expect(root.querySelectorAll('.mobile-nav-link')).toHaveLength(mobilePaths.length);
     expect(root.querySelector('.mobile-nav-link')?.textContent?.trim()).toBe('Accueil');
+    expect(root.querySelector('nav')?.classList.contains('overflow-x-auto')).toBe(true);
     const rolesLink = root.querySelector('a[href="/roles-utilisateurs"]');
     if (rolesLink) {
       expect(rolesLink.querySelector('.mobile-nav-label-long')?.textContent?.trim()).toBe(

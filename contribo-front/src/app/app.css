@@ -9,6 +9,7 @@
 
 .mobile-header {
   padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
 }
 
 .mobile-brand,
@@ -260,11 +261,13 @@
 
 .mobile-bottom-nav {
   z-index: 20;
+  padding-inline: max(0.25rem, env(safe-area-inset-left)) max(0.25rem, env(safe-area-inset-right));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
 }
 
 .app-content {
+  min-width: 0;
   padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
