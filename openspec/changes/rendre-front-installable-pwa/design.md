@@ -1,6 +1,6 @@
 ## Context
 
-Le frontend Angular est livré comme une application navigateur avec un build de production et un reverse proxy pour `/api/v1`. Il n'expose pas encore de manifeste web ni de service worker. L'authentification repose sur un cookie HttpOnly et les écrans métier dépendent du backend réel, donc l'installation ne doit pas être confondue avec un fonctionnement métier hors ligne.
+Le frontend Angular est livré comme une application navigateur avec un build de production et un reverse proxy pour `/api/v1`. Il n'expose pas encore de manifeste web ni de service worker. L'authentification repose sur un cookie HttpOnly et les écrans métier dépendent du backend réel, donc l'installation ne doit pas être confondue avec un fonctionnement métier hors ligne. Le même périmètre mobile contient un focus automatique susceptible de zoomer la viewport et un dialogue ou menu de déconnexion qui ne réagit pas au clic extérieur.
 
 ## Goals / Non-Goals
 
@@ -11,6 +11,8 @@ Le frontend Angular est livré comme une application navigateur avec un build de
 - Précharger uniquement les ressources statiques nécessaires au shell Angular.
 - Laisser les appels API, les cookies de session et les données privées hors du cache du service worker.
 - Garantir que le rechargement d'une route protégée conserve le parcours d'authentification normal.
+- Empêcher le focus automatique mobile de provoquer un zoom ou un déplacement inattendu de la viewport.
+- Fermer le dialogue ou menu de déconnexion sur une interaction extérieure et restaurer le focus sur son déclencheur.
 
 **Non-Goals:**
 
@@ -37,6 +39,10 @@ Configurer le service worker pour les ressources statiques produites par Angular
 
 Ajouter les tests de configuration et de build nécessaires, puis vérifier dans un navigateur Chromium l'apparition de l'installation, le lancement en fenêtre autonome, le rechargement de `/login` et la mise à jour d'une nouvelle version. La campagne visuelle couvre 320, 375, 820 et desktop afin de s'assurer que le bouton d'installation ou les métadonnées n'introduisent pas de débordement.
 
+### Stabiliser le focus et la fermeture extérieure sur mobile
+
+Éviter l'autofocus programmatique sur mobile lorsqu'il n'est pas indispensable. Pour les champs qui doivent recevoir le focus, conserver une taille de texte compatible avec les règles de zoom des navigateurs mobiles et vérifier le résultat avec le clavier virtuel. Le dialogue ou menu de déconnexion doit écouter l'interaction extérieure sur son conteneur ou son backdrop, ignorer les clics internes, gérer Escape lorsque le composant le permet et rendre le focus au bouton déclencheur après fermeture. Cette logique reste colocalisée dans le composant partagé ou le composant de navigation concerné, sans état global supplémentaire.
+
 ## Risks / Trade-offs
 
 - [Un service worker obsolète peut servir un ancien bundle] -> versionner la configuration, tester le cycle de mise à jour et documenter la désinstallation du service worker en rollback.
@@ -44,3 +50,5 @@ Ajouter les tests de configuration et de build nécessaires, puis vérifier dans
 - [Un cache trop large peut exposer ou figer des données privées] -> interdire explicitement les URLs API et contrôler le contenu des caches dans la validation navigateur.
 - [Les icônes augmentent la taille du bundle public] -> utiliser des fichiers optimisés et limités aux tailles requises par les navigateurs.
 - [Une dépendance PWA peut modifier le build Angular] -> verrouiller la version, exécuter lint, tests, tooling et build avant livraison, avec suppression simple de la configuration en cas de rollback.
+- [Un clic extérieur peut fermer trop tôt une action interne] -> distinguer la cible du conteneur et celle du dialogue, tester les clics internes et vérifier le retour de focus.
+- [Le retrait de l'autofocus peut dégrader l'accessibilité] -> conserver un focus explicite pour les parcours qui l'exigent, l'annoncer dans les tests et vérifier la navigation clavier et lecteur d'écran.
