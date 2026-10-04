@@ -288,7 +288,8 @@ body {
 
 /* Groupes d'actions des dialogues : deux actions restent côte à côte sur mobile
    lorsque la largeur le permet, puis s'empilent sans tronquer les libellés. */
-@media (max-width: 820px) {
+/* Rester aligné sur --breakpoint-shell et sur les utilitaires min-[821px]. */
+@media (width < 51.3125rem) {
   .form-dialog-content .form-dialog-actions {
     position: sticky;
     bottom: 0;
@@ -298,7 +299,9 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
     gap: 0.75rem;
-    background: var(--surface-glass);
+    border-top: 1px solid var(--line);
+    padding-block: 1rem;
+    background: var(--surface);
   }
 
   .form-dialog-content .form-dialog-actions > app-action-button,
