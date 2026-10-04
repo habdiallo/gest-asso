@@ -52,9 +52,13 @@
 
 ### D1. Le dépôt de déploiement devient l'unique source de vérité
 
-`gest-asso-deploiement` porte `compose.yaml`, `staging.env` et `prod.env`
-(références d'images et paramètres non secrets). Ce dépôt supprime son miroir,
-`portainer.env.example`, le workflow de parité et son script.
+`gest-asso-deploiement` porte `compose.base.yaml` (services communs),
+`networks.yaml` et un fichier par environnement, `staging/compose.yaml` et
+`production/compose.yaml`, qui incluent les réseaux, étendent la base et
+portent leurs deux lignes `image:` écrites en dur. Les références ne passent
+pas par un `.env` versionné : depuis Portainer 2.27, une stack Git n'interpole
+plus le `.env` du dépôt (portainer/portainer#12546). Ce dépôt supprime son
+miroir, `portainer.env.example`, le workflow de parité et son script.
 
 Alternative écartée : faire pointer Portainer sur ce dépôt. Les PR automatiques
 de mise à jour d'images y seraient refusées par les conventions de branche et
@@ -65,17 +69,22 @@ de ticket, et chaque déploiement passerait par `develop`.
 - `develop`, `release/*`, `hotfix/*` : build, scan, smoke test, puis push
   `sha-<commit>` (et le tag `candidate-*` existant pour release et hotfix).
 - Après une candidate release ou hotfix : un job ouvre ou met à jour une PR
-  dans `gest-asso-deploiement` qui modifie uniquement `staging.env`.
+  dans `gest-asso-deploiement` qui modifie uniquement les deux lignes `image:`
+  de `staging/compose.yaml` (`scripts/update-deployment-images.sh`, testé).
 - Tag `v[0-9]+.[0-9]+.[0-9]+` : un workflow `promote-release.yml` résout les
   digests de `sha-<commit>`, échoue s'ils sont absents, applique
   `docker buildx imagetools create --tag ...:vX.Y.Z <image>@<digest>`, puis
-  ouvre une PR qui modifie `prod.env` avec `vX.Y.Z@sha256:<digest>`.
+  ouvre une PR qui modifie `production/compose.yaml` avec
+  `vX.Y.Z@sha256:<digest>`. Le tag doit pointer sur la tête de la release,
+  fusionnée dans `main` par merge commit : c'est le seul commit dont les images
+  `sha-<commit>` existent. Le workflow vérifie qu'il est dans `main`.
 - Plus aucun alias mutable : `latest-int` est supprimé.
 
 Le jeton `DEPLOYMENT_REPO_TOKEN` (aujourd'hui en lecture) est remplacé par un
 jeton fin limité à `gest-asso-deploiement` avec `contents: write` et
 `pull-requests: write`. La PR est ouverte avec `gh pr create` sur une branche
-`deploy/<env>-<sha court>` ; aucune fusion automatique.
+`deploy/<env>-<libellé>` par `scripts/open-deployment-pr.sh` ; aucune fusion
+automatique.
 
 Alternative écartée : webhook Portainer déclenché par la CI. Il déploie sans
 trace Git ni revue, et le rollback redevient manuel.
@@ -130,14 +139,14 @@ teste les images construites sans rebuild.
 Alternative écartée : conserver l'entrypoint shell. Il duplique en shell une
 validation que l'application fait mieux et qui doit être testée en `sudo`.
 
-### D6. Runtime backend `eclipse-temurin:21-jre`
+### D6. Runtime backend `eclipse-temurin:21-jre-alpine`
 
 L'étape jlink et la base Ubuntu sont remplacées par
-`eclipse-temurin:21-jre-noble` avec l'utilisateur 10001. L'image grossit
-d'environ 50 à 80 Mo, en échange de la suppression de `jdeps`, de la liste de
-modules et du risque de module manquant à l'exécution. `IMAGE-OPTIMIZATION.md`
-est mis à jour avec les tailles mesurées. Si `curl` est absent de la base, il
-est installé pour le healthcheck ou le healthcheck utilise `wget`.
+`eclipse-temurin:21-jre-alpine` avec l'utilisateur 10001 et un healthcheck
+`wget`. Mesure dans les mêmes conditions : 352 Mo contre 299 Mo avec jlink
+(+17,6 %), alors que `21-jre-noble` atteignait 500 Mo (+67 %) et a été écarté.
+Le gain : plus de `jdeps`, de liste de modules ni de risque de module manquant.
+L'authentification JWT, Flyway et le bootstrap ont été vérifiés sur cette base.
 
 Alternatives écartées : Jib (nouveau plugin Maven, plus de Dockerfile commun
 aux deux images) et distroless (pas de shell pour le diagnostic sur un serveur
@@ -146,10 +155,13 @@ unique).
 ### D7. Proxy de confiance par CIDR
 
 `ClientAddressResolver` accepte des adresses et des plages CIDR via
-`IpAddressMatcher` de Spring Security, déjà présent. Une entrée invalide fait
-échouer le démarrage. La stack déclare
-`TRUSTED_PROXY_ADDRESSES=<sous-réseau du réseau interne>` ; l'adresse fixe et
-le bloc IPAM deviennent inutiles.
+`IpAddressMatcher` de Spring Security, déjà présent ; les noms d'hôte sont
+refusés et une entrée invalide fait échouer le démarrage. La stack fait
+confiance à la plage du réseau interne `contribo-internal`, sur lequel seul le
+frontend joint le backend : l'adresse IP fixe disparaît. La plage reste
+déclarée (variable `INTERNAL_NETWORK_SUBNET`) car faire confiance à toutes les
+plages privées laisserait un conteneur du réseau PostgreSQL usurper
+`X-Real-IP`.
 
 ### D8. Sécurité de la chaîne d'images
 
@@ -161,6 +173,17 @@ le bloc IPAM deviennent inutiles.
   `github-actions`, cible `develop`, fréquence hebdomadaire.
 - `workflow-conventions.yml` accepte en plus `^dependabot/` pour l'acteur
   `dependabot[bot]` uniquement.
+
+### D8 bis. Corrections révélées par le premier scan
+
+Le scan local des images a trouvé des vulnérabilités `CRITICAL` corrigeables,
+présentes aussi dans les images publiées depuis `develop` :
+
+- Tomcat 11.0.22 (Spring Boot 4.1.0 ; 4.1.1 gère encore 11.0.24) :
+  `tomcat.version` est surchargée à 11.0.26 dans `pom.xml`, à retirer dès que
+  Spring Boot gère une version corrigée ;
+- nginx 1.28.2 et OpenSSL 3.5.5 : base frontend passée à
+  `nginx-unprivileged:1.30-alpine`.
 
 ### D9. Smoke test versionné
 
@@ -214,10 +237,10 @@ le script. Il remplace les `curl` manuels de `PORTAINER.md`.
 
 1. Fusionner T-199, puis livrer T-208 sur `develop` : la CI publie `sha-*`
    (sans `latest-int`), lance scan et smoke test.
-2. Préparer la PR compagnon `gest-asso-deploiement` : composition unique,
-   `staging.env`, `prod.env`, port 8080, montage du répertoire de secrets,
-   `TRUSTED_PROXY_ADDRESSES` en CIDR, Caddy `reverse_proxy frontend:8080` avec
-   HSTS et redirection.
+2. Préparer la PR compagnon `gest-asso-deploiement` : `compose.base.yaml`,
+   `networks.yaml`, `staging/compose.yaml`, `production/compose.yaml`, port
+   8080, montage du répertoire de secrets, confiance par plage, Caddy
+   `reverse_proxy frontend:8080` avec HSTS et redirection.
 3. Sur l'hôte : `init-secrets.sh --check-only` puis renommage éventuel des
    fichiers de secrets selon les noms attendus.
 4. Créer la première `release/vX.Y.Z` contenant T-208 : la CI ouvre la PR
@@ -234,9 +257,10 @@ le script. Il remplace les `curl` manuels de `PORTAINER.md`.
 
 ## Open Questions
 
-- Noms exacts des contrôles requis par la protection de `develop` et `main`
-  (à lire dans les réglages GitHub avant la suppression du workflow frontend).
-- Plage réelle du réseau Docker `frontend` sur l'hôte, pour fixer la valeur de
-  `TRUSTED_PROXY_CIDR`.
-- Un environnement consomme-t-il encore `latest-int` ? À confirmer avant la
-  fusion ; sinon basculer cet environnement sur les digests.
+- Protection de branche : vérifiée le 2026-10-04, `develop` et `main` n'ont ni
+  protection ni ruleset ; aucun nom de contrôle n'est imposé. À configurer
+  conformément à `CONTRIBUTING.md` (hors périmètre).
+- Plage réelle du réseau Docker `frontend` sur l'hôte : défaut
+  `172.16.0.0/12` conservé, à confirmer avec `docker network inspect frontend`.
+- Usage résiduel de `latest-int` sur l'hôte : aucun dans le dépôt de
+  déploiement (images par digest), à confirmer dans les variables Portainer.

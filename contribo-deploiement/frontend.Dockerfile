@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 
 RUN apk add --no-cache openjdk21-jre-headless
 
@@ -14,18 +14,23 @@ COPY contribo-front/ ./
 
 RUN npm run generate:api && npm run build
 
-FROM nginx:1.27-alpine
+FROM nginxinc/nginx-unprivileged:1.30-alpine
 
 LABEL org.opencontainers.image.title="Contribo frontend"
-LABEL org.opencontainers.image.description="Contribo Angular application served by Nginx"
+LABEL org.opencontainers.image.description="Contribo Angular application served by unprivileged Nginx over internal HTTP"
 
-RUN mkdir -p /etc/nginx/includes
-COPY contribo-deploiement/nginx.conf /etc/nginx/conf.d/default.conf
-COPY contribo-deploiement/proxy-common.conf /etc/nginx/conf.d/proxy-common.conf
-COPY contribo-deploiement/nginx-rate-limits.conf /etc/nginx/includes/nginx-rate-limits.conf
-COPY contribo-deploiement/nginx-application-locations.conf /etc/nginx/includes/nginx-application-locations.conf
+# Seule variable rendue par envsubst ; les variables Nginx ($uri, $host...) restent intactes.
+ENV TRUSTED_PROXY_CIDR=172.16.0.0/12 \
+    NGINX_ENVSUBST_FILTER=^TRUSTED_PROXY_CIDR$
+
+COPY contribo-deploiement/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY contribo-deploiement/proxy-common.conf \
+     contribo-deploiement/nginx-rate-limits.conf \
+     contribo-deploiement/security-headers.conf \
+     contribo-deploiement/nginx-application-locations.conf \
+     /etc/nginx/includes/
 COPY --from=build /workspace/contribo-front/dist/contribo-front/browser /usr/share/nginx/html
 
-EXPOSE 80 443
+EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
-    CMD wget --quiet --no-check-certificate --spider https://127.0.0.1/ || wget --quiet --spider http://127.0.0.1/ || exit 1
+    CMD wget --quiet --spider http://127.0.0.1:8080/ || exit 1

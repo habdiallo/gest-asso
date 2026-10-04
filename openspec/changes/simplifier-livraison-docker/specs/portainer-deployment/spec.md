@@ -2,7 +2,7 @@
 
 ### Requirement: La stack Portainer utilise les secrets fichiers et les réseaux attendus
 
-La stack SHALL déployer uniquement le backend et le frontend, utiliser les images GHCR désignées par `BACKEND_IMAGE` et `FRONTEND_IMAGE`, monter en lecture seule un répertoire de secrets de l'hôte dans le backend, joindre les réseaux externes PostgreSQL et proxy, et conserver un réseau interne privé entre backend et frontend. Les fichiers de ce répertoire SHALL être lisibles par l'UID runtime 10001 sans être publics. Le secret bootstrap administrateur SHALL être optionnel : son absence MUST NOT empêcher le démarrage lorsque le bootstrap est désactivé. La stack MUST NOT exiger de fichier de configuration Nginx sur l'hôte, d'adresse IP fixe ni de sous-réseau imposé.
+La stack SHALL déployer uniquement le backend et le frontend, utiliser les images GHCR épinglées par digest dans le fichier Compose de l'environnement, monter en lecture seule un répertoire de secrets de l'hôte dans le backend, joindre les réseaux externes PostgreSQL et proxy, et conserver un réseau interne privé entre backend et frontend. Les fichiers de ce répertoire SHALL être lisibles par l'UID runtime 10001 sans être publics. Le secret bootstrap administrateur SHALL être optionnel : son absence MUST NOT empêcher le démarrage lorsque le bootstrap est désactivé. La stack MUST NOT exiger de fichier de configuration Nginx sur l'hôte ni d'adresse IP fixe pour le frontend ; le backend SHALL faire confiance à la plage configurable du réseau interne.
 
 #### Scenario: Déploiement nominal
 
@@ -21,7 +21,7 @@ La stack SHALL déployer uniquement le backend et le frontend, utiliser les imag
 
 ### Requirement: Le déploiement permet un rollback par paire d'images
 
-Les références d'images de chaque environnement SHALL être versionnées dans le dépôt de déploiement sous forme de digests issus du même run CI. Le rollback SHALL consister à revenir à la paire précédente par un revert Git, sans modifier les secrets ni les données.
+Les références d'images de chaque environnement SHALL être versionnées en dur dans le fichier Compose de cet environnement, dans le dépôt de déploiement, sous forme de digests issus du même run CI. Le rollback SHALL consister à revenir à la paire précédente par un revert Git, sans modifier les secrets ni les données.
 
 #### Scenario: Retour à une version précédente
 

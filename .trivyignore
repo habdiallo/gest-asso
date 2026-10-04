@@ -1,0 +1,4 @@
+# Exceptions Trivy (scan CRITICAL bloquant des images, voir backend-frontend-images.yml).
+# Une ligne par CVE, toujours précédée d'une justification et d'une date de réexamen :
+# # <justification> - réexaminer avant AAAA-MM-JJ
+# CVE-AAAA-NNNNN

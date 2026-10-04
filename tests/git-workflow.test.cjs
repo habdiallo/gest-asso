@@ -146,7 +146,12 @@ test('le contrôle CI respecte les cibles develop et main selon le type de branc
   const directory = mkdtempSync(join(tmpdir(), 'contribo-ci-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const marker = join(directory, 'injection');
-  for (const [branch, base, expected] of [
+  for (const [branch, base, expected, author] of [
+    ['dependabot/docker/contribo-deploiement/nginx-1.29', 'develop', 0, 'dependabot[bot]'],
+    ['dependabot/github_actions/github-actions-abc123', 'develop', 0, 'dependabot[bot]'],
+    ['dependabot/docker/contribo-deploiement/nginx-1.29', 'main', 1, 'dependabot[bot]'],
+    ['dependabot/docker/contribo-deploiement/nginx-1.29', 'develop', 1, 'habdiallo'],
+    [`dependabot/x-$(touch ${marker})`, 'develop', 1, 'dependabot[bot]'],
     ['front/feat-123-ajout-membre', 'develop', 0],
     ['back/fix-124-refus-surpaiement', 'develop', 0],
     ['release/v1.2.3', 'main', 0],
@@ -165,7 +170,7 @@ test('le contrôle CI respecte les cibles develop et main selon le type de branc
     [`front/feat-123-$(touch ${marker})`, 'develop', 1],
   ]) {
     const result = run('bash', ['-c', script], {
-      env: { ...process.env, PR_BRANCH: branch, PR_BASE: base },
+      env: { ...process.env, PR_BRANCH: branch, PR_BASE: base, PR_AUTHOR: author ?? '' },
     });
     assert.equal(result.status, expected, result.stderr);
   }
@@ -176,11 +181,30 @@ test('le workflow publie les candidates release et ne reconstruit pas sur main',
   const workflow = readFileSync(resolve(__dirname, '../.github/workflows/backend-frontend-images.yml'), 'utf8');
   assert.match(workflow, /- 'release\/v\*\.\*\.\*'/);
   assert.match(workflow, /- 'hotfix\/\*\*'/);
-  assert.match(workflow, /if: github\.event_name == 'pull_request' \|\| github\.ref != 'refs\/heads\/main'/);
+  assert.doesNotMatch(workflow, /^      - main$/m, 'main ne doit pas déclencher de build');
   assert.match(workflow, /candidate_tag="candidate-\$\{GITHUB_REF_NAME\/\/\\\//);
   assert.match(workflow, /type=raw,value=\$\{\{ steps\.image-tag\.outputs\.candidate_tag \}\}/);
-  assert.match(workflow, /push: \$\{\{ github\.event_name == 'push' && github\.ref != 'refs\/heads\/main' \}\}/);
   assert.match(workflow, /GITHUB_STEP_SUMMARY/);
-  assert.doesNotMatch(workflow, /type=raw,value=latest,enable=/);
+  assert.doesNotMatch(workflow, /value=latest|latest-int/, 'aucun alias mutable ne doit être publié');
   assert.doesNotMatch(workflow, /type=semver,/);
+});
+
+test('les images sont scannées, testées et attestées avant publication', () => {
+  const workflow = readFileSync(resolve(__dirname, '../.github/workflows/backend-frontend-images.yml'), 'utf8');
+  const scan = workflow.indexOf('aquasecurity/trivy-action@');
+  const smoke = workflow.indexOf('scripts/smoke-test.sh');
+  const push = workflow.indexOf('push: true');
+  assert.ok(scan > 0 && smoke > scan && push > smoke, 'scan puis smoke test puis publication');
+  assert.match(workflow, /aquasecurity\/trivy-action@[0-9a-f]{40}/, 'trivy-action épinglé par SHA');
+  assert.match(workflow, /severity: CRITICAL/);
+  assert.match(workflow, /provenance: mode=max/);
+  assert.match(workflow, /sbom: true/);
+});
+
+test('la promotion de release retague sans rebuild', () => {
+  const workflow = readFileSync(resolve(__dirname, '../.github/workflows/promote-release.yml'), 'utf8');
+  assert.match(workflow, /- 'v\[0-9\]\+\.\[0-9\]\+\.\[0-9\]\+'/);
+  assert.match(workflow, /imagetools create --tag/);
+  assert.doesNotMatch(workflow, /build-push-action/);
+  assert.match(workflow, /open-deployment-pr\.sh production/);
 });
