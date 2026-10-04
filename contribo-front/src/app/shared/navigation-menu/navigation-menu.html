@@ -53,7 +53,7 @@
           [routerLink]="item.path"
           [class.mobile-nav-link-active]="isMobileItemActive(item.path)"
           [attr.aria-current]="isMobileItemActive(item.path) ? 'page' : null"
-          [attr.aria-label]="item.label"
+          [attr.aria-label]="mobileLabel(item)"
           [class]="linkClasses()"
         >
           <svg
@@ -89,7 +89,7 @@
             class="mobile-nav-link-label"
             [class.mobile-nav-label-long]="item.path === navigationPaths.rolesAndUsers"
           >
-            {{ item.label }}
+            {{ mobileLabel(item) }}
           </span>
         </a>
       }

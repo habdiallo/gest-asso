@@ -183,17 +183,19 @@
       }
     }
     <div
-      class="flex w-full shrink-0 rounded border border-line bg-surface-2 p-1 sm:w-auto"
+      class="flex w-full shrink-0 gap-2 overflow-x-auto border-0 bg-transparent p-0 sm:w-auto"
       role="group"
       [attr.aria-label]="'members.statusFilterLabel' | transloco"
     >
       @for (filter of statusFilterOptions; track filter.value) {
         <button
           type="button"
-          class="responsive-label min-h-9 flex-1 rounded px-3 font-normal uppercase tracking-[0.08em] transition-colors sm:flex-none"
+          class="responsive-label min-h-9 min-w-max rounded-full border border-line bg-surface px-3 font-medium normal-case tracking-normal text-text-2 transition-colors tablet:flex-none tablet:rounded tablet:border-0 tablet:bg-surface-2 tablet:px-3 tablet:font-normal tablet:uppercase tablet:tracking-[0.08em]"
           [class.bg-surface]="statusFilter() === filter.value"
           [class.text-text]="statusFilter() === filter.value"
           [class.text-text-3]="statusFilter() !== filter.value"
+          [class.border-gold-hover]="statusFilter() === filter.value"
+          [class.bg-gold-wash]="statusFilter() === filter.value"
           [class.shadow-sm]="statusFilter() === filter.value"
           [attr.aria-pressed]="statusFilter() === filter.value"
           (click)="onStatusFilterChange(filter.value)"

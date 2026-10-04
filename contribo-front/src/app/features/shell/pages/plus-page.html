@@ -5,6 +5,27 @@
     [intro]="'shell.plus.subtitle' | transloco"
   />
 
+  @if (user(); as user) {
+    <a
+      [routerLink]="profilePath()"
+      class="mb-7 flex items-center gap-3 rounded-card border border-line bg-surface p-4 shadow-card outline-none transition-colors hover:border-line-strong focus-visible:ring-[3px] focus-visible:ring-gold-wash"
+    >
+      <span
+        class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gold-wash font-data text-sm font-semibold text-gold-hover"
+        aria-hidden="true"
+      >
+        {{ initials() }}
+      </span>
+      <span class="min-w-0">
+        <span class="block text-xs text-text-3">Connecté en tant que</span>
+        <strong class="mt-1 block truncate text-base font-medium text-text">
+          {{ user.member.displayName }}
+        </strong>
+        <span class="mt-1 block text-sm text-text-2">{{ roleLabelKey() | transloco }}</span>
+      </span>
+    </a>
+  }
+
   <section aria-labelledby="plus-destinations-title">
     <h2
       id="plus-destinations-title"
@@ -94,5 +115,15 @@
         </a>
       }
     </div>
+  </section>
+
+  <section class="mt-8" aria-labelledby="plus-session-title">
+    <h2
+      id="plus-session-title"
+      class="font-sans text-[22px] font-medium leading-tight text-text sm:text-2xl"
+    >
+      {{ 'shell.plus.session.title' | transloco }}
+    </h2>
+    <app-logout-button class="plus-logout mt-4 block" />
   </section>
 </main>

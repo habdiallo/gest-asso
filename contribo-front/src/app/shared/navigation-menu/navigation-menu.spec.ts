@@ -61,7 +61,7 @@ describe('NavigationMenu', () => {
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Accueil',
       'Membres',
-      'Cotisations',
+      'Campagnes',
       'Cagnottes',
       'Plus',
     ]);
@@ -84,7 +84,7 @@ describe('NavigationMenu', () => {
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Accueil',
       'Membres',
-      'Cotisations',
+      'Campagnes',
       'Cagnottes',
       'Plus',
     ]);
@@ -107,7 +107,7 @@ describe('NavigationMenu', () => {
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Accueil',
       'Membres',
-      'Cotisations',
+      'Campagnes',
       'Cagnottes',
       'Plus',
     ]);

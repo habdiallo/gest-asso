@@ -14,6 +14,7 @@
   <app-detail-shell
     [backRouterLink]="['/campagnes']"
     [backLabel]="'campaigns.detail.backToList' | transloco"
+    [mobileBackLabel]="'campaigns.detail.backToListMobile' | transloco"
     [kicker]="
       'campaigns.detail.kicker' | transloco: { status: campaignStatusLabel(campaign.status) }
     "
@@ -80,16 +81,16 @@
       <app-detail-metrics [items]="metrics()" />
       @if (campaign.status === 'UPCOMING' && openingReadiness(); as readiness) {
         <section
-          class="mt-6 rounded-card border border-line bg-surface p-5 sm:p-6"
+          class="mt-5 rounded-card border border-[color:color-mix(in_srgb,var(--gold)_35%,var(--line))] bg-gold-wash p-4 shadow-none tablet:mt-6 tablet:border-line tablet:bg-surface tablet:p-5"
           aria-labelledby="campaign-opening-readiness-title"
           data-testid="campaign-opening-readiness"
         >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 id="campaign-opening-readiness-title" class="font-display text-2xl text-text">
+              <h2 id="campaign-opening-readiness-title" class="font-sans text-xl font-semibold text-text tablet:font-display tablet:text-2xl tablet:font-normal">
                 {{ 'campaigns.detail.opening.title' | transloco }}
               </h2>
-              <p class="mt-2 max-w-2xl text-sm text-text-2">
+              <p class="mt-2 max-w-2xl text-[15px] leading-[1.45] text-text-2 tablet:text-sm tablet:leading-normal">
                 {{ 'campaigns.detail.opening.description' | transloco }}
               </p>
             </div>
@@ -103,8 +104,8 @@
               [tone]="readiness.ready ? 'success' : 'warning'"
             />
           </div>
-          <ul class="mt-5 grid gap-3 sm:grid-cols-2" data-testid="campaign-opening-checklist">
-            <li class="flex items-center gap-3 text-sm text-text">
+          <ul class="mt-5 grid gap-3 tablet:grid-cols-2" data-testid="campaign-opening-checklist">
+            <li class="flex items-center gap-3 text-[13px] text-text tablet:text-sm">
               <span
                 class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                 [class.bg-success-wash]="readiness.baremeComplete"
@@ -116,7 +117,7 @@
               >
               {{ 'campaigns.detail.opening.checks.bareme' | transloco }}
             </li>
-            <li class="flex items-center gap-3 text-sm text-text">
+            <li class="flex items-center gap-3 text-[13px] text-text tablet:text-sm">
               <span
                 class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                 [class.bg-success-wash]="readiness.datesValid"
@@ -128,7 +129,7 @@
               >
               {{ 'campaigns.detail.opening.checks.dates' | transloco }}
             </li>
-            <li class="flex items-center gap-3 text-sm text-text">
+            <li class="flex items-center gap-3 text-[13px] text-text tablet:text-sm">
               <span
                 class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                 [class.bg-success-wash]="readiness.startDateReached"
@@ -140,7 +141,7 @@
               >
               {{ 'campaigns.detail.opening.checks.startDate' | transloco }}
             </li>
-            <li class="flex items-center gap-3 text-sm text-text">
+            <li class="flex items-center gap-3 text-[13px] text-text tablet:text-sm">
               <span
                 class="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                 [class.bg-success-wash]="readiness.duesReady"
@@ -154,7 +155,7 @@
             </li>
           </ul>
           @if (readiness.blockingReasons.length > 0) {
-            <div class="mt-5 rounded bg-warning-wash px-4 py-3 text-sm text-warning" role="status">
+            <div class="mt-5 rounded-card bg-error-wash px-4 py-3 text-[13px] leading-[1.45] text-error tablet:rounded tablet:bg-warning-wash tablet:py-3 tablet:text-sm tablet:text-warning" role="status">
               <p>{{ 'campaigns.detail.opening.blockingIntro' | transloco }}</p>
               <ul class="mt-2 list-inside list-disc">
                 @for (reason of readiness.blockingReasons; track reason) {

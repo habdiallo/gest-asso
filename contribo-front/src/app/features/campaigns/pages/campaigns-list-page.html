@@ -74,16 +74,18 @@
     </label>
 
     <div
-      class="flex min-h-12 w-full shrink-0 items-center gap-1 rounded border border-line bg-surface-2 p-[3px] sm:w-auto"
+      class="flex min-h-12 w-full shrink-0 items-center gap-2 overflow-x-auto border-0 bg-transparent p-0 sm:w-auto"
       role="group"
       [attr.aria-label]="'campaigns.list.statusFilterLabel' | transloco"
     >
       @for (option of statusOptions; track option.labelKey) {
         <button
           type="button"
-          class="min-h-9 min-w-0 flex-1 rounded px-2 text-center text-[9px] font-normal uppercase leading-tight tracking-[0.08em] text-text-3 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:flex-none sm:px-3"
+          class="min-h-9 min-w-max rounded-full border border-line bg-surface px-3 text-center text-xs font-medium normal-case leading-tight tracking-normal text-text-2 transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-gold-wash sm:flex-none tablet:rounded tablet:border-0 tablet:bg-surface-2 tablet:px-3 tablet:text-[9px] tablet:font-normal tablet:uppercase tablet:tracking-[0.08em]"
           [class.bg-surface]="statusFilter() === option.value"
           [class.text-text]="statusFilter() === option.value"
+          [class.border-gold-hover]="statusFilter() === option.value"
+          [class.bg-gold-wash]="statusFilter() === option.value"
           [attr.aria-pressed]="statusFilter() === option.value ? 'true' : 'false'"
           (click)="onStatusFilterChange(option.value)"
         >

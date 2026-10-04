@@ -52,6 +52,13 @@ function currentRouteTitle(router: Router): string {
   return title ? stripBrandPrefix(title) : '';
 }
 
+function isNativeMobileDetailRoute(url: string): boolean {
+  const path = url.split(/[?#]/, 1)[0];
+  return /^(\/campagnes\/|\/membres\/|\/cagnottes\/|\/roles-utilisateurs|\/categories-de-revenu|\/compte|\/mon-espace)/.test(
+    path,
+  );
+}
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, ThemeToggle, LogoutButton, NavigationMenu, TranslocoPipe],
@@ -76,6 +83,14 @@ export class App {
       map(() => currentRouteTitle(this.router)),
     ),
     { initialValue: currentRouteTitle(this.router) },
+  );
+  /** Les écrans de détail reprennent le gabarit natif sans doubler le header global. */
+  readonly nativeMobileDetailRoute = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => isNativeMobileDetailRoute(event.urlAfterRedirects)),
+    ),
+    { initialValue: isNativeMobileDetailRoute(this.router.url) },
   );
   readonly sidebarProfile = computed(() => {
     const user = this.sessionService.user();

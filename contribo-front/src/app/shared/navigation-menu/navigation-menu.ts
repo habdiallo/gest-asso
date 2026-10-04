@@ -115,6 +115,9 @@ export class NavigationMenu {
     return [MOBILE_DASHBOARD_ITEM, ...primaryItems, MOBILE_MORE_ITEM];
   });
 
+  readonly mobileLabel = (item: NavigationItem): string =>
+    item.path === NAVIGATION_PATHS.campaigns ? 'Campagnes' : item.label;
+
   readonly verticalSections = computed(() => {
     const administrative = (path: string): boolean =>
       path === NAVIGATION_PATHS.incomeCategories || path === NAVIGATION_PATHS.rolesAndUsers;
