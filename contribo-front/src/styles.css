@@ -285,3 +285,48 @@ body {
 .app-form-control:focus-visible {
   outline: none;
 }
+
+/* Groupes d'actions des dialogues : deux actions restent côte à côte sur mobile
+   lorsque la largeur le permet, puis s'empilent sans tronquer les libellés. */
+/* Rester aligné sur --breakpoint-shell et sur les utilitaires min-[821px]. */
+@media (width < 51.3125rem) {
+  .form-dialog-content .form-dialog-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    display: grid;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.75rem;
+    border-top: 1px solid var(--line);
+    padding-block: 1rem;
+    background: var(--surface);
+  }
+
+  .form-dialog-content .form-dialog-actions > app-action-button,
+  .form-dialog-content .form-dialog-actions > button,
+  .form-dialog-content .form-dialog-actions > a {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .form-dialog-content .form-dialog-actions > app-action-button > button,
+  .form-dialog-content .form-dialog-actions > app-action-button > a,
+  .form-dialog-content .form-dialog-actions > button,
+  .form-dialog-content .form-dialog-actions > a {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 2.75rem;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+  }
+}
+
+@media (max-width: 24rem) {
+  .form-dialog-content .form-dialog-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

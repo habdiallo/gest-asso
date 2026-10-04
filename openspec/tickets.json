@@ -3,7 +3,7 @@
   "tracker": "repository-local",
   "status": "active",
   "initializationActive": false,
-  "nextTicketId": 207,
+  "nextTicketId": 208,
   "prerequisiteChanges": [
     "initialisation-front-features"
   ],
@@ -3357,6 +3357,7 @@
     {"id":203,"title":"Porter la session d authentification de 15 à 30 minutes en configuration contrôlée.","priority":"P2","scope":"back","type":"fix","slug":"session-trente-minutes","change":"corriger-anomalies-qa-20261004","tasks":["3.1","3.2","3.3","3.4","3.5"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"back/fix-000-session-trente-minutes","branchAfterInitialization":"back/fix-203-session-trente-minutes"},
     {"id":204,"title":"Fiabiliser l affichage du détail utilisateur et la migration des identifiants membres.","priority":"P2","scope":"fullstack","type":"fix","slug":"fiabiliser-identifiant-migration","change":"fiabiliser-identifiant-migration","tasks":["1.1","1.2","1.3","1.4","2.1","2.2","2.3","2.4","3.1","3.2","4.1","4.2"],"dependencies":[200],"planningStatus":"planned","branchDuringInitialization":"fullstack/fix-000-fiabiliser-identifiant-migration","branchAfterInitialization":"fullstack/fix-204-fiabiliser-identifiant-migration"},
     {"id":205,"title":"Poursuivre le polish responsive après les PR 225 et 226 avec des améliorations adaptatives réversibles.","priority":"P1","scope":"front","type":"refactor","slug":"polish-responsive-apres-pr225-226","change":"polish-responsive-apres-pr225-226","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","3.3","4.1","4.2","4.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/refactor-000-polish-responsive-apres-pr225-226","branchAfterInitialization":"front/refactor-205-polish-responsive-apres-pr225-226"},
-    {"id":206,"title":"Rendre le frontend installable comme une PWA et fiabiliser les interactions mobiles.","priority":"P1","scope":"front","type":"feat","slug":"rendre-front-installable-pwa","change":"rendre-front-installable-pwa","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","3.3","3.4","3.5","3.6","4.1","4.2","4.3","4.4","4.5"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/feat-000-rendre-front-installable-pwa","branchAfterInitialization":"front/feat-206-rendre-front-installable-pwa"}
+    {"id":206,"title":"Rendre le frontend installable comme une PWA et fiabiliser les interactions mobiles.","priority":"P1","scope":"front","type":"feat","slug":"rendre-front-installable-pwa","change":"rendre-front-installable-pwa","tasks":["1.1","1.2","2.1","2.2","2.3","3.1","3.2","3.3","3.4","3.5","3.6","4.1","4.2","4.3","4.4","4.5"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/feat-000-rendre-front-installable-pwa","branchAfterInitialization":"front/feat-206-rendre-front-installable-pwa"},
+    {"id":207,"title":"Adapter les dialogues et formulaires mobiles aux zones sûres de l écran.","priority":"P1","scope":"front","type":"fix","slug":"dialogues-mobile-safe-area","change":"corriger-dialogues-mobile-safe-area","tasks":["1.1","1.2","2.1","2.2","2.3","2.4","3.1","3.2","3.3"],"dependencies":[],"planningStatus":"planned","branchDuringInitialization":"front/fix-000-dialogues-mobile-safe-area","branchAfterInitialization":"front/fix-207-dialogues-mobile-safe-area"}
   ]
 }

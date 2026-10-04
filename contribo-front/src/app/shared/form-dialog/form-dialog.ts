@@ -25,6 +25,7 @@ import type { ElementRef } from '@angular/core';
 @Component({
   selector: 'app-form-dialog',
   templateUrl: './form-dialog.html',
+  styleUrl: './form-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormDialog {

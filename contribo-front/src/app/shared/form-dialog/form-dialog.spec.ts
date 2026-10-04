@@ -1,5 +1,20 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormDialog } from './form-dialog';
+
+@Component({
+  imports: [FormDialog],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-form-dialog dialogTitle="Ajouter un membre">
+      <div class="form-dialog-actions">
+        <button type="button">Annuler</button>
+        <button type="submit">Enregistrer</button>
+      </div>
+    </app-form-dialog>
+  `,
+})
+class FormDialogActionsHost {}
 
 /*
  * jsdom (utilisé par le runner Vitest/`@angular/build:unit-test`) reconnaît
@@ -67,6 +82,41 @@ describe('FormDialog', () => {
 
     const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
     expect(dialog.getAttribute('aria-label')).toBe('Modifier la cotisation');
+  });
+
+  it('keeps the mobile safe-area layout contract and names the close button', () => {
+    const fixture = TestBed.createComponent(FormDialog);
+    fixture.componentRef.setInput('dialogTitle', 'Ajouter un membre');
+    fixture.componentRef.setInput('closeLabel', 'Fermer le formulaire');
+    fixture.detectChanges();
+
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    const closeButton: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    const content: HTMLElement = fixture.nativeElement.querySelector('.form-dialog-content');
+
+    expect(dialog.classList.contains('form-dialog-mobile')).toBe(true);
+    expect(closeButton.getAttribute('aria-label')).toBe('Fermer le formulaire');
+    expect(content.classList.contains('min-h-0')).toBe(true);
+  });
+
+  it('keeps the two form actions inside the scrollable dialog content', () => {
+    TestBed.configureTestingModule({
+      imports: [FormDialogActionsHost],
+    });
+    const fixture = TestBed.createComponent(FormDialogActionsHost);
+    fixture.detectChanges();
+
+    const content: HTMLElement = fixture.nativeElement.querySelector('.form-dialog-content');
+    const actions = content.querySelector('.form-dialog-actions');
+
+    expect(actions).not.toBeNull();
+    if (!actions) {
+      return;
+    }
+
+    const buttons = Array.from(actions.querySelectorAll('button'));
+    expect(actions.parentElement).toBe(content);
+    expect(buttons.map((button) => button.type)).toEqual(['button', 'submit']);
   });
 
   it('adds the compact presentation class only when requested', () => {

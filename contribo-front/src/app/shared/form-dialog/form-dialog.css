@@ -1,0 +1,20 @@
+/* Rester aligné sur --breakpoint-shell et sur les utilitaires min-[821px]. */
+@media (width < 51.3125rem) {
+  .form-dialog-mobile {
+    height: calc(
+      100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom))
+    );
+    max-height: calc(
+      100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom))
+    );
+    margin-block-start: max(1rem, env(safe-area-inset-top));
+    margin-block-end: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .form-dialog-content {
+    --form-dialog-actions-scroll-padding: 10rem;
+    overscroll-behavior: contain;
+    scroll-padding-block-start: 1rem;
+    scroll-padding-block-end: var(--form-dialog-actions-scroll-padding);
+  }
+}
