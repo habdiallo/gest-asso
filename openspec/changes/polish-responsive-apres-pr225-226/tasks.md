@@ -18,5 +18,5 @@
 ## 4. Livrer de façon réversible
 
 - [x] 4.1 [T-205] Vérifier le statut OpenSpec, le registre des tickets et le diff final sans fichier généré accidentel.
-- [ ] 4.2 [T-205] Créer le commit local T-205 et pousser uniquement la branche dédiée.
+- [x] 4.2 [T-205] Créer le commit local T-205 et pousser uniquement la branche dédiée.
 - [ ] 4.3 [T-205] Créer la PR vers `develop` avec les bonnes pratiques, les validations exécutées et le plan de revert.
