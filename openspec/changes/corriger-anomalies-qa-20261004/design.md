@@ -21,4 +21,3 @@ Utiliser la propriété `security.jwt.expiration-seconds` pour la durée du cook
 - T-201 et T-202 : tests frontend ciblés, suite frontend, build et vérification navigateur aux tailles et zooms concernés.
 - T-203 : tests backend ciblés et suite backend disponible, avec contrôle de la valeur `Max-Age` du cookie et de l'expiration du JWT.
 - Le retour arrière consiste à restaurer la branche cible sans les commits de la PR concernée. Une configuration d'environnement peut temporairement fournir une valeur inférieure dans la borne autorisée.
-

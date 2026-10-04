@@ -188,6 +188,50 @@ describe('RolesUsersPage', () => {
     expect(fixture.nativeElement.textContent).toContain('awacamara-4821');
   });
 
+  it('shows a retryable error without displaying an identifier when the detail request fails', async () => {
+    const account = buildAccount({ role: UserRole.Operator, operatorCanRecordPayments: false });
+    const details: UserAccount = { ...account, identifier: 'awacamara-4821' };
+    let attempts = 0;
+    const getUser = vi.fn(() => {
+      attempts += 1;
+      return (attempts === 1 ? throwError(() => new Error('network error')) : of(details)) as never;
+    });
+    const fixture = await createFixture(
+      () => of(buildPage([account])) as never,
+      undefined,
+      undefined,
+      getUser,
+    );
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const openButton = root.querySelector<HTMLButtonElement>('button[aria-label*="Awa Camara"]');
+    expect(openButton).not.toBeNull();
+    openButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('[role="alert"]')?.textContent).toContain(
+      "Impossible de charger l'identifiant de connexion",
+    );
+    expect(root.textContent).not.toContain('awacamara-4821');
+
+    fixture.componentInstance.onRoleDraftChange(UserRole.Treasurer);
+    fixture.componentInstance.onOperatorAuthorizationDraftChange({
+      target: { checked: true },
+    } as unknown as Event);
+    const retryButton = Array.from(root.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Réessayer'),
+    );
+    retryButton?.click();
+    fixture.detectChanges();
+
+    expect(getUser).toHaveBeenCalledTimes(2);
+    expect(root.textContent).toContain('awacamara-4821');
+    expect(root.querySelector('[role="alert"]')).toBeNull();
+    expect(fixture.componentInstance.roleDraft()).toBe(UserRole.Treasurer);
+    expect(fixture.componentInstance.operatorAuthorizationDraft()).toBe(true);
+  });
+
   it('does not let a late detail response overwrite the role draft', async () => {
     const account = buildAccount({ role: UserRole.Member });
     const pendingDetails = new Subject<UserAccount>();

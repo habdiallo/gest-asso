@@ -65,6 +65,15 @@ et enregistre la correspondance dans
 est documentée dans
 [`contribo-deploiement/MEMBER-IDENTIFIER-MIGRATION.md`](../contribo-deploiement/MEMBER-IDENTIFIER-MIGRATION.md).
 
+La migration corrective `V5__repair_member_identifiers_locale.sql` s'exécute
+après V4. Elle répare uniquement les comptes inventoriés par T-200 lorsque la
+normalisation des majuscules accentuées a produit un préfixe incorrect. Elle
+conserve le suffixe déjà attribué et écrit les changements dans
+`user_account_identifier_correction_t204`. La translittération est explicite
+afin de rester indépendante de la locale PostgreSQL. Une collision ou une
+source T-200 non conforme provoque l'échec atomique de la migration. Le contrôle
+et le rollback conditionnel sont décrits dans le runbook de déploiement.
+
 ## Tests d'intégration et prérequis Docker
 
 Le backend ne fait pas d'ORM : chaque `Jdbc*Repository` écrit son SQL à la main
