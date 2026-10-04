@@ -11,7 +11,9 @@
   }
 
   .form-dialog-content {
+    --form-dialog-actions-scroll-padding: 10rem;
     overscroll-behavior: contain;
-    scroll-padding-block: 1rem;
+    scroll-padding-block-start: 1rem;
+    scroll-padding-block-end: var(--form-dialog-actions-scroll-padding);
   }
 }

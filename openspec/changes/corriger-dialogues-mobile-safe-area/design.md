@@ -22,9 +22,12 @@ features.
   deux colonnes de largeur égale, avec un espacement constant et des contrôles
   qui occupent toute leur cellule. Sous une largeur très étroite, la grille
   passera en une colonne pour éviter les libellés tronqués ou le défilement
-  horizontal. Le seuil reste volontairement inférieur à 320 px CSS pour
-  conserver la présentation en ligne sur les mobiles courants. L'ordre
-  existant, action secondaire puis action principale, sera conservé.
+  horizontal. Le seuil de 24 rem tient compte des marges internes du dialogue,
+  afin de conserver des libellés lisibles sur les largeurs mobiles de 320 et
+  375 px tout en gardant la présentation en ligne sur les écrans plus larges.
+  Les libellés peuvent aussi revenir à la ligne sans agrandir la page
+  horizontalement. L'ordre existant, action secondaire puis action principale,
+  sera conservé.
 
 ## Validation
 

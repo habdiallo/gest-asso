@@ -294,7 +294,6 @@ body {
     bottom: 0;
     z-index: 1;
     display: grid;
-    width: 100%;
     min-width: 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
@@ -302,19 +301,28 @@ body {
     background: var(--surface-glass);
   }
 
-  .form-dialog-content .form-dialog-actions > app-action-button {
+  .form-dialog-content .form-dialog-actions > app-action-button,
+  .form-dialog-content .form-dialog-actions > button,
+  .form-dialog-content .form-dialog-actions > a {
     width: 100%;
     min-width: 0;
   }
 
   .form-dialog-content .form-dialog-actions > app-action-button > button,
-  .form-dialog-content .form-dialog-actions > app-action-button > a {
+  .form-dialog-content .form-dialog-actions > app-action-button > a,
+  .form-dialog-content .form-dialog-actions > button,
+  .form-dialog-content .form-dialog-actions > a {
     width: 100%;
     min-width: 0;
+    height: auto;
+    min-height: 2.75rem;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
   }
 }
 
-@media (max-width: 19rem) {
+@media (max-width: 24rem) {
   .form-dialog-content .form-dialog-actions {
     grid-template-columns: minmax(0, 1fr);
   }
