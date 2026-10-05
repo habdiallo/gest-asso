@@ -781,7 +781,8 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('6 100 000 GNF');
     expect(root.textContent).toContain('18,5M GNF attendus');
     expect(root.textContent).toContain('Campagne · Solidarité septembre');
-    expect(root.textContent).toContain('Paiements');
+    expect(root.textContent).toContain('Cotisations réglées');
+    expect(root.textContent).toContain('Payées ou partiellement payées');
     expect(root.textContent).not.toContain('Objectif');
     expect(root.textContent).not.toContain('Cagnotte · Mariage de Fanta');
     expect(root.textContent).not.toContain('Nouveaux membres ce mois');
@@ -831,6 +832,9 @@ describe('DashboardPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('59 % de 28,3M GNF');
     expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
+    expect(root.textContent).toContain('Cotisations concernées');
+    expect(root.textContent).toContain('Cotisations du périmètre sélectionné');
+    expect(root.textContent).toContain('100');
     expect(root.textContent).not.toContain('17M GNF');
     expect(root.textContent).not.toContain('Toutes les cagnottes ouvertes · 2 cagnottes');
   });
@@ -868,6 +872,17 @@ describe('DashboardPage', () => {
       recordedAt: '2026-09-14T09:05:00Z',
       currency: 'GNF' as const,
     };
+    const closedContribution = {
+      ...contribution,
+      id: 'h1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d61',
+      member: { id: viewer.member.id, displayName: 'Contribution clôturée' },
+      socialFund: {
+        ...contribution.socialFund,
+        id: 'closed-fund',
+        title: 'Cagnotte clôturée',
+        status: 'CLOSED' as const,
+      },
+    };
     const fixture = await createFixture(
       (campaignId?: string, socialFundId?: string) => {
         lastCampaignId = campaignId;
@@ -877,8 +892,27 @@ describe('DashboardPage', () => {
       {
         listContributions: () =>
           of({
-            items: [contribution],
-            page: { number: 0, size: 5, totalElements: 1, totalPages: 1 },
+            items: [contribution, closedContribution],
+            page: { number: 0, size: 50, totalElements: 2, totalPages: 1 },
+          }),
+        listSocialFunds: () =>
+          of({
+            items: [
+              {
+                id: contribution.socialFund.id,
+                title: contribution.socialFund.title,
+                eventType: 'WEDDING',
+                beneficiary: 'Famille Camara',
+                startDate: '2026-09-05',
+                endDate: '2026-09-28',
+                status: 'OPEN',
+                collectedAmount: 4750000,
+                contributorCount: 12,
+                contributionCount: 15,
+                currency: 'GNF',
+              },
+            ],
+            page: { number: 0, size: 50, totalElements: 1, totalPages: 1 },
           }),
       },
     );
@@ -896,9 +930,10 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('Contributions encaissées');
     expect(root.textContent).toContain('13M GNF');
     expect(root.textContent).toContain('Reste à collecter');
-    expect(root.textContent).toContain('4,1M GNF');
+    expect(root.textContent).toContain('Détail indisponible pour plusieurs cagnottes');
     expect(root.textContent).toContain('Dernières contributions');
     expect(root.textContent).toContain('Awa Camara');
+    expect(root.textContent).not.toContain('Contribution clôturée');
     expect(root.textContent).not.toContain('Campagnes récentes');
     expect(root.textContent).not.toContain('Derniers règlements');
   });
@@ -910,6 +945,8 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Nouveaux membres ce mois');
+    expect(root.textContent).toContain('Membres actifs');
+    expect(root.textContent).toContain('sur 91 membres inscrits');
     expect(root.textContent).toContain('Campagnes ouvertes');
     expect(root.textContent).toContain('Membres inscrits');
     expect(root.textContent).not.toContain('Cotisations encaissées');

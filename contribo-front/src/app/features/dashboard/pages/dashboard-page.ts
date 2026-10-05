@@ -64,6 +64,7 @@ function isManagerRole(role: UserRole): boolean {
 /** Bilan financier d'une campagne précise ou agrégé sur toutes les campagnes ouvertes, forme unique pour le template. */
 interface CampaignScopeView {
   readonly financialSummary: CampaignFinancialSummary;
+  readonly isAggregate: boolean;
   readonly labelKey: string;
   readonly labelParams: Record<string, unknown>;
 }
@@ -76,6 +77,7 @@ interface SocialFundScopeView {
   readonly contributorCount: number;
   readonly remainingAmount?: number;
   readonly progressRate?: number;
+  readonly isAggregate: boolean;
   readonly labelKey: string;
   readonly labelParams: Record<string, unknown>;
 }
@@ -213,6 +215,7 @@ export class DashboardPage {
     if (overview?.selectedCampaign?.financialSummary) {
       return {
         financialSummary: overview.selectedCampaign.financialSummary,
+        isAggregate: false,
         labelKey: 'dashboard.management.scopeCampaignLabel',
         labelParams: { name: overview.selectedCampaign.name },
       };
@@ -221,6 +224,7 @@ export class DashboardPage {
       const aggregate = overview.allOpenCampaignsSummary;
       return {
         financialSummary: aggregate.financialSummary,
+        isAggregate: true,
         labelKey: 'dashboard.management.scopeAllCampaignsLabel',
         labelParams: { count: aggregate.openCampaignCount },
       };
@@ -243,6 +247,7 @@ export class DashboardPage {
         contributorCount: fund.contributorCount,
         remainingAmount: fund.remainingToTargetAmount,
         progressRate: fund.progressRate,
+        isAggregate: false,
         labelKey: 'dashboard.management.scopeSocialFundLabel',
         labelParams: { name: fund.title },
       };
@@ -253,11 +258,8 @@ export class DashboardPage {
         collectedAmount: aggregate.collectedAmount,
         targetAmount: aggregate.targetAmount,
         contributorCount: aggregate.contributorCount,
-        remainingAmount:
-          aggregate.targetAmount === undefined
-            ? undefined
-            : Math.max(aggregate.targetAmount - aggregate.collectedAmount, 0),
         progressRate: aggregate.progressRate,
+        isAggregate: true,
         labelKey: 'dashboard.management.scopeAllSocialFundsLabel',
         labelParams: { count: aggregate.openSocialFundCount },
       };
@@ -385,7 +387,12 @@ export class DashboardPage {
             dashboard.view === 'MANAGEMENT' &&
             dashboard.financialOverview !== undefined
           ) {
-            this.loadContributions(requestId, contextId);
+            const loadContributions = () => this.loadContributions(requestId, contextId);
+            if (contextId || this.scopeListsLoaded) {
+              loadContributions();
+            } else if (!this.scopeListsLoading) {
+              this.loadScopeOptions(loadContributions);
+            }
           } else {
             this.contributionsLoading.set(false);
           }
@@ -393,7 +400,8 @@ export class DashboardPage {
             dashboard.view === 'MANAGEMENT' &&
             dashboard.financialOverview !== undefined &&
             !this.scopeListsLoaded &&
-            !this.scopeListsLoading
+            !this.scopeListsLoading &&
+            !(contextType === 'socialFund' && !contextId)
           ) {
             this.loadScopeOptions();
           }
@@ -422,14 +430,19 @@ export class DashboardPage {
     this.contributionsLoading.set(true);
     this.contributionsError.set(false);
     this.contributionsService
-      .listContributions(0, 5, undefined, undefined, socialFundId)
+      .listContributions(0, 50, undefined, undefined, socialFundId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
           if (requestId !== this.dashboardRequestId) {
             return;
           }
-          this.recentContributions.set(page.items);
+          const contributions = socialFundId
+            ? page.items
+            : page.items.filter((contribution) =>
+                this.openSocialFunds().some((fund) => fund.id === contribution.socialFund.id),
+              );
+          this.recentContributions.set(contributions);
           this.contributionsLoading.set(false);
         },
         error: () => {
@@ -443,7 +456,7 @@ export class DashboardPage {
   }
 
   /** Options des deux contextes, chargées une seule fois. */
-  private loadScopeOptions(): void {
+  private loadScopeOptions(onLoaded?: () => void): void {
     this.scopeListsLoading = true;
     const campaigns$ = this.loadAllPages((page) =>
       this.campaignsService.listCampaigns(page, 50, undefined, CampaignStatus.Open),
@@ -460,6 +473,7 @@ export class DashboardPage {
           this.openSocialFunds.set(socialFunds);
           this.scopeListsLoaded = true;
           this.scopeListsLoading = false;
+          onLoaded?.();
         },
         error: () => {
           this.scopeListsLoading = false;

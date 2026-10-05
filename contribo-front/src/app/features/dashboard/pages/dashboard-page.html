@@ -137,12 +137,25 @@
         >
           <div class="flex items-start justify-between gap-4">
             <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
-              {{
-                (isCampaignContext()
-                  ? 'dashboard.management.campaignMembersLabel'
-                  : 'dashboard.management.contributors'
-                ) | transloco
-              }}
+              @if (management.financialOverview) {
+                @if (isCampaignContext() && campaignScopeView(); as scope) {
+                  {{
+                    (scope.isAggregate
+                      ? 'dashboard.management.campaignDuesLabel'
+                      : 'dashboard.management.campaignMembersLabel'
+                    ) | transloco
+                  }}
+                } @else {
+                  {{
+                    (isCampaignContext()
+                      ? 'dashboard.management.campaignMembersLabel'
+                      : 'dashboard.management.contributors'
+                    ) | transloco
+                  }}
+                }
+              } @else {
+                {{ 'dashboard.management.activeMembers' | transloco }}
+              }
             </span>
             <span
               class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-icon bg-gold-wash text-gold"
@@ -163,12 +176,27 @@
               </svg>
             </span>
           </div>
-          @if (isCampaignContext()) {
+          @if (!management.financialOverview) {
             <p class="mt-5 font-display text-kpi leading-none tracking-[0.055em] text-text">
-              {{ campaignMemberCount() ?? management.activeMemberCount }}
+              {{ management.activeMemberCount }}
             </p>
             <p class="mt-2 text-xs text-text-3">
-              {{ 'dashboard.management.campaignMembersMeta' | transloco }}
+              {{
+                'dashboard.management.activeMembersMeta'
+                  | transloco: { count: management.registeredMemberCount }
+              }}
+            </p>
+          } @else if (isCampaignContext() && campaignScopeView(); as scope) {
+            <p class="mt-5 font-display text-kpi leading-none tracking-[0.055em] text-text">
+              {{ campaignMemberCount() }}
+            </p>
+            <p class="mt-2 text-xs text-text-3">
+              {{
+                (scope.isAggregate
+                  ? 'dashboard.management.campaignDuesMeta'
+                  : 'dashboard.management.campaignMembersMeta'
+                ) | transloco
+              }}
             </p>
           } @else if (socialFundScopeView(); as scope) {
             <p class="mt-5 font-display text-kpi leading-none tracking-[0.055em] text-text">
@@ -179,7 +207,12 @@
             </p>
           } @else {
             <p class="mt-5 text-sm text-text-3">
-              {{ 'dashboard.management.socialFundEmpty' | transloco }}
+              {{
+                (isCampaignContext()
+                  ? 'dashboard.management.collectedDuesEmpty'
+                  : 'dashboard.management.socialFundEmpty'
+                ) | transloco
+              }}
             </p>
           }
         </div>
@@ -371,7 +404,7 @@
               <span class="font-data text-kicker font-medium uppercase tracking-kicker text-text-2">
                 {{
                   (isCampaignContext()
-                    ? 'dashboard.management.paymentCount'
+                    ? 'dashboard.management.settledDues'
                     : 'dashboard.management.remainingToCollect'
                   ) | transloco
                 }}
@@ -401,10 +434,13 @@
             </div>
             @if (isCampaignContext() && campaignScopeView(); as scope) {
               <p class="mt-5 font-display text-kpi leading-none tracking-[0.055em] text-text">
-                {{ scope.financialSummary.dueCounts.total }}
+                {{
+                  scope.financialSummary.dueCounts.paid +
+                    scope.financialSummary.dueCounts.partiallyPaid
+                }}
               </p>
               <p class="mt-2 text-xs text-text-3">
-                {{ 'dashboard.management.paymentCountMeta' | transloco }}
+                {{ 'dashboard.management.settledDuesMeta' | transloco }}
               </p>
               <p
                 class="mt-3 border-t border-line pt-2.5 text-[10px] uppercase tracking-[0.05em] text-text-2"
@@ -422,6 +458,10 @@
                 </p>
                 <p class="mt-2 text-xs text-text-3">
                   {{ 'dashboard.management.remainingToCollectMeta' | transloco }}
+                </p>
+              } @else if (scope.isAggregate) {
+                <p class="mt-5 text-sm text-text-3">
+                  {{ 'dashboard.management.remainingToCollectAggregateUnavailable' | transloco }}
                 </p>
               } @else {
                 <p class="mt-5 text-sm text-text-3">
