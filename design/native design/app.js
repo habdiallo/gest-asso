@@ -49,10 +49,9 @@ const state = {
   personalTab: "profile",
   sheet: null,
   calendarOpen: false,
-  dashboardCampaignScope: "",
-  dashboardSocialFundScope: "",
-  dashboardCampaignDraft: "",
-  dashboardSocialFundDraft: "",
+  dashboardContextType: "campaign",
+  dashboardContextScope: "",
+  dashboardContextDraft: "",
   theme: "light",
   roleName: "Automatisation QA Operateur Test",
   roleLabel: "Opérateur",
@@ -78,14 +77,16 @@ function navBar(active) {
 function backButton(label, screen) { return `<button class="back-button" data-action="back" data-back-screen="${screen}">${icon("back")} ${label}</button>`; }
 
 function homeScreen() {
-  const selectedCampaign = campaigns.find((campaign) => campaign.title === state.dashboardCampaignScope && campaign.kind === "open");
-  const selectedSocialFund = pots.find((pot) => pot.title === state.dashboardSocialFundScope && pot.status === "Ouverte");
-  const campaignScopeLabel = selectedCampaign ? `Campagne · ${selectedCampaign.title}` : "Toutes les campagnes ouvertes";
-  const socialFundScopeLabel = selectedSocialFund ? `Cagnotte · ${selectedSocialFund.title}` : "Toutes les cagnottes ouvertes";
-  const scopeSummary = state.dashboardCampaignScope || state.dashboardSocialFundScope
-    ? `<p class="scope-summary">${campaignScopeLabel} · ${socialFundScopeLabel}</p>`
-    : "";
-  return `<section class="screen fade-in">${topbar("Union Contribo", "Bonjour, Administrateur", "Situation au 4 octobre 2026")}<article class="hero-card"><p class="eyebrow">Total encaissé</p><h2>Campagnes ouvertes</h2><div class="hero-value"><strong>34 000</strong><span>GNF</span></div><div class="hero-meta"><div><span>Reste à encaisser</span><strong>478 000 GNF</strong></div><div><span>Membres actifs</span><strong>7 / 7</strong></div></div></article><div class="section-head"><div><h2>Vue d'ensemble</h2>${scopeSummary}</div><button class="text-btn" data-action="dashboard-filters">Personnaliser</button></div><div class="stat-grid"><article class="stat-card"><p>Progression</p><strong>6,6 %</strong><div class="progress-track"><span style="width:6.6%"></span></div><small>${campaignScopeLabel}</small></article><article class="stat-card"><p>Cagnotte sociale</p><strong>0 GNF</strong><small>${selectedSocialFund ? `${selectedSocialFund.contributors} contributeurs` : "0 contributeur"}</small></article></div><div class="section-head"><h2>Actions rapides</h2></div><div class="quick-grid"><button class="quick-btn" data-action="member-form"><span>${icon("plus")}</span><strong>Ajouter un membre</strong></button><button class="quick-btn" data-action="campaign-form"><span>${icon("campaigns")}</span><strong>Créer une campagne</strong></button><button class="quick-btn" data-action="payment-form"><span>${icon("wallet")}</span><strong>Saisir un règlement</strong></button><button class="quick-btn" data-screen="pots"><span>${icon("pots")}</span><strong>Voir les cagnottes</strong></button></div><div class="section-head"><h2>Derniers règlements</h2><button class="text-btn" data-screen="campaigns">Tout voir</button></div><div class="list-card"><div class="avatar green">MS</div><div class="list-copy"><strong>Mamadou Saidou Diallo</strong><p>test b · Mobile Money</p></div><div class="list-side"><strong>+30 000</strong><small>4 oct. 2026</small></div></div><div class="list-card"><div class="avatar purple">SS</div><div class="list-copy"><strong>Saikou Sounounou Diallo</strong><p>test b · Espèces</p></div><div class="list-side"><strong>+2 500</strong><small>4 oct. 2026</small></div></div>${navBar("home")}</section>`;
+  const socialFundContext = state.dashboardContextType === "socialFund";
+  const selectedCampaign = campaigns.find((campaign) => campaign.title === state.dashboardContextScope && campaign.kind === "open");
+  const selectedSocialFund = pots.find((pot) => pot.title === state.dashboardContextScope && pot.status === "Ouverte");
+  const scopeLabel = socialFundContext
+    ? selectedSocialFund ? `Cagnotte · ${selectedSocialFund.title}` : "Toutes les cagnottes ouvertes"
+    : selectedCampaign ? `Campagne · ${selectedCampaign.title}` : "Toutes les campagnes ouvertes";
+  const dashboardContent = socialFundContext
+    ? `<article class="stat-card"><p>Objectif</p><strong>${selectedSocialFund?.target || "0 GNF"}</strong><small>${scopeLabel}</small></article><article class="stat-card"><p>Contributions encaissées</p><strong>${selectedSocialFund?.collected || "0 GNF"}</strong><small>${selectedSocialFund ? `${selectedSocialFund.contributors} contributeurs` : "0 contributeur"}</small></article><div class="section-head"><h2>Dernières contributions</h2><button class="text-btn" data-screen="pots">Tout voir</button></div><div class="list-card"><div class="avatar green">MS</div><div class="list-copy"><strong>Mamadou Saidou Diallo</strong><p>${scopeLabel} · Mobile Money</p></div><div class="list-side"><strong>+30 000</strong><small>4 oct. 2026</small></div></div>`
+    : `<article class="stat-card"><p>Progression</p><strong>${selectedCampaign?.progress || "6,6"} %</strong><div class="progress-track"><span style="width:${selectedCampaign?.progress || 6.6}%"></span></div><small>${scopeLabel}</small></article><article class="stat-card"><p>Reste à encaisser</p><strong>${selectedCampaign?.left || "478 000 GNF"}</strong><small>${selectedCampaign?.members || "7 membres concernés"}</small></article><div class="section-head"><h2>Derniers règlements</h2><button class="text-btn" data-screen="campaigns">Tout voir</button></div><div class="list-card"><div class="avatar green">MS</div><div class="list-copy"><strong>Mamadou Saidou Diallo</strong><p>${scopeLabel} · Mobile Money</p></div><div class="list-side"><strong>+30 000</strong><small>4 oct. 2026</small></div></div><div class="list-card"><div class="avatar purple">SS</div><div class="list-copy"><strong>Saikou Sounounou Diallo</strong><p>${scopeLabel} · Espèces</p></div><div class="list-side"><strong>+2 500</strong><small>4 oct. 2026</small></div></div>`;
+  return `<section class="screen fade-in">${topbar("Union Contribo", "Bonjour, Administrateur", "Situation au 4 octobre 2026")}<article class="hero-card"><p class="eyebrow">${socialFundContext ? "Contributions encaissées" : "Cotisations encaissées"}</p><h2>${socialFundContext ? "Cagnottes ouvertes" : "Campagnes ouvertes"}</h2><div class="hero-value"><strong>${socialFundContext ? selectedSocialFund?.collected || "0" : selectedCampaign?.paid || "34 000"}</strong><span>GNF</span></div><div class="hero-meta"><div><span>${socialFundContext ? "Reste à collecter" : "Reste à encaisser"}</span><strong>${socialFundContext ? selectedSocialFund?.target || "0 GNF" : selectedCampaign?.left || "478 000 GNF"}</strong></div><div><span>${socialFundContext ? "Contributeurs" : "Membres actifs"}</span><strong>${socialFundContext ? selectedSocialFund?.contributors || "0" : "7 / 7"}</strong></div></div></article><div class="section-head"><div><h2>Vue d'ensemble</h2><p class="scope-summary">${scopeLabel}</p></div><button class="text-btn" data-action="dashboard-filters">Personnaliser</button></div><div class="stat-grid">${dashboardContent.split("<div class=\"section-head\">")[0]}</div>${dashboardContent.substring(dashboardContent.indexOf("<div class=\"section-head\">"))}<div class="section-head"><h2>Actions rapides</h2></div><div class="quick-grid"><button class="quick-btn" data-action="member-form"><span>${icon("plus")}</span><strong>Ajouter un membre</strong></button><button class="quick-btn" data-action="${socialFundContext ? "pot-form" : "campaign-form"}"><span>${icon(socialFundContext ? "pots" : "campaigns")}</span><strong>${socialFundContext ? "Créer une cagnotte" : "Créer une campagne"}</strong></button><button class="quick-btn" data-action="${socialFundContext ? "contribution-form" : "payment-form"}"><span>${icon("wallet")}</span><strong>${socialFundContext ? "Saisir une contribution" : "Saisir un règlement"}</strong></button><button class="quick-btn" data-screen="${socialFundContext ? "pots" : "campaigns"}"><span>${icon(socialFundContext ? "pots" : "campaigns")}</span><strong>Voir les ${socialFundContext ? "cagnottes" : "campagnes"}</strong></button></div>${navBar("home")}</section>`;
 }
 
 function membersScreen() {
@@ -179,10 +180,13 @@ function renderSheet() {
   let title = "", subtitle = "", body = "";
   if (state.sheet === "dashboard-filters") {
     title = "Personnaliser le tableau de bord";
-    subtitle = "Les deux sélections restent indépendantes";
-    const campaignOptions = campaigns.filter((campaign) => campaign.kind === "open").map((campaign) => `<option value="${campaign.title}" ${state.dashboardCampaignDraft === campaign.title ? "selected" : ""}>${campaign.title}</option>`).join("");
-    const socialFundOptions = pots.filter((pot) => pot.status === "Ouverte").map((pot) => `<option value="${pot.title}" ${state.dashboardSocialFundDraft === pot.title ? "selected" : ""}>${pot.title}</option>`).join("");
-    body = `<div class="notice">${icon("info")} Les indicateurs financiers sont recalculés selon les sélections appliquées.</div><div class="field"><label for="dashboard-campaign-scope">Campagne de cotisation</label><select id="dashboard-campaign-scope" data-dashboard-campaign><option value="" ${state.dashboardCampaignDraft === "" ? "selected" : ""}>Toutes les campagnes ouvertes</option>${campaignOptions}</select></div><div class="field"><label for="dashboard-social-fund-scope">Cagnotte sociale</label><select id="dashboard-social-fund-scope" data-dashboard-social-fund><option value="" ${state.dashboardSocialFundDraft === "" ? "selected" : ""}>Toutes les cagnottes ouvertes</option>${socialFundOptions}</select>${socialFundOptions ? "" : `<small>Aucune cagnotte ouverte à sélectionner actuellement.</small>`}</div><div class="sheet-actions"><button class="btn secondary" data-action="close-sheet">Annuler</button><button class="btn primary" data-action="apply-dashboard-filters">Appliquer</button></div>`;
+    subtitle = "Un seul contexte pilote tous les indicateurs affichés.";
+    const campaignOptions = campaigns.filter((campaign) => campaign.kind === "open").map((campaign) => `<option value="${campaign.title}" ${state.dashboardContextDraft === campaign.title ? "selected" : ""}>${campaign.title}</option>`).join("");
+    const socialFundOptions = pots.filter((pot) => pot.status === "Ouverte").map((pot) => `<option value="${pot.title}" ${state.dashboardContextDraft === pot.title ? "selected" : ""}>${pot.title}</option>`).join("");
+    const socialFundContext = state.dashboardContextType === "socialFund";
+    const options = socialFundContext ? socialFundOptions : campaignOptions;
+    const emptyLabel = socialFundContext ? "Toutes les cagnottes ouvertes" : "Toutes les campagnes ouvertes";
+    body = `<div class="notice">${icon("info")} Les indicateurs financiers suivent le type et le périmètre sélectionnés.</div><div class="field"><label for="dashboard-context-type">Type de données</label><select id="dashboard-context-type" data-dashboard-context-type><option value="campaign" ${!socialFundContext ? "selected" : ""}>Cotisations</option><option value="socialFund" ${socialFundContext ? "selected" : ""}>Cagnottes</option></select></div><div class="field"><label for="dashboard-context-scope">${socialFundContext ? "Cagnotte sociale" : "Campagne de cotisation"}</label><select id="dashboard-context-scope" data-dashboard-context-scope><option value="" ${state.dashboardContextDraft === "" ? "selected" : ""}>${emptyLabel}</option>${options}</select>${socialFundContext && !socialFundOptions ? `<small>Aucune cagnotte ouverte à sélectionner actuellement.</small>` : ""}</div><div class="sheet-actions"><button class="btn secondary" data-action="close-sheet">Annuler</button><button class="btn primary" data-action="apply-dashboard-filters">Appliquer</button></div>`;
   }
   if (state.sheet === "member-form") { title = "Ajouter un membre"; subtitle = "Les informations essentielles du répertoire"; body = `<div class="field"><label>Nom *</label><input placeholder="Ex. Diallo" /></div><div class="field"><label>Prénom *</label><input placeholder="Ex. Saikou" /></div><div class="field"><label>Nom d'usage</label><input placeholder="Facultatif" /></div><div class="field"><label>Téléphone</label><input inputmode="tel" placeholder="+224" /></div><div class="field"><label>Pays</label><input placeholder="Guinée" /></div><div class="field"><label>Ville</label><input placeholder="Conakry" /></div><div class="field"><label>Catégorie de revenu *</label><select><option>Catégorie A</option><option>Catégorie B</option></select></div><div class="field"><label>Fonction associative</label><input placeholder="Facultatif" /></div><div class="sheet-actions"><button class="btn secondary" data-action="close-sheet">Annuler</button><button class="btn primary" data-action="confirm">Enregistrer</button></div>`; }
   if (state.sheet === "member-edit") { title = "Modifier un membre"; subtitle = "Le statut du membre reste géré depuis la fiche"; body = `<div class="form-step"><span>01</span><strong>Identité</strong></div><div class="field"><label>Nom *</label><input value="Diallo" /></div><div class="field"><label>Prénom *</label><input value="Saikou Sounounou" /></div><div class="field"><label>Nom d'usage</label><input /></div><div class="field"><label>Téléphone *</label><input value="+224622249797" /></div><div class="form-step"><span>02</span><strong>Localisation et association</strong></div><div class="field"><label>Pays *</label><input value="Guinée" /></div><div class="field"><label>Ville *</label><input value="Conakry" /></div><div class="field"><label>Catégorie de revenu *</label><select><option>Categorie A</option><option>Categorie B</option></select></div><div class="field"><label>Fonction associative *</label><input value="Trésorier" /></div><div class="sheet-actions"><button class="btn secondary" data-action="close-sheet">Annuler</button><button class="btn primary" data-action="confirm">Enregistrer</button></div>`; }
@@ -226,7 +230,7 @@ function navigateBack(fallbackScreen) {
   navigate(fallbackScreen);
 }
 
-function openSheet(name) { state.sheet = name; state.calendarOpen = false; if (name === "dashboard-filters") { state.dashboardCampaignDraft = state.dashboardCampaignScope; state.dashboardSocialFundDraft = state.dashboardSocialFundScope; } render(state.screen); }
+function openSheet(name) { state.sheet = name; state.calendarOpen = false; if (name === "dashboard-filters") { state.dashboardContextDraft = state.dashboardContextScope; } render(state.screen); }
 function closeSheet() { state.sheet = null; state.calendarOpen = false; render(state.screen); }
 function toast(message) { toastRoot.innerHTML = `<div class="toast">${icon("check")} ${message}</div>`; window.setTimeout(() => { toastRoot.innerHTML = ""; }, 2600); }
 
@@ -249,7 +253,7 @@ document.addEventListener("click", (event) => {
   if (action === "close-sheet") { closeSheet(); return; }
   if (action === "toggle-calendar") { state.calendarOpen = !state.calendarOpen; render(state.screen); return; }
   if (action === "choose-date") { state.calendarOpen = false; render(state.screen); toast("Date sélectionnée"); return; }
-  if (action === "apply-dashboard-filters") { state.dashboardCampaignScope = state.dashboardCampaignDraft; state.dashboardSocialFundScope = state.dashboardSocialFundDraft; closeSheet(); toast("Périmètre du tableau de bord mis à jour"); return; }
+  if (action === "apply-dashboard-filters") { state.dashboardContextScope = state.dashboardContextDraft; closeSheet(); toast("Périmètre du tableau de bord mis à jour"); return; }
   if (action === "confirm") { closeSheet(); toast("Action enregistrée dans le prototype"); return; }
   if (action === "toggle-theme") { state.theme = state.theme === "dark" ? "light" : "dark"; render(state.screen); toast("Thème mis à jour"); return; }
   if (action === "logout") { state.sheet = null; navigate("login"); toast("Session fermée dans le prototype"); return; }
@@ -261,8 +265,8 @@ document.addEventListener("click", (event) => {
 document.addEventListener("change", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLSelectElement)) return;
-  if (target.matches("[data-dashboard-campaign]")) state.dashboardCampaignDraft = target.value;
-  if (target.matches("[data-dashboard-social-fund]")) state.dashboardSocialFundDraft = target.value;
+  if (target.matches("[data-dashboard-context-type]")) { state.dashboardContextType = target.value; state.dashboardContextDraft = ""; render(state.screen); return; }
+  if (target.matches("[data-dashboard-context-scope]")) state.dashboardContextDraft = target.value;
 });
 
 window.history.replaceState({ screen: state.screen }, "", window.location.href);

@@ -105,8 +105,8 @@ const state = {
   campaignTab: 'members',
   memberTab: 'dues',
   potTab: 'contributions',
-  dashboardCampaignScope: 'Solidarité septembre',
-  dashboardPotScope: 'Toutes les cagnottes ouvertes',
+  dashboardContextType: 'campaign',
+  dashboardContextScope: 'Toutes les campagnes ouvertes',
   modalRoute: null,
 };
 
@@ -199,13 +199,17 @@ function modalShell(content, route) {
 
 function dashboardPage() {
   if (isMember()) return memberDashboard();
-  const action = isManager() ? button('Nouvelle campagne', 'campaign-form') : (isFinancialAllowed() ? button('Enregistrer un règlement', 'payment-form', 'payments') : '');
+  const socialFundContext = state.dashboardContextType === 'socialFund';
+  const action = socialFundContext
+    ? (isManager() ? button('Nouvelle cagnotte', 'pot-form', 'pots') : (isFinancialAllowed() ? button('Enregistrer une contribution', 'contribution-form', 'receipt') : ''))
+    : (isManager() ? button('Nouvelle campagne', 'campaign-form') : (isFinancialAllowed() ? button('Enregistrer un règlement', 'payment-form', 'payments') : ''));
   const label = state.role.startsWith('Opérateur') ? 'Espace opérateur' : `Vue ${state.role.toLowerCase()}`;
-  const campaignScope = dashboardCampaignSummary();
-  const potScope = dashboardPotSummary();
+  const scope = socialFundContext ? dashboardPotSummary() : dashboardCampaignSummary();
   const dashboardStats = state.role === 'Opérateur non autorisé'
     ? `${statCard('Membres actifs', '86', 'Consultation du répertoire', 'members', 'Association entière')}${statCard('Campagnes ouvertes', '2', '1 campagne à venir', 'campaigns', 'Toutes les campagnes')}`
-    : `${statCard('Membres actifs', '86', '3 nouveaux ce mois', 'members', 'Association entière')}${statCard('Cotisations encaissées', campaignScope.paid, `<strong>${campaignScope.progress} %</strong> de ${campaignScope.expected}`, 'payments', campaignScope.label)}${statCard('Reste sur cotisations', campaignScope.left, `${campaignScope.expected} attendus`, 'clock', campaignScope.label)}${statCard('Contributions encaissées', potScope.collected, `<strong>${potScope.progress} %</strong> de ${potScope.target}`, 'pots', potScope.label)}`;
+    : socialFundContext
+      ? `${statCard('Contributeurs', scope.contributors, 'Membres ayant contribué', 'members', scope.label)}${statCard('Objectif de la cagnotte', scope.target, `<strong>${scope.progress} %</strong> atteint`, 'pots', scope.label)}${statCard('Contributions encaissées', scope.collected, `${scope.progress} % de l’objectif`, 'payments', scope.label)}${statCard('Reste à collecter', scope.left, 'Pour atteindre l’objectif', 'clock', scope.label)}`
+      : `${statCard('Membres concernés', '86', 'Membres actifs dans le périmètre', 'members', scope.label)}${statCard('Cotisations encaissées', scope.paid, `<strong>${scope.progress} %</strong> de ${scope.expected}`, 'payments', scope.label)}${statCard('Reste sur cotisations', scope.left, `${scope.expected} attendus`, 'clock', scope.label)}${statCard('Paiements', '4', '1 paiement partiel', 'receipt', scope.label)}`;
   return `<section class="page">${pageHead(label, 'Tableau de bord', 'Vue d’ensemble de l’activité associative au 15 septembre 2026.', action)}
     ${state.role !== 'Opérateur non autorisé' ? dashboardScopePanel() : ''}
     <div class="stats-grid">
@@ -214,10 +218,12 @@ function dashboardPage() {
     ${state.role === 'Opérateur non autorisé' ? `<div class="callout" style="margin:0 0 20px">${svg('lock')}<span>Votre accès est limité à la consultation. L’enregistrement des règlements et contributions n’est pas autorisé pour ce compte.</span></div>` : ''}
     <div class="dashboard-grid">
       <div>
-        <section class="panel"><div class="panel-head"><div><h3>Campagnes récentes</h3><p>${state.role === 'Opérateur non autorisé' ? 'Campagnes accessibles en consultation' : 'Suivi des collectes en cours'}</p></div><button class="text-link" data-route="campaigns">Tout afficher</button></div><div class="campaign-list">${campaigns.slice(0,3).map(state.role === 'Opérateur non autorisé' ? limitedCampaignRow : campaignRow).join('')}</div></section>
-        ${state.role === 'Opérateur non autorisé'
+        ${socialFundContext
+          ? `<section class="panel"><div class="panel-head"><div><h3>Dernières contributions</h3><p>${scope.label}</p></div><button class="text-link" data-route="contributions">Tout afficher</button></div><div class="activity-list">${contributions.slice(0,3).map(c=>`<div class="activity"><div class="avatar">${c.member.initials}</div><div class="activity-copy"><strong>${c.member.name}</strong><span>${c.mode} · ${c.date}</span></div><span class="activity-amount amount">+ ${c.amount}</span></div>`).join('')}</div></section>`
+          : `<section class="panel"><div class="panel-head"><div><h3>Campagnes récentes</h3><p>${state.role === 'Opérateur non autorisé' ? 'Campagnes accessibles en consultation' : 'Suivi des collectes en cours'}</p></div><button class="text-link" data-route="campaigns">Tout afficher</button></div><div class="campaign-list">${campaigns.slice(0,3).map(state.role === 'Opérateur non autorisé' ? limitedCampaignRow : campaignRow).join('')}</div></section>`}
+        ${!socialFundContext && (state.role === 'Opérateur non autorisé'
           ? `<section class="panel"><div class="panel-head"><div><h3>Membres récemment consultés</h3><p>Accès au répertoire associatif</p></div><button class="text-link" data-route="members">Voir le répertoire</button></div><div class="activity-list">${members.slice(0,3).map(m=>`<div class="activity" data-route="member"><div class="avatar">${m.initials}</div><div class="activity-copy"><strong>${m.name}</strong><span>${m.city} · Catégorie ${m.category}</span></div>${status(m.status,m.status==='Actif'?'success':'neutral')}</div>`).join('')}</div></section>`
-          : dashboardPaymentsPanel()}
+          : dashboardPaymentsPanel())}
       </div>
       <aside class="dashboard-side">
         <section class="panel"><div class="panel-head"><div><h3>Actions rapides</h3><p>Accès aux opérations courantes</p></div></div><div class="quick-actions">
@@ -227,9 +233,6 @@ function dashboardPage() {
             ? `${quickAction('Ajouter un membre','member-form','members')}${quickAction('Gérer les rôles','users','users')}${quickAction('Gérer les catégories','categories','categories')}${quickAction('Créer une campagne','campaign-form','campaigns')}`
             : `${isManager() ? quickAction('Ajouter un membre','member-form','members') : quickAction('Consulter les membres','members','members')}${isFinancialAllowed() ? quickAction('Saisir un règlement','payment-form','payments') : quickAction('Voir les campagnes','campaigns','campaigns')}${isManager() ? quickAction('Créer une cagnotte','pot-form','pots') : quickAction('Voir les cagnottes','pots','pots')}${isFinancialAllowed() ? quickAction('Saisir une contribution','contribution-form','receipt') : quickAction('Mon profil','account','profile')}`}
         </div></section>
-        <section class="panel"><div class="panel-head"><div><h3>Synthèse des cotisations</h3><p>${campaignScope.label}</p></div></div><div style="padding:20px">
-          ${distributionLine(`Encaissé · ${campaignScope.progress} %`,campaignScope.paid,campaignScope.progress,'success')}${distributionLine(`Reste à encaisser · ${100-campaignScope.progress} %`,campaignScope.left,100-campaignScope.progress,'warning')}<div class="scope-total"><span>Montant attendu</span><strong>${campaignScope.expected}</strong></div><div class="scope-updated">Situation arrêtée au 15 septembre 2026</div>
-        </div></section>
       </aside>
     </div>
   </section>`;
@@ -237,29 +240,33 @@ function dashboardPage() {
 
 function dashboardCampaignSummary() {
   const open = campaigns.filter(c=>c.status==='Ouverte');
-  if (state.dashboardCampaignScope === 'Toutes les campagnes ouvertes') return { paid:'16,6M GNF', left:'11,7M GNF', expected:'28,3M GNF', progress:59, label:`Toutes les campagnes ouvertes · ${open.length} campagnes` };
-  const campaign = open.find(c=>c.title===state.dashboardCampaignScope) || open[0];
+  if (state.dashboardContextScope === 'Toutes les campagnes ouvertes') return { paid:'16,6M GNF', left:'11,7M GNF', expected:'28,3M GNF', progress:59, label:`Toutes les campagnes ouvertes · ${open.length} campagnes` };
+  const campaign = open.find(c=>c.title===state.dashboardContextScope) || open[0];
   return { paid:campaign.paid, left:campaign.left, expected:campaign.expected, progress:campaign.progress, label:`Campagne · ${campaign.title}` };
 }
 function dashboardPotSummary() {
   const open = pots.filter(p=>p.status==='Ouverte');
-  if (state.dashboardPotScope === 'Toutes les cagnottes ouvertes') return { collected:'12,95M GNF', target:'17M GNF', progress:76, label:`Toutes les cagnottes ouvertes · ${open.length} cagnottes` };
-  const pot = open.find(p=>p.title===state.dashboardPotScope) || open[0];
-  return { collected:pot.collected, target:pot.target, progress:pot.progress, label:`Cagnotte · ${pot.title}` };
+  if (state.dashboardContextScope === 'Toutes les cagnottes ouvertes') return { collected:'12,95M GNF', target:'17M GNF', left:'4,05M GNF', progress:76, contributors:'110', label:`Toutes les cagnottes ouvertes · ${open.length} cagnottes` };
+  const pot = open.find(p=>p.title===state.dashboardContextScope) || open[0];
+  return { collected:pot.collected, target:pot.target, left:'2,25M GNF', progress:pot.progress, contributors:String(pot.contributors), label:`Cagnotte · ${pot.title}` };
 }
 function dashboardScopePanel() {
   const campaignOptions=['Toutes les campagnes ouvertes',...campaigns.filter(c=>c.status==='Ouverte').map(c=>c.title)];
   const potOptions=['Toutes les cagnottes ouvertes',...pots.filter(p=>p.status==='Ouverte').map(p=>p.title)];
-  return `<section class="dashboard-scope" aria-labelledby="dashboard-scope-title"><div class="scope-intro"><div><span class="page-kicker">Périmètre des indicateurs</span><h2 id="dashboard-scope-title">Données affichées</h2></div><p>Les cotisations et les cagnottes ont des sélections indépendantes · Situation au 15 septembre 2026</p></div><div class="scope-fields"><div class="scope-field"><label>Campagne de cotisation</label>${customSelect(campaignOptions,false,false,'Sélectionner la campagne',state.dashboardCampaignScope,'data-dashboard-scope="campaign"')}</div><div class="scope-field"><label>Cagnotte sociale</label>${customSelect(potOptions,false,false,'Sélectionner la cagnotte',state.dashboardPotScope,'data-dashboard-scope="pot"')}</div></div></section>`;
+  const socialFundContext = state.dashboardContextType === 'socialFund';
+  const options = socialFundContext ? potOptions : campaignOptions;
+  const selected = state.dashboardContextScope;
+  const typeOptions = ['Cotisations', 'Cagnottes'];
+  return `<section class="dashboard-scope" aria-labelledby="dashboard-scope-title"><div class="scope-intro"><div><span class="page-kicker">Périmètre des indicateurs</span><h2 id="dashboard-scope-title">Données affichées</h2></div><p>Choisissez un seul type de données pour tout le tableau de bord.</p></div><div class="scope-fields"><div class="scope-field"><label>Type de données</label>${customSelect(typeOptions,false,false,'Sélectionner le type',socialFundContext?'Cagnottes':'Cotisations','data-dashboard-context-type')}</div><div class="scope-field"><label>${socialFundContext ? 'Cagnotte sociale' : 'Campagne de cotisation'}</label>${customSelect(options,false,false,socialFundContext?'Sélectionner la cagnotte':'Sélectionner la campagne',selected,'data-dashboard-context-scope')}</div></div></section>`;
 }
 function dashboardPaymentsPanel() {
-  const allOpen=state.dashboardCampaignScope==='Toutes les campagnes ouvertes';
+  const allOpen=state.dashboardContextScope==='Toutes les campagnes ouvertes';
   const openTitles=campaigns.filter(c=>c.status==='Ouverte').map(c=>c.title);
-  const scopedPayments=payments.filter(payment=>allOpen?openTitles.includes(payment.campaign):payment.campaign===state.dashboardCampaignScope);
+  const scopedPayments=payments.filter(payment=>allOpen?openTitles.includes(payment.campaign):payment.campaign===state.dashboardContextScope);
   const displayed=scopedPayments.slice(0,3);
-  const scopeLabel=allOpen?`Toutes les campagnes ouvertes · ${openTitles.length} campagnes`:`Campagne · ${state.dashboardCampaignScope}`;
+  const scopeLabel=allOpen?`Toutes les campagnes ouvertes · ${openTitles.length} campagnes`:`Campagne · ${state.dashboardContextScope}`;
   const countLabel=scopedPayments.length?`${displayed.length} dernier${displayed.length>1?'s':''} règlement${displayed.length>1?'s':''} affiché${displayed.length>1?'s':''} sur ${scopedPayments.length}`:'Aucun règlement enregistré dans ce périmètre';
-  return `<section class="panel"><div class="panel-head payments-panel-head"><div><h3>Derniers règlements</h3><p>${scopeLabel}<span class="panel-scope-count">${countLabel}</span></p></div><button class="text-link" data-route="payments">Voir l’historique</button></div>${displayed.length?`<div class="activity-list">${displayed.map(activityRow).join('')}</div>`:`<div class="empty-state empty-state-compact"><div class="empty-icon">${svg('payments')}</div><strong>Aucun règlement récent</strong><p>Aucune opération n’est enregistrée pour « ${state.dashboardCampaignScope} ».</p></div>`}</section>`;
+  return `<section class="panel"><div class="panel-head payments-panel-head"><div><h3>Derniers règlements</h3><p>${scopeLabel}<span class="panel-scope-count">${countLabel}</span></p></div><button class="text-link" data-route="payments">Voir l’historique</button></div>${displayed.length?`<div class="activity-list">${displayed.map(activityRow).join('')}</div>`:`<div class="empty-state empty-state-compact"><div class="empty-icon">${svg('payments')}</div><strong>Aucun règlement récent</strong><p>Aucune opération n’est enregistrée pour « ${state.dashboardContextScope} ».</p></div>`}</section>`;
 }
 function statCard(label, value, meta, icon, scope='') {
   return `<article class="stat-card"><div class="stat-top"><span class="stat-label">${label}</span><span class="stat-icon">${svg(icon)}</span></div><div class="stat-value">${value}</div><div class="stat-meta">${meta}</div>${scope?`<div class="stat-scope">${scope}</div>`:''}</article>`;
@@ -484,9 +491,13 @@ function chooseCustomOption(option){
   const select=option.closest('[data-custom-select]');const trigger=select.querySelector('[data-select-trigger]');const value=option.dataset.value;
   select.querySelector('.select-value').textContent=value;select.querySelector('input[type="hidden"]').value=value;
   select.querySelectorAll('[data-select-option]').forEach(item=>{const selected=item===option;item.classList.toggle('selected',selected);item.setAttribute('aria-selected',String(selected));item.querySelector('svg')?.remove();if(selected)item.insertAdjacentHTML('beforeend',svg('check'));});
-  if(select.dataset.dashboardScope){
-    if(select.dataset.dashboardScope==='campaign')state.dashboardCampaignScope=value;
-    if(select.dataset.dashboardScope==='pot')state.dashboardPotScope=value;
+  if(select.dataset.dashboardContextType){
+    state.dashboardContextType = value === 'Cagnottes' ? 'socialFund' : 'campaign';
+    state.dashboardContextScope = state.dashboardContextType === 'socialFund' ? 'Toutes les cagnottes ouvertes' : 'Toutes les campagnes ouvertes';
+    closeCustomSelects();render();return;
+  }
+  if(select.dataset.dashboardContextScope){
+    state.dashboardContextScope=value;
     closeCustomSelects();render();return;
   }
   closeCustomSelects();trigger.focus();
