@@ -13,6 +13,7 @@ import {
   CagnottesService,
   CampagnesService,
   CampaignStatus,
+  ContributionsService,
   SocialFundStatus,
   TableauDeBordService,
   UserRole,
@@ -21,6 +22,7 @@ import type {
   CampaignFinancialSummary,
   CampaignSummary,
   DashboardResponse,
+  Contribution,
   ManagementDashboard,
   MemberDashboard,
   SocialFundSummary,
@@ -36,6 +38,7 @@ import { SessionService } from '@core/session/session.service';
 import { ActionButton } from '@shared/action-button/action-button';
 import { CustomSelect } from '@shared/custom-select/custom-select';
 import { EmptyState } from '@shared/empty-state/empty-state';
+import type { CustomSelectOption } from '@shared/custom-select/custom-select';
 import { LoadingSkeleton } from '@shared/loading-skeleton/loading-skeleton';
 import { PageHeader } from '@shared/page-header/page-header';
 import { StatusBadge } from '@shared/status-badge/status-badge';
@@ -71,9 +74,13 @@ interface SocialFundScopeView {
   readonly collectedAmount: number;
   readonly targetAmount?: number;
   readonly contributorCount: number;
+  readonly remainingAmount?: number;
+  readonly progressRate?: number;
   readonly labelKey: string;
   readonly labelParams: Record<string, unknown>;
 }
+
+type DashboardContextType = 'campaign' | 'socialFund';
 
 /**
  * Point d'entrée après connexion (T-16) : appelle `GET /dashboard` (`@core/api`,
@@ -85,16 +92,14 @@ interface SocialFundScopeView {
  * son absence n'est jamais interprétée comme une autorisation refusée devinée
  * côté frontend.
  *
- * Périmètre des indicateurs (T-117) : `campaignId`/`socialFundId` sélectionnent
- * la campagne/cagnotte dont le bilan financier (`financialOverview.selectedCampaign`
- * /`selectedSocialFund`) alimente les panneaux de synthèse ; ils n'affectent ni
- * `recentCampaigns`, ni les indicateurs non financiers du haut de page. Omettre
- * l'un ou l'autre paramètre (option « Toutes les X ouvertes » des deux sélecteurs)
+ * Périmètre des indicateurs (T-117, T-210) : un seul contexte envoie soit
+ * `campaignId`, soit `socialFundId`. L'option « Toutes les X ouvertes » omet
+ * l'identifiant du contexte actif.
  * fait retourner par l'API l'agrégat correspondant (`allOpenCampaignsSummary`/
  * `allOpenSocialFundsSummary`), calculé côté serveur sur les éléments ouverts —
  * jamais recalculé côté frontend à partir d'une page partielle, cf. `api-client.md`.
- * `campaignScopeView`/`socialFundScopeView` ci-dessous normalisent l'un ou
- * l'autre cas (élément précis vs agrégat) en une forme unique pour le template.
+ * `campaignScopeView`/`socialFundScopeView` normalisent l'élément précis ou
+ * l'agrégat du contexte actif en une forme unique pour le template.
  */
 @Component({
   selector: 'app-dashboard-page',
@@ -116,6 +121,7 @@ export class DashboardPage {
   private readonly dashboardService = inject(TableauDeBordService);
   private readonly campaignsService = inject(CampagnesService);
   private readonly socialFundsService = inject(CagnottesService);
+  private readonly contributionsService = inject(ContributionsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionService);
@@ -125,25 +131,56 @@ export class DashboardPage {
   readonly sessionExpired = signal(false);
   readonly scopeLoading = signal(false);
   readonly scopeError = signal(false);
+  readonly contributionsLoading = signal(false);
+  readonly contributionsError = signal(false);
   private readonly dashboard = signal<DashboardResponse | null>(null);
   private dashboardRequestId = 0;
 
   readonly openCampaigns = signal<readonly CampaignSummary[]>([]);
   readonly openSocialFunds = signal<readonly SocialFundSummary[]>([]);
-  readonly selectedCampaignId = signal<string>('');
-  readonly selectedSocialFundId = signal<string>('');
+  readonly dashboardContextType = signal<DashboardContextType>('campaign');
+  readonly dashboardContextId = signal<string>('');
+  readonly recentContributions = signal<readonly Contribution[]>([]);
   private scopeListsLoaded = false;
   private scopeListsLoading = false;
 
-  /** Options du sélecteur « Campagne de cotisation », hors option « Toutes », gérée séparément dans le template (traduite). */
-  readonly campaignScopeOptions = computed(() =>
-    this.openCampaigns().map((campaign) => ({ value: campaign.id, label: campaign.name })),
-  );
+  readonly contextTypeOptions: readonly CustomSelectOption[] = [
+    {
+      value: 'campaign',
+      label: '',
+      translationKey: 'dashboard.scope.typeCampaign',
+    },
+    {
+      value: 'socialFund',
+      label: '',
+      translationKey: 'dashboard.scope.typeSocialFund',
+    },
+  ];
 
-  /** Options du sélecteur « Cagnotte sociale », hors option de placeholder (traduite dans le template). */
-  readonly socialFundScopeOptions = computed(() =>
-    this.openSocialFunds().map((fund) => ({ value: fund.id, label: fund.title })),
-  );
+  readonly activeScopeOptions = computed<readonly CustomSelectOption[]>(() => {
+    if (this.dashboardContextType() === 'campaign') {
+      return [
+        {
+          value: '',
+          label: '',
+          translationKey: 'dashboard.scope.campaignAllOption',
+        },
+        ...this.openCampaigns().map((campaign) => ({ value: campaign.id, label: campaign.name })),
+      ];
+    }
+
+    return [
+      {
+        value: '',
+        label: '',
+        translationKey: 'dashboard.scope.socialFundAllOption',
+      },
+      ...this.openSocialFunds().map((fund) => ({ value: fund.id, label: fund.title })),
+    ];
+  });
+
+  readonly isCampaignContext = computed(() => this.dashboardContextType() === 'campaign');
+  readonly isSocialFundContext = computed(() => this.dashboardContextType() === 'socialFund');
 
   readonly managementDashboard = computed<ManagementDashboard | null>(() => {
     const value = this.dashboard();
@@ -165,8 +202,13 @@ export class DashboardPage {
     (this.managementDashboard()?.financialOverview?.recentPayments ?? []).slice(0, 3),
   );
 
-  /** Normalise `selectedCampaign` (choix précis) ou `allOpenCampaignsSummary` (« Toutes ») en une forme unique. */
+  readonly recentContributionsPreview = computed(() => this.recentContributions().slice(0, 3));
+
+  /** Normalise le bilan de campagne précis ou agrégé en une forme unique. */
   readonly campaignScopeView = computed<CampaignScopeView | null>(() => {
+    if (!this.isCampaignContext()) {
+      return null;
+    }
     const overview = this.managementDashboard()?.financialOverview;
     if (overview?.selectedCampaign?.financialSummary) {
       return {
@@ -186,8 +228,11 @@ export class DashboardPage {
     return null;
   });
 
-  /** Normalise `selectedSocialFund` (choix précis) ou `allOpenSocialFundsSummary` (« Toutes ») en une forme unique. */
+  /** Normalise le bilan de cagnotte précis ou agrégé en une forme unique. */
   readonly socialFundScopeView = computed<SocialFundScopeView | null>(() => {
+    if (!this.isSocialFundContext()) {
+      return null;
+    }
     const overview = this.managementDashboard()?.financialOverview;
     if (overview?.selectedSocialFund) {
       const fund = overview.selectedSocialFund;
@@ -196,6 +241,8 @@ export class DashboardPage {
         collectedAmount: fund.collectedAmount,
         targetAmount: fund.targetAmount,
         contributorCount: fund.contributorCount,
+        remainingAmount: fund.remainingToTargetAmount,
+        progressRate: fund.progressRate,
         labelKey: 'dashboard.management.scopeSocialFundLabel',
         labelParams: { name: fund.title },
       };
@@ -206,11 +253,27 @@ export class DashboardPage {
         collectedAmount: aggregate.collectedAmount,
         targetAmount: aggregate.targetAmount,
         contributorCount: aggregate.contributorCount,
+        remainingAmount:
+          aggregate.targetAmount === undefined
+            ? undefined
+            : Math.max(aggregate.targetAmount - aggregate.collectedAmount, 0),
+        progressRate: aggregate.progressRate,
         labelKey: 'dashboard.management.scopeAllSocialFundsLabel',
         labelParams: { count: aggregate.openSocialFundCount },
       };
     }
     return null;
+  });
+
+  readonly campaignMemberCount = computed(() => {
+    const overview = this.managementDashboard()?.financialOverview;
+    if (!this.isCampaignContext() || !overview) {
+      return null;
+    }
+    if (overview.selectedCampaign) {
+      return overview.selectedCampaign.memberCount;
+    }
+    return overview.allOpenCampaignsSummary?.financialSummary.dueCounts.total ?? null;
   });
 
   readonly canCreateMember = computed(() => {
@@ -245,6 +308,16 @@ export class DashboardPage {
   readonly paymentMethodLabel = paymentMethodLabel;
   readonly navigationPaths = NAVIGATION_PATHS;
 
+  readonly contributionDisplayName = (contribution: Contribution): string => {
+    if (contribution.member) {
+      return contribution.member.displayName;
+    }
+    if (contribution.externalContributor) {
+      return `${contribution.externalContributor.firstName} ${contribution.externalContributor.lastName}`;
+    }
+    return '';
+  };
+
   /** Pourcentage de règlement d'une cotisation, dérivé des montants déjà affichés (paidAmount/dueAmount). */
   readonly dueCollectionPercentage = (dueAmount: number, paidAmount: number): number =>
     dueAmount > 0 ? clampPercentage(Math.round((paidAmount / dueAmount) * 100)) : 0;
@@ -260,15 +333,15 @@ export class DashboardPage {
     this.loadDashboard();
   }
 
-  /** Gestionnaire du sélecteur « Campagne de cotisation » du panneau de périmètre. */
-  onCampaignScopeChange(value: string | null): void {
-    this.selectedCampaignId.set(value ?? '');
+  onContextTypeChange(value: string | null): void {
+    const nextType: DashboardContextType = value === 'socialFund' ? 'socialFund' : 'campaign';
+    this.dashboardContextType.set(nextType);
+    this.dashboardContextId.set('');
     this.loadDashboard();
   }
 
-  /** Gestionnaire du sélecteur « Cagnotte sociale » du panneau de périmètre. */
-  onSocialFundScopeChange(value: string | null): void {
-    this.selectedSocialFundId.set(value ?? '');
+  onContextIdChange(value: string | null): void {
+    this.dashboardContextId.set(value ?? '');
     this.loadDashboard();
   }
 
@@ -279,8 +352,12 @@ export class DashboardPage {
 
   private loadDashboard(): void {
     const requestId = ++this.dashboardRequestId;
+    const contextType = this.dashboardContextType();
+    const contextId = this.dashboardContextId() || undefined;
     const isInitialLoad = this.dashboard() === null;
     this.scopeError.set(false);
+    this.contributionsError.set(false);
+    this.recentContributions.set([]);
     if (isInitialLoad) {
       this.loading.set(true);
     } else {
@@ -289,8 +366,8 @@ export class DashboardPage {
 
     this.dashboardService
       .getDashboard(
-        this.selectedCampaignId() || undefined,
-        this.selectedSocialFundId() || undefined,
+        contextType === 'campaign' ? contextId : undefined,
+        contextType === 'socialFund' ? contextId : undefined,
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -303,6 +380,15 @@ export class DashboardPage {
           this.sessionExpired.set(false);
           this.loading.set(false);
           this.scopeLoading.set(false);
+          if (
+            contextType === 'socialFund' &&
+            dashboard.view === 'MANAGEMENT' &&
+            dashboard.financialOverview !== undefined
+          ) {
+            this.loadContributions(requestId, contextId);
+          } else {
+            this.contributionsLoading.set(false);
+          }
           if (
             dashboard.view === 'MANAGEMENT' &&
             dashboard.financialOverview !== undefined &&
@@ -327,11 +413,36 @@ export class DashboardPage {
           }
           this.loading.set(false);
           this.scopeLoading.set(false);
+          this.contributionsLoading.set(false);
         },
       });
   }
 
-  /** Options des deux sélecteurs du panneau « Périmètre des indicateurs », chargées une seule fois. */
+  private loadContributions(requestId: number, socialFundId?: string): void {
+    this.contributionsLoading.set(true);
+    this.contributionsError.set(false);
+    this.contributionsService
+      .listContributions(0, 5, undefined, undefined, socialFundId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
+          this.recentContributions.set(page.items);
+          this.contributionsLoading.set(false);
+        },
+        error: () => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
+          this.contributionsLoading.set(false);
+          this.contributionsError.set(true);
+        },
+      });
+  }
+
+  /** Options des deux contextes, chargées une seule fois. */
   private loadScopeOptions(): void {
     this.scopeListsLoading = true;
     const campaigns$ = this.loadAllPages((page) =>

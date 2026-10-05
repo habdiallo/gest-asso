@@ -2,9 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import { CagnottesService, CampagnesService, TableauDeBordService } from '@core/api';
+import {
+  CagnottesService,
+  CampagnesService,
+  ContributionsService,
+  TableauDeBordService,
+} from '@core/api';
 import type {
   CampaignPage,
+  ContributionPage,
   DashboardResponse,
   ManagementDashboard,
   MemberDashboard,
@@ -108,11 +114,17 @@ const emptySocialFundPage: SocialFundPage = {
   page: { number: 0, size: 50, totalElements: 0, totalPages: 0 },
 };
 
+const emptyContributionPage: ContributionPage = {
+  items: [],
+  page: { number: 0, size: 5, totalElements: 0, totalPages: 0 },
+};
+
 async function createFixture(
   getDashboard: () => Observable<DashboardResponse>,
   options: {
     listCampaigns?: (page?: number) => Observable<CampaignPage>;
     listSocialFunds?: (page?: number) => Observable<SocialFundPage>;
+    listContributions?: (socialFundId?: string) => Observable<ContributionPage>;
   } = {},
 ): Promise<ComponentFixture<DashboardPage>> {
   await TestBed.configureTestingModule({
@@ -144,6 +156,14 @@ async function createFixture(
           listSocialFunds:
             options.listSocialFunds ?? ((): Observable<SocialFundPage> => of(emptySocialFundPage)),
         } as unknown as CagnottesService,
+      },
+      {
+        provide: ContributionsService,
+        useValue: {
+          listContributions:
+            options.listContributions ??
+            ((): Observable<ContributionPage> => of(emptyContributionPage)),
+        } as unknown as ContributionsService,
       },
     ],
   }).compileComponents();
@@ -232,7 +252,7 @@ describe('DashboardPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Vue de gestion');
     expect(root.textContent).toContain('86');
-    expect(root.textContent).toContain('sur 91 membres inscrits');
+    expect(root.textContent).toContain('86 membres');
     expect(root.textContent).toContain('3');
     expect(root.textContent).toContain('2');
     expect(root.textContent).toContain('Solidarité septembre');
@@ -441,7 +461,7 @@ describe('DashboardPage', () => {
     expect(fixture.nativeElement.querySelector('#dashboard-campaign-scope')).toBeNull();
   });
 
-  it('shows the scope selectors populated from the open campaigns/social funds and refetches on change', async () => {
+  it('uses one context selector and resets the dependent scope when the type changes', async () => {
     const dashboard = buildManagementDashboard({ financialOverview: { recentPayments: [] } });
     let lastCampaignId: string | undefined;
     let lastSocialFundId: string | undefined;
@@ -491,12 +511,12 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Périmètre des indicateurs');
-    const campaignTrigger = root.querySelector('#dashboard-campaign-scope') as HTMLButtonElement;
-    const socialFundTrigger = root.querySelector(
-      '#dashboard-social-fund-scope',
-    ) as HTMLButtonElement;
+    const contextTypeTrigger = root.querySelector('#dashboard-context-type') as HTMLButtonElement;
+    const scopeTrigger = root.querySelector('#dashboard-context-scope') as HTMLButtonElement;
+    expect(root.querySelector('#dashboard-campaign-scope')).toBeNull();
+    expect(root.querySelector('#dashboard-social-fund-scope')).toBeNull();
 
-    campaignTrigger.click();
+    scopeTrigger.click();
     fixture.detectChanges();
     expect(root.textContent).toContain('Solidarité septembre');
     const campaignOption = Array.from(root.querySelectorAll('[role="option"]')).find((option) =>
@@ -507,11 +527,21 @@ describe('DashboardPage', () => {
 
     expect(lastCampaignId).toBe('e1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d20');
     expect(lastSocialFundId).toBeUndefined();
-    expect(campaignTrigger.textContent).toContain('Solidarité septembre');
+    expect(scopeTrigger.textContent).toContain('Solidarité septembre');
 
-    socialFundTrigger.click();
+    contextTypeTrigger.click();
     fixture.detectChanges();
-    expect(root.textContent).toContain('Mariage de Fanta');
+    expect(root.textContent).toContain('Cagnottes');
+    const socialFundOption = Array.from(root.querySelectorAll('[role="option"]')).find((option) =>
+      option.textContent?.includes('Cagnottes'),
+    ) as HTMLButtonElement;
+    socialFundOption.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.dashboardContextId()).toBe('');
+    expect(lastCampaignId).toBeUndefined();
+    expect(lastSocialFundId).toBeUndefined();
+    expect(scopeTrigger.textContent).toContain('Toutes les cagnottes ouvertes');
   });
 
   it('keeps the latest dashboard response when scope requests complete out of order', async () => {
@@ -523,7 +553,7 @@ describe('DashboardPage', () => {
       return requestCount === 1 ? initialRequest.asObservable() : scopedRequest.asObservable();
     });
 
-    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    fixture.componentInstance.onContextIdChange('campaign-id');
     scopedRequest.next(buildManagementDashboard({ activeMemberCount: 99 }));
     fixture.detectChanges();
     initialRequest.next(buildManagementDashboard({ activeMemberCount: 12 }));
@@ -548,8 +578,8 @@ describe('DashboardPage', () => {
         : latestScopeRequest.asObservable();
     });
 
-    fixture.componentInstance.onCampaignScopeChange('campaign-a');
-    fixture.componentInstance.onCampaignScopeChange('campaign-b');
+    fixture.componentInstance.onContextIdChange('campaign-a');
+    fixture.componentInstance.onContextIdChange('campaign-b');
     latestScopeRequest.next(buildManagementDashboard({ activeMemberCount: 99 }));
     firstScopeRequest.next(buildManagementDashboard({ activeMemberCount: 12 }));
     initialRequest.next(buildManagementDashboard({ activeMemberCount: 1 }));
@@ -568,7 +598,7 @@ describe('DashboardPage', () => {
         : throwError(() => new Error('scope network error'));
     });
 
-    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    fixture.componentInstance.onContextIdChange('campaign-id');
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('86');
@@ -603,7 +633,7 @@ describe('DashboardPage', () => {
     });
 
     expect(fixture.componentInstance.openCampaigns()).toEqual([]);
-    fixture.componentInstance.onCampaignScopeChange('campaign-id');
+    fixture.componentInstance.onContextIdChange('campaign-id');
     fixture.detectChanges();
 
     expect(campaignListCalls).toBe(2);
@@ -702,10 +732,10 @@ describe('DashboardPage', () => {
     expect(root.textContent).not.toContain('Synthèse des cotisations');
     expect(root.textContent).not.toContain('Synthèse de la cagnotte');
     expect(root.textContent).toContain('18,5M GNF');
-    expect(root.textContent).toContain('4,8M GNF');
+    expect(root.textContent).not.toContain('4,8M GNF');
   });
 
-  it('shows the top stat cards scoped to the selected campaign and social fund (T-117)', async () => {
+  it('shows only the campaign KPI cards for the campaign context (T-117, T-210)', async () => {
     const dashboard = buildManagementDashboard({
       financialOverview: {
         selectedCampaign: {
@@ -751,15 +781,14 @@ describe('DashboardPage', () => {
     expect(root.textContent).toContain('6 100 000 GNF');
     expect(root.textContent).toContain('18,5M GNF attendus');
     expect(root.textContent).toContain('Campagne · Solidarité septembre');
-    expect(root.textContent).toContain('Contributions encaissées');
-    expect(root.textContent).toContain('4 750 000 GNF');
-    expect(root.textContent).toContain('68 % de 7M GNF');
-    expect(root.textContent).toContain('Cagnotte · Mariage de Fanta');
+    expect(root.textContent).toContain('Paiements');
+    expect(root.textContent).not.toContain('Objectif');
+    expect(root.textContent).not.toContain('Cagnotte · Mariage de Fanta');
     expect(root.textContent).not.toContain('Nouveaux membres ce mois');
     expect(root.textContent).not.toContain('Campagnes ouvertes');
   });
 
-  it('shows a placeholder on the financial stat cards when no campaign or social fund is open', async () => {
+  it('shows a placeholder on the campaign KPI cards when no campaign is open', async () => {
     const dashboard = buildManagementDashboard({
       financialOverview: { recentPayments: [] },
     });
@@ -768,10 +797,10 @@ describe('DashboardPage', () => {
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Aucune campagne ouverte à afficher.');
-    expect(root.textContent).toContain('Aucune cagnotte ouverte à afficher.');
+    expect(root.textContent).toContain('Aucun règlement récent.');
   });
 
-  it('shows the aggregate of all open campaigns/social funds on the "Toutes ouvertes" option (T-117)', async () => {
+  it('shows the aggregate of all open campaigns in the campaign context (T-117, T-210)', async () => {
     const dashboard = buildManagementDashboard({
       financialOverview: {
         allOpenCampaignsSummary: {
@@ -802,8 +831,76 @@ describe('DashboardPage', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('59 % de 28,3M GNF');
     expect(root.textContent).toContain('Toutes les campagnes ouvertes · 2 campagnes');
-    expect(root.textContent).toContain('76 % de 17M GNF');
-    expect(root.textContent).toContain('Toutes les cagnottes ouvertes · 2 cagnottes');
+    expect(root.textContent).not.toContain('17M GNF');
+    expect(root.textContent).not.toContain('Toutes les cagnottes ouvertes · 2 cagnottes');
+  });
+
+  it('shows the social fund KPI cards and recent contributions in the social fund context', async () => {
+    const dashboard = buildManagementDashboard({
+      financialOverview: {
+        allOpenSocialFundsSummary: {
+          openSocialFundCount: 2,
+          targetAmount: 17000000,
+          collectedAmount: 12950000,
+          progressRate: 76.2,
+          contributorCount: 110,
+          currency: 'GNF',
+        },
+        recentPayments: [],
+      },
+    });
+    let lastCampaignId: string | undefined;
+    let lastSocialFundId: string | undefined;
+    const contribution = {
+      id: 'h1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d60',
+      member: { id: viewer.member.id, displayName: 'Awa Camara' },
+      externalContributor: null,
+      socialFund: {
+        id: 'g1e2f0d0-1c1a-4e3a-9d1b-7f2a5b6c9d50',
+        title: 'Mariage de Fanta',
+        eventType: 'WEDDING' as const,
+        status: 'OPEN' as const,
+      },
+      amount: 1250000,
+      contributionDate: '2026-09-14',
+      method: 'CASH' as const,
+      recordedBy: { userId: viewer.userId, displayName: 'Awa Camara' },
+      recordedAt: '2026-09-14T09:05:00Z',
+      currency: 'GNF' as const,
+    };
+    const fixture = await createFixture(
+      (campaignId?: string, socialFundId?: string) => {
+        lastCampaignId = campaignId;
+        lastSocialFundId = socialFundId;
+        return of(dashboard);
+      },
+      {
+        listContributions: () =>
+          of({
+            items: [contribution],
+            page: { number: 0, size: 5, totalElements: 1, totalPages: 1 },
+          }),
+      },
+    );
+
+    fixture.componentInstance.onContextTypeChange('socialFund');
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    expect(lastCampaignId).toBeUndefined();
+    expect(lastSocialFundId).toBeUndefined();
+    expect(root.textContent).toContain('Contributeurs');
+    expect(root.textContent).toContain('110');
+    expect(root.textContent).toContain('Objectif');
+    expect(root.textContent).toContain('17M GNF');
+    expect(root.textContent).toContain('Contributions encaissées');
+    expect(root.textContent).toContain('13M GNF');
+    expect(root.textContent).toContain('Reste à collecter');
+    expect(root.textContent).toContain('4,1M GNF');
+    expect(root.textContent).toContain('Dernières contributions');
+    expect(root.textContent).toContain('Awa Camara');
+    expect(root.textContent).not.toContain('Campagnes récentes');
+    expect(root.textContent).not.toContain('Derniers règlements');
   });
 
   it('keeps the non-financial stat cards when financialOverview is absent', async () => {
